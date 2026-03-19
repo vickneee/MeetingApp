@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.meetingapp.R
 import com.example.meetingapp.data.db.AppDatabase
-import com.example.meetingapp.ui.screens.SecondScreen
+import com.example.meetingapp.ui.screens.secondscreen.SecondScreen
 import com.example.meetingapp.ui.screens.home.HomeScreen
 import com.example.meetingapp.ui.viewmodel.MeetingAppViewModel
 
