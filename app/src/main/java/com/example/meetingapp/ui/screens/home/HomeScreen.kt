@@ -9,15 +9,32 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.meetingapp.MeetingAppTopAppBar
-import com.example.meetingapp.ui.viewmodel.MeetingAppViewModel
+import com.example.meetingapp.R
+import com.example.meetingapp.ui.AppViewModelProvider
+import com.example.meetingapp.ui.navigation.NavigationDestination
 
+/**
+ * This is the NavigationDestination for the Home screen
+ */
+object HomeDestination : NavigationDestination {
+    override val route = "home"
+    override val titleRes = R.string.app_name
+}
+
+/**
+ * Home screen composable
+ * @param onMainClick Navigate to the second screen
+ * @param viewModel [HomeViewModel] to retrieve all items in the Room database.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: MeetingAppViewModel,
-    onMainClick: () -> Unit
+    onMainClick: () -> Unit,
+    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(title = "Home Screen", canNavigateBack = false)

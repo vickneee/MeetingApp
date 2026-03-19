@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.meetingapp.ui.navigation.MeetingAppNavHost
 import com.example.meetingapp.ui.theme.MeetingAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +12,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MeetingAppTheme {
-                MeetingAppNavHost()
                 MeetingApp()
             }
         }

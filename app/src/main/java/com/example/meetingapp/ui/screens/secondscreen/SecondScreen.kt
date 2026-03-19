@@ -8,20 +8,24 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.meetingapp.MeetingAppTopAppBar
-import com.example.meetingapp.data.db.AppDatabase
-import com.example.meetingapp.ui.viewmodel.MeetingAppViewModel
+import com.example.meetingapp.R
+import com.example.meetingapp.ui.AppViewModelProvider
+import com.example.meetingapp.ui.navigation.NavigationDestination
+
+
+object SecondScreenDestination : NavigationDestination {
+    override val route = "second screen"
+    override val titleRes = R.string.second_screen
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecondScreen(
     onBack: () -> Unit,
-    viewModel: MeetingAppViewModel = viewModel(
-        factory = MeetingAppViewModel.Factory(
-            exampleRepository = AppDatabase.getDatabase(LocalContext.current).exampleDao()
-        )
+    viewModel: SecondViewModel = viewModel(
+        factory = AppViewModelProvider.Factory
     )
 ) {
     Scaffold(
