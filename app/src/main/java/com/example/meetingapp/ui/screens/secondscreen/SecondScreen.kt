@@ -16,7 +16,7 @@ import com.example.meetingapp.ui.navigation.NavigationDestination
 
 
 object SecondScreenDestination : NavigationDestination {
-    override val route = "second screen"
+    override val route = "second_screen"
     override val titleRes = R.string.second_screen
 }
 
