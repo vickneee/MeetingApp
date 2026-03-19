@@ -3,11 +3,14 @@ package com.example.meetingapp.ui.screens.home
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.meetingapp.MeetingAppTopAppBar
@@ -34,6 +37,7 @@ fun HomeScreen(
     onMainClick: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val homeUiState by viewModel.homeUiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -54,6 +58,9 @@ fun HomeScreen(
                         Text(text = "Second Screen")
                     }
                 )
+            }
+            items(items = homeUiState.itemList, key = { it.id }) { item ->
+                Text(text = "Item ID: ${item.id}, Name: ${item.name}")
             }
         }
     }

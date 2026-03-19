@@ -10,5 +10,4 @@ class OfflineExampleRepository(private val exampleDao: ExampleDao) : ExampleRepo
     override fun getAllItems(): Flow<List<ExampleEntity>> = exampleDao.getAllItems()
 
     override suspend fun insertItem(item: ExampleEntity) = exampleDao.insert(item)
-
 }

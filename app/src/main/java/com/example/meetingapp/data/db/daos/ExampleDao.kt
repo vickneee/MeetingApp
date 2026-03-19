@@ -26,4 +26,7 @@ interface ExampleDao {
 
     @Query("SELECT * from ExampleEntity WHERE id = :id")
     fun getItem(id: Int): Flow<ExampleEntity>
+
+    @Query("DELETE FROM ExampleEntity")
+    suspend fun deleteAll()
 }

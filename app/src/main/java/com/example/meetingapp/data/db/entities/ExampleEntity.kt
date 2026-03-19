@@ -4,4 +4,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class ExampleEntity(@PrimaryKey val id: Int = 0)
+data class ExampleEntity(
+
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val name: String = ""
+)
