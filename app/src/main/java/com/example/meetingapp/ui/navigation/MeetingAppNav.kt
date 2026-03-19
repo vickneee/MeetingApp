@@ -1,4 +1,4 @@
-package com.example.meetingapp
+package com.example.meetingapp.ui.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,19 +10,21 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.meetingapp.R
 import com.example.meetingapp.data.db.AppDatabase
-import com.example.meetingapp.ui.screens.MainScreen
 import com.example.meetingapp.ui.screens.SecondScreen
+import com.example.meetingapp.ui.screens.home.HomeScreen
 import com.example.meetingapp.ui.viewmodel.MeetingAppViewModel
 
 enum class Screen(@StringRes val title: Int) {
-    MainScreen(title = R.string.app_name),
+    HomeScreen(title = R.string.app_name),
     SecondScreen(title = R.string.second_screen)
 }
 
 @Composable
-fun Navigation() {
-    val navController: NavHostController = rememberNavController()
+fun MeetingAppNavHost(
+    navController: NavHostController = rememberNavController()
+) {
     val context = LocalContext.current
     val database = AppDatabase.getDatabase(context)
     val viewModel: MeetingAppViewModel = viewModel(
@@ -31,11 +33,11 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.MainScreen.name,
+        startDestination = Screen.HomeScreen.name,
         modifier = Modifier.fillMaxSize()
     ) {
-        composable(route = Screen.MainScreen.name) {
-            MainScreen(
+        composable(route = Screen.HomeScreen.name) {
+            HomeScreen(
                 viewModel = viewModel,
                 onMainClick = {
                     navController.navigate(Screen.SecondScreen.name)
@@ -46,7 +48,7 @@ fun Navigation() {
             SecondScreen(
                 viewModel = viewModel,
                 onBack = {
-                    navController.navigate(Screen.MainScreen.name)
+                    navController.navigate(Screen.HomeScreen.name)
                 }
             )
         }

@@ -2,20 +2,18 @@ package com.example.meetingapp.data.db
 
 import android.content.Context
 import androidx.room.Database
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.meetingapp.data.db.entities.ExampleEntity
 import com.example.meetingapp.repositories.ExampleRepository
 
-/**
- * Minimal entity required for Room to generate the database implementation.
- */
-@Entity
-data class DummyEntity(@PrimaryKey val id: Int = 0)
-
-@Database(entities = [DummyEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ExampleEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
+
+    /**
+     * DAO for the database.
+     * @return The DAO for the database.
+     */
     abstract fun exampleDao(): ExampleRepository
 
     /**
