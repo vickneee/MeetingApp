@@ -16,6 +16,10 @@ Android Meeting App.
 -	**ViewModel + StateFlow** (State management)
 - 	**Dokka** (Auto-generated Kotlin documentation)
 
+## Firebase Setup - Anonymous Authentication and Firestore Database
+
+[Documentation Link](./FIREBASE.md)
+
 ## Kotlin Dokka Documentation Link
 
 [Documentation Link - Tulossa]()
