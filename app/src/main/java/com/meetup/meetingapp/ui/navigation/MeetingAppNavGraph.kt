@@ -7,8 +7,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.meetup.meetingapp.ui.screens.home.HomeDestination
 import com.meetup.meetingapp.ui.screens.home.HomeScreen
-import com.meetup.meetingapp.ui.screens.secondscreen.SecondScreen
-import com.meetup.meetingapp.ui.screens.secondscreen.SecondScreenDestination
+import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinPage
+import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinDestination
+
+/**
+ * Provides Navigation graph for the application.
+ */
 
 @Composable
 fun MeetingAppNavHost(
@@ -18,14 +22,20 @@ fun MeetingAppNavHost(
     NavHost(
         navController = navController, startDestination = HomeDestination.route, modifier = modifier
     ) {
+        /**
+         * Home destination
+         */
         composable(route = HomeDestination.route) {
             HomeScreen(
-                onMainClick = { navController.navigate(SecondScreenDestination.route) }
+                onMainClick = { navController.navigate(CreateOrJoinDestination.route) }
             )
         }
 
-        composable(route = SecondScreenDestination.route) {
-            SecondScreen(
+        /**
+         * Create or join destination
+         */
+        composable(route = CreateOrJoinDestination.route) {
+            CreateOrJoinPage(
                 onBack = { navController.popBackStack() }
             )
         }

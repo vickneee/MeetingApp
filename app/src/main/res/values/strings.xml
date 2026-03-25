@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Meeting App</string>
-    <string name="second_screen">Second Screen</string>
+    <string name="title_create_or_join_page">MeetUp Planner</string>
     <string name="back_button">Back</string>
 </resources>

@@ -6,7 +6,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.meetup.meetingapp.MeetingApplication
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
-import com.meetup.meetingapp.ui.screens.secondscreen.SecondViewModel
+import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -24,10 +24,10 @@ object AppViewModelProvider {
         }
 
         /**
-         * Initializer for SecondViewModel
+         * Initializer for CreateOrJoinViewModel
          */
         initializer {
-            SecondViewModel(
+            CreateOrJoinViewModel(
                 meetingApplication().container.exampleRepository
             )
         }
