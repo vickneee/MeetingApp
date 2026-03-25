@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.meetingapp"
+    namespace = "com.meetup.meetingapp"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.meetingapp"
+        applicationId = "com.meetup.meetingapp"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

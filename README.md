@@ -1,4 +1,4 @@
-# Meeting App
+# Meeting App - MeetUp
 
 Android Meeting App.
 
