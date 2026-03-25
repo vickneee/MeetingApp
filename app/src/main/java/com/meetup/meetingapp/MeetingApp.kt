@@ -10,7 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.meetup.meetingapp.ui.navigation.MeetingAppNavHost
@@ -32,7 +34,10 @@ fun MeetingAppTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
     navigateUp: () -> Unit = {}
 ) {
-    CenterAlignedTopAppBar(title = { Text(title) },
+    CenterAlignedTopAppBar(title = { Text(text = title,
+        fontWeight = FontWeight.SemiBold,
+        color = Color(0xFF333333)
+        ) },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
         navigationIcon = {
