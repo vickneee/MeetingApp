@@ -10,11 +10,7 @@ plugins {
 
 android {
     namespace = "com.meetup.meetingapp"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.meetup.meetingapp"
@@ -102,10 +98,8 @@ dependencies {
 
 dokka {
     moduleName.set("Meeting App")
-    dokkaSourceSets {
-        register("main") {
-            sourceRoots.from(file("src/main/java"), file("src/main/kotlin"))
-            enableAndroidDocumentationLink.set(true)
-        }
+    dokkaSourceSets.configureEach {
+        sourceRoots.from(file("src/main/java"), file("src/main/kotlin"))
+        enableAndroidDocumentationLink.set(true)
     }
 }
