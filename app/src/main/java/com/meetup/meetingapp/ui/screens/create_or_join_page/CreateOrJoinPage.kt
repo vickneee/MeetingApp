@@ -32,12 +32,12 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 object CreateOrJoinDestination : NavigationDestination {
     override val route = "create_or_join"
     override val titleRes = R.string.title_create_or_join_page
-
 }
 
 @Composable
 fun CreateOrJoinPage(
     onBack: () -> Unit,
+    navigateToCreateEvent: () -> Unit,
     viewModel: CreateOrJoinViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
@@ -47,7 +47,8 @@ fun CreateOrJoinPage(
         onCodeChange = viewModel::updateCode,
         key = viewModel.key,
         onKeyChange = viewModel::updateKey,
-        onBack = onBack
+        onBack = onBack,
+        onCreateEventClick = navigateToCreateEvent
     )
 }
 
@@ -59,6 +60,7 @@ fun CreateOrJoinContent(
     key: String,
     onKeyChange: (String) -> Unit,
     onBack: () -> Unit,
+    onCreateEventClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -90,7 +92,7 @@ fun CreateOrJoinContent(
                 Spacer(modifier = Modifier.padding(16.dp))
 
                 Button(
-                    onClick = { },
+                    onClick = onCreateEventClick,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
@@ -181,6 +183,7 @@ fun CreateOrJoinPagePreview() {
         onCodeChange = {},
         key = "",
         onKeyChange = {},
-        onBack = {}
+        onBack = {},
+        onCreateEventClick = {}
     )
 }

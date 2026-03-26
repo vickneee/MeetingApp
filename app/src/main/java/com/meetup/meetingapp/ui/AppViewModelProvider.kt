@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.meetup.meetingapp.MeetingApplication
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinViewModel
+import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButtonViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -28,6 +29,15 @@ object AppViewModelProvider {
          */
         initializer {
             CreateOrJoinViewModel(
+                meetingApplication().container.exampleRepository
+            )
+        }
+
+        /**
+         * Initializer for CreateEventButtonViewModel
+         */
+        initializer {
+            CreateEventButtonViewModel(
                 meetingApplication().container.exampleRepository
             )
         }
