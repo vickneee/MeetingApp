@@ -9,6 +9,9 @@ import com.meetup.meetingapp.ui.screens.home.HomeDestination
 import com.meetup.meetingapp.ui.screens.home.HomeScreen
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinPage
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinDestination
+// ADD THESE IMPORTS
+import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButtonPage
+import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButtonDestination
 
 /**
  * Provides Navigation graph for the application.
@@ -36,6 +39,18 @@ fun MeetingAppNavHost(
          */
         composable(route = CreateOrJoinDestination.route) {
             CreateOrJoinPage(
+                onBack = { navController.popBackStack() },
+                navigateToCreateEvent = {
+                    navController.navigate(CreateEventButtonDestination.route)
+                }
+            )
+        }
+
+        /**
+         * Create event button destination (The Checkbox Page)
+         */
+        composable(route = CreateEventButtonDestination.route) {
+            CreateEventButtonPage(
                 onBack = { navController.popBackStack() }
             )
         }
