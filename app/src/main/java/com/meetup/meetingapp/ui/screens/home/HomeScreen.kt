@@ -1,23 +1,41 @@
 package com.meetup.meetingapp.ui.screens.home
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.R
+import com.meetup.meetingapp.data.db.entities.ExampleEntity
+import com.meetup.meetingapp.data.repositories.ExampleRepository
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.home.HomeViewModel
 
 /**
  * This is the NavigationDestination for the Home screen
@@ -48,21 +66,70 @@ fun HomeScreen(
 
     val homeUiState by viewModel.homeUiState.collectAsState()
 
-    Scaffold { innerPadding ->
+    Scaffold { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             item {
-                Text(text = "Home Screen")
-                Text(text = "Hello!")
+                Text(
+                    text = "MeetUp",
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier,
+                    color = Color(0xFF3B82F6),
+                    style = TextStyle(
+                        fontSize = 75.sp,
+                        shadow = Shadow(
+                            color = Color.LightGray, offset = Offset(0.0f, 15.0f), blurRadius = 7f
+                        )
+                    )
+                )
+
+                Spacer(modifier = Modifier.padding(20.dp))
+
+                Text(
+                    text = "Make plans easy for everyone.",
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Spacer(modifier = Modifier.padding(20.dp))
+
+                Button(
+                    onClick = { },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "+ Create Event",
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(4.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.padding(16.dp))
+
                 Button(
                     onClick = onMainClick,
-                    content = {
-                        Text(text = "Second Screen")
-                    }
-                )
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "Second Screen",
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .padding(4.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.padding(16.dp))
+
             }
             items(items = homeUiState.itemList, key = { it.id }) { item ->
                 Text(text = "Item ID: ${item.id}, Name: ${item.name}")
@@ -70,3 +137,7 @@ fun HomeScreen(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() { }
