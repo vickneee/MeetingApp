@@ -5,6 +5,7 @@ import com.meetup.meetingapp.data.model.DateRange
 import com.meetup.meetingapp.data.model.LocationOption
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
+import com.meetup.meetingapp.ui.screens.EventUiState
 
 /**
  * Repository interface for managing event-related operations.
@@ -15,12 +16,6 @@ import com.meetup.meetingapp.data.model.TimeSlot
  */
 interface EventRepository {
     suspend fun createEvent(
-        eventTitle: String,
-        hostName:String,
-        dataRange: DateRange,
-        timeSlots: List<TimeSlot>,
-        locations: LocationOption,
-        placeTypes:
-        List<PlaceType>
+        eventValues: EventUiState
     ): Result<Pair<String, String>>
 }

@@ -10,6 +10,7 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.LocationOption
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
+import com.meetup.meetingapp.ui.screens.EventUiState
 import kotlinx.coroutines.tasks.await
 
 /**
@@ -45,12 +46,7 @@ class EventRepositoryImp(
      * or an error on failure.
      */
     override suspend fun createEvent(
-        eventTitle: String,
-        hostName:String,
-        dataRange: DateRange,
-        timeSlots: List<TimeSlot>,
-        locations: LocationOption,
-        placeTypes: List<PlaceType>
+        eventValues: EventUiState
     ): Result<Pair<String, String>>{
 
         // Create a new document reference with an auto-generated ID.
@@ -83,12 +79,12 @@ class EventRepositoryImp(
             eventKey= eventKey,
             hostId = uid,
             id = eventId,
-            eventTitle = eventTitle,
-            hostName = hostName,
-            dateRange = dataRange,
-            timeSlots = timeSlots,
-            locationOptions = locations,
-            placeTypeOptions = placeTypes
+            eventTitle = eventValues.eventTitle,
+            hostName = eventValues.hostName,
+            dateRange = eventValues.dateRange,
+            timeSlots = eventValues.timeSlots,
+            locationOptions = eventValues.locations,
+            placeTypeOptions = eventValues.placeTypes
         )
 
         try {
