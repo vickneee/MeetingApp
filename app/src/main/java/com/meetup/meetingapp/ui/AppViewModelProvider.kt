@@ -8,6 +8,7 @@ import com.meetup.meetingapp.MeetingApplication
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinViewModel
 import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButtonViewModel
+import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPageViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -38,6 +39,15 @@ object AppViewModelProvider {
          */
         initializer {
             CreateEventButtonViewModel(
+                meetingApplication().container.exampleRepository
+            )
+        }
+
+        /**
+         * Initializer for CreateCreatingEventPageViewModel
+         */
+        initializer {
+            CreateCreatingEventPageViewModel(
                 meetingApplication().container.exampleRepository
             )
         }
