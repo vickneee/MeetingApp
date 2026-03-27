@@ -11,7 +11,6 @@ import com.meetup.meetingapp.ui.screens.home.HomeDestination
 import com.meetup.meetingapp.ui.screens.home.HomeScreen
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinPage
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinDestination
-// ADD THESE IMPORTS
 import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButtonPage
 import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButtonDestination
 
@@ -42,8 +41,8 @@ fun MeetingAppNavHost(
         composable(route = CreateOrJoinDestination.route) {
             CreateOrJoinPage(
                 onBack = { navController.popBackStack() },
-                navigateToCreateEvent = {
-                    navController.navigate(CreateEventButtonDestination.route)
+                navigateToCreatingEventPage = {
+                    navController.navigate(CreateCreatingEventPageDestination.route)
                 }
             )
         }
@@ -54,7 +53,7 @@ fun MeetingAppNavHost(
         composable(route = CreateCreatingEventPageDestination.route) {
             CreateCreatingEventPage(
                 onBack = { navController.popBackStack() },
-                navigateToCreateEvent = {
+                navigateToCreatingEventPage = {
                     navController.navigate(CreateEventButtonDestination.route)
                 }
             )
