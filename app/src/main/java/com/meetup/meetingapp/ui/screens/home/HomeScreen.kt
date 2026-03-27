@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -32,11 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.R
-import com.meetup.meetingapp.data.db.entities.ExampleEntity
-import com.meetup.meetingapp.data.repositories.ExampleRepository
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.home.HomeViewModel
 
 /**
  * This is the NavigationDestination for the Home screen
@@ -107,8 +106,10 @@ fun HomeScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                    Spacer(modifier = Modifier.padding(4.dp))
                     Text(
-                        text = "+ Create Event",
+                        text = "Create Event",
                         fontSize = 18.sp,
                         modifier = Modifier.padding(4.dp)
                     )
@@ -162,4 +163,5 @@ fun HomeScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun HomeScreenPreview() { }
+fun HomeScreenPreview() {
+}
