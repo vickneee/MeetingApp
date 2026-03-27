@@ -1,8 +1,9 @@
-package com.meetup.meetingapp.ui.screens.create_or_join_page
+package com.meetup.meetingapp.ui.screens.create_creating_event_page
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -29,44 +30,46 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 
-object CreateOrJoinDestination : NavigationDestination {
-    override val route = "create_or_join"
-    override val titleRes = R.string.title_create_or_join_page
+
+object CreateCreatingEventPageDestination : NavigationDestination {
+    override val route = "create_creating_event_page"
+    override val titleRes = R.string.title_create_creating_event_page
 }
 
 @Composable
-fun CreateOrJoinPage(
+fun CreateCreatingEventPage(
     onBack: () -> Unit,
     navigateToCreateEvent: () -> Unit,
-    viewModel: CreateOrJoinViewModel = viewModel(
-        factory = AppViewModelProvider.Factory
-    )
+    viewModel: CreateCreatingEventPageViewModel = viewModel(
+        factory = AppViewModelProvider.Factory)
 ) {
-    CreateOrJoinContent(
-        code = viewModel.code,
-        onCodeChange = viewModel::updateCode,
-        key = viewModel.key,
-        onKeyChange = viewModel::updateKey,
-        onBack = onBack,
-        onCreateEventClick = navigateToCreateEvent
+    CreateCreatingEventPageContent(
+        eventTitle = viewModel.eventTitle,
+        onEventTitleChange = viewModel::createEventName,
+        hostName = viewModel.hostName,
+        onHostNameChange = viewModel::createHostName,
+        date = viewModel.date,
+        onDateChange = viewModel::createDate,
+        onBack = onBack
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateOrJoinContent(
-    code: String,
-    onCodeChange: (String) -> Unit,
-    key: String,
-    onKeyChange: (String) -> Unit,
+fun CreateCreatingEventPageContent(
+    eventTitle: String,
+    onEventTitleChange: (String) -> Unit,
+    hostName: String,
+    onHostNameChange: (String) -> Unit,
+    date: String,
+    onDateChange: (String) -> Unit,
     onBack: () -> Unit,
-    onCreateEventClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "MeetUp Planner",
+                title = "Create Event",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -82,31 +85,7 @@ fun CreateOrJoinContent(
         ) {
             item {
                 Text(
-                    text = "Make plans easy for everyone.",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-
-                Spacer(modifier = Modifier.padding(16.dp))
-
-                Button(
-                    onClick = onCreateEventClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "+ Create Event",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.padding(16.dp))
-
-                Text(
-                    text = "Join an Event",
+                    text = "Event Title",
                     modifier = Modifier.padding(16.dp),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -114,40 +93,40 @@ fun CreateOrJoinContent(
                 )
 
                 OutlinedTextField(
-                    value = code,
-                    onValueChange = onCodeChange,
-                    placeholder = { Text(text = "Enter code") },
+                    value = eventTitle,
+                    onValueChange = onEventTitleChange,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .padding(bottom = 16.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    singleLine = true
+                    shape = RoundedCornerShape(8.dp)
+                )
+
+                Text(
+                    text = "Host Name",
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 OutlinedTextField(
-                    value = key,
-                    onValueChange = onKeyChange,
-                    placeholder = { Text("Enter key") },
+                    value = hostName,
+                    onValueChange = onHostNameChange,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .padding(bottom = 24.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    singleLine = true
+                        .padding(bottom = 16.dp),
+                    shape = RoundedCornerShape(8.dp)
                 )
 
-                Button(
-                    onClick = { },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
-                    shape = RoundedCornerShape(8.dp),
-                ) {
-                    Text(
-                        text = "Join Event",
-                        fontSize = 18.sp,
-                           modifier = Modifier.padding(4.dp)
-                    )
-                }
+                Text(
+                    text = "Date Range",
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
 
-                Spacer(modifier = Modifier.padding(28.dp))
+                Spacer(modifier = Modifier.padding(8.dp))
 
                 Button(
                     onClick = { },
@@ -159,7 +138,7 @@ fun CreateOrJoinContent(
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
-                        text = "Events",
+                        text = "Select Date Range",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(
@@ -170,6 +149,20 @@ fun CreateOrJoinContent(
                         )
                     )
                 }
+
+                Spacer(modifier = Modifier.padding(28.dp))
+
+                Button(
+                    onClick = { },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    shape = RoundedCornerShape(8.dp),
+                ) {
+                    Text(
+                        text = "Join Event",
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(4.dp)
+                    )
+                }
             }
         }
     }
@@ -177,13 +170,22 @@ fun CreateOrJoinContent(
 
 @Preview(showBackground = true)
 @Composable
-fun CreateOrJoinPagePreview() {
-    CreateOrJoinContent(
-        code = "",
-        onCodeChange = {},
-        key = "",
-        onKeyChange = {},
-        onBack = {},
-        onCreateEventClick = {}
+fun CreateCreatingEventPagePreview(
+    eventTitle: String = "Event Title",
+    onEventTitleChange: (String) -> Unit = {},
+    hostName: String = "Make Bold",
+    onHostNameChange: (String) -> Unit = {},
+    date: String = "12/1/2026",
+    onDateChange: (String) -> Unit = {},
+    onBack: () -> Unit = {}
+) {
+    CreateCreatingEventPageContent(
+        eventTitle = eventTitle,
+        onEventTitleChange = onEventTitleChange,
+        hostName = hostName,
+        onHostNameChange = onHostNameChange,
+        date = date,
+        onDateChange = onDateChange,
+        onBack = onBack
     )
 }
