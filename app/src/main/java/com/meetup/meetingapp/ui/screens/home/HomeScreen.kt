@@ -103,7 +103,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.padding(20.dp))
 
                 Button(
-                    onClick = { },
+                    onClick = onMainClick,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
@@ -132,7 +132,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.padding(16.dp))
 
                 Button(
-                    onClick = { },
+                    onClick = onMainClick,
                     border = BorderStroke(2.dp, Color(0xFF3B82F6)),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
