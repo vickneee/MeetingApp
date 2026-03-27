@@ -37,7 +37,7 @@ object CreateOrJoinDestination : NavigationDestination {
 @Composable
 fun CreateOrJoinPage(
     onBack: () -> Unit,
-    navigateToCreateEvent: () -> Unit,
+    navigateToCreatingEventPage: () -> Unit,
     viewModel: CreateOrJoinViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
@@ -48,7 +48,7 @@ fun CreateOrJoinPage(
         key = viewModel.key,
         onKeyChange = viewModel::updateKey,
         onBack = onBack,
-        onCreateEventClick = navigateToCreateEvent
+        onCreateEventClick = navigateToCreatingEventPage
     )
 }
 
