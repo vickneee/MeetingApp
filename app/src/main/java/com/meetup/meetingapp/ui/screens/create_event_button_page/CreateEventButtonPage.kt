@@ -7,7 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -18,6 +17,7 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
 
 object CreateEventButtonDestination : NavigationDestination {
@@ -69,13 +69,13 @@ fun CreateEventButtonContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.Start,
+                .padding(horizontal = 70.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "Choose allowed place types:",
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
@@ -85,7 +85,7 @@ fun CreateEventButtonContent(
 
             val isAnySelected = restaurant || cafe || bar
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(160.dp))
 
             Button(
                 onClick = onCreateEvent,
@@ -96,7 +96,9 @@ fun CreateEventButtonContent(
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Create Event", modifier = Modifier.padding(4.dp))
+                Text("Create Event",
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(4.dp))
             }
         }
     }
