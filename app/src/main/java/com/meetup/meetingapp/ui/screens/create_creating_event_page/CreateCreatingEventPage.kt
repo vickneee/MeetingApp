@@ -3,7 +3,6 @@ package com.meetup.meetingapp.ui.screens.create_creating_event_page
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,16 +29,21 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 
-
 object CreateCreatingEventPageDestination : NavigationDestination {
     override val route = "create_creating_event_page"
     override val titleRes = R.string.title_create_creating_event_page
 }
 
+/**
+ * Create Creating Event Page
+ * @param onBack Navigate back
+ * @param navigateToCreatingEventPage Navigate to the next page
+ * @param viewModel [CreateCreatingEventPageViewModel] to retrieve all items in the Room database.
+ */
 @Composable
 fun CreateCreatingEventPage(
     onBack: () -> Unit,
-    navigateToCreateEvent: () -> Unit,
+    navigateToCreatingEventPage: () -> Unit,
     viewModel: CreateCreatingEventPageViewModel = viewModel(
         factory = AppViewModelProvider.Factory)
 ) {
@@ -50,10 +54,22 @@ fun CreateCreatingEventPage(
         onHostNameChange = viewModel::createHostName,
         date = viewModel.date,
         onDateChange = viewModel::createDate,
-        onBack = onBack
+        onBack = onBack,
+        navigateToCreatingEventPage = navigateToCreatingEventPage
     )
 }
 
+/**
+ * Create Creating Event Page Content
+ * @param eventTitle Event Title
+ * @param onEventTitleChange Event Title Change
+ * @param hostName Host Name
+ * @param onHostNameChange Host Name Change
+ * @param date Date
+ * @param onDateChange Date Change
+ * @param onBack Navigate back
+ * @param navigateToCreatingEventPage Navigate to the next page
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateCreatingEventPageContent(
@@ -64,7 +80,8 @@ fun CreateCreatingEventPageContent(
     date: String,
     onDateChange: (String) -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navigateToCreatingEventPage: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -95,6 +112,7 @@ fun CreateCreatingEventPageContent(
                 OutlinedTextField(
                     value = eventTitle,
                     onValueChange = onEventTitleChange,
+                    placeholder = { Text("Enter title") },
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .padding(bottom = 16.dp),
@@ -112,6 +130,7 @@ fun CreateCreatingEventPageContent(
                 OutlinedTextField(
                     value = hostName,
                     onValueChange = onHostNameChange,
+                    placeholder = { Text("Enter host name") },
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .padding(bottom = 16.dp),
@@ -129,7 +148,7 @@ fun CreateCreatingEventPageContent(
                 Spacer(modifier = Modifier.padding(8.dp))
 
                 Button(
-                    onClick = { },
+                    onClick = { navigateToCreatingEventPage() },
                     border = BorderStroke(2.dp, Color(0xFF3B82F6)),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
@@ -142,8 +161,8 @@ fun CreateCreatingEventPageContent(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(
-                            top = 4.dp,
-                            bottom = 4.dp,
+                            top = 6.dp,
+                            bottom = 6.dp,
                             start = 36.dp,
                             end = 36.dp
                         )
@@ -153,12 +172,12 @@ fun CreateCreatingEventPageContent(
                 Spacer(modifier = Modifier.padding(28.dp))
 
                 Button(
-                    onClick = { },
+                    onClick = { navigateToCreatingEventPage() },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
-                        text = "Join Event",
+                        text = "Next",
                         fontSize = 18.sp,
                         modifier = Modifier.padding(4.dp)
                     )
@@ -171,11 +190,11 @@ fun CreateCreatingEventPageContent(
 @Preview(showBackground = true)
 @Composable
 fun CreateCreatingEventPagePreview(
-    eventTitle: String = "Event Title",
+    eventTitle: String = "",
     onEventTitleChange: (String) -> Unit = {},
-    hostName: String = "Make Bold",
+    hostName: String = "",
     onHostNameChange: (String) -> Unit = {},
-    date: String = "12/1/2026",
+    date: String = "",
     onDateChange: (String) -> Unit = {},
     onBack: () -> Unit = {}
 ) {
@@ -186,6 +205,7 @@ fun CreateCreatingEventPagePreview(
         onHostNameChange = onHostNameChange,
         date = date,
         onDateChange = onDateChange,
-        onBack = onBack
+        onBack = onBack,
+        navigateToCreatingEventPage = {}
     )
 }
