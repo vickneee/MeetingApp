@@ -37,6 +37,12 @@ object CreateOrJoinDestination : NavigationDestination {
     override val titleRes = R.string.title_create_or_join_page
 }
 
+/**
+ * Create or Join Page
+ * @param onBack Navigate back
+ * @param navigateToCreatingEventPage Navigate to the next page
+ * @param viewModel [CreateOrJoinViewModel] to retrieve all items in the Room database.
+ */
 @Composable
 fun CreateOrJoinPage(
     onBack: () -> Unit,
@@ -55,6 +61,16 @@ fun CreateOrJoinPage(
     )
 }
 
+/**
+ * Create or Join Page Content
+ * @param code Code
+ * @param onCodeChange Code Change
+ * @param key Key
+ * @param onKeyChange Key Change
+ * @param onBack Navigate back
+ * @param onCreateEventClick Navigate to the next page
+ * @param modifier Modifier
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateOrJoinContent(
