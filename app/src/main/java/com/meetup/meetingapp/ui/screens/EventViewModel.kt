@@ -1,6 +1,7 @@
 package com.meetup.meetingapp.ui.screens
 
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.DateRange
@@ -16,16 +17,46 @@ import java.sql.Date
 import java.time.LocalDate
 
 /**
- * ViewModel responsible for managing the state of the event creation flow.
+ * Represents all possible states of the event creation process.
  *
- * This ViewModel exposes a StateFlow<EventUiState> that represents the current
- * user input for creating an event. Each update function modifies a specific
- * part of the UI state using immutable copy operations.
+ * This sealed interface ensures that all states are known at compile time,
+ */
+sealed interface EventState{
+
+    /**
+     * Represents a successful event creation.
+     *
+     * @property eventCode The unique code generated for the event.
+     * @property eventKey The secret key associated with the event.
+     */
+    data class Success(val eventCode: String, val eventKey: String): EventState
+
+    /**
+     * Represents a failure during event creation.
+     *
+     * @property error The exception that caused the failure.
+     */
+    data class Error(val error: Throwable): EventState
+
+    /**
+     * Represents the initial idle state before any event creation attempt.
+     */
+    object Idle: EventState
+}
+
+/**
+ * ViewModel responsible for managing the event creation flow.
+ *
+ * This ViewModel exposes:
+ * - [uiState]: The current user input for the event creation form.
+ * - [eventState]: The result of the event creation attempt (success, error, idle).
  *
  * Responsibilities:
- * - Hold and update event creation form data
- * - Provide functions to modify individual fields (title, host name, date range, etc.)
- * - Interact with EventRepository to persist the final event
+ * - Maintain and update the event creation form data.
+ * - Provide functions to update individual fields (title, host name, date range, etc.).
+ * - Call [EventRepository] to create the event and emit the result.
+ *
+ * @property eventRepository The repository used to create and persist events.
  */
 class EventViewModel(private val eventRepository: EventRepository):  ViewModel(){
 
@@ -33,15 +64,29 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     val uiState = _uiState.asStateFlow()
 
+    private val _eventState = MutableStateFlow<EventState>(EventState.Idle)
+
+    val eventState = _eventState.asStateFlow()
+
     /**
-     * Creates a new event using the current UI state.
+     * Attempts to create a new event using the current UI state.
      *
-     * This function collects the latest EventUiState value and passes it to the
-     * EventRepository. The repository handles validation and persistence.
+     * Steps:
+     * 1. Retrieve the latest [EventUiState] value.
+     * 2. Pass it to the repository to create the event.
+     * 3. If successful, emit [EventState.Success].
+     * 4. If an exception occurs, emit [EventState.Error].
+     *
+     * This function runs inside [viewModelScope] to ensure proper lifecycle handling.
      */
     fun createEvent(){
         viewModelScope.launch {
-            eventRepository.createEvent(uiState.value)
+            try {
+                val(eventCode, eventKey) = eventRepository.createEvent(uiState.value).getOrThrow()
+                _eventState.value = EventState.Success(eventCode, eventKey)
+            } catch (e: Throwable){
+                _eventState.value = EventState.Error(e)
+            }
         }
     }
 
