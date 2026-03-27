@@ -5,6 +5,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPage
+import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPageDestination
 import com.meetup.meetingapp.ui.screens.home.HomeDestination
 import com.meetup.meetingapp.ui.screens.home.HomeScreen
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinPage
@@ -39,6 +41,18 @@ fun MeetingAppNavHost(
          */
         composable(route = CreateOrJoinDestination.route) {
             CreateOrJoinPage(
+                onBack = { navController.popBackStack() },
+                navigateToCreateEvent = {
+                    navController.navigate(CreateEventButtonDestination.route)
+                }
+            )
+        }
+
+        /**
+         * Create event destination
+         */
+        composable(route = CreateCreatingEventPageDestination.route) {
+            CreateCreatingEventPage(
                 onBack = { navController.popBackStack() },
                 navigateToCreateEvent = {
                     navController.navigate(CreateEventButtonDestination.route)

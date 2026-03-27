@@ -3,4 +3,5 @@
     <string name="title_create_or_join_page">MeetUp Planner</string>
     <string name="title_create_event_button_page">Create Event Final</string>
     <string name="back_button">Back</string>
+    <string name="title_create_creating_event_page">Create Event</string>
 </resources>
