@@ -17,6 +17,8 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.tooling.preview.Preview
 
 object CreateEventButtonDestination : NavigationDestination {
     override val route = "create_event_button"
@@ -27,8 +29,31 @@ object CreateEventButtonDestination : NavigationDestination {
 @Composable
 fun CreateEventButtonPage(
     onBack: () -> Unit,
-    // Connect to the ViewModel and the Factory
     viewModel: CreateEventButtonViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    CreateEventButtonContent(
+        restaurant = viewModel.restaurant,
+        cafe = viewModel.cafe,
+        bar = viewModel.bar,
+        onRestaurantChange = viewModel::updateRestaurant,
+        onCafeChange = viewModel::updateCafe,
+        onBarChange = viewModel::updateBar,
+        onBack = onBack,
+        onCreateEvent = { viewModel.createEvent() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateEventButtonContent(
+    restaurant: Boolean,
+    cafe: Boolean,
+    bar: Boolean,
+    onRestaurantChange: (Boolean) -> Unit,
+    onCafeChange: (Boolean) -> Unit,
+    onBarChange: (Boolean) -> Unit,
+    onBack: () -> Unit,
+    onCreateEvent: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -39,7 +64,6 @@ fun CreateEventButtonPage(
             )
         }
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -49,46 +73,30 @@ fun CreateEventButtonPage(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center
         ) {
-
             Text(
                 text = "Choose allowed place types:",
                 fontSize = 18.sp,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
-            PlaceTypeItem(
-                title = "Restaurant",
-                checked = viewModel.restaurant,
-                onCheckedChange = { viewModel.updateRestaurant(it) }
-            )
+            PlaceTypeItem(title = "Restaurant", checked = restaurant, onCheckedChange = onRestaurantChange)
+            PlaceTypeItem(title = "Cafe", checked = cafe, onCheckedChange = onCafeChange)
+            PlaceTypeItem(title = "Bar", checked = bar, onCheckedChange = onBarChange)
 
-            PlaceTypeItem(
-                title = "Cafe",
-                checked = viewModel.cafe,
-                onCheckedChange = { viewModel.updateCafe(it) }
-            )
-
-            PlaceTypeItem(
-                title = "Bar",
-                checked = viewModel.bar,
-                onCheckedChange = { viewModel.updateBar(it) }
-            )
-
-            val isAnySelected = viewModel.restaurant || viewModel.cafe || viewModel.bar
+            val isAnySelected = restaurant || cafe || bar
 
             Spacer(modifier = Modifier.height(40.dp))
 
             Button(
-                onClick = { viewModel.createEvent() },
-                enabled = isAnySelected, // Button dims if nothing is checked
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF3B82F6)
-                ),
+                onClick = onCreateEvent,
+                enabled = isAnySelected,
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Create Event")
+                Text("Create Event", modifier = Modifier.padding(4.dp))
             }
         }
     }
@@ -119,8 +127,23 @@ fun PlaceTypeItem(
         )
         Text(
             text = title,
-            modifier = Modifier.padding(start = 16.dp),
+            modifier = Modifier.padding(start = 18.dp),
             fontSize = 16.sp
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CreateEventButtonPagePreview() {
+    CreateEventButtonContent(
+        restaurant = true,
+        cafe = false,
+        bar = true,
+        onRestaurantChange = {},
+        onCafeChange = {},
+        onBarChange = {},
+        onBack = {},
+        onCreateEvent = {}
+    )
 }
