@@ -1,6 +1,7 @@
 package com.meetup.meetingapp.ui.screens.home
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -121,7 +122,7 @@ fun HomeScreen(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = "Second Screen",
+                        text = "Join Event",
                         fontSize = 18.sp,
                         modifier = Modifier
                             .padding(4.dp)
@@ -130,10 +131,31 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.padding(16.dp))
 
+                Button(
+                    onClick = { },
+                    border = BorderStroke(2.dp, Color(0xFF3B82F6)),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color(0xFF3B82F6)
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                ) {
+                    Text(
+                        text = "Events",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(
+                            top = 4.dp,
+                            bottom = 4.dp,
+                            start = 36.dp,
+                            end = 36.dp
+                        )
+                    )
+                }
             }
-            items(items = homeUiState.itemList, key = { it.id }) { item ->
-                Text(text = "Item ID: ${item.id}, Name: ${item.name}")
-            }
+//            items(items = homeUiState.itemList, key = { it.id }) { item ->
+//                Text(text = "Item ID: ${item.id}, Name: ${item.name}")
+//            }
         }
     }
 }
