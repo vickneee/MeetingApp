@@ -139,9 +139,9 @@ fun PlaceTypeItem(
 @Composable
 fun CreateEventButtonPagePreview() {
     CreateEventButtonContent(
-        restaurant = true,
+        restaurant = false,
         cafe = false,
-        bar = true,
+        bar = false,
         onRestaurantChange = {},
         onCafeChange = {},
         onBarChange = {},
