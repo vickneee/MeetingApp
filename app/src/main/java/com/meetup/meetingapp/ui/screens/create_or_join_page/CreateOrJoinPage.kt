@@ -8,9 +8,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -32,12 +35,18 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 object CreateOrJoinDestination : NavigationDestination {
     override val route = "create_or_join"
     override val titleRes = R.string.title_create_or_join_page
-
 }
 
+/**
+ * Create or Join Page
+ * @param onBack Navigate back
+ * @param navigateToCreatingEventPage Navigate to the next page
+ * @param viewModel [CreateOrJoinViewModel] to retrieve all items in the Room database.
+ */
 @Composable
 fun CreateOrJoinPage(
     onBack: () -> Unit,
+    navigateToCreatingEventPage: () -> Unit,
     viewModel: CreateOrJoinViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
@@ -47,10 +56,21 @@ fun CreateOrJoinPage(
         onCodeChange = viewModel::updateCode,
         key = viewModel.key,
         onKeyChange = viewModel::updateKey,
-        onBack = onBack
+        onBack = onBack,
+        onCreateEventClick = navigateToCreatingEventPage
     )
 }
 
+/**
+ * Create or Join Page Content
+ * @param code Code
+ * @param onCodeChange Code Change
+ * @param key Key
+ * @param onKeyChange Key Change
+ * @param onBack Navigate back
+ * @param onCreateEventClick Navigate to the next page
+ * @param modifier Modifier
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateOrJoinContent(
@@ -59,6 +79,7 @@ fun CreateOrJoinContent(
     key: String,
     onKeyChange: (String) -> Unit,
     onBack: () -> Unit,
+    onCreateEventClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -90,12 +111,14 @@ fun CreateOrJoinContent(
                 Spacer(modifier = Modifier.padding(16.dp))
 
                 Button(
-                    onClick = { },
+                    onClick = onCreateEventClick,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                    Spacer(modifier = Modifier.padding(4.dp))
                     Text(
-                        text = "+ Create Event",
+                        text = "Create Event",
                         fontSize = 18.sp,
                         modifier = Modifier.padding(4.dp)
                     )
@@ -141,7 +164,7 @@ fun CreateOrJoinContent(
                     Text(
                         text = "Join Event",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                           modifier = Modifier.padding(4.dp)
                     )
                 }
 
@@ -181,6 +204,7 @@ fun CreateOrJoinPagePreview() {
         onCodeChange = {},
         key = "",
         onKeyChange = {},
-        onBack = {}
+        onBack = {},
+        onCreateEventClick = {}
     )
 }
