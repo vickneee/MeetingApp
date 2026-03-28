@@ -44,8 +44,10 @@ object AppViewModelProvider {
         initializer {
             EventViewModel(
                 meetingApplication().container.eventRepository
-         
-        /**      
+            )
+        }
+
+        /**
          * Initializer for CreateCreatingEventPageViewModel
          */
         initializer {
