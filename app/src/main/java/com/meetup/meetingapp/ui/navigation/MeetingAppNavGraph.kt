@@ -13,6 +13,10 @@ import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinPage
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinDestination
 import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButtonPage
 import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButtonDestination
+import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedDestination
+import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedPage
+import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
+import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
 
 /**
  * Provides Navigation graph for the application.
@@ -64,6 +68,26 @@ fun MeetingAppNavHost(
          */
         composable(route = CreateEventButtonDestination.route) {
             CreateEventButtonPage(
+                onBack = { navController.popBackStack() },
+                onCreatedEvent = { navController.navigate(EventCreatedDestination.route) }
+            )
+        }
+
+        /**
+         * Event created destination
+         */
+        composable(route = EventCreatedDestination.route) {
+            EventCreatedPage(
+                onBack = { navController.popBackStack() },
+                onNavigateToDashboard = { navController.navigate(HostDashboardDestination.route) }
+            )
+        }
+
+        /**
+         * Host Dashboard destination
+         */
+        composable(route = HostDashboardDestination.route) {
+            HostDashboardPage(
                 onBack = { navController.popBackStack() }
             )
         }
