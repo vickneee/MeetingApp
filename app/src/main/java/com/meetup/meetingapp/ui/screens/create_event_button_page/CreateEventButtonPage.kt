@@ -29,7 +29,8 @@ object CreateEventButtonDestination : NavigationDestination {
 @Composable
 fun CreateEventButtonPage(
     onBack: () -> Unit,
-    viewModel: CreateEventButtonViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: CreateEventButtonViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    onCreatedEvent: () -> Unit
 ) {
     CreateEventButtonContent(
         restaurant = viewModel.restaurant,
@@ -39,7 +40,10 @@ fun CreateEventButtonPage(
         onCafeChange = viewModel::updateCafe,
         onBarChange = viewModel::updateBar,
         onBack = onBack,
-        onCreateEvent = { viewModel.createEvent() }
+        onCreatedEvent = {
+            viewModel.createEvent()
+            onCreatedEvent()
+        }
     )
 }
 
@@ -53,7 +57,7 @@ fun CreateEventButtonContent(
     onCafeChange: (Boolean) -> Unit,
     onBarChange: (Boolean) -> Unit,
     onBack: () -> Unit,
-    onCreateEvent: () -> Unit
+    onCreatedEvent: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -88,7 +92,7 @@ fun CreateEventButtonContent(
             Spacer(modifier = Modifier.height(160.dp))
 
             Button(
-                onClick = onCreateEvent,
+                onClick = onCreatedEvent,
                 enabled = isAnySelected,
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
@@ -146,6 +150,6 @@ fun CreateEventButtonPagePreview() {
         onCafeChange = {},
         onBarChange = {},
         onBack = {},
-        onCreateEvent = {}
+        onCreatedEvent = {}
     )
 }

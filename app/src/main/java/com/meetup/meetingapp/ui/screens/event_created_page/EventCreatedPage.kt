@@ -117,7 +117,7 @@ fun EventCreatedContent(
 
                 Text(
                     text = "Share this code and key\nwith participants.",
-                    fontSize = 18.sp,
+                    fontSize = 20.sp,
                     modifier = Modifier.padding(vertical = 24.dp),
                     textAlign = TextAlign.Center
                 )

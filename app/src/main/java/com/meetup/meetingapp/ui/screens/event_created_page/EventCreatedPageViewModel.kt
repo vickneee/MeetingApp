@@ -35,4 +35,6 @@ class EventCreatedViewModel(private val exampleRepository: ExampleRepository) : 
     fun loadEventDetails(generatedCode: String) {
         // Implementation
     }
+
+
 }
