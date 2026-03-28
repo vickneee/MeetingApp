@@ -4,4 +4,6 @@
     <string name="title_create_event_button_page">Create Event Final</string>
     <string name="back_button">Back</string>
     <string name="title_create_creating_event_page">Create Event</string>
+    <string name="title_host_dashboard">Host Dashboard</string>
+    <string name="title_event_created">Event Created</string>
 </resources>
