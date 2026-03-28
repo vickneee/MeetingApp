@@ -5,10 +5,18 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPage
+import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPageDestination
 import com.meetup.meetingapp.ui.screens.home.HomeDestination
 import com.meetup.meetingapp.ui.screens.home.HomeScreen
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinPage
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinDestination
+import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButtonPage
+import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButtonDestination
+import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedDestination
+import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedPage
+import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
+import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
 
 /**
  * Provides Navigation graph for the application.
@@ -36,6 +44,50 @@ fun MeetingAppNavHost(
          */
         composable(route = CreateOrJoinDestination.route) {
             CreateOrJoinPage(
+                onBack = { navController.popBackStack() },
+                navigateToCreatingEventPage = {
+                    navController.navigate(CreateCreatingEventPageDestination.route)
+                }
+            )
+        }
+
+        /**
+         * Create event destination
+         */
+        composable(route = CreateCreatingEventPageDestination.route) {
+            CreateCreatingEventPage(
+                onBack = { navController.popBackStack() },
+                navigateToCreatingEventPage = {
+                    navController.navigate(CreateEventButtonDestination.route)
+                }
+            )
+        }
+
+        /**
+         * Create event button destination (The Checkbox Page)
+         */
+        composable(route = CreateEventButtonDestination.route) {
+            CreateEventButtonPage(
+                onBack = { navController.popBackStack() },
+                onCreatedEvent = { navController.navigate(EventCreatedDestination.route) }
+            )
+        }
+
+        /**
+         * Event created destination
+         */
+        composable(route = EventCreatedDestination.route) {
+            EventCreatedPage(
+                onBack = { navController.popBackStack() },
+                onNavigateToDashboard = { navController.navigate(HostDashboardDestination.route) }
+            )
+        }
+
+        /**
+         * Host Dashboard destination
+         */
+        composable(route = HostDashboardDestination.route) {
+            HostDashboardPage(
                 onBack = { navController.popBackStack() }
             )
         }
