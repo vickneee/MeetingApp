@@ -4,6 +4,7 @@ import android.content.ContentValues.TAG
 import android.util.Log
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.meetup.meetingapp.data.model.User
 import kotlinx.coroutines.tasks.await
 
@@ -58,8 +59,9 @@ class UserRepositoryImp(private val db: FirebaseFirestore): UserRepository {
         try {
             db.collection("users")
                 .document(uid)
-                .update(
-                    "createdEventIds", FieldValue.arrayUnion(eventId)
+                .set(
+                    mapOf("createdEventIds" to FieldValue.arrayUnion(eventId)),
+                    SetOptions.merge()
                 )
                 .await()
 
@@ -82,8 +84,9 @@ class UserRepositoryImp(private val db: FirebaseFirestore): UserRepository {
         try {
             db.collection("users")
                 .document(uid)
-                .update(
-                    "joinedEventIds", FieldValue.arrayUnion(eventId)
+                .set(
+                    mapOf("joinedEventIds" to FieldValue.arrayUnion(eventId)),
+                    SetOptions.merge()
                 )
                 .await()
 

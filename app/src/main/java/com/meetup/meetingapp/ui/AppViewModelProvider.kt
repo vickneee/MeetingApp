@@ -34,7 +34,9 @@ object AppViewModelProvider {
          */
         initializer {
             CreateOrJoinViewModel(
-                meetingApplication().container.exampleRepository
+                meetingApplication().container.exampleRepository,
+                meetingApplication().container.db,
+                meetingApplication().container.userRepository
             )
         }
 
