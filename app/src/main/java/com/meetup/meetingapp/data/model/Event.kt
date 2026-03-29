@@ -2,8 +2,6 @@ package com.meetup.meetingapp.data.model
 import java.time.LocalDate
 import com.google.firebase.Timestamp
 
-
-
 /**
  * Represents a combination of a specific date and a selected time slot.
  *
@@ -47,27 +45,27 @@ data class DateTime(
  */
 data class Event (
     // Public event code shared with participants.
-    val eventCode: String,
+    val eventCode: String = "",
 
     // Private key required to join the event.
-    val eventKey: String,
+    val eventKey: String = "",
 
     // Reference to the host user document.
-    val hostId: String,
+    val hostId: String = "",
 
     // Firestore document ID for this event.
-    val id: String,
+    val id: String = "",
 
     // Current status of the event.
     val status: EventStatus = EventStatus.CREATED,
 
     // Host-defined settings for the event.
-    val eventTitle: String,
-    val hostName: String,
-    val dateRange: DateRange,
-    val timeSlots: List<TimeSlot>,
-    val locationOptions: LocationOption,
-    val placeTypeOptions: List<PlaceType>,
+    val eventTitle: String = "",
+    val hostName: String = "",
+    val dateRange: DateRange = DateRange(LocalDate.now(), LocalDate.now().plusDays(7)),
+    val timeSlots: List<TimeSlot> = listOf(),
+    val locationOptions: LocationOption = LocationOption(),
+    val placeTypeOptions: List<PlaceType> = listOf(),
 
     // Voting results.
     val dateTimeCandidates: List<DateTime> = listOf(),

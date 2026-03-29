@@ -1,11 +1,7 @@
 package com.meetup.meetingapp.data.repositories
 
-
-
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-
-
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.screens.EventUiState
 import kotlinx.coroutines.tasks.await
@@ -30,7 +26,8 @@ class EventRepositoryImp(
     private val auth = FirebaseAuth.getInstance()
 
     // UID of the currently authenticated user (event host).
-    private val uid = auth.currentUser?.uid
+    private val uid get() = auth.currentUser?.uid
+
 
     /**
      * Creates a new event in Firestore and returns the generated event code and event key.
@@ -66,9 +63,7 @@ class EventRepositoryImp(
                 .joinToString("")
 
         // Ensure the user is logged in before creating an event.
-        if(uid == null){
-            return Result.failure(Exception("User is not logged in"))
-        }
+        val uid = uid ?: return Result.failure(Exception("User is not logged in"))
 
         // Build the Event object to be stored in Firestore.
         val event = Event(
@@ -89,7 +84,7 @@ class EventRepositoryImp(
             docRef.set(event).await()
 
             // After successful creation, update the host's created event list.
-            userRepository.addCreatedEvent(eventId= eventId, uid= uid)
+            userRepository.addCreatedEvent(eventId= eventId, uid = uid)
 
             // Return the generated eventCode and eventKey.
             return Result.success(Pair(eventCode, eventKey))
