@@ -1,7 +1,5 @@
 package com.meetup.meetingapp.ui.screens
 
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.DateRange
@@ -9,11 +7,12 @@ import com.meetup.meetingapp.data.model.LocationOption
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.repositories.EventRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.sql.Date
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 /**
@@ -41,7 +40,7 @@ sealed interface EventState{
     /**
      * Represents the initial idle state before any event creation attempt.
      */
-    object Idle: EventState
+    object Loading: EventState
 }
 
 /**
@@ -64,7 +63,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     val uiState = _uiState.asStateFlow()
 
-    private val _eventState = MutableStateFlow<EventState>(EventState.Idle)
+    private val _eventState = MutableStateFlow<EventState>(EventState.Loading)
 
     val eventState = _eventState.asStateFlow()
 
@@ -80,10 +79,13 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      * This function runs inside [viewModelScope] to ensure proper lifecycle handling.
      */
     fun createEvent(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO)  {
             try {
                 val(eventCode, eventKey) = eventRepository.createEvent(uiState.value).getOrThrow()
-                _eventState.value = EventState.Success(eventCode, eventKey)
+
+                withContext(Dispatchers.Main) {
+                    _eventState.value = EventState.Success(eventCode, eventKey)
+                }
             } catch (e: Throwable){
                 _eventState.value = EventState.Error(e)
             }

@@ -19,26 +19,39 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
+import com.meetup.meetingapp.data.model.PlaceType
+import com.meetup.meetingapp.ui.screens.EventViewModel
 
 object CreateEventButtonDestination : NavigationDestination {
     override val route = "create_event_button"
     override val titleRes = R.string.title_create_event_button_page
 }
 
+/**
+ * Entry point composable for the place type selection page.
+ *
+ * This screen allows the user to choose allowed place types (e.g., restaurant, cafe, bar)
+ * as part of the event creation flow.
+ *
+ * @param onBack Navigate back to the previous screen.
+ * @param viewModel [EventViewModel] that manages the event creation UI state.
+ * @param onCreatedEvent Callback invoked after triggering the event creation process.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventButtonPage(
     onBack: () -> Unit,
-    viewModel: CreateEventButtonViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: EventViewModel,
     onCreatedEvent: () -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     CreateEventButtonContent(
-        restaurant = viewModel.restaurant,
-        cafe = viewModel.cafe,
-        bar = viewModel.bar,
-        onRestaurantChange = viewModel::updateRestaurant,
-        onCafeChange = viewModel::updateCafe,
-        onBarChange = viewModel::updateBar,
+        placeTypes = uiState.placeTypes,
+        onPlaceTypeToggle = { type, selected ->
+            if (selected) viewModel.addPlaceType(type)
+            else viewModel.removePlaceType(type)
+        },
         onBack = onBack,
         onCreatedEvent = {
             viewModel.createEvent()
@@ -47,15 +60,20 @@ fun CreateEventButtonPage(
     )
 }
 
+/**
+ * UI content for selecting allowed place types during event creation.
+ *
+ * @param placeTypes The currently selected place types.
+ * @param onPlaceTypeToggle Callback invoked when a place type is selected or deselected.
+ * @param onBack Navigate back to the previous screen.
+ * @param onCreatedEvent Trigger event creation and navigate forward.
+ */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventButtonContent(
-    restaurant: Boolean,
-    cafe: Boolean,
-    bar: Boolean,
-    onRestaurantChange: (Boolean) -> Unit,
-    onCafeChange: (Boolean) -> Unit,
-    onBarChange: (Boolean) -> Unit,
+    placeTypes: List<PlaceType>,
+    onPlaceTypeToggle: (PlaceType, Boolean) -> Unit,
     onBack: () -> Unit,
     onCreatedEvent: () -> Unit
 ) {
@@ -83,11 +101,31 @@ fun CreateEventButtonContent(
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
-            PlaceTypeItem(title = "Restaurant", checked = restaurant, onCheckedChange = onRestaurantChange)
-            PlaceTypeItem(title = "Cafe", checked = cafe, onCheckedChange = onCafeChange)
-            PlaceTypeItem(title = "Bar", checked = bar, onCheckedChange = onBarChange)
+            PlaceTypeItem(
+                title = "Restaurant",
+                checked = placeTypes.contains(PlaceType.RESTAURANT),
+                onCheckedChange = { selected ->
+                    onPlaceTypeToggle(PlaceType.RESTAURANT, selected)
+                }
+            )
 
-            val isAnySelected = restaurant || cafe || bar
+            PlaceTypeItem(
+                title = "Cafe",
+                checked = placeTypes.contains(PlaceType.CAFE),
+                onCheckedChange = { selected ->
+                    onPlaceTypeToggle(PlaceType.CAFE, selected)
+                }
+            )
+
+            PlaceTypeItem(
+                title = "Bar",
+                checked = placeTypes.contains(PlaceType.BAR),
+                onCheckedChange = { selected ->
+                    onPlaceTypeToggle(PlaceType.BAR, selected)
+                }
+            )
+            val isAnySelected = placeTypes.isNotEmpty()
+
 
             Spacer(modifier = Modifier.height(160.dp))
 
@@ -109,8 +147,13 @@ fun CreateEventButtonContent(
 }
 
 /**
- * Reusable row for the checkboxes
+ * Reusable row component representing a single selectable place type.
+ *
+ * @param title Display name of the place type.
+ * @param checked Whether this place type is currently selected.
+ * @param onCheckedChange Callback invoked when the selection state changes.
  */
+
 @Composable
 fun PlaceTypeItem(
     title: String,
@@ -139,16 +182,15 @@ fun PlaceTypeItem(
     }
 }
 
+/**
+ * Preview of the place type selection UI.
+ */
 @Preview(showBackground = true)
 @Composable
 fun CreateEventButtonPagePreview() {
     CreateEventButtonContent(
-        restaurant = false,
-        cafe = false,
-        bar = false,
-        onRestaurantChange = {},
-        onCafeChange = {},
-        onBarChange = {},
+        placeTypes = listOf(),
+        onPlaceTypeToggle = { _, _ -> },
         onBack = {},
         onCreatedEvent = {}
     )
