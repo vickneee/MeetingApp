@@ -6,4 +6,5 @@
     <string name="title_create_creating_event_page">Create Event</string>
     <string name="title_host_dashboard">Host Dashboard</string>
     <string name="title_event_created">Event Created</string>
+    <string name="title_past_events_page">Event List</string>
 </resources>

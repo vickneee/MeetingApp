@@ -22,6 +22,8 @@ import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedDestinati
 import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedPage
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
+import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsDestination
+import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsPage
 
 /**
  * Main navigation graph for the MeetingApp.
@@ -58,7 +60,8 @@ fun MeetingAppNavHost(
          */
         composable(route = HomeDestination.route) {
             HomeScreen(
-                onMainClick = { navController.navigate(CreateOrJoinDestination.route) }
+                onMainClick = { navController.navigate(CreateOrJoinDestination.route) },
+                onEventsClick = { navController.navigate(PastEventsDestination.route) }
             )
         }
 
@@ -70,6 +73,9 @@ fun MeetingAppNavHost(
                 onBack = { navController.popBackStack() },
                 navigateToCreatingEventPage = {
                     navController.navigate("event_creation_graph")
+                },
+                navigateToPastEventsPage = {
+                    navController.navigate(PastEventsDestination.route)
                 }
             )
         }
@@ -151,6 +157,15 @@ fun MeetingAppNavHost(
          */
         composable(route = HostDashboardDestination.route) {
             HostDashboardPage(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        /**
+         * Past Events destination
+         */
+        composable(route = "past_events") {
+            PastEventsPage(
                 onBack = { navController.popBackStack() }
             )
         }

@@ -32,6 +32,13 @@ class CreateOrJoinViewModel(
         key = newKey
     }
 
+    var navigateToPastEventsPage by mutableStateOf(false)
+        private set
+
+    fun onNavigatedToPastEvents() {
+        navigateToPastEventsPage = false
+    }
+
     fun joinEvent() {
         viewModelScope.launch {
             val uid = auth.currentUser?.uid ?: return@launch
@@ -50,8 +57,8 @@ class CreateOrJoinViewModel(
 
             val eventId = snapshot.documents.first().id
             userRepository.addJoinedEvent(eventId = eventId, uid = uid)
+            navigateToPastEventsPage = true
             Log.d("Join", "Joined event: $eventId")
         }
     }
-
 }

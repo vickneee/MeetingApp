@@ -54,6 +54,7 @@ object HomeDestination : NavigationDestination {
 @Composable
 fun HomeScreen(
     onMainClick: () -> Unit,
+    onEventsClick: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     /**
@@ -133,7 +134,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.padding(16.dp))
 
                 Button(
-                    onClick = onMainClick,
+                    onClick = onEventsClick,
                     border = BorderStroke(2.dp, Color(0xFF3B82F6)),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
