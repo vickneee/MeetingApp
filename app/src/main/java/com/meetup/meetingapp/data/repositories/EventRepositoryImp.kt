@@ -5,11 +5,8 @@ package com.meetup.meetingapp.data.repositories
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-import com.meetup.meetingapp.data.model.DateRange
+
 import com.meetup.meetingapp.data.model.Event
-import com.meetup.meetingapp.data.model.LocationOption
-import com.meetup.meetingapp.data.model.PlaceType
-import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.EventUiState
 import kotlinx.coroutines.tasks.await
 

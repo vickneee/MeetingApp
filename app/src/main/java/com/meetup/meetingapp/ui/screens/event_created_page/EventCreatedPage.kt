@@ -1,6 +1,7 @@
 package com.meetup.meetingapp.ui.screens.event_created_page
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,19 +10,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
-import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.EventState
+import com.meetup.meetingapp.ui.screens.EventViewModel
 
 /**
  * Navigation destination for the Event Created screen.
@@ -35,25 +38,34 @@ object EventCreatedDestination : NavigationDestination {
  * Event Created Page
  * @param onBack Navigate back
  * @param onNavigateToDashboard Navigate to the host dashboard
- * @param viewModel [EventCreatedViewModel] to retrieve generated codes.
+ * @param viewModel [EventViewModel] to retrieve generated codes.
  */
 @Composable
 fun EventCreatedPage(
     onBack: () -> Unit,
     onNavigateToDashboard: () -> Unit,
-    viewModel: EventCreatedViewModel = viewModel(
-        factory = AppViewModelProvider.Factory
-    )
+    viewModel: EventViewModel
 ) {
-    EventCreatedContent(
-        eventCode = viewModel.eventCode,
-        eventKey = viewModel.eventKey,
-        onBack = onBack,
-        onNavigateToDashboard = onNavigateToDashboard,
-        onCopyCode = { /* Implementation */ },
-        onShare = { /* Implementation */ },
-        onFillAvailability = { /* Implementation */ }
-    )
+    when (val eventState = viewModel.eventState.collectAsState().value){
+        is EventState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+        is EventState.Success ->
+            EventCreatedContent(
+                eventCode = eventState.eventCode,
+                eventKey = eventState.eventKey,
+                onBack = onBack,
+                onNavigateToDashboard = onNavigateToDashboard,
+                onCopyCode = { /* Implementation */ },
+                onShare = { /* Implementation */ },
+                onFillAvailability = { /* Implementation */ }
+            )
+        is EventState.Error ->
+            ErrorScreen(
+                message = eventState.error.message ?: "Something went wrong",
+                onRetry = { viewModel.createEvent() },
+                modifier = Modifier.fillMaxSize()
+            )
+    }
+
 }
 
 /**
@@ -169,6 +181,39 @@ fun EventCreatedContent(
         }
     }
 }
+
+/**
+ * The screen displaying the loading message.
+ */
+@Composable
+fun LoadingScreen(modifier: Modifier = Modifier) {
+    Image(
+        modifier = modifier.size(200.dp),
+        painter = painterResource(R.drawable.loading_img),
+        contentDescription = "Loading"
+    )
+}
+
+/**
+ * The screen displaying error message with re-attempt button.
+ */
+@Composable
+fun ErrorScreen(message: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_connection_error), contentDescription = ""
+        )
+        Text(text = message, modifier = Modifier.padding(16.dp))
+        Button(onClick = onRetry) {
+            Text("Retry")
+        }
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable

@@ -1,10 +1,15 @@
 package com.meetup.meetingapp.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navigation
+import com.meetup.meetingapp.ui.AppViewModelProvider
+import com.meetup.meetingapp.ui.screens.EventViewModel
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPage
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPageDestination
 import com.meetup.meetingapp.ui.screens.home.HomeDestination
@@ -19,9 +24,27 @@ import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
 
 /**
- * Provides Navigation graph for the application.
+ * Main navigation graph for the MeetingApp.
+ *
+ * This NavHost defines all top‑level destinations and the nested navigation graph
+ * used for the event‑creation flow.
+ *
+ * Structure:
+ * - Home
+ * - Create or Join
+ * - Event Creation Flow (nested graph)
+ *      - CreateCreatingEventPage
+ *      - CreateEventButtonPage
+ *      - EventCreatedPage
+ * - Host Dashboard
+ *
+ * The event creation flow shares a single EventViewModel instance across
+ * all three screens by scoping the ViewModel to the "event_creation_graph"
+ * navigation graph. This ensures that user input is preserved across screens.
+ *
+ * @param navController The NavController used to navigate between screens.
+ * @param modifier Optional modifier for layout adjustments.
  */
-
 @Composable
 fun MeetingAppNavHost(
     navController: NavHostController,
@@ -46,41 +69,81 @@ fun MeetingAppNavHost(
             CreateOrJoinPage(
                 onBack = { navController.popBackStack() },
                 navigateToCreatingEventPage = {
-                    navController.navigate(CreateCreatingEventPageDestination.route)
+                    navController.navigate("event_creation_graph")
                 }
             )
         }
 
         /**
-         * Create event destination
+         * Nested navigation graph for the event creation flow.
+         * All screens inside this graph share the same EventViewModel instance.
          */
-        composable(route = CreateCreatingEventPageDestination.route) {
-            CreateCreatingEventPage(
-                onBack = { navController.popBackStack() },
-                navigateToCreatingEventPage = {
-                    navController.navigate(CreateEventButtonDestination.route)
+        navigation(
+            startDestination = CreateCreatingEventPageDestination.route,
+            route = "event_creation_graph"
+        ) {
+            /**
+             * Create event destination
+             */
+            composable(CreateCreatingEventPageDestination.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("event_creation_graph")
                 }
-            )
-        }
+                val viewModel: EventViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
 
-        /**
-         * Create event button destination (The Checkbox Page)
-         */
-        composable(route = CreateEventButtonDestination.route) {
-            CreateEventButtonPage(
-                onBack = { navController.popBackStack() },
-                onCreatedEvent = { navController.navigate(EventCreatedDestination.route) }
-            )
-        }
+                CreateCreatingEventPage(
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                    navigateToCreatingEventPage = {
+                        navController.navigate(CreateEventButtonDestination.route)
+                    }
+                )
+            }
 
-        /**
-         * Event created destination
-         */
-        composable(route = EventCreatedDestination.route) {
-            EventCreatedPage(
-                onBack = { navController.popBackStack() },
-                onNavigateToDashboard = { navController.navigate(HostDashboardDestination.route) }
-            )
+            /**
+             * Create event button destination (The Checkbox Page)
+             */
+            composable(CreateEventButtonDestination.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("event_creation_graph")
+                }
+                val viewModel: EventViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                CreateEventButtonPage(
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                    onCreatedEvent = {
+                        navController.navigate(EventCreatedDestination.route)
+                    }
+                )
+            }
+
+            /**
+             * Event created destination
+             */
+            composable(EventCreatedDestination.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("event_creation_graph")
+                }
+                val viewModel: EventViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                EventCreatedPage(
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                    onNavigateToDashboard = {
+                        navController.navigate(HostDashboardDestination.route)
+                    }
+                )
+            }
         }
 
         /**

@@ -16,6 +16,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +30,9 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.EventUiState
+import com.meetup.meetingapp.ui.screens.EventViewModel
+
 
 object CreateCreatingEventPageDestination : NavigationDestination {
     override val route = "create_creating_event_page"
@@ -35,53 +40,50 @@ object CreateCreatingEventPageDestination : NavigationDestination {
 }
 
 /**
- * Create Creating Event Page
- * @param onBack Navigate back
- * @param navigateToCreatingEventPage Navigate to the next page
- * @param viewModel [CreateCreatingEventPageViewModel] to retrieve all items in the Room database.
+ * Entry point composable for the event creation page.
+ *
+ * @param onBack Navigate back to the previous screen.
+ * @param navigateToCreatingEventPage Navigate to the date range selection page.
+ * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
+
 @Composable
 fun CreateCreatingEventPage(
     onBack: () -> Unit,
     navigateToCreatingEventPage: () -> Unit,
-    viewModel: CreateCreatingEventPageViewModel = viewModel(
-        factory = AppViewModelProvider.Factory)
+    viewModel: EventViewModel
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     CreateCreatingEventPageContent(
-        eventTitle = viewModel.eventTitle,
-        onEventTitleChange = viewModel::createEventName,
-        hostName = viewModel.hostName,
-        onHostNameChange = viewModel::createHostName,
-        date = viewModel.date,
-        onDateChange = viewModel::createDate,
+        uiState = uiState,
+        onEventTitleChange = viewModel::updateTitle,
+        onHostNameChange = viewModel::updateHostName,
         onBack = onBack,
         navigateToCreatingEventPage = navigateToCreatingEventPage
     )
 }
 
 /**
- * Create Creating Event Page Content
- * @param eventTitle Event Title
- * @param onEventTitleChange Event Title Change
- * @param hostName Host Name
- * @param onHostNameChange Host Name Change
- * @param date Date
- * @param onDateChange Date Change
- * @param onBack Navigate back
- * @param navigateToCreatingEventPage Navigate to the next page
+ * UI content for the event creation page.
+ *
+ * @param uiState Current UI state containing event title, host name, and other form values.
+ * @param onEventTitleChange Callback when the event title is updated.
+ * @param onHostNameChange Callback when the host name is updated.
+ * @param onBack Navigate back to the previous screen.
+ * @param navigateToCreatingEventPage Navigate to the date range selection page.
+ * @param modifier Optional [Modifier] for layout adjustments.
  */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateCreatingEventPageContent(
-    eventTitle: String,
+    uiState: EventUiState,
     onEventTitleChange: (String) -> Unit,
-    hostName: String,
     onHostNameChange: (String) -> Unit,
-    date: String,
-    onDateChange: (String) -> Unit,
     onBack: () -> Unit,
+    navigateToCreatingEventPage: () -> Unit,
     modifier: Modifier = Modifier,
-    navigateToCreatingEventPage: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -110,7 +112,7 @@ fun CreateCreatingEventPageContent(
                 )
 
                 OutlinedTextField(
-                    value = eventTitle,
+                    value = uiState.eventTitle,
                     onValueChange = onEventTitleChange,
                     placeholder = { Text("Enter title") },
                     modifier = Modifier
@@ -128,7 +130,7 @@ fun CreateCreatingEventPageContent(
                 )
 
                 OutlinedTextField(
-                    value = hostName,
+                    value = uiState.hostName,
                     onValueChange = onHostNameChange,
                     placeholder = { Text("Enter host name") },
                     modifier = Modifier
@@ -190,21 +192,18 @@ fun CreateCreatingEventPageContent(
 @Preview(showBackground = true)
 @Composable
 fun CreateCreatingEventPagePreview(
-    eventTitle: String = "",
+    uiState: EventUiState = EventUiState(
+        eventTitle = "Sample Event",
+        hostName = "host",
+    ),
     onEventTitleChange: (String) -> Unit = {},
-    hostName: String = "",
     onHostNameChange: (String) -> Unit = {},
-    date: String = "",
-    onDateChange: (String) -> Unit = {},
     onBack: () -> Unit = {}
 ) {
     CreateCreatingEventPageContent(
-        eventTitle = eventTitle,
+        uiState = uiState,
         onEventTitleChange = onEventTitleChange,
-        hostName = hostName,
         onHostNameChange = onHostNameChange,
-        date = date,
-        onDateChange = onDateChange,
         onBack = onBack,
         navigateToCreatingEventPage = {}
     )
