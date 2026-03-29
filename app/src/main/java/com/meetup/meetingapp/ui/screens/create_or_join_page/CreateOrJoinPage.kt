@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.create_or_join_page
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,17 +49,28 @@ object CreateOrJoinDestination : NavigationDestination {
 fun CreateOrJoinPage(
     onBack: () -> Unit,
     navigateToCreatingEventPage: () -> Unit,
+    navigateToPastEventsPage: () -> Unit,
     viewModel: CreateOrJoinViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
 ) {
+    // Navigate when join succeeds
+    LaunchedEffect(viewModel.navigateToPastEventsPage) {
+        if (viewModel.navigateToPastEventsPage) {
+            viewModel.onNavigatedToPastEvents()
+            navigateToPastEventsPage()
+        }
+    }
+
     CreateOrJoinContent(
         code = viewModel.code,
         onCodeChange = viewModel::updateCode,
         key = viewModel.key,
         onKeyChange = viewModel::updateKey,
         onBack = onBack,
-        onCreateEventClick = navigateToCreatingEventPage
+        onCreateEventClick = navigateToCreatingEventPage,
+        onJoinEventClick = viewModel::joinEvent,
+        onEventsClick = navigateToPastEventsPage
     )
 }
 
@@ -80,7 +93,9 @@ fun CreateOrJoinContent(
     onKeyChange: (String) -> Unit,
     onBack: () -> Unit,
     onCreateEventClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onJoinEventClick: () -> Unit,
+    onEventsClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -123,6 +138,7 @@ fun CreateOrJoinContent(
                         modifier = Modifier.padding(4.dp)
                     )
                 }
+                Log.d("CreateOrJoinPage", "Code: $code, Key: $key")
 
                 Spacer(modifier = Modifier.padding(16.dp))
 
@@ -157,21 +173,21 @@ fun CreateOrJoinContent(
                 )
 
                 Button(
-                    onClick = { },
+                    onClick = { onJoinEventClick() },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
                         text = "Join Event",
                         fontSize = 18.sp,
-                           modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(4.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.padding(28.dp))
 
                 Button(
-                    onClick = { },
+                    onClick = { onEventsClick() },
                     border = BorderStroke(2.dp, Color(0xFF3B82F6)),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
@@ -205,6 +221,8 @@ fun CreateOrJoinPagePreview() {
         key = "",
         onKeyChange = {},
         onBack = {},
-        onCreateEventClick = {}
+        onCreateEventClick = {},
+        onJoinEventClick = {},
+        onEventsClick = {}
     )
 }
