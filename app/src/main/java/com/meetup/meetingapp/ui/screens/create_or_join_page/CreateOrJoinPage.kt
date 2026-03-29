@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.create_or_join_page
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -57,7 +58,8 @@ fun CreateOrJoinPage(
         key = viewModel.key,
         onKeyChange = viewModel::updateKey,
         onBack = onBack,
-        onCreateEventClick = navigateToCreatingEventPage
+        onCreateEventClick = navigateToCreatingEventPage,
+        onJoinEventClick = viewModel::joinEvent
     )
 }
 
@@ -80,7 +82,8 @@ fun CreateOrJoinContent(
     onKeyChange: (String) -> Unit,
     onBack: () -> Unit,
     onCreateEventClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onJoinEventClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -123,6 +126,7 @@ fun CreateOrJoinContent(
                         modifier = Modifier.padding(4.dp)
                     )
                 }
+                Log.d("CreateOrJoinPage", "Code: $code, Key: $key")
 
                 Spacer(modifier = Modifier.padding(16.dp))
 
@@ -157,7 +161,7 @@ fun CreateOrJoinContent(
                 )
 
                 Button(
-                    onClick = { },
+                    onClick = { onJoinEventClick() },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     shape = RoundedCornerShape(8.dp),
                 ) {
@@ -206,5 +210,5 @@ fun CreateOrJoinPagePreview() {
         onKeyChange = {},
         onBack = {},
         onCreateEventClick = {}
-    )
+    ) {}
 }
