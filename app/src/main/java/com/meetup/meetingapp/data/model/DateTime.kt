@@ -9,6 +9,6 @@ import java.time.LocalDate
  * @property timeSlot The specific time slot chosen for that date.
  */
 data class DateTime(
-    val date: LocalDate,
-    val timeSlot: TimeSlot
+    val date: LocalDate = LocalDate.now(),
+    val timeSlot: TimeSlot = TimeSlot()
 )

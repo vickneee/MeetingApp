@@ -10,7 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination
-import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination.ParticipantMeetUpDetailPage
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailPage
 import com.meetup.meetingapp.ui.screens.EventViewModel
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPage
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPageDestination
@@ -78,6 +78,9 @@ fun MeetingAppNavHost(
                 },
                 navigateToPastEventsPage = {
                     navController.navigate(PastEventsDestination.route)
+                },
+                navigateToParticipantPage = { eventCode ->
+                    navController.navigate("participant-input/$eventCode")
                 }
             )
         }
@@ -154,18 +157,21 @@ fun MeetingAppNavHost(
             }
         }
 
+        /**
+         * Nested navigation graph for the participant input flow.
+         * All screens inside this graph share the same ParticipantViewModel instance.
+         */
         navigation(
-            startDestination = ParticipantMeetUpDetailDestination.route,
-            route = "participant-input"
+            startDestination = ParticipantMeetUpDetailDestination.routeWithArgs,
+            route = "participant-input/{eventCode}"
         ) {
-            composable(ParticipantMeetUpDetailDestination.route) { backStackEntry ->
+            composable(ParticipantMeetUpDetailDestination.routeWithArgs) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("participant-input")
+                    navController.getBackStackEntry("participant-input/{eventCode}")
                 }
 
                 ParticipantMeetUpDetailPage(
                     onBack = { navController.popBackStack() },
-                    //navigateToCreatingEventPage = {}
                 )
             }
         }
