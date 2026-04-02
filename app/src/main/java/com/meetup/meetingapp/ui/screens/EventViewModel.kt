@@ -21,15 +21,16 @@ import java.time.LocalDate
  *
  * This sealed interface ensures that all states are known at compile time,
  */
-sealed interface EventState{
+sealed interface EventState {
 
     /**
      * Represents a successful event creation.
      *
      * @property eventCode The unique code generated for the event.
      * @property eventKey The secret key associated with the event.
+     * @property eventId The unique identifier of the created event.
      */
-    data class Success(val eventCode: String, val eventKey: String): EventState
+    data class Success(val eventCode: String, val eventKey: String, val eventId: String): EventState
 
     /**
      * Represents a failure during event creation.
@@ -112,10 +113,10 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     fun createEvent(){
         viewModelScope.launch(Dispatchers.IO)  {
             try {
-                val(eventCode, eventKey) = eventRepository.createEvent(uiState.value).getOrThrow()
+                val(eventCode, eventKey, eventId) = eventRepository.createEvent(uiState.value).getOrThrow()
 
                 withContext(Dispatchers.Main) {
-                    _eventState.value = EventState.Success(eventCode, eventKey)
+                    _eventState.value = EventState.Success(eventCode, eventKey, eventId)
                 }
             } catch (e: Throwable){
                 _eventState.value = EventState.Error(e)

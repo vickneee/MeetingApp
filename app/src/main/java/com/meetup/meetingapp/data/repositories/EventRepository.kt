@@ -14,9 +14,12 @@ import kotlinx.coroutines.flow.Flow
 interface EventRepository {
     suspend fun createEvent(
         eventValues: EventUiState
-    ): Result<Pair<String, String>>
+    ): Result<Triple<String, String, String>>
 
     // Room database operations
     fun getEvents(): Flow<List<Event>>
     suspend fun syncEvents()
+
+    // Room database operations
+    suspend fun getEventById(id: String): Flow<Event?>
 }

@@ -1,6 +1,7 @@
 package com.meetup.meetingapp.ui
 
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -72,7 +73,10 @@ object AppViewModelProvider {
          * Initializer for HostDashboardViewModel
          */
         initializer {
-            HostDashboardViewModel()
+            HostDashboardViewModel(
+                meetingApplication().container.eventRepository,
+                this.createSavedStateHandle()
+            )
         }
     }
 }

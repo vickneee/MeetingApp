@@ -10,7 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
@@ -43,28 +44,34 @@ object EventCreatedDestination : NavigationDestination {
 @Composable
 fun EventCreatedPage(
     onBack: () -> Unit,
-    onNavigateToDashboard: () -> Unit,
+    onNavigateToDashboard: (String) -> Unit,
     viewModel: EventViewModel
 ) {
-    when (val eventState = viewModel.eventState.collectAsState().value){
+
+    val eventState by viewModel.eventState.collectAsStateWithLifecycle()
+
+    when (eventState) {
         is EventState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
-        is EventState.Success ->
+        is EventState.Success -> {
+            val state = eventState as EventState.Success
             EventCreatedContent(
-                eventCode = eventState.eventCode,
-                eventKey = eventState.eventKey,
+                eventCode = state.eventCode,
+                eventKey = state.eventKey,
                 onBack = onBack,
-                onNavigateToDashboard = onNavigateToDashboard,
+                onNavigateToDashboard = { onNavigateToDashboard(state.eventId)},
                 onCopyCode = { /* Implementation */ },
                 onShare = { /* Implementation */ },
                 onFillAvailability = { /* Implementation */ }
             )
-        is EventState.Error ->
+        }
+        is EventState.Error -> {
+            val state = eventState as EventState.Error
             ErrorScreen(
-                message = eventState.error.message ?: "Something went wrong",
+                message = state.error.message ?: "Something went wrong",
                 onRetry = { viewModel.createEvent() },
                 modifier = Modifier.fillMaxSize()
             )
-    }
+    }   }
 
 }
 

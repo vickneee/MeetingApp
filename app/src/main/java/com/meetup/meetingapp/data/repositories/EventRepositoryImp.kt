@@ -64,6 +64,11 @@ class EventRepositoryImp(
         }
     }
 
+    override suspend fun getEventById(id: String): Flow<Event?> {
+        return eventDao.getEventById(id)
+            .map { it?.let { with(EventMapper) { it.toDomain() } } }
+    }
+
     /**
      * Creates a new event in Firestore and returns the generated event code and event key.
      *
@@ -71,12 +76,12 @@ class EventRepositoryImp(
      * After successful creation, the event ID is added to the host's "createdEventIds"
      * via [UserRepository].
      *
-     * @return A [Result] containing a pair of (eventCode, eventKey) on success,
+     * @return A [Result] containing a triple of (eventCode, eventKey, eventId) on success,
      * or an error on failure.
      */
     override suspend fun createEvent(
         eventValues: EventUiState
-    ): Result<Pair<String, String>>{
+    ): Result<Triple<String, String, String>>{
 
         // Create a new document reference with an auto-generated ID.
         val docRef = db.collection("events").document()
@@ -124,8 +129,8 @@ class EventRepositoryImp(
             // After successful creation, update the host's created event list.
             userRepository.addCreatedEvent(eventId= eventId, uid = uid)
 
-            // Return the generated eventCode and eventKey.
-            return Result.success(Pair(eventCode, eventKey))
+            // Return the generated eventCode, eventKey and eventId.
+            return Result.success(Triple(eventCode, eventKey, eventId))
         } catch(e: Exception){
             // Return the error if any Firestore operation fails.
             return Result.failure(e)
