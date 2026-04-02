@@ -1,5 +1,4 @@
 package com.meetup.meetingapp.data.model
-import java.time.LocalDate
 import com.google.firebase.Timestamp
 
 /**

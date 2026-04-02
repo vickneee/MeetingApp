@@ -12,5 +12,5 @@ data class DateTime(
     val date: String = LocalDate.now().toString(), // Firestore friendly
     val timeSlot: TimeSlot = TimeSlot()
 ) {
-    fun toLocalDate(): java.time.LocalDate = java.time.LocalDate.parse(date)
+    fun toLocalDate(): LocalDate = LocalDate.parse(date)
 }
