@@ -24,6 +24,8 @@ import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedDestinati
 import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedPage
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination.eventCodeArg
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantViewModel
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsDestination
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsPage
 
@@ -80,7 +82,7 @@ fun MeetingAppNavHost(
                     navController.navigate(PastEventsDestination.route)
                 },
                 navigateToParticipantPage = { eventCode ->
-                    navController.navigate("participant-input/$eventCode")
+                    navController.navigate("${ParticipantMeetUpDetailDestination.route}/$eventCode")
                 }
             )
         }
@@ -163,15 +165,27 @@ fun MeetingAppNavHost(
          */
         navigation(
             startDestination = ParticipantMeetUpDetailDestination.routeWithArgs,
-            route = "participant-input/{eventCode}"
+            route = "participant-input"
         ) {
             composable(ParticipantMeetUpDetailDestination.routeWithArgs) { backStackEntry ->
+                // Parent entry for scoping the ViewModel to this navigation graph
                 val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("participant-input/{eventCode}")
+                    navController.getBackStackEntry("participant-input")
                 }
+
+                // The ViewModel reads the eventCode from SavedStateHandle automatically
+                val participantViewModel: ParticipantViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
 
                 ParticipantMeetUpDetailPage(
                     onBack = { navController.popBackStack() },
+                    viewModel = participantViewModel,
+                    eventCode = eventCodeArg,
+                    onNavigateToAvailability = {
+                        navController.navigate("availability")
+                    }
                 )
             }
         }

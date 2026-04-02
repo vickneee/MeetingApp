@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.data
 
+import android.content.Context
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
@@ -21,14 +22,17 @@ interface AppContainer {
 /**
  * [AppContainer] implementation that provides instance of repositories
  */
-class AppDataContainer(private val context: android.content.Context) : AppContainer {
+class AppDataContainer(private val context: Context) : AppContainer {
 
     // Shared Firestore instance used across repositories.
     override val db = Firebase.firestore
 
     /** Provides the Firestore-based UserRepository implementation. */
     override val userRepository: UserRepository by lazy {
-        UserRepositoryImp(db)
+        UserRepositoryImp(
+            db,
+            userDao = MeetingAppDatabase.getDatabase(context).userDao()
+        )
     }
 
     /**

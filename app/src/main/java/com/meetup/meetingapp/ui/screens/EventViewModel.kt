@@ -263,7 +263,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 data class EventUiState(
     val eventTitle: String = "",
     val hostName:String = "",
-    val dateRange: DateRange = DateRange(LocalDate.now(), LocalDate.now().plusDays(7)),
+    val dateRange: DateRange = DateRange(),
     val timeSlots: List<TimeSlot> = listOf(),
     val locations: LocationOption = LocationOption(),
     val placeTypes: List<PlaceType> = listOf()
