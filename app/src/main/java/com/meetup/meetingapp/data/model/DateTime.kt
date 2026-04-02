@@ -9,6 +9,8 @@ import java.time.LocalDate
  * @property timeSlot The specific time slot chosen for that date.
  */
 data class DateTime(
-    val date: LocalDate = LocalDate.now(),
+    val date: String = LocalDate.now().toString(), // Firestore friendly
     val timeSlot: TimeSlot = TimeSlot()
-)
+) {
+    fun toLocalDate(): java.time.LocalDate = java.time.LocalDate.parse(date)
+}

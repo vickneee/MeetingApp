@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.data.db.mapper
 
-import android.R.attr.end
 import com.google.firebase.Timestamp
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -32,8 +31,8 @@ object EventMapper {
         status = status.name,
         eventTitle = eventTitle,
         hostName = hostName,
-        dateRangeStart = dateRange.start.toEpochDay(),
-        dateRangeEnd = dateRange.end.toEpochDay(),
+        dateRangeStart = LocalDate.parse(dateRange.start).toEpochDay(),
+        dateRangeEnd   = LocalDate.parse(dateRange.end).toEpochDay(),
         timeSlotsJson = gson.toJson(timeSlots),
         locationOptionsJson = gson.toJson(locationOptions),
         placeTypeOptionsJson = gson.toJson(placeTypeOptions),
@@ -55,8 +54,8 @@ object EventMapper {
         eventTitle = eventTitle,
         hostName = hostName,
         dateRange = DateRange(
-            start = LocalDate.ofEpochDay(dateRangeStart),
-            end = LocalDate.ofEpochDay(dateRangeEnd)
+            start = LocalDate.ofEpochDay(dateRangeStart).toString(),
+            end = LocalDate.ofEpochDay(dateRangeEnd).toString()
         ),
         timeSlots = Gson().fromJson(timeSlotsJson, object : TypeToken<List<TimeSlot>>() {}.type),
         locationOptions = Gson().fromJson(locationOptionsJson, LocationOption::class.java),

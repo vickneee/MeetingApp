@@ -40,9 +40,11 @@ class ParticipantViewModel(
     private fun fetchEventByCode() {
         viewModelScope.launch {
             try {
-                val result = eventRepository.getEventByCode(eventCode)
-                if (result != null) {
-                    _event.value = result
+                // Correctly use the repository method to fetch the event
+                val eventObj = eventRepository.getEventByCode(eventCode)
+
+                if (eventObj != null) {
+                    _event.value = eventObj
                     _fetchState.value = FetchState.Success
                 } else {
                     _fetchState.value = FetchState.Error("Event not found")

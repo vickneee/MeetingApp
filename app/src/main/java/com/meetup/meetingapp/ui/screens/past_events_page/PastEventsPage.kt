@@ -118,7 +118,7 @@ fun PastEventsPagePreview() {
             status = EventStatus.CREATED,
             eventTitle = "Team Lunch",
             hostName = "John Doe",
-            dateRange = DateRange(LocalDate.now(), LocalDate.now().plusDays(7))
+            dateRange = DateRange(LocalDate.now().toString(), LocalDate.now().plusDays(7).toString())
         ),
         Event(
             eventCode = "D1L4P7",
@@ -128,7 +128,7 @@ fun PastEventsPagePreview() {
             status = EventStatus.COLLECTING_AVAILABILITY,
             eventTitle = "Team Dinner",
             hostName = "John Doe",
-            dateRange = DateRange(LocalDate.now(), LocalDate.now().plusDays(7))
+            dateRange = DateRange(LocalDate.now().toString(), LocalDate.now().plusDays(7).toString())
         )
     )
 

@@ -6,6 +6,6 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "users")
 data class UserEntity(
     @PrimaryKey val uid: String,
-    val createdEventIdsJson: List<T>,
-    val joinedEventIdsJson: String
+    val createdEventIds: List<String>,
+    val joinedEventIds: List<String>
 )

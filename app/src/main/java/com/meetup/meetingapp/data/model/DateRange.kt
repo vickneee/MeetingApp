@@ -9,6 +9,9 @@ import java.time.LocalDate
  * @property end The ending date of the range.
  */
 data class DateRange(
-    val start: LocalDate = LocalDate.now(),
-    val end: LocalDate = LocalDate.now().plusDays(7)
-)
+    val start: String = LocalDate.now().toString(),
+    val end: String = LocalDate.now().plusDays(7).toString()
+) {
+    fun startDate(): LocalDate = LocalDate.parse(start)
+    fun endDate(): LocalDate = LocalDate.parse(end)
+}

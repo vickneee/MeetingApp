@@ -1,8 +1,5 @@
 package com.meetup.meetingapp.data.model
 
-import java.time.LocalDate
-import java.time.LocalTime
-
 /**
  * Converts an [Event] into a Firestore‑friendly Map.
  *
@@ -27,13 +24,13 @@ fun Event.toFirestoreMap(): Map<String, Any?> {
         "eventTitle" to eventTitle,
         "hostName" to hostName,
         "dateRange" to mapOf(
-            "start" to dateRange.start.toString(),
-            "end" to dateRange.end.toString()
+            "start" to dateRange.start,
+            "end" to dateRange.end
         ),
         "timeSlots" to timeSlots.map {
             mapOf(
-                "start" to it.start.toString(),
-                "end" to it.end.toString()
+                "start" to it.start,
+                "end" to it.end
             )
         },
         "locationOptions" to mapOf(
@@ -84,15 +81,15 @@ fun Map<String, Any?>.toEvent(): Event {
         hostName = this["hostName"] as String,
 
         dateRange = DateRange(
-            start = LocalDate.parse(dateRangeMap["start"] as String),
-            end = LocalDate.parse(dateRangeMap["end"] as String)
+            start = dateRangeMap["start"] as String,
+            end = dateRangeMap["end"] as String
         ),
 
         timeSlots = timeSlotsRaw.mapNotNull { raw ->
             val slot = raw as? Map<*, *> ?: return@mapNotNull null
             TimeSlot(
-                start = LocalTime.parse(slot["start"] as String),
-                end = LocalTime.parse(slot["end"] as String)
+                start = slot["start"] as String,
+                end = slot["end"] as String
             )
         },
 
