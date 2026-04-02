@@ -22,4 +22,7 @@ interface EventRepository {
 
     // Room database operations
     suspend fun getEventById(id: String): Flow<Event?>
+
+    // Cloud Firestore operations
+    suspend fun getEventByCode(eventCode: String): Event?
 }

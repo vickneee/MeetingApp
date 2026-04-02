@@ -1,7 +1,5 @@
 package com.meetup.meetingapp.data.model
-import java.time.LocalDate
 import com.google.firebase.Timestamp
-
 
 /**
  * Core event model containing host settings, user voting results, and final selections.
@@ -53,7 +51,7 @@ data class Event (
     // Host-defined settings for the event.
     val eventTitle: String = "",
     val hostName: String = "",
-    val dateRange: DateRange = DateRange(LocalDate.now(), LocalDate.now().plusDays(7)),
+    val dateRange: DateRange = DateRange(),
     val timeSlots: List<TimeSlot> = listOf(),
     val locationOptions: LocationOption = LocationOption(),
     val placeTypeOptions: List<PlaceType> = listOf(),

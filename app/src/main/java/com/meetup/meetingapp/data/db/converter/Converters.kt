@@ -58,4 +58,15 @@ class Converters {
     @TypeConverter
     fun toDateTime(json: String?): DateTime? =
         json?.let { gson.fromJson(it, DateTime::class.java) }
+
+    @TypeConverter
+    fun fromList(value: List<String>): String {
+        return value.joinToString(",")
+    }
+
+    @TypeConverter
+    fun toList(value: String): List<String> {
+        if (value.isEmpty()) return emptyList()
+        return value.split(",")
+    }
 }

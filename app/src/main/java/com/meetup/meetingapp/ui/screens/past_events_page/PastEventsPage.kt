@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.past_events_page
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -118,7 +117,7 @@ fun PastEventsPagePreview() {
             status = EventStatus.CREATED,
             eventTitle = "Team Lunch",
             hostName = "John Doe",
-            dateRange = DateRange(LocalDate.now(), LocalDate.now().plusDays(7))
+            dateRange = DateRange(LocalDate.now().toString(), LocalDate.now().plusDays(7).toString())
         ),
         Event(
             eventCode = "D1L4P7",
@@ -128,7 +127,7 @@ fun PastEventsPagePreview() {
             status = EventStatus.COLLECTING_AVAILABILITY,
             eventTitle = "Team Dinner",
             hostName = "John Doe",
-            dateRange = DateRange(LocalDate.now(), LocalDate.now().plusDays(7))
+            dateRange = DateRange(LocalDate.now().toString(), LocalDate.now().plusDays(7).toString())
         )
     )
 
