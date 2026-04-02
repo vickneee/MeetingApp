@@ -145,8 +145,8 @@ fun MeetingAppNavHost(
                 EventCreatedPage(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
-                    onNavigateToDashboard = {
-                        navController.navigate(HostDashboardDestination.route)
+                    onNavigateToDashboard = { eventId ->
+                        navController.navigate("${HostDashboardDestination.route}/$eventId")
                     }
                 )
             }
@@ -155,7 +155,7 @@ fun MeetingAppNavHost(
         /**
          * Host Dashboard destination
          */
-        composable(route = HostDashboardDestination.route) {
+        composable(route = HostDashboardDestination.routeWithArgs) {
             HostDashboardPage(
                 onBack = { navController.popBackStack() }
             )

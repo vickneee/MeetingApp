@@ -8,13 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.meetup.meetingapp.data.repositories.ExampleRepository
 import com.meetup.meetingapp.data.repositories.UserRepository
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class CreateOrJoinViewModel(
-    private val exampleRepository: ExampleRepository,
     private val db: FirebaseFirestore,
     private val userRepository: UserRepository
 ) : ViewModel() {

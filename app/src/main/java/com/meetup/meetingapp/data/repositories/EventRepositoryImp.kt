@@ -2,8 +2,12 @@ package com.meetup.meetingapp.data.repositories
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.meetup.meetingapp.data.db.daos.EventDao
+import com.meetup.meetingapp.data.db.mapper.EventMapper
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.screens.EventUiState
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 
 /**
@@ -19,7 +23,8 @@ import kotlinx.coroutines.tasks.await
  */
 class EventRepositoryImp(
     private val db: FirebaseFirestore,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val eventDao: EventDao
 ): EventRepository {
 
     // Firebase Authentication instance to retrieve the current user.
@@ -28,6 +33,41 @@ class EventRepositoryImp(
     // UID of the currently authenticated user (event host).
     private val uid get() = auth.currentUser?.uid
 
+    /**
+     * Retrieves a list of events from the local Room database.
+     *
+     * @return A [Flow] emitting a list of [Event] objects.
+     */
+    // UI reads from Room (single source of truth)
+    override fun getEvents(): Flow<List<Event>> =
+        eventDao.getAllEvents()
+            .map { entities -> entities.map { with(EventMapper) { it.toDomain() } } }
+
+    /**
+     * Synchronizes events from Firestore with the local Room database.
+     *
+     */
+    // Sync events from Firestore to Room
+    override suspend fun syncEvents() {
+        val uid = uid ?: return
+        try {
+            db.collection("events")
+                .whereEqualTo("hostId", uid)
+                .get()
+                .await()
+                .documents
+                .mapNotNull { it.toObject(Event::class.java) }
+                .map { with(EventMapper) { it.toEntity() } }
+                .also { eventDao.upsertEvents(it) }
+        } catch (e: Exception) {
+            // sync failure won't crash the app, Room still serves cached data
+        }
+    }
+
+    override suspend fun getEventById(id: String): Flow<Event?> {
+        return eventDao.getEventById(id)
+            .map { it?.let { with(EventMapper) { it.toDomain() } } }
+    }
 
     /**
      * Creates a new event in Firestore and returns the generated event code and event key.
@@ -36,12 +76,12 @@ class EventRepositoryImp(
      * After successful creation, the event ID is added to the host's "createdEventIds"
      * via [UserRepository].
      *
-     * @return A [Result] containing a pair of (eventCode, eventKey) on success,
+     * @return A [Result] containing a triple of (eventCode, eventKey, eventId) on success,
      * or an error on failure.
      */
     override suspend fun createEvent(
         eventValues: EventUiState
-    ): Result<Pair<String, String>>{
+    ): Result<Triple<String, String, String>>{
 
         // Create a new document reference with an auto-generated ID.
         val docRef = db.collection("events").document()
@@ -83,17 +123,17 @@ class EventRepositoryImp(
             // Store the event document in Firestore.
             docRef.set(event).await()
 
+            //  Save to Room
+            with(EventMapper) { eventDao.upsertEvent(event.toEntity()) }
+
             // After successful creation, update the host's created event list.
             userRepository.addCreatedEvent(eventId= eventId, uid = uid)
 
-            // Return the generated eventCode and eventKey.
-            return Result.success(Pair(eventCode, eventKey))
+            // Return the generated eventCode, eventKey and eventId.
+            return Result.success(Triple(eventCode, eventKey, eventId))
         } catch(e: Exception){
             // Return the error if any Firestore operation fails.
             return Result.failure(e)
         }
-
-
     }
-
 }

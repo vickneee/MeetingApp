@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.data.model
 
-
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -108,5 +107,3 @@ fun Map<String, Any?>.toEvent(): Event {
         }
     )
 }
-
-
