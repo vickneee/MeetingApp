@@ -4,6 +4,6 @@ import java.time.LocalTime
 
 // Available time slot for the event.
 data class TimeSlot(
-    val start: LocalTime,
-    val end: LocalTime
+    val start: String = LocalTime.now().toString(),
+    val end: String = LocalTime.now().plusHours(1).toString()
 )

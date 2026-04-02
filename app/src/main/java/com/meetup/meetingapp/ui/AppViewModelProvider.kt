@@ -13,6 +13,7 @@ import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButt
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPageViewModel
 import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedViewModel
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardViewModel
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -74,6 +75,16 @@ object AppViewModelProvider {
          */
         initializer {
             HostDashboardViewModel(
+                meetingApplication().container.eventRepository,
+                this.createSavedStateHandle()
+            )
+        }
+
+        /**
+         * Initializer for ParticipantViewModel
+         */
+        initializer {
+            ParticipantViewModel(
                 meetingApplication().container.eventRepository,
                 this.createSavedStateHandle()
             )

@@ -136,4 +136,14 @@ class EventRepositoryImp(
             return Result.failure(e)
         }
     }
+
+    override suspend fun getEventByCode(eventCode: String): Event? {
+        return db.collection("events")
+            .whereEqualTo("eventCode", eventCode)
+            .get()
+            .await()
+            .documents
+            .firstOrNull()
+            ?.toObject(Event::class.java)
+    }
 }
