@@ -3,6 +3,7 @@ package com.meetup.meetingapp.ui.screens
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.DateRange
+import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.LocationOption
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
@@ -66,6 +67,36 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     private val _eventState = MutableStateFlow<EventState>(EventState.Loading)
 
     val eventState = _eventState.asStateFlow()
+
+    /**
+     * Synchronizes events from the repository.
+     */
+    private val _events = MutableStateFlow<List<Event>>(emptyList())
+    val events = _events.asStateFlow()
+
+    init {
+        observeEvents()
+        syncEvents()
+    }
+
+    /**
+     * Synchronizes events from the repository.
+     */
+    private fun observeEvents() {
+        viewModelScope.launch {
+            eventRepository.getEvents()
+                .collect { _events.value = it }
+        }
+    }
+
+    /**
+     * Synchronizes events from the repository.
+     */
+    private fun syncEvents() {
+        viewModelScope.launch(Dispatchers.IO) {
+            eventRepository.syncEvents()
+        }
+    }
 
     /**
      * Attempts to create a new event using the current UI state.
@@ -213,7 +244,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
             )
         }
     }
-
 }
 
 /**

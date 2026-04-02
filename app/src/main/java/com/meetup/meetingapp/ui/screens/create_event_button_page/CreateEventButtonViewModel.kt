@@ -4,11 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.meetup.meetingapp.data.repositories.ExampleRepository
 
-class CreateEventButtonViewModel(
-    private val exampleRepository: ExampleRepository
-) : ViewModel() {
+class CreateEventButtonViewModel : ViewModel() {
 
     // State for the checkboxes
     var restaurant by mutableStateOf(false)

@@ -24,7 +24,6 @@ object AppViewModelProvider {
          */
         initializer {
             HomeViewModel(
-                meetingApplication().container.exampleRepository,
                 meetingApplication().container.userRepository
             )
         }
@@ -34,7 +33,6 @@ object AppViewModelProvider {
          */
         initializer {
             CreateOrJoinViewModel(
-                meetingApplication().container.exampleRepository,
                 meetingApplication().container.db,
                 meetingApplication().container.userRepository
             )
@@ -53,36 +51,28 @@ object AppViewModelProvider {
          * Initializer for CreateCreatingEventPageViewModel
          */
         initializer {
-            CreateCreatingEventPageViewModel(
-                meetingApplication().container.exampleRepository
-            )
+            CreateCreatingEventPageViewModel()
         }
 
         /**
          * Initializer for CreateEventButtonViewModel
          */
         initializer {
-            CreateEventButtonViewModel(
-                meetingApplication().container.exampleRepository
-            )
+            CreateEventButtonViewModel()
         }
 
         /**
          * Initializer for EventCreatedViewModel
          */
         initializer {
-            EventCreatedViewModel(
-                meetingApplication().container.exampleRepository
-            )
+            EventCreatedViewModel()
         }
 
         /**
          * Initializer for HostDashboardViewModel
          */
         initializer {
-            HostDashboardViewModel(
-                meetingApplication().container.exampleRepository
-            )
+            HostDashboardViewModel()
         }
     }
 }
