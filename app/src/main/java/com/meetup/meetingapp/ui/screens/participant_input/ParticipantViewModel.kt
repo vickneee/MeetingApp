@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.FoodCategory
+import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,6 +66,16 @@ class ParticipantViewModel(
         }
     }
 
+    fun togglePlaceType(placeType: PlaceType) {
+        _participantState.update { current ->
+            val updated = if (current.selectedPlaceTypes.contains(placeType))
+                current.selectedPlaceTypes - placeType
+            else
+                current.selectedPlaceTypes + placeType
+            current.copy(selectedPlaceTypes = updated)
+        }
+    }
+
     fun toggleFoodCategory(category: FoodCategory) {
         _participantState.update { current ->
             val updated = if (current.selectedFoodCategories.contains(category))
@@ -84,6 +95,7 @@ class ParticipantViewModel(
 data class ParticipantInputState(
     val participantName: String = "",
     val selectedDateTimes: List<DateTime> = emptyList(),
+    val selectedPlaceTypes: List<PlaceType> = emptyList(),
     val selectedFoodCategories: List<FoodCategory> = emptyList()
 )
 

@@ -25,7 +25,11 @@ import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedPage
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination.eventCodeArg
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantPlaceTypeAndKeywordDestination
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantPlaceTypeAndKeywordPage
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantViewModel
+import com.meetup.meetingapp.ui.screens.participant_input.SubmissionCompleteDestination
+import com.meetup.meetingapp.ui.screens.participant_input.SubmissionCompletePage
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsDestination
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsPage
 
@@ -184,7 +188,48 @@ fun MeetingAppNavHost(
                     viewModel = participantViewModel,
                     eventCode = eventCodeArg,
                     onNavigateToAvailability = {
-                        navController.navigate("availability")
+                        navController.navigate(ParticipantPlaceTypeAndKeywordDestination.route)
+                    }
+                )
+            }
+
+            composable(ParticipantPlaceTypeAndKeywordDestination.route) { backStackEntry ->
+                // Parent entry for scoping the ViewModel to this navigation graph
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("participant-input")
+                }
+
+                // The ViewModel reads the eventCode from SavedStateHandle automatically
+                val participantViewModel: ParticipantViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                ParticipantPlaceTypeAndKeywordPage(
+                    onBack = { navController.popBackStack() },
+                    viewModel = participantViewModel,
+                    onNavigateToSubmissionCompletePage = {
+                        navController.navigate(SubmissionCompleteDestination.route)
+                    }
+                )
+            }
+
+            composable(SubmissionCompleteDestination.route) { backStackEntry ->
+                // Parent entry for scoping the ViewModel to this navigation graph
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("participant-input")
+                }
+
+                // The ViewModel reads the eventCode from SavedStateHandle automatically
+                val participantViewModel: ParticipantViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                SubmissionCompletePage(
+                    onBack = { navController.popBackStack() },
+                    viewModel = participantViewModel,
+                    onNavigateToDashboard = {
                     }
                 )
             }

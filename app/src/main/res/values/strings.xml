@@ -9,4 +9,6 @@
     <string name="title_past_events_page">Event List</string>
     <string name="title_meetup_details_page">MeetUp Details</string>
     <string name="title_small_area_selection_page">Area Selection</string>
+    <string name="title_placetype_and_keyword">Place Types &amp; Keywords</string>
+    <string name="title_submission_complete">Submission Complete</string>
 </resources>
