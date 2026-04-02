@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.participant_input
 
-import android.R.attr.text
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -34,8 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.location.LocationAvailability
-import com.google.common.io.Files.append
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
@@ -43,7 +40,6 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.event_created_page.ErrorScreen
 import com.meetup.meetingapp.ui.screens.event_created_page.LoadingScreen
-import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardContent
 
 object ParticipantMeetUpDetailDestination : NavigationDestination {
     override val route = "participant_meetUp_detail"

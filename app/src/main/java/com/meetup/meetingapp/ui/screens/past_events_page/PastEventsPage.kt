@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.past_events_page
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
