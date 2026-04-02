@@ -1,6 +1,7 @@
 package com.meetup.meetingapp.ui
 
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -24,7 +25,6 @@ object AppViewModelProvider {
          */
         initializer {
             HomeViewModel(
-                meetingApplication().container.exampleRepository,
                 meetingApplication().container.userRepository
             )
         }
@@ -34,7 +34,6 @@ object AppViewModelProvider {
          */
         initializer {
             CreateOrJoinViewModel(
-                meetingApplication().container.exampleRepository,
                 meetingApplication().container.db,
                 meetingApplication().container.userRepository
             )
@@ -53,27 +52,21 @@ object AppViewModelProvider {
          * Initializer for CreateCreatingEventPageViewModel
          */
         initializer {
-            CreateCreatingEventPageViewModel(
-                meetingApplication().container.exampleRepository
-            )
+            CreateCreatingEventPageViewModel()
         }
 
         /**
          * Initializer for CreateEventButtonViewModel
          */
         initializer {
-            CreateEventButtonViewModel(
-                meetingApplication().container.exampleRepository
-            )
+            CreateEventButtonViewModel()
         }
 
         /**
          * Initializer for EventCreatedViewModel
          */
         initializer {
-            EventCreatedViewModel(
-                meetingApplication().container.exampleRepository
-            )
+            EventCreatedViewModel()
         }
 
         /**
@@ -81,7 +74,8 @@ object AppViewModelProvider {
          */
         initializer {
             HostDashboardViewModel(
-                meetingApplication().container.exampleRepository
+                meetingApplication().container.eventRepository,
+                this.createSavedStateHandle()
             )
         }
     }
