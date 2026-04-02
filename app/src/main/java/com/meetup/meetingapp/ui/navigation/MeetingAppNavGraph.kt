@@ -9,6 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.meetup.meetingapp.ui.AppViewModelProvider
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination.ParticipantMeetUpDetailPage
 import com.meetup.meetingapp.ui.screens.EventViewModel
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPage
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPageDestination
@@ -148,6 +150,22 @@ fun MeetingAppNavHost(
                     onNavigateToDashboard = {
                         navController.navigate(HostDashboardDestination.route)
                     }
+                )
+            }
+        }
+
+        navigation(
+            startDestination = ParticipantMeetUpDetailDestination.route,
+            route = "participant-input"
+        ) {
+            composable(ParticipantMeetUpDetailDestination.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("participant-input")
+                }
+
+                ParticipantMeetUpDetailPage(
+                    onBack = { navController.popBackStack() },
+                    //navigateToCreatingEventPage = {}
                 )
             }
         }
