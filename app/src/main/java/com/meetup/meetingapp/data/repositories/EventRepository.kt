@@ -1,11 +1,8 @@
 package com.meetup.meetingapp.data.repositories
 
-
-import com.meetup.meetingapp.data.model.DateRange
-import com.meetup.meetingapp.data.model.LocationOption
-import com.meetup.meetingapp.data.model.PlaceType
-import com.meetup.meetingapp.data.model.TimeSlot
+import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.screens.EventUiState
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for managing event-related operations.
@@ -18,4 +15,8 @@ interface EventRepository {
     suspend fun createEvent(
         eventValues: EventUiState
     ): Result<Pair<String, String>>
+
+    // Room database operations
+    fun getEvents(): Flow<List<Event>>
+    suspend fun syncEvents()
 }

@@ -4,9 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.meetup.meetingapp.data.repositories.ExampleRepository
 
-class HostDashboardViewModel(private val exampleRepository: ExampleRepository) : ViewModel() {
+class HostDashboardViewModel : ViewModel() {
 
     // State for the event details as seen in your screenshot
     var eventCode by mutableStateOf("A7F9K2")
