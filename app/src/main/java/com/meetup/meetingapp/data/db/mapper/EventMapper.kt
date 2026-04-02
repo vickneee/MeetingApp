@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.data.db.mapper
 
+import android.R.attr.end
 import com.google.firebase.Timestamp
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
