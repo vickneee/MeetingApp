@@ -14,20 +14,23 @@ import kotlinx.coroutines.flow.Flow
  * Room and Cloud Firestore.
  */
 interface EventRepository {
+    // Cloud Firestore operations
     suspend fun createEvent(
         eventValues: EventUiState
     ): Result<Triple<String, String, String>>
-
-    // Room database operations
-    fun getEvents(): Flow<List<Event>>
-    suspend fun syncEvents()
-
-    // Room database operations
-    suspend fun getEventById(id: String): Flow<Event?>
 
     // Cloud Firestore operations
     suspend fun getEventByCode(eventCode: String): Event?
 
     // Cloud Firestore operations
     suspend fun createParticipantAvailability(participantInput: ParticipantInputState): Result<Unit>
+
+    // Room database operations
+    fun getEvents(): Flow<List<Event>>
+
+    // Room database operations SyncEvents
+    suspend fun syncEvents()
+
+    // Room database operations
+    fun getEventById(id: String): Flow<Event?>
 }
