@@ -4,8 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +20,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.ui.screens.EventViewModel
 
+/**
+ * Navigation destination for the Small Area Selection screen.
+ */
 object SmallAreaSelectingDestination : NavigationDestination {
     override val route = "small_area_selecting"
     override val titleRes = R.string.title_small_area_selection_page
@@ -29,7 +30,10 @@ object SmallAreaSelectingDestination : NavigationDestination {
 
 /**
  * Screen for selecting specific metropolitan areas (Espoo, Helsinki, Vantaa).
- * Uses a LazyColumn for better performance and scrollability.
+ * Uses a LazyColumn for better performance and scrollable content.
+ * @param onBack Callback to navigate back.
+ * @param viewModel [EventViewModel] to manage UI state.
+ * @param onNext Callback to navigate to the next screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,7 +66,7 @@ fun SmallAreaSelectingContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Select Area",
+                title = "Choose Area",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -80,7 +84,7 @@ fun SmallAreaSelectingContent(
             // Header Section
             item {
                 Text(
-                    text = "Choose area where you prefer to meet",
+                    text = "Choose the area where you prefer to meet",
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -125,18 +129,16 @@ fun SmallAreaSelectingContent(
                 Button(
                     onClick = onNext,
                     enabled = isAnySelected,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
                 ) {
                     Text(
                         text = "Next",
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(vertical = 4.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null)
                 }
             }
         }

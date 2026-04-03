@@ -80,7 +80,7 @@ fun AreaSelectingContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Select Area",
+                title = "Choose Meeting Location",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -152,7 +152,7 @@ fun AreaSelectingContent(
                     onClick = onNextClick,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.6f),
+                    modifier = Modifier,
                     enabled = options.contains(selectedArea) // Only enable if a valid city is selected
                 ) {
                     Text(
