@@ -13,9 +13,8 @@ data class EventEntity(
     val eventTitle: String,
     val hostName: String,
 
-    // DateRange flattened
-    val dateRangeStart: Long,        // LocalDate → epoch day
-    val dateRangeEnd: Long,
+    val dateRangeStartString: String, // ← for display in Room
+    val dateRangeEndString: String,   // ← for display in Room
 
     // Complex lists → JSON strings (via Converter)
     val timeSlotsJson: String,
@@ -30,5 +29,6 @@ data class EventEntity(
     val finalTimeJson: String?,
     val finalPlace: String?,
 
-    val createdAt: Long              // Timestamp → Long (epoch millis)
+    val createdAt: Long,              // Timestamp → Long (epoch millis)
+    val createdAtString: String? = null // optional formatted string
 )

@@ -15,11 +15,11 @@ object LocalDateAdapter : JsonSerializer<LocalDate>, JsonDeserializer<LocalDate>
         src: LocalDate,
         type: Type,
         context: JsonSerializationContext
-    ): JsonElement = JsonPrimitive(src.toEpochDay())
+    ): JsonElement = JsonPrimitive(src.toString())
 
     override fun deserialize(
         json: JsonElement,
         type: Type,
         context: JsonDeserializationContext
-    ): LocalDate = LocalDate.ofEpochDay(json.asLong)
+    ): LocalDate = LocalDate.parse(json.asString)
 }

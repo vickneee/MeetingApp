@@ -61,11 +61,11 @@ fun formatDisplayDate(start: Long?, end: Long?): String {
     return "${formatter.format(Date(start))} - ${formatter.format(Date(end))}"
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    DateRangePickerScreen(
-        selectedDateText = formatDisplayDate(null, null),
-        onDateSelected = { _, _ -> }
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    DateRangePickerScreen(
+//        selectedDateText = formatDisplayDate(null, null),
+//        onDateSelected = { _, _ -> }
+//    )
+//}

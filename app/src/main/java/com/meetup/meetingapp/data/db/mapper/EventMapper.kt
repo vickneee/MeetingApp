@@ -1,7 +1,6 @@
 package com.meetup.meetingapp.data.db.mapper
 
 import com.google.firebase.Timestamp
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.meetup.meetingapp.data.db.converter.LocalDateAdapter
@@ -16,12 +15,16 @@ import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
 import java.time.LocalDate
 import java.util.Date
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 object EventMapper {
 
     private val gson = GsonBuilder()
         .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter)
         .create()
+
+    private val displayDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     fun Event.toEntity(): EventEntity = EventEntity(
         id = id,
@@ -31,8 +34,12 @@ object EventMapper {
         status = status.name,
         eventTitle = eventTitle,
         hostName = hostName,
-        dateRangeStart = LocalDate.parse(dateRange.start).toEpochDay(),
-        dateRangeEnd   = LocalDate.parse(dateRange.end).toEpochDay(),
+
+        // Store string for Room
+        dateRangeStartString = dateRange.start,
+        dateRangeEndString = dateRange.end,
+
+        // Lists → JSON
         timeSlotsJson = gson.toJson(timeSlots),
         locationOptionsJson = gson.toJson(locationOptions),
         placeTypeOptionsJson = gson.toJson(placeTypeOptions),
@@ -40,9 +47,14 @@ object EventMapper {
         locationCandidatesJson = gson.toJson(locationCandidates),
         foodCategoryCandidatesJson = gson.toJson(foodCategoryCandidates),
         restaurantCandidatesJson = gson.toJson(restaurantCandidates),
+
+        // Final selections
         finalTimeJson = finalTime?.let { gson.toJson(it) },
         finalPlace = finalPlace,
-        createdAt = createdAt.toDate().time
+
+        // Timestamps
+        createdAt = createdAt.toDate().time,
+        createdAtString = displayDateFormat.format(createdAt.toDate())
     )
 
     fun EventEntity.toDomain(): Event = Event(
@@ -54,18 +66,18 @@ object EventMapper {
         eventTitle = eventTitle,
         hostName = hostName,
         dateRange = DateRange(
-            start = LocalDate.ofEpochDay(dateRangeStart).toString(),
-            end = LocalDate.ofEpochDay(dateRangeEnd).toString()
+            start = dateRangeStartString, // use string for easier display
+            end = dateRangeEndString
         ),
-        timeSlots = Gson().fromJson(timeSlotsJson, object : TypeToken<List<TimeSlot>>() {}.type),
-        locationOptions = Gson().fromJson(locationOptionsJson, LocationOption::class.java),
-        placeTypeOptions = Gson().fromJson(placeTypeOptionsJson, object : TypeToken<List<PlaceType>>() {}.type),
-        dateTimeCandidates = Gson().fromJson(dateTimeCandidatesJson, object : TypeToken<List<DateTime>>() {}.type),
-        locationCandidates = Gson().fromJson(locationCandidatesJson, object : TypeToken<List<String>>() {}.type),
-        foodCategoryCandidates = Gson().fromJson(foodCategoryCandidatesJson, object : TypeToken<List<FoodCategory>>() {}.type),
-        restaurantCandidates = Gson().fromJson(restaurantCandidatesJson, object : TypeToken<List<String>>() {}.type),
-        finalTime = finalTimeJson?.let { Gson().fromJson(it, DateTime::class.java) },
+        timeSlots = gson.fromJson(timeSlotsJson, object : TypeToken<List<TimeSlot>>() {}.type),
+        locationOptions = gson.fromJson(locationOptionsJson, LocationOption::class.java),
+        placeTypeOptions = gson.fromJson(placeTypeOptionsJson, object : TypeToken<List<PlaceType>>() {}.type),
+        dateTimeCandidates = gson.fromJson(dateTimeCandidatesJson, object : TypeToken<List<DateTime>>() {}.type),
+        locationCandidates = gson.fromJson(locationCandidatesJson, object : TypeToken<List<String>>() {}.type),
+        foodCategoryCandidates = gson.fromJson(foodCategoryCandidatesJson, object : TypeToken<List<FoodCategory>>() {}.type),
+        restaurantCandidates = gson.fromJson(restaurantCandidatesJson, object : TypeToken<List<String>>() {}.type),
+        finalTime = finalTimeJson?.let { gson.fromJson(it, DateTime::class.java) },
         finalPlace = finalPlace,
-        createdAt = Timestamp(Date(createdAt))
+        createdAt = Timestamp(Date(createdAt.takeIf { it > 0 } ?: System.currentTimeMillis()))
     )
 }
