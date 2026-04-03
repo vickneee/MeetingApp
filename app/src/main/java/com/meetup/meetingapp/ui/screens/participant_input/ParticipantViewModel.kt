@@ -8,7 +8,6 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.FoodCategory
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.repositories.EventRepository
-import com.meetup.meetingapp.ui.screens.EventState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,26 +41,26 @@ class ParticipantViewModel(
     val submitState = _submitState.asStateFlow()
 
     init {
-        fetchEventByCode()
+        observeEventById(eventCode)
     }
 
-    // Fetch event from Firestore by eventCode
-    private fun fetchEventByCode() {
+    /**
+     * Observes the event with the given ID from the repository.
+     * Room database is the single source of truth for event data.
+     *
+     * @param id The ID of the event to observe.
+     */
+    private fun observeEventById(id: String) {
         viewModelScope.launch {
-            try {
-                // Correctly use the repository method to fetch the event
-                val eventObj = eventRepository.getEventByCode(eventCode)
-
-                if (eventObj != null) {
-                    _event.value = eventObj
-                    _fetchState.value = FetchState.Success
-                    _participantState.update { it.copy(eventId = eventObj.id) }
-                } else {
-                    _fetchState.value = FetchState.Error("Event not found")
+            eventRepository.getEventById(id)
+                .collect { event ->
+                    if (event != null) {
+                        _event.value = event
+                        _fetchState.value = FetchState.Success
+                    } else {
+                        _fetchState.value = FetchState.Error("Event not found")
+                    }
                 }
-            } catch (e: Exception) {
-                _fetchState.value = FetchState.Error(e.message ?: "Unknown error")
-            }
         }
     }
 
@@ -72,14 +71,14 @@ class ParticipantViewModel(
      * to reflect the result. The actual Firestore write operation will be
      * added here once integrated with the repository.
      */
-    fun submitParticipantInput(){
+    fun submitParticipantInput() {
         viewModelScope.launch(Dispatchers.IO) {
-            try{
+            try {
                 eventRepository.createParticipantAvailability(_participantState.value).getOrThrow()
                 withContext(Dispatchers.Main) {
                     _submitState.value = SubmitState.Success
                 }
-            } catch (e: Throwable){
+            } catch (e: Throwable) {
                 withContext(Dispatchers.Main) {
                     _submitState.value = SubmitState.Error(e)
                 }

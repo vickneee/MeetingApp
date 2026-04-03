@@ -66,7 +66,7 @@ class EventRepositoryImp(
         }
     }
 
-    override suspend fun getEventById(id: String): Flow<Event?> {
+    override fun getEventById(id: String): Flow<Event?> {
         return eventDao.getEventById(id)
             .map { it?.let { with(EventMapper) { it.toDomain() } } }
     }
