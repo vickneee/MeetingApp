@@ -32,6 +32,7 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.EventUiState
 import com.meetup.meetingapp.ui.screens.EventViewModel
+import com.meetup.meetingapp.ui.screens.select_date_range.DateRangePickerScreen
 
 
 object CreateCreatingEventPageDestination : NavigationDestination {
@@ -148,6 +149,7 @@ fun CreateCreatingEventPageContent(
                 )
 
                 Spacer(modifier = Modifier.padding(8.dp))
+//                DateRangePickerScreen()
 
                 Button(
                     onClick = { navigateToCreatingEventPage() },
