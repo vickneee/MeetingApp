@@ -41,6 +41,9 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.event_created_page.ErrorScreen
 import com.meetup.meetingapp.ui.screens.event_created_page.LoadingScreen
 
+/**
+ * Navigation destination for the Participant MeetUp Detail screen.
+ */
 object ParticipantMeetUpDetailDestination : NavigationDestination {
     override val route = "participant_meetUp_detail"
     override val titleRes = R.string.title_meetup_details_page
@@ -48,13 +51,21 @@ object ParticipantMeetUpDetailDestination : NavigationDestination {
     val routeWithArgs = "$route/{$eventCodeArg}"
 }
 
+/**
+ * Participant MeetUp Detail Page
+ * @param modifier Modifier.
+ * @param onBack Navigate back.
+ * @param eventCode The unique code for the event.
+ * @param onNavigateToAvailability Navigate to the availability page.
+ * @param viewModel [ParticipantViewModel] to retrieve event data.
+ */
 @Composable
 fun ParticipantMeetUpDetailPage(
+    modifier: Modifier = Modifier,
     onBack: () -> Unit,
     eventCode: String,
     onNavigateToAvailability: () -> Unit,
     viewModel: ParticipantViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    modifier: Modifier = Modifier
 ) {
     val fetchState by viewModel.fetchState.collectAsStateWithLifecycle(FetchState.Loading)
     val event by viewModel.event.collectAsStateWithLifecycle(null)
@@ -82,6 +93,14 @@ fun ParticipantMeetUpDetailPage(
     Log.d("Participant", "ParticipantMeetUpDetailPage loaded")
 }
 
+/**
+ * Participant MeetUp Detail Content
+ * @param event The event data.
+ * @param participantState The participant input state.
+ * @param onNameChange Callback to update the participant name.
+ * @param onBack Navigate back.
+ * @param modifier Modifier.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantMeetUpDetailContent(
@@ -187,7 +206,7 @@ fun ParticipantMeetUpDetailContent(
                         Text(
                             text = "Next",
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                            modifier = Modifier.padding(vertical = 4.dp)
                         )
                     }
                 }
@@ -203,7 +222,7 @@ fun ParticipantMeetUpDetailPreview() {
     val sampleEvent = Event(
         eventCode = "AX4C2G",
         eventTitle = "Team Meetup",
-        hostName = "Victoria Vavulina"
+        hostName = "Victoria"
     )
 
     ParticipantMeetUpDetailContent(

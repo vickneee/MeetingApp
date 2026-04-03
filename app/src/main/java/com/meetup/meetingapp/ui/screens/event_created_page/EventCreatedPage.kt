@@ -1,5 +1,7 @@
 package com.meetup.meetingapp.ui.screens.event_created_page
 
+import android.content.ClipData
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -11,10 +13,16 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +34,7 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.EventState
 import com.meetup.meetingapp.ui.screens.EventViewModel
+import kotlinx.coroutines.launch
 
 /**
  * Navigation destination for the Event Created screen.
@@ -49,6 +58,9 @@ fun EventCreatedPage(
 ) {
 
     val eventState by viewModel.eventState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
 
     when (eventState) {
         is EventState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -58,12 +70,33 @@ fun EventCreatedPage(
                 eventCode = state.eventCode,
                 eventKey = state.eventKey,
                 onBack = onBack,
-                onNavigateToDashboard = { onNavigateToDashboard(state.eventId)},
-                onCopyCode = { /* Implementation */ },
-                onShare = { /* Implementation */ },
+                onNavigateToDashboard = { onNavigateToDashboard(state.eventId) },
+                onCopyCode = {
+                    coroutineScope.launch {
+                        clipboard.setClipEntry(
+                            ClipEntry(
+                                ClipData.newPlainText(
+                                    "Event Info",
+                                    "Code: ${state.eventCode} Key: ${state.eventKey}"
+                                )
+                            )
+                        )
+                    }
+                },
+                onShare = {
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            "Join my event!\nCode: ${state.eventCode}\nKey: ${state.eventKey}"
+                        )
+                    }
+                    context.startActivity(Intent.createChooser(intent, "Share event"))
+                },
                 onFillAvailability = { /* Implementation */ }
             )
         }
+
         is EventState.Error -> {
             val state = eventState as EventState.Error
             ErrorScreen(
@@ -71,7 +104,8 @@ fun EventCreatedPage(
                 onRetry = { viewModel.createEvent() },
                 modifier = Modifier.fillMaxSize()
             )
-    }   }
+        }
+    }
 
 }
 
@@ -147,7 +181,12 @@ fun EventCreatedContent(
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.width(180.dp)
                 ) {
-                    Text("Copy Code", color = brandBlue, fontSize = 18.sp)
+                    Text(
+                        "Copy Code",
+                        color = brandBlue,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(4.dp)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -160,7 +199,12 @@ fun EventCreatedContent(
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, tint = brandBlue)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Share", color = brandBlue, fontSize = 18.sp)
+                    Text(
+                        "Share",
+                        color = brandBlue,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(4.dp)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -171,7 +215,11 @@ fun EventCreatedContent(
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(0.7f)
                 ) {
-                    Text("Fill in my availability", fontSize = 18.sp, modifier = Modifier.padding(8.dp))
+                    Text(
+                        "Fill in my availability",
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(8.dp)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -182,7 +230,12 @@ fun EventCreatedContent(
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(0.7f)
                 ) {
-                    Text("Go to Dashboard", color = brandBlue, fontSize = 18.sp, modifier = Modifier.padding(8.dp))
+                    Text(
+                        "Go to Dashboard",
+                        color = brandBlue,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(8.dp)
+                    )
                 }
             }
         }
