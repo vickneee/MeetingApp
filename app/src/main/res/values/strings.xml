@@ -8,5 +8,6 @@
     <string name="title_event_created">Event Created</string>
     <string name="title_past_events_page">Event List</string>
     <string name="title_meetup_details_page">MeetUp Details</string>
-    <string name="title_small_area_selection_page">Area Selection</string>
+    <string name="title_small_area_selection_page">Small Area Selection</string>
+    <string name="title_area_selecting_page">Area Selection</string>
 </resources>
