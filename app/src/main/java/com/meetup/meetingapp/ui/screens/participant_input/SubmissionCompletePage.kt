@@ -16,25 +16,39 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
-import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.event_created_page.ErrorScreen
+import com.meetup.meetingapp.ui.screens.event_created_page.LoadingScreen
 
 object SubmissionCompleteDestination: NavigationDestination {
     override val route = "submission-complete"
     override val titleRes = R.string.title_placetype_and_keyword
 }
 
+/**
+ * Entry point screen shown after a participant successfully submits their
+ * availability and preferences.
+ *
+ * Observes the submission state from [ParticipantViewModel] and displays:
+ * - a loading screen while submission is in progress,
+ * - a success screen when submission completes,
+ * - an error screen with retry support if submission fails.
+ *
+ * @param onBack Callback invoked when navigating back.
+ * @param viewModel The [ParticipantViewModel] providing submission state.
+ * @param onNavigateToDashboard Callback invoked when navigating to the dashboard.
+ */
 @Composable
 fun SubmissionCompletePage(
     onBack: () -> Unit,
@@ -42,15 +56,41 @@ fun SubmissionCompletePage(
     onNavigateToDashboard: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    SubmissionCompleteContent(
-        onBack = onBack,
-        viewModel = viewModel,
-        onNavigateToDashboard = onNavigateToDashboard,
-        modifier = modifier
-    )
+
+    val submitState by viewModel.submitState.collectAsStateWithLifecycle()
+    when(submitState){
+        is SubmitState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+
+        is SubmitState.Success -> SubmissionCompleteContent(
+            onBack = onBack,
+            viewModel = viewModel,
+            onNavigateToDashboard = onNavigateToDashboard,
+            modifier = modifier
+        )
+
+        is SubmitState.Error -> {
+            val state = submitState as SubmitState.Error
+            ErrorScreen(
+                message = state.error.message ?: "Something went wrong",
+                onRetry = { viewModel.submitParticipantInput() },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+
 
 }
 
+/**
+ * UI content displayed when participant submission succeeds.
+ *
+ * Shows a confirmation message and a button that navigates the user to the
+ * event dashboard. The event ID is retrieved from the ViewModel.
+ *
+ * @param onBack Callback invoked when navigating back.
+ * @param viewModel The [ParticipantViewModel] used to access event data.
+ * @param onNavigateToDashboard Callback invoked with the event ID to navigate.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubmissionCompleteContent(

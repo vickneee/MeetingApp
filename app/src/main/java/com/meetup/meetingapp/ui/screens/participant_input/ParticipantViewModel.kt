@@ -8,10 +8,13 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.FoodCategory
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.repositories.EventRepository
+import com.meetup.meetingapp.ui.screens.EventState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ParticipantViewModel(
     private val eventRepository: EventRepository,
@@ -33,6 +36,11 @@ class ParticipantViewModel(
     private val _fetchState = MutableStateFlow<FetchState>(FetchState.Loading)
     val fetchState = _fetchState.asStateFlow()
 
+    // State representing the submission process (sending participant responses)
+    private val _submitState = MutableStateFlow<SubmitState>(SubmitState.Loading)
+
+    val submitState = _submitState.asStateFlow()
+
     init {
         fetchEventByCode()
     }
@@ -47,11 +55,34 @@ class ParticipantViewModel(
                 if (eventObj != null) {
                     _event.value = eventObj
                     _fetchState.value = FetchState.Success
+                    _participantState.update { it.copy(eventId = eventObj.id) }
                 } else {
                     _fetchState.value = FetchState.Error("Event not found")
                 }
             } catch (e: Exception) {
                 _fetchState.value = FetchState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+    /**
+     * Submits the participant's input (availability and preferences).
+     *
+     * This function triggers the submission flow and updates [submitState]
+     * to reflect the result. The actual Firestore write operation will be
+     * added here once integrated with the repository.
+     */
+    fun submitParticipantInput(){
+        viewModelScope.launch(Dispatchers.IO) {
+            try{
+                eventRepository.createParticipantAvailability(_participantState.value).getOrThrow()
+                withContext(Dispatchers.Main) {
+                    _submitState.value = SubmitState.Success
+                }
+            } catch (e: Throwable){
+                withContext(Dispatchers.Main) {
+                    _submitState.value = SubmitState.Error(e)
+                }
             }
         }
     }
@@ -89,12 +120,15 @@ class ParticipantViewModel(
     fun updateName(name: String) {
         _participantState.update { it.copy(participantName = name) }
     }
+
 }
 
 // Participant input UI state
 data class ParticipantInputState(
+    val eventId: String = "",
     val participantName: String = "",
     val selectedDateTimes: List<DateTime> = emptyList(),
+    val selectedLocations: List<String> = emptyList(),
     val selectedPlaceTypes: List<PlaceType> = emptyList(),
     val selectedFoodCategories: List<FoodCategory> = emptyList()
 )
@@ -104,4 +138,23 @@ sealed interface FetchState {
     object Loading : FetchState
     object Success : FetchState
     data class Error(val message: String) : FetchState
+}
+
+/**
+ * Represents the state of submitting participant input to the backend.
+ *
+ * Used to track the progress and result of the submission process,
+ * allowing the UI to react accordingly (e.g., showing loading indicators,
+ * navigating on success, or displaying error messages).
+ */
+sealed interface SubmitState {
+
+    /** Submission is in progress or has not started yet. */
+    object Loading : SubmitState
+
+    /** Submission completed successfully. */
+    object Success : SubmitState
+
+    /** Submission failed due to an error. */
+    data class Error(val error: Throwable) : SubmitState
 }
