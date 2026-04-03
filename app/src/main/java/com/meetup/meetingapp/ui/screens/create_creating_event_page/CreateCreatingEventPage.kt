@@ -195,10 +195,10 @@ fun CreateCreatingEventPageContent(
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
-                        text = "Select Date Range",
+                        text = "Select New Date Range",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(horizontal = 36.dp, vertical = 6.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
                     )
                 }
 
