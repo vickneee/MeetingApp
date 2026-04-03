@@ -3,7 +3,6 @@ package com.meetup.meetingapp.ui.screens.select_date_range
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -22,16 +21,21 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun DateRangePickerScreen() {
+fun DateRangePickerScreen(
+    selectedDateText: String,
+    onDateSelected: (Long?, Long?) -> Unit
+) {
     var showModal by remember { mutableStateOf(false) }
-    var selectedDateText by remember { mutableStateOf( "") }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = selectedDateText, style = MaterialTheme.typography.bodyLarge)
+        if (selectedDateText.isNotEmpty()) {
+            Text(text = selectedDateText, style = MaterialTheme.typography.bodyLarge)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -44,7 +48,8 @@ fun DateRangePickerScreen() {
         CustomDateRangePickerModal(
             onDismiss = { showModal = false },
             onSave = { range ->
-                selectedDateText = formatDisplayDate(range.first, range.second)
+                onDateSelected(range.first, range.second)
+                showModal = false
             }
         )
     }
@@ -59,5 +64,8 @@ fun formatDisplayDate(start: Long?, end: Long?): String {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    DateRangePickerScreen()
+    DateRangePickerScreen(
+        selectedDateText = formatDisplayDate(null, null),
+        onDateSelected = { _, _ -> }
+    )
 }
