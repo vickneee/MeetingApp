@@ -32,11 +32,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
-import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.event_created_page.ErrorScreen
 import com.meetup.meetingapp.ui.screens.event_created_page.LoadingScreen
@@ -53,7 +51,7 @@ fun ParticipantMeetUpDetailPage(
     onBack: () -> Unit,
     eventCode: String,
     onNavigateToAvailability: () -> Unit,
-    viewModel: ParticipantViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: ParticipantViewModel,
     modifier: Modifier = Modifier
 ) {
     val fetchState by viewModel.fetchState.collectAsStateWithLifecycle(FetchState.Loading)
@@ -75,7 +73,8 @@ fun ParticipantMeetUpDetailPage(
                 event = it,
                 participantState = participantState,
                 onNameChange = viewModel::updateName,
-                onBack = onBack
+                onBack = onBack,
+                onNavigateToAvailability = onNavigateToAvailability
             )
         }
     }
@@ -89,6 +88,7 @@ fun ParticipantMeetUpDetailContent(
     participantState: ParticipantInputState,
     onNameChange: (String) -> Unit,
     onBack: () -> Unit,
+    onNavigateToAvailability: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -178,7 +178,7 @@ fun ParticipantMeetUpDetailContent(
                     contentAlignment = Alignment.Center
                 ) {
                     Button(
-                        onClick = { /* Navigate Next */ },
+                        onClick = onNavigateToAvailability,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
@@ -211,6 +211,7 @@ fun ParticipantMeetUpDetailPreview() {
         participantState = ParticipantInputState(),
         onNameChange = {},
         onBack = {},
+        onNavigateToAvailability = {},
         modifier = Modifier
     )
 }
