@@ -2,6 +2,7 @@ package com.meetup.meetingapp.ui.screens.participant_input
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +36,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 
 import androidx.compose.ui.text.style.TextAlign
@@ -104,9 +110,10 @@ fun ParticipantPlaceTypeAndKeywordContent(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
-            item { Spacer(modifier = Modifier.height(48.dp)) }
 
             item{
+                Spacer(modifier = Modifier.height(48.dp))
+
                 Text(
                     "Choose a place type and",
                     fontSize = 20.sp,
@@ -115,9 +122,9 @@ fun ParticipantPlaceTypeAndKeywordContent(
                 )
             }
 
-            item { Spacer(modifier = Modifier.height(8.dp)) }
-
             item{
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     "a food category",
                     fontSize = 20.sp,
@@ -126,9 +133,9 @@ fun ParticipantPlaceTypeAndKeywordContent(
                 )
             }
 
-            item { Spacer(modifier = Modifier.height(24.dp)) }
-
             item {
+                Spacer(modifier = Modifier.height(24.dp))
+
                 MultiSelectDropdown(
                     options = event.placeTypeOptions,
                     selected = participantState.selectedPlaceTypes,
@@ -139,9 +146,9 @@ fun ParticipantPlaceTypeAndKeywordContent(
                 )
             }
 
-            item { Spacer(modifier = Modifier.height(132.dp)) }
-
             item{
+                Spacer(modifier = Modifier.height(132.dp))
+
                 MultiSelectDropdown(
                     options = FoodCategory.entries,
                     selected = participantState.selectedFoodCategories,
@@ -150,6 +157,30 @@ fun ParticipantPlaceTypeAndKeywordContent(
                     instruction = "Select food category",
                     toText = {it.name}
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.padding(108.dp))
+
+                // Center the button and make it only as wide as its content
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Button(
+                        onClick = navigateToNextPage,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .wrapContentWidth() // only as wide as text
+                    ) {
+                        Text(
+                            text = "Submit",
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        )
+                    }
+                }
             }
         }
     }
