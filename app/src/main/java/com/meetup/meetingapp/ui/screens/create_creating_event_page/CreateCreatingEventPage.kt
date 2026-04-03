@@ -18,6 +18,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,15 +28,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
-import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.EventUiState
 import com.meetup.meetingapp.ui.screens.EventViewModel
-import com.meetup.meetingapp.ui.screens.select_date_range.DateRangePickerScreen
-
+import com.meetup.meetingapp.ui.screens.select_date_range.CustomDateRangePickerModal
 
 object CreateCreatingEventPageDestination : NavigationDestination {
     override val route = "create_creating_event_page"
@@ -44,7 +44,6 @@ object CreateCreatingEventPageDestination : NavigationDestination {
  * Entry point composable for the event creation page.
  *
  * @param onBack Navigate back to the previous screen.
- * @param navigateToCreatingEventPage Navigate to the date range selection page.
  * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
 
@@ -55,14 +54,26 @@ fun CreateCreatingEventPage(
     viewModel: EventViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showModal by remember { mutableStateOf(false) }
 
     CreateCreatingEventPageContent(
         uiState = uiState,
         onEventTitleChange = viewModel::updateTitle,
         onHostNameChange = viewModel::updateHostName,
         onBack = onBack,
-        navigateToCreatingEventPage = navigateToCreatingEventPage
+        onOpenDatePicker = { showModal = true },
+        navigateToCreatingEventPage = navigateToCreatingEventPage // real navigation
     )
+
+    if (showModal) {
+        CustomDateRangePickerModal(
+            onDismiss = { showModal = false },
+            onSave = { range ->
+                viewModel.updateDateRange(range.first, range.second)
+                showModal = false
+            }
+        )
+    }
 }
 
 /**
@@ -83,6 +94,7 @@ fun CreateCreatingEventPageContent(
     onEventTitleChange: (String) -> Unit,
     onHostNameChange: (String) -> Unit,
     onBack: () -> Unit,
+    onOpenDatePicker: () -> Unit,
     navigateToCreatingEventPage: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -149,10 +161,19 @@ fun CreateCreatingEventPageContent(
                 )
 
                 Spacer(modifier = Modifier.padding(8.dp))
-//                DateRangePickerScreen()
+
+                Text(
+                    text = if (uiState.hasSelectedDateRange)
+                        "${uiState.dateRange.start} – ${uiState.dateRange.end}"
+                    else
+                        "No date selected",
+                    fontSize = 16.sp,
+                    color = if (uiState.hasSelectedDateRange) Color.Unspecified else Color.Gray,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
 
                 Button(
-                    onClick = { navigateToCreatingEventPage() },
+                    onClick = { onOpenDatePicker() },
                     border = BorderStroke(2.dp, Color(0xFF3B82F6)),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
@@ -164,12 +185,7 @@ fun CreateCreatingEventPageContent(
                         text = "Select Date Range",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(
-                            top = 6.dp,
-                            bottom = 6.dp,
-                            start = 36.dp,
-                            end = 36.dp
-                        )
+                        modifier = Modifier.padding(horizontal = 36.dp, vertical = 6.dp)
                     )
                 }
 
@@ -193,20 +209,13 @@ fun CreateCreatingEventPageContent(
 
 @Preview(showBackground = true)
 @Composable
-fun CreateCreatingEventPagePreview(
-    uiState: EventUiState = EventUiState(
-        eventTitle = "Sample Event",
-        hostName = "host",
-    ),
-    onEventTitleChange: (String) -> Unit = {},
-    onHostNameChange: (String) -> Unit = {},
-    onBack: () -> Unit = {}
-) {
+fun CreateCreatingEventPagePreview() {
     CreateCreatingEventPageContent(
-        uiState = uiState,
-        onEventTitleChange = onEventTitleChange,
-        onHostNameChange = onHostNameChange,
-        onBack = onBack,
+        uiState = EventUiState(eventTitle = "Sample Event", hostName = "host"),
+        onEventTitleChange = {},
+        onHostNameChange = {},
+        onBack = {},
+        onOpenDatePicker = {},
         navigateToCreatingEventPage = {}
     )
 }
