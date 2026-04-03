@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.ZoneId
 
 /**
  * Represents all possible states of the event creation process.
@@ -161,7 +163,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
             val end = Instant.ofEpochMilli(dateRange2).atZone(ZoneId.systemDefault()).toLocalDate()
             _uiState.update { current ->
                 current.copy(
-                    dateRange = DateRange(start, end),
+                    dateRange = DateRange(start.toString(), end.toString()),
                     hasSelectedDateRange = true
                 )
             }
@@ -268,7 +270,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 data class EventUiState(
     val eventTitle: String = "",
     val hostName:String = "",
-    val dateRange: DateRange = DateRange(LocalDate.now(), LocalDate.now().plusDays(7)),
+    val dateRange: DateRange = DateRange(),
     val hasSelectedDateRange: Boolean = false,
     val timeSlots: List<TimeSlot> = listOf(),
     val locations: LocationOption = LocationOption(),
