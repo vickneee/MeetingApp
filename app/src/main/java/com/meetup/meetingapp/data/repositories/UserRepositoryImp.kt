@@ -5,8 +5,11 @@ import android.util.Log
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.meetup.meetingapp.data.db.daos.UserDao
+import com.meetup.meetingapp.data.db.entities.UserEntity
 import com.meetup.meetingapp.data.model.User
 import kotlinx.coroutines.tasks.await
+import kotlin.collections.emptyList
 
 /**
  * Implementation of [UserRepository] responsible for managing user-related
@@ -21,7 +24,10 @@ import kotlinx.coroutines.tasks.await
  *
  * @property db The Firestore instance used for user document operations.
  */
-class UserRepositoryImp(private val db: FirebaseFirestore): UserRepository {
+class UserRepositoryImp(
+    private val db: FirebaseFirestore,
+    private val userDao: UserDao
+) : UserRepository {
 
     /**
      * Creates a new user document in Firestore.
@@ -31,17 +37,22 @@ class UserRepositoryImp(private val db: FirebaseFirestore): UserRepository {
      *
      * @param uid The unique identifier of the authenticated user.
      */
-    override suspend fun createUser(uid: String){
+    override suspend fun createUser(uid: String) {
         val user = User(uid)
 
-        try{
+        // Save to Firestore.
+        try {
             db.collection("users")
                 .document(uid)
                 .set(user)
                 .await()
 
+            // Save to Room
+            val localUser = UserEntity(uid, emptyList(), emptyList())
+            userDao.insertUser(localUser)
+
             Log.d(TAG, "User document created successfully for uid: $uid")
-        } catch(e: Exception){
+        } catch (e: Exception) {
             Log.w(TAG, "Failed to create user document for uid: $uid", e)
         }
     }
@@ -55,8 +66,9 @@ class UserRepositoryImp(private val db: FirebaseFirestore): UserRepository {
      * @param eventId The ID of the event created by the user.
      * @param uid The unique identifier of the user.
      */
-    override suspend fun addCreatedEvent(eventId: String, uid: String){
+    override suspend fun addCreatedEvent(eventId: String, uid: String) {
         try {
+            // Firebase
             db.collection("users")
                 .document(uid)
                 .set(
@@ -65,8 +77,14 @@ class UserRepositoryImp(private val db: FirebaseFirestore): UserRepository {
                 )
                 .await()
 
+            // Room
+            val user = userDao.getUser(uid) ?: return
+            val updatedList = user.createdEventIds + eventId
+
+            userDao.updateUser(user.copy(createdEventIds = updatedList))
+
             Log.d(TAG, "Created event added: eventId=$eventId for uid=$uid")
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Log.w(TAG, "Failed to add created event: eventId=$eventId for uid=$uid", e)
         }
     }
@@ -80,8 +98,10 @@ class UserRepositoryImp(private val db: FirebaseFirestore): UserRepository {
      * @param eventId The ID of the event the user joined.
      * @param uid The unique identifier of the user.
      */
-    override suspend fun addJoinedEvent(eventId: String, uid: String){
+    override suspend fun addJoinedEvent(eventId: String, uid: String) {
         try {
+
+            // Firebase
             db.collection("users")
                 .document(uid)
                 .set(
@@ -90,10 +110,37 @@ class UserRepositoryImp(private val db: FirebaseFirestore): UserRepository {
                 )
                 .await()
 
+            // Room
+            var user = userDao.getUser(uid)
+
+            if (user == null) {
+                syncUser(uid)
+                user = userDao.getUser(uid)
+            }
+
+            if (user == null) return
+
+            val updatedList = (user.joinedEventIds + eventId).distinct()
+
+            userDao.updateUser(user.copy(joinedEventIds = updatedList))
+
+            Log.d("ROOM", "Updated Room: $updatedList")
+
             Log.d(TAG, "Joined event added: eventId=$eventId for uid=$uid")
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Log.w(TAG, "Failed to add joined event: eventId=$eventId for uid=$uid", e)
         }
     }
-}
 
+    suspend fun syncUser(uid: String) {
+        val snapshot = db.collection("users").document(uid).get().await()
+
+        @Suppress("UNCHECKED_CAST")
+        val created = snapshot.get("createdEventIds") as? List<String> ?: emptyList()
+        @Suppress("UNCHECKED_CAST")
+        val joined = snapshot.get("joinedEventIds") as? List<String> ?: emptyList()
+
+        val user = UserEntity(uid, created, joined)
+        userDao.insertUser(user)
+    }
+}
