@@ -1,15 +1,12 @@
 package com.meetup.meetingapp.ui.screens.participant_input
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -23,17 +20,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
-import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.event_created_page.ErrorScreen
 import com.meetup.meetingapp.ui.screens.event_created_page.LoadingScreen
@@ -43,6 +36,19 @@ object SubmissionCompleteDestination: NavigationDestination {
     override val titleRes = R.string.title_placetype_and_keyword
 }
 
+/**
+ * Entry point screen shown after a participant successfully submits their
+ * availability and preferences.
+ *
+ * Observes the submission state from [ParticipantViewModel] and displays:
+ * - a loading screen while submission is in progress,
+ * - a success screen when submission completes,
+ * - an error screen with retry support if submission fails.
+ *
+ * @param onBack Callback invoked when navigating back.
+ * @param viewModel The [ParticipantViewModel] providing submission state.
+ * @param onNavigateToDashboard Callback invoked when navigating to the dashboard.
+ */
 @Composable
 fun SubmissionCompletePage(
     onBack: () -> Unit,
@@ -75,6 +81,16 @@ fun SubmissionCompletePage(
 
 }
 
+/**
+ * UI content displayed when participant submission succeeds.
+ *
+ * Shows a confirmation message and a button that navigates the user to the
+ * event dashboard. The event ID is retrieved from the ViewModel.
+ *
+ * @param onBack Callback invoked when navigating back.
+ * @param viewModel The [ParticipantViewModel] used to access event data.
+ * @param onNavigateToDashboard Callback invoked with the event ID to navigate.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubmissionCompleteContent(
@@ -154,38 +170,6 @@ fun SubmissionCompleteContent(
                 }
 
             }
-        }
-    }
-}
-
-/**
- * The screen displaying the loading message.
- */
-@Composable
-fun LoadingScreen(modifier: Modifier = Modifier) {
-    Image(
-        modifier = modifier.size(200.dp),
-        painter = painterResource(R.drawable.loading_img),
-        contentDescription = "Loading"
-    )
-}
-
-/**
- * The screen displaying error message with re-attempt button.
- */
-@Composable
-fun ErrorScreen(message: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_connection_error), contentDescription = ""
-        )
-        Text(text = message, modifier = Modifier.padding(16.dp))
-        Button(onClick = onRetry) {
-            Text("Retry")
         }
     }
 }
