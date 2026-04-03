@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.ZoneId
 
 /**
  * Represents all possible states of the event creation process.
@@ -154,14 +156,17 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Updates the selected date range for the event.
-     *
-     * @param dateRange The new date range chosen by the user.
      */
-    fun updateDateRange(dateRange: DateRange){
-        _uiState.update {current ->
-            current.copy(
-                dateRange = dateRange
-            )
+    fun updateDateRange(dateRange1: Long?, dateRange2: Long?){
+        if (dateRange1 != null && dateRange2 != null) {
+            val start = Instant.ofEpochMilli(dateRange1).atZone(ZoneId.systemDefault()).toLocalDate()
+            val end = Instant.ofEpochMilli(dateRange2).atZone(ZoneId.systemDefault()).toLocalDate()
+            _uiState.update { current ->
+                current.copy(
+                    dateRange = DateRange(start.toString(), end.toString()),
+                    hasSelectedDateRange = true
+                )
+            }
         }
     }
 
@@ -257,6 +262,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
  * @property eventTitle The title of the event.
  * @property hostName The name of the event host.
  * @property dateRange The selected date range for the event.
+ * @property hasSelectedDateRange Indicates if a date range has been selected.
  * @property timeSlots A list of selected time slots.
  * @property locations The selected location information (country, region, cities).
  * @property placeTypes A list of selected place types (e.g., RESTAURANT, CAFE).
@@ -265,6 +271,7 @@ data class EventUiState(
     val eventTitle: String = "",
     val hostName:String = "",
     val dateRange: DateRange = DateRange(),
+    val hasSelectedDateRange: Boolean = false,
     val timeSlots: List<TimeSlot> = listOf(),
     val locations: LocationOption = LocationOption(),
     val placeTypes: List<PlaceType> = listOf()
