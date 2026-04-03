@@ -118,7 +118,9 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
                     _eventState.value = EventState.Success(eventCode, eventKey, eventId)
                 }
             } catch (e: Throwable){
-                _eventState.value = EventState.Error(e)
+                withContext(Dispatchers.Main) {
+                    _eventState.value = EventState.Error(e)
+                }
             }
         }
     }

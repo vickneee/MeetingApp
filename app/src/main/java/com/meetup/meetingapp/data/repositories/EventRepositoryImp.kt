@@ -5,7 +5,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.meetup.meetingapp.data.db.daos.EventDao
 import com.meetup.meetingapp.data.db.mapper.EventMapper
 import com.meetup.meetingapp.data.model.Event
+import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.ui.screens.EventUiState
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
@@ -145,5 +147,46 @@ class EventRepositoryImp(
             .documents
             .firstOrNull()
             ?.toObject(Event::class.java)
+    }
+
+    /**
+     * Stores the participant's availability and preferences in Firestore.
+     *
+     * The data is written under:
+     *   /events/{eventId}/participantResponses/{uid}
+     *
+     * The document ID corresponds to the currently authenticated user's UID.
+     * On success, the function returns [Result.success] with [Unit].
+     * If the user is not logged in or the write operation fails, a failure result is returned.
+     *
+     * @param participantInput The participant's selected availability, locations,
+     * place types, and food categories.
+     */
+    override suspend fun createParticipantAvailability(participantInput: ParticipantInputState): Result<Unit>{
+        val eventId = participantInput.eventId
+
+        val participantResponse = ParticipantResponse(
+            name = participantInput.participantName,
+            dateTimes = participantInput.selectedDateTimes,
+            locations = participantInput.selectedLocations,
+            placeTypes = participantInput.selectedPlaceTypes,
+            foodCategories = participantInput.selectedFoodCategories
+        )
+
+        // Ensure the user is logged in before creating an event.
+        val uid = uid ?: return Result.failure(Exception("User is not logged in"))
+
+        return try {
+            db.collection("events")
+                .document(eventId)
+                .collection("participantResponses")
+                .document(uid)
+                .set(participantResponse)
+                .await()
+
+            Result.success(Unit)
+        } catch (e: Exception){
+            Result.failure(e)
+        }
     }
 }
