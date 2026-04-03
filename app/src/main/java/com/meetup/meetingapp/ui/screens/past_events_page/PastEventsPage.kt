@@ -2,6 +2,7 @@ package com.meetup.meetingapp.ui.screens.past_events_page
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -35,6 +36,9 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.EventViewModel
 import java.time.LocalDate
 
+/**
+ * Navigation destination for the Past Events screen.
+ */
 object PastEventsDestination : NavigationDestination {
     override val route = "past_events"
     override val titleRes = R.string.title_past_events_page
@@ -44,13 +48,14 @@ object PastEventsDestination : NavigationDestination {
  * Past Events Page
  * @param onBack Navigate back
  * @param modifier Modifier for the page
+ * @param viewModel [EventViewModel] to retrieve all items in the Room database.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PastEventsPage(
     onBack: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: EventViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    modifier: Modifier = Modifier
 ) {
     val events by viewModel.events.collectAsStateWithLifecycle()
 
@@ -67,8 +72,11 @@ fun PastEventsPage(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(top = 26.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                top = 26.dp,
+                bottom = 26.dp
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -79,6 +87,10 @@ fun PastEventsPage(
     }
 }
 
+/**
+ * Event Item in the Past Events Page
+ * @param event The event to display
+ */
 @Composable
 fun EventItem(event: Event) {
     Card(

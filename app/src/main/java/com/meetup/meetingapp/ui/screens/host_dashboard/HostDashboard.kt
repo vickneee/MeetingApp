@@ -11,7 +11,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
+import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.event_created_page.LoadingScreen
@@ -49,9 +53,7 @@ fun HostDashboardPage(
 
     event?.let {
     HostDashboardContent(
-        eventCode = it.eventCode,
-        eventTitle = it.eventTitle,
-        hostName = it.hostName,
+        event = it,
         submissionsCount = 0,
         attendees = emptyList(),
         onBack = onBack,
@@ -62,9 +64,7 @@ fun HostDashboardPage(
 
 /**
  * Host Dashboard Content
- * @param eventCode The unique code for the event
- * @param eventTitle The title of the event
- * @param hostName The name of the host
+ * @param event The event data
  * @param submissionsCount Total number of participants
  * @param attendees List of participant names
  * @param onBack Navigate back
@@ -74,9 +74,7 @@ fun HostDashboardPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HostDashboardContent(
-    eventCode: String,
-    eventTitle: String,
-    hostName: String,
+    event: Event,
     submissionsCount: Int,
     attendees: List<String>,
     onBack: () -> Unit,
@@ -86,7 +84,7 @@ fun HostDashboardContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Dashboard / $eventCode",
+                title = "Dashboard / ${event.eventCode}",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -105,9 +103,35 @@ fun HostDashboardContent(
                 Spacer(modifier = Modifier.padding(24.dp))
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(text = "Event Code: $eventCode", fontSize = 20.sp)
-                    Text(text = "Event Title: $eventTitle", fontSize = 20.sp)
-                    Text(text = "Host: $hostName", fontSize = 20.sp)
+
+                    Text(buildAnnotatedString {
+                        append("Event Code: ")
+                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                            append(event.eventCode)
+                        }
+                    },
+                        fontSize = 20.sp
+                    )
+
+                    Text(
+                        buildAnnotatedString {
+                            append("Event Title: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.eventTitle)
+                            }
+                        },
+                        fontSize = 20.sp
+                    )
+
+                    Text(
+                        buildAnnotatedString {
+                            append("Host: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.hostName)
+                            }
+                        },
+                        fontSize = 20.sp
+                    )
                 }
 
                 Spacer(modifier = Modifier.padding(24.dp))
@@ -166,9 +190,11 @@ fun HostDashboardContent(
 @Composable
 fun HostDashboardPreview() {
     HostDashboardContent(
-        eventCode = "A7F9K2",
-        eventTitle = "Meet & Chat",
-        hostName = "Julia",
+        event = Event(
+            eventCode = "A7F9K2",
+            eventTitle = "Meet & Chat",
+            hostName = "Julia",
+        ),
         submissionsCount = 4,
         attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
         onBack = {},
