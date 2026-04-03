@@ -1,17 +1,5 @@
 package com.meetup.meetingapp.data.model
-import java.time.LocalDate
 import com.google.firebase.Timestamp
-
-/**
- * Represents a combination of a specific date and a selected time slot.
- *
- * @property date The calendar date selected by the user.
- * @property timeSlot The specific time slot chosen for that date.
- */
-data class DateTime(
-    val date: LocalDate,
-    val timeSlot: TimeSlot
-)
 
 /**
  * Core event model containing host settings, user voting results, and final selections.
@@ -35,6 +23,7 @@ data class DateTime(
  *
  * @property dateTimeCandidates Aggregated voting results for date/time combinations.
  * @property locationCandidates Aggregated voting results for location options.
+ * @property placeTypeCandidates Aggregated voting results for placeTypes.
  * @property foodCategoryCandidates Aggregated voting results for food categories.
  * @property restaurantCandidates Aggregated voting results for restaurant choices.
  *
@@ -62,7 +51,7 @@ data class Event (
     // Host-defined settings for the event.
     val eventTitle: String = "",
     val hostName: String = "",
-    val dateRange: DateRange = DateRange(LocalDate.now(), LocalDate.now().plusDays(7)),
+    val dateRange: DateRange = DateRange(),
     val timeSlots: List<TimeSlot> = listOf(),
     val locationOptions: LocationOption = LocationOption(),
     val placeTypeOptions: List<PlaceType> = listOf(),
@@ -70,6 +59,7 @@ data class Event (
     // Voting results.
     val dateTimeCandidates: List<DateTime> = listOf(),
     val locationCandidates: List<String> = listOf(),
+    val placeTypeCandidates: List<PlaceType> = listOf(),
     val foodCategoryCandidates: List<FoodCategory> = listOf(),
     val restaurantCandidates: List<String> = listOf(),
 

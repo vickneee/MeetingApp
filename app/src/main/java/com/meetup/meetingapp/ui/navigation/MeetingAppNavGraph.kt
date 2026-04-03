@@ -9,6 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.meetup.meetingapp.ui.AppViewModelProvider
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailPage
 import com.meetup.meetingapp.ui.screens.EventViewModel
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPage
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPageDestination
@@ -22,6 +24,12 @@ import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedDestinati
 import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedPage
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination.eventCodeArg
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantPlaceTypeAndKeywordDestination
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantPlaceTypeAndKeywordPage
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantViewModel
+import com.meetup.meetingapp.ui.screens.participant_input.SubmissionCompleteDestination
+import com.meetup.meetingapp.ui.screens.participant_input.SubmissionCompletePage
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsDestination
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsPage
 
@@ -76,6 +84,9 @@ fun MeetingAppNavHost(
                 },
                 navigateToPastEventsPage = {
                     navController.navigate(PastEventsDestination.route)
+                },
+                navigateToParticipantPage = { eventCode ->
+                    navController.navigate("${ParticipantMeetUpDetailDestination.route}/$eventCode")
                 }
             )
         }
@@ -145,8 +156,80 @@ fun MeetingAppNavHost(
                 EventCreatedPage(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
+                    onNavigateToDashboard = { eventId ->
+                        navController.navigate("${HostDashboardDestination.route}/$eventId")
+                    }
+                )
+            }
+        }
+
+        /**
+         * Nested navigation graph for the participant input flow.
+         * All screens inside this graph share the same ParticipantViewModel instance.
+         */
+        navigation(
+            startDestination = ParticipantMeetUpDetailDestination.routeWithArgs,
+            route = "participant-input"
+        ) {
+            composable(ParticipantMeetUpDetailDestination.routeWithArgs) { backStackEntry ->
+                // Parent entry for scoping the ViewModel to this navigation graph
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("participant-input")
+                }
+
+                // The ViewModel reads the eventCode from SavedStateHandle automatically
+                val participantViewModel: ParticipantViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                ParticipantMeetUpDetailPage(
+                    onBack = { navController.popBackStack() },
+                    viewModel = participantViewModel,
+                    eventCode = eventCodeArg,
+                    onNavigateToAvailability = {
+                        navController.navigate(ParticipantPlaceTypeAndKeywordDestination.route)
+                    }
+                )
+            }
+
+            composable(ParticipantPlaceTypeAndKeywordDestination.route) { backStackEntry ->
+                // Parent entry for scoping the ViewModel to this navigation graph
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("participant-input")
+                }
+
+                // The ViewModel reads the eventCode from SavedStateHandle automatically
+                val participantViewModel: ParticipantViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                ParticipantPlaceTypeAndKeywordPage(
+                    onBack = { navController.popBackStack() },
+                    viewModel = participantViewModel,
+                    onNavigateToSubmissionCompletePage = {
+                        navController.navigate(SubmissionCompleteDestination.route)
+                    }
+                )
+            }
+
+            composable(SubmissionCompleteDestination.route) { backStackEntry ->
+                // Parent entry for scoping the ViewModel to this navigation graph
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("participant-input")
+                }
+
+                // The ViewModel reads the eventCode from SavedStateHandle automatically
+                val participantViewModel: ParticipantViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                SubmissionCompletePage(
+                    onBack = { navController.popBackStack() },
+                    viewModel = participantViewModel,
                     onNavigateToDashboard = {
-                        navController.navigate(HostDashboardDestination.route)
                     }
                 )
             }
@@ -155,7 +238,7 @@ fun MeetingAppNavHost(
         /**
          * Host Dashboard destination
          */
-        composable(route = HostDashboardDestination.route) {
+        composable(route = HostDashboardDestination.routeWithArgs) {
             HostDashboardPage(
                 onBack = { navController.popBackStack() }
             )

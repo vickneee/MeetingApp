@@ -1,6 +1,7 @@
 package com.meetup.meetingapp.ui
 
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -12,6 +13,7 @@ import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButt
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPageViewModel
 import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedViewModel
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardViewModel
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -24,7 +26,6 @@ object AppViewModelProvider {
          */
         initializer {
             HomeViewModel(
-                meetingApplication().container.exampleRepository,
                 meetingApplication().container.userRepository
             )
         }
@@ -34,7 +35,6 @@ object AppViewModelProvider {
          */
         initializer {
             CreateOrJoinViewModel(
-                meetingApplication().container.exampleRepository,
                 meetingApplication().container.db,
                 meetingApplication().container.userRepository
             )
@@ -53,27 +53,21 @@ object AppViewModelProvider {
          * Initializer for CreateCreatingEventPageViewModel
          */
         initializer {
-            CreateCreatingEventPageViewModel(
-                meetingApplication().container.exampleRepository
-            )
+            CreateCreatingEventPageViewModel()
         }
 
         /**
          * Initializer for CreateEventButtonViewModel
          */
         initializer {
-            CreateEventButtonViewModel(
-                meetingApplication().container.exampleRepository
-            )
+            CreateEventButtonViewModel()
         }
 
         /**
          * Initializer for EventCreatedViewModel
          */
         initializer {
-            EventCreatedViewModel(
-                meetingApplication().container.exampleRepository
-            )
+            EventCreatedViewModel()
         }
 
         /**
@@ -81,7 +75,18 @@ object AppViewModelProvider {
          */
         initializer {
             HostDashboardViewModel(
-                meetingApplication().container.exampleRepository
+                meetingApplication().container.eventRepository,
+                this.createSavedStateHandle()
+            )
+        }
+
+        /**
+         * Initializer for ParticipantViewModel
+         */
+        initializer {
+            ParticipantViewModel(
+                meetingApplication().container.eventRepository,
+                this.createSavedStateHandle()
             )
         }
     }
