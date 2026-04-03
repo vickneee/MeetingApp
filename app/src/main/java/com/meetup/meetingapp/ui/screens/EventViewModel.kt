@@ -76,30 +76,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     private val _events = MutableStateFlow<List<Event>>(emptyList())
     val events = _events.asStateFlow()
 
-    init {
-        observeEvents()
-        syncEvents()
-    }
-
-    /**
-     * Synchronizes events from the repository.
-     */
-    private fun observeEvents() {
-        viewModelScope.launch {
-            eventRepository.getEvents()
-                .collect { _events.value = it }
-        }
-    }
-
-    /**
-     * Synchronizes events from the repository.
-     */
-    private fun syncEvents() {
-        viewModelScope.launch(Dispatchers.IO) {
-            eventRepository.syncEvents()
-        }
-    }
-
     /**
      * Attempts to create a new event using the current UI state.
      *
