@@ -58,6 +58,18 @@ object ParticipantPlaceTypeAndKeywordDestination: NavigationDestination {
     override val titleRes = R.string.title_submission_complete
 }
 
+/**
+ * Screen entry point for selecting place types and food categories as part of
+ * the participant input flow.
+ *
+ * This composable observes the ViewModel state, displays the UI once the event
+ * is loaded, and triggers navigation to the submission completion page after
+ * the participant submits their choices.
+ *
+ * @param onBack Callback invoked when the user navigates back.
+ * @param viewModel The [ParticipantViewModel] providing UI state and actions.
+ * @param onNavigateToSubmissionCompletePage Callback invoked after successful submission.
+ */
 @Composable
 fun ParticipantPlaceTypeAndKeywordPage(
     onBack: () -> Unit,
@@ -75,21 +87,37 @@ fun ParticipantPlaceTypeAndKeywordPage(
             event = it,
             participantState = participantState,
             onBack = onBack,
-            navigateToNextPage = onNavigateToSubmissionCompletePage,
             viewModel = viewModel,
+            onSubmit = {
+                viewModel.submitParticipantInput()
+                onNavigateToSubmissionCompletePage()
+                       },
             modifier = modifier
         )
     }
 }
 
+/**
+ * UI content for selecting place types and food categories.
+ *
+ * Displays dropdowns for multi-select options and a submit button. The caller
+ * provides the event data, current participant state, and callbacks for
+ * navigation and submission.
+ *
+ * @param event The event containing available place types and food categories.
+ * @param participantState Current participant selections.
+ * @param onBack Callback invoked when navigating back.
+ * @param viewModel The ViewModel used to update participant selections.
+ * @param onSubmit Callback invoked when the user presses the submit button.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantPlaceTypeAndKeywordContent(
     event: Event,
     participantState: ParticipantInputState,
     onBack: () -> Unit,
-    navigateToNextPage: () -> Unit,
     viewModel: ParticipantViewModel,
+    onSubmit: () -> Unit,
     modifier: Modifier
 ){
     Scaffold(
@@ -168,7 +196,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
                     contentAlignment = Alignment.Center
                 ) {
                     Button(
-                        onClick = navigateToNextPage,
+                        onClick = onSubmit,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
@@ -187,6 +215,20 @@ fun ParticipantPlaceTypeAndKeywordContent(
 
 }
 
+/**
+ * A reusable multi-select dropdown component.
+ *
+ * Displays a read-only text field that expands into a dropdown menu containing
+ * checkboxes for each option. Selecting an item toggles its presence in the
+ * selected list.
+ *
+ * @param options The full list of selectable items.
+ * @param selected The currently selected items.
+ * @param onToggle Callback invoked when an item is selected or deselected.
+ * @param label A label displayed above the dropdown.
+ * @param instruction Placeholder text shown inside the collapsed field.
+ * @param toText Converts an option into a displayable string.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> MultiSelectDropdown(
