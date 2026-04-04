@@ -22,6 +22,9 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE id = :id")
     fun getEventById(id: String): Flow<EventEntity?>
 
+    @Query("SELECT * FROM events WHERE eventCode = :code")
+    fun getEventByCode(code: String): Flow<EventEntity?>
+
     @Query("SELECT * FROM events WHERE status = :status")
     fun getEventsByStatus(status: String): Flow<List<EventEntity>>
 
