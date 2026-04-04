@@ -50,7 +50,7 @@ fun CreateOrJoinPage(
     onBack: () -> Unit,
     navigateToCreatingEventPage: () -> Unit,
     navigateToPastEventsPage: () -> Unit,
-    navigateToParticipantPage: (String) -> Unit,
+    navigateToParticipantPage: (Pair<String, String>) -> Unit,
     viewModel: CreateOrJoinViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
@@ -64,9 +64,9 @@ fun CreateOrJoinPage(
     }
 
     LaunchedEffect(viewModel.navigateToParticipantPage) {
-        viewModel.navigateToParticipantPage?.let { eventCode ->
+        viewModel.navigateToParticipantPage?.let { (eventCode, eventKey) ->
             viewModel.onNavigatedToParticipantPage()
-            navigateToParticipantPage(eventCode)
+            navigateToParticipantPage(eventCode to eventKey)
         }
     }
 
