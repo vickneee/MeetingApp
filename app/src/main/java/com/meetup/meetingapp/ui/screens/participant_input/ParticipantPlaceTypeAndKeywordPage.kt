@@ -23,33 +23,34 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.material3.MaterialTheme
-
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.Timestamp
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
+import com.meetup.meetingapp.data.model.DateRange
 import com.meetup.meetingapp.data.model.Event
+import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.FoodCategory
-
+import com.meetup.meetingapp.data.model.LocationOption
+import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 
@@ -72,10 +73,10 @@ object ParticipantPlaceTypeAndKeywordDestination: NavigationDestination {
  */
 @Composable
 fun ParticipantPlaceTypeAndKeywordPage(
+    modifier: Modifier = Modifier,
     onBack: () -> Unit,
     viewModel: ParticipantViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onNavigateToSubmissionCompletePage: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle(null)
     val participantState by viewModel.participantState.collectAsStateWithLifecycle(
@@ -87,7 +88,8 @@ fun ParticipantPlaceTypeAndKeywordPage(
             event = it,
             participantState = participantState,
             onBack = onBack,
-            viewModel = viewModel,
+            onTogglePlaceType = { viewModel.togglePlaceType(it) },
+            onToggleFoodCategory = { viewModel.toggleFoodCategory(it) },
             onSubmit = {
                 viewModel.submitParticipantInput()
                 onNavigateToSubmissionCompletePage()
@@ -107,7 +109,8 @@ fun ParticipantPlaceTypeAndKeywordPage(
  * @param event The event containing available place types and food categories.
  * @param participantState Current participant selections.
  * @param onBack Callback invoked when navigating back.
- * @param viewModel The ViewModel used to update participant selections.
+ * @param onTogglePlaceType Callback invoked when a place type is toggled.
+ * @param onToggleFoodCategory Callback invoked when a food category is toggled.
  * @param onSubmit Callback invoked when the user presses the submit button.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,7 +119,8 @@ fun ParticipantPlaceTypeAndKeywordContent(
     event: Event,
     participantState: ParticipantInputState,
     onBack: () -> Unit,
-    viewModel: ParticipantViewModel,
+    onTogglePlaceType: (PlaceType) -> Unit,
+    onToggleFoodCategory: (FoodCategory) -> Unit,
     onSubmit: () -> Unit,
     modifier: Modifier
 ){
@@ -167,7 +171,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
                 MultiSelectDropdown(
                     options = event.placeTypeOptions,
                     selected = participantState.selectedPlaceTypes,
-                    onToggle = {viewModel.togglePlaceType(it)},
+                    onToggle = { onTogglePlaceType(it) },
                     label = "Place type",
                     instruction = "Select place type",
                     toText = {it.toString()}
@@ -180,7 +184,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
                 MultiSelectDropdown(
                     options = FoodCategory.entries,
                     selected = participantState.selectedFoodCategories,
-                    onToggle = {viewModel.toggleFoodCategory(it)},
+                    onToggle = { onToggleFoodCategory(it) },
                     label = "Food category",
                     instruction = "Select food category",
                     toText = {it.name}
@@ -205,7 +209,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
                         Text(
                             text = "Submit",
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                         )
                     }
                 }
@@ -241,7 +245,11 @@ fun <T> MultiSelectDropdown(
 ){
     var expanded by rememberSaveable() { mutableStateOf(false) }
     Column {
-        Text(text = label)
+        Text(text = label,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded }
@@ -286,5 +294,43 @@ fun <T> MultiSelectDropdown(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ParticipantPlaceTypeAndKeywordContentPreview() {
+    MaterialTheme {
+        ParticipantPlaceTypeAndKeywordContent(
+            event = Event(
+                id = "1",
+                eventCode = "ABC123",
+                eventKey = "key",
+                hostId = "host1",
+                status = EventStatus.COLLECTING_AVAILABILITY,
+                eventTitle = "Team Lunch",
+                hostName = "Alice",
+                dateRange = DateRange("2026-04-01", "2026-04-07"),
+                timeSlots = emptyList(),
+                locationOptions = LocationOption(),
+                placeTypeOptions = listOf(PlaceType.RESTAURANT, PlaceType.CAFE),
+                dateTimeCandidates = emptyList(),
+                locationCandidates = emptyList(),
+                foodCategoryCandidates = emptyList(),
+                restaurantCandidates = emptyList(),
+                finalTime = null,
+                finalPlace = null,
+                createdAt = Timestamp.now()
+            ),
+            participantState = ParticipantInputState(
+                selectedPlaceTypes = listOf(PlaceType.RESTAURANT),
+                selectedFoodCategories = listOf(FoodCategory.ITALIAN)
+            ),
+            onBack = {},
+            onTogglePlaceType = {},
+            onToggleFoodCategory = {},
+            onSubmit = {},
+            modifier = Modifier
+        )
     }
 }
