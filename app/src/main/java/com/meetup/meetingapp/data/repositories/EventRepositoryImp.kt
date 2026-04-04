@@ -66,8 +66,34 @@ class EventRepositoryImp(
         }
     }
 
+    override suspend fun syncEventByEventCodeAndKey(eventCode: String, eventKey: String){
+        try {
+            val event = db.collection("events")
+                .whereEqualTo("eventCode", eventCode)
+                .whereEqualTo("eventKey", eventKey)
+                .get()
+                .await()
+                .documents
+                .mapNotNull { it.toObject(Event::class.java) }
+                .firstOrNull()
+
+            if (event != null) {
+                val entity = with(EventMapper) { event.toEntity() }
+                eventDao.upsertEvent(entity)
+            }
+
+        } catch (e: Exception) {
+            // sync failure won't crash the app, Room still serves cached data
+        }
+    }
+
     override fun getEventById(id: String): Flow<Event?> {
         return eventDao.getEventById(id)
+            .map { it?.let { with(EventMapper) { it.toDomain() } } }
+    }
+
+    override fun getEventByEventCode(eventCode: String): Flow<Event?>{
+        return eventDao.getEventByCode(eventCode)
             .map { it?.let { with(EventMapper) { it.toDomain() } } }
     }
 

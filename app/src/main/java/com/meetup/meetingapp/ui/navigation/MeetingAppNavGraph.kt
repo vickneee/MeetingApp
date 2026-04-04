@@ -85,8 +85,8 @@ fun MeetingAppNavHost(
                 navigateToPastEventsPage = {
                     navController.navigate(PastEventsDestination.route)
                 },
-                navigateToParticipantPage = { eventCode ->
-                    navController.navigate("${ParticipantMeetUpDetailDestination.route}/$eventCode")
+                navigateToParticipantPage = { (eventCode, eventKey) ->
+                    navController.navigate("${ParticipantMeetUpDetailDestination.route}/$eventCode/$eventKey")
                 }
             )
         }

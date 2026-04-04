@@ -48,7 +48,9 @@ object ParticipantMeetUpDetailDestination : NavigationDestination {
     override val route = "participant_meetUp_detail"
     override val titleRes = R.string.title_meetup_details_page
     const val eventCodeArg = "eventCode"
-    val routeWithArgs = "$route/{$eventCodeArg}"
+    const val eventKeyArg = "eventKey"
+
+    val routeWithArgs = "$route/{$eventCodeArg}/{$eventKeyArg}"
 }
 
 /**
