@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,8 +17,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
+import com.meetup.meetingapp.data.model.CountryOptions
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.EventViewModel
 
 /**
  * Navigation destination for the Area Selecting screen.
@@ -33,22 +36,26 @@ object AreaSelectingDestination : NavigationDestination {
  * from a searchable dropdown menu.
  *
  * @param onBack Callback to navigate back.
- * @param onNext Callback to navigate to the next screen after selection.
+ * @param navigateToCreatingEventPage Callback to navigate to the CreatingEventPage screen after selection.
  * @param viewModel The [AreaSelectingViewModel] managing the selection state.
  */
 @Composable
 fun AreaSelectingPage(
     onBack: () -> Unit,
-    onNext: () -> Unit,
-    viewModel: AreaSelectingViewModel = viewModel(
-        factory = AppViewModelProvider.Factory
-    )
+    navigateToCreatingEventPage: () -> Unit,
+    viewModel: EventViewModel
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     AreaSelectingContent(
-        selectedArea = viewModel.selectedArea,
-        onAreaChange = viewModel::updateArea,
+        onCountryChange = { viewModel.selectCountry(it) },
+        selectedCountry = uiState.locations.country,
+        countryOptions = CountryOptions.entries,
+        cityOptions = listOf("Helsinki", "Espoo", "Vantaa"),
+        selectedCities = uiState.locations.cities,
+        onCityChange = {viewModel.toggleCity(it)},
         onBack = onBack,
-        onNextClick = onNext
+        onNextClick = navigateToCreatingEventPage
     )
 }
 
@@ -65,17 +72,16 @@ fun AreaSelectingPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AreaSelectingContent(
-    selectedArea: String,
-    onAreaChange: (String) -> Unit,
+    onCountryChange: (String) -> Unit,
+    selectedCountry: String,
+    countryOptions: List<CountryOptions>,
+    cityOptions: List<String>,
+    selectedCities: List<String>,
+    onCityChange: (String) -> Unit,
     onBack: () -> Unit,
     onNextClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val options = listOf("Espoo", "Helsinki", "Vantaa")
-    var expanded by remember { mutableStateOf(false) }
-
-    // Filter options based on user input
-    val filteredOptions = options.filter { it.contains(selectedArea, ignoreCase = true) }
 
     Scaffold(
         topBar = {
@@ -92,68 +98,143 @@ fun AreaSelectingContent(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
             item {
+                Spacer(modifier = Modifier.padding(32.dp))
+
                 Text(
-                    text = "Where is the event?",
+                    text = "Select Country",
                     modifier = Modifier.padding(16.dp),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
+            }
 
+            item{
                 Spacer(modifier = Modifier.padding(8.dp))
+
+                var countryExpanded by remember { mutableStateOf(false) }
 
                 // Searchable Dropdown Menu
                 ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded },
+                    expanded = countryExpanded,
+                    onExpandedChange = { countryExpanded = !countryExpanded },
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth(0.8f)
                 ) {
-                    OutlinedTextField(
-                        value = selectedArea,
-                        onValueChange = {
-                            onAreaChange(it)
-                            expanded = true
-                        },
-                        label = { Text("Search City") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                    TextField(
+                        value = selectedCountry,
+                        onValueChange = {},
+                        label = { Text(text = "Search Country") },
+                        trailingIcon = { TrailingIcon(expanded = countryExpanded) },
+                        colors = ExposedDropdownMenuDefaults.textFieldColors(),
                         modifier = Modifier.menuAnchor(),
                         shape = RoundedCornerShape(8.dp),
                         singleLine = true
                     )
 
-                    if (filteredOptions.isNotEmpty()) {
-                        ExposedDropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            filteredOptions.forEach { selectionOption ->
-                                DropdownMenuItem(
-                                    text = { Text(selectionOption) },
-                                    onClick = {
-                                        onAreaChange(selectionOption)
-                                        expanded = false
-                                    },
-                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                )
-                            }
+
+                    ExposedDropdownMenu(
+                        expanded = countryExpanded,
+                        onDismissRequest = { countryExpanded = false }
+                    ) {
+                        countryOptions.forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option.toString()) },
+                                onClick = {
+                                    onCountryChange(option.toString())
+                                    countryExpanded = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            )
+                        }
+                    }
+                    }
+                }
+
+            item {
+                Spacer(modifier = Modifier.padding(32.dp))
+
+                Text(
+                    text = "Select Cities",
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.padding(8.dp))
+
+                var cityExpanded by remember { mutableStateOf(false) }
+                var cityQuery by remember { mutableStateOf("") }
+
+                // Searchable Dropdown Menu
+                ExposedDropdownMenuBox(
+                    expanded = cityExpanded,
+                    onExpandedChange = { cityExpanded = true},
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(0.8f)
+                ) {
+                    TextField(
+                        value = cityQuery,
+                        onValueChange = {
+                            cityQuery = it
+                            cityExpanded = true
+                        },
+                        readOnly = false,
+                        placeholder = { Text("Type city’s name") },
+                        trailingIcon = { TrailingIcon(expanded = cityExpanded) },
+                        colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                        modifier = Modifier.menuAnchor(),
+                        shape = RoundedCornerShape(8.dp),
+                        singleLine = true
+                    )
+
+                    val filteredCities = cityOptions.filter {
+                        it.contains(cityQuery, ignoreCase = true)
+                    }
+
+                    ExposedDropdownMenu(
+                        expanded = cityExpanded,
+                        onDismissRequest = { cityExpanded = false }
+                    ) {
+                        filteredCities.forEach { option ->
+                            val isSelected = option in selectedCities
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Checkbox(
+                                            checked = isSelected,
+                                            onCheckedChange = null
+                                        )
+                                        Text(option)
+                                    }
+                                },
+                                onClick = {
+                                    onCityChange(option)
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.padding(24.dp))
+            }
+            item {
+                Spacer(modifier = Modifier.padding(48.dp))
 
                 Button(
                     onClick = onNextClick,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier,
-                    enabled = options.contains(selectedArea) // Only enable if a valid city is selected
+                    enabled = selectedCities.isNotEmpty() // Only enable if a valid city is selected
                 ) {
                     Text(
                         text = "Next",
@@ -173,9 +254,14 @@ fun AreaSelectingContent(
 @Composable
 fun AreaSelectingPagePreview() {
     AreaSelectingContent(
-        selectedArea = "",
-        onAreaChange = {},
+        onCountryChange = {},
+        selectedCountry = "",
+        countryOptions = listOf(),
+        cityOptions = listOf(),
+        selectedCities = listOf(),
+        onCityChange = {},
         onBack = {},
-        onNextClick = {}
+        onNextClick = {},
+        modifier = Modifier
     )
 }

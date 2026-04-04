@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneId
+import kotlin.collections.plus
 
 /**
  * Represents all possible states of the event creation process.
@@ -179,6 +180,30 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
         }
     }
 
+    fun selectCountry(country: String){
+        _uiState.update { current ->
+            current.copy(
+                locations = current.locations.copy(
+                    country = country
+                )
+            )
+        }
+    }
+
+    fun toggleCity(city: String) {
+        _uiState.update { current ->
+            val updated = if (current.locations.cities.contains(city))
+                current.locations.cities - city
+            else
+                current.locations.cities + city
+            current.copy(
+                locations = current.locations.copy(
+                    cities = updated
+                )
+            )
+        }
+    }
+
     /**
      * Adds a city to the list of selected cities in the location options.
      *
@@ -256,6 +281,6 @@ data class EventUiState(
     val dateRange: DateRange = DateRange(),
     val hasSelectedDateRange: Boolean = false,
     val timeSlots: List<TimeSlot> = listOf(),
-    val locations: LocationOption = LocationOption(),
+    val locations: LocationOption = LocationOption(country = "Finland"),
     val placeTypes: List<PlaceType> = listOf()
     )

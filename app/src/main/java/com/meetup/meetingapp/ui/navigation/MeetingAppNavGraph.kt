@@ -12,6 +12,8 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailPage
 import com.meetup.meetingapp.ui.screens.EventViewModel
+import com.meetup.meetingapp.ui.screens.area_selecting_page.AreaSelectingDestination
+import com.meetup.meetingapp.ui.screens.area_selecting_page.AreaSelectingPage
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPage
 import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPageDestination
 import com.meetup.meetingapp.ui.screens.home.HomeDestination
@@ -112,6 +114,27 @@ fun MeetingAppNavHost(
                 )
 
                 CreateCreatingEventPage(
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                    navigateToCreatingEventPage = {
+                        navController.navigate(AreaSelectingDestination.route)
+                    }
+                )
+            }
+
+            /**
+             * Area selecting destination
+             */
+            composable(AreaSelectingDestination.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("event_creation_graph")
+                }
+                val viewModel: EventViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                AreaSelectingPage(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
                     navigateToCreatingEventPage = {
