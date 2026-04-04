@@ -62,7 +62,7 @@ fun PastEventsPage(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Past Events",
+                title = "Event List",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -146,7 +146,7 @@ fun PastEventsPagePreview() {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Past Events",
+                title = "Event List",
                 canNavigateBack = true,
                 navigateUp = {}
             )

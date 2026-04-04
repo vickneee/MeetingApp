@@ -9,13 +9,10 @@ import com.meetup.meetingapp.data.model.DateRange
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
-import com.meetup.meetingapp.data.model.FoodCategory
 import com.meetup.meetingapp.data.model.LocationOption
-import com.meetup.meetingapp.data.model.PlaceType
-import com.meetup.meetingapp.data.model.TimeSlot
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Date
-import java.text.SimpleDateFormat
 import java.util.Locale
 
 object EventMapper {
@@ -25,6 +22,14 @@ object EventMapper {
         .create()
 
     private val displayDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    // Safe JSON parse helper — prevents crashes on malformed/empty JSON
+    private inline fun <reified T> safeFromJson(json: String?, default: T): T {
+        if (json.isNullOrBlank()) return default
+        return runCatching {
+            gson.fromJson<T>(json, object : TypeToken<T>() {}.type)
+        }.getOrDefault(default)
+    }
 
     fun Event.toEntity(): EventEntity = EventEntity(
         id = id,
@@ -52,7 +57,7 @@ object EventMapper {
         finalTimeJson = finalTime?.let { gson.toJson(it) },
         finalPlace = finalPlace,
 
-        // Timestamps
+        // Timestamps — store both millis and display string
         createdAt = createdAt.toDate().time,
         createdAtString = displayDateFormat.format(createdAt.toDate())
     )
@@ -62,22 +67,28 @@ object EventMapper {
         eventCode = eventCode,
         eventKey = eventKey,
         hostId = hostId,
-        status = EventStatus.valueOf(status),
+        // Safe enum parse — falls back to UNKNOWN if value is corrupted
+        status = runCatching { EventStatus.valueOf(status) }.getOrDefault(EventStatus.UNKNOWN),
         eventTitle = eventTitle,
         hostName = hostName,
         dateRange = DateRange(
-            start = dateRangeStartString, // use string for easier display
+            start = dateRangeStartString,
             end = dateRangeEndString
         ),
-        timeSlots = gson.fromJson(timeSlotsJson, object : TypeToken<List<TimeSlot>>() {}.type),
-        locationOptions = gson.fromJson(locationOptionsJson, LocationOption::class.java),
-        placeTypeOptions = gson.fromJson(placeTypeOptionsJson, object : TypeToken<List<PlaceType>>() {}.type),
-        dateTimeCandidates = gson.fromJson(dateTimeCandidatesJson, object : TypeToken<List<DateTime>>() {}.type),
-        locationCandidates = gson.fromJson(locationCandidatesJson, object : TypeToken<List<String>>() {}.type),
-        foodCategoryCandidates = gson.fromJson(foodCategoryCandidatesJson, object : TypeToken<List<FoodCategory>>() {}.type),
-        restaurantCandidates = gson.fromJson(restaurantCandidatesJson, object : TypeToken<List<String>>() {}.type),
-        finalTime = finalTimeJson?.let { gson.fromJson(it, DateTime::class.java) },
+        // All JSON fields use safeFromJson — no silent crashes
+        timeSlots = safeFromJson(timeSlotsJson, emptyList()),
+        locationOptions = safeFromJson(locationOptionsJson, LocationOption()),
+        placeTypeOptions = safeFromJson(placeTypeOptionsJson, emptyList()),
+        dateTimeCandidates = safeFromJson(dateTimeCandidatesJson, emptyList()),
+        locationCandidates = safeFromJson(locationCandidatesJson, emptyList()),
+        foodCategoryCandidates = safeFromJson(foodCategoryCandidatesJson, emptyList()),
+        restaurantCandidates = safeFromJson(restaurantCandidatesJson, emptyList()),
+        // finalTime is nullable — safe to keep ?.let pattern
+        finalTime = finalTimeJson?.let {
+            runCatching { gson.fromJson(it, DateTime::class.java) }.getOrNull()
+        },
         finalPlace = finalPlace,
+        // Fallback to current time if stored millis is invalid
         createdAt = Timestamp(Date(createdAt.takeIf { it > 0 } ?: System.currentTimeMillis()))
     )
 }
