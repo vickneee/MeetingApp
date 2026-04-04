@@ -10,7 +10,10 @@ import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -73,8 +76,12 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     /**
      * Synchronizes events from the repository.
      */
-    private val _events = MutableStateFlow<List<Event>>(emptyList())
-    val events = _events.asStateFlow()
+    val events: StateFlow<List<Event>> = eventRepository.getEvents()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     /**
      * Attempts to create a new event using the current UI state.
