@@ -22,6 +22,7 @@ class ParticipantViewModel(
 
     // Event code entered by participant to join
     private val eventCode: String = savedStateHandle["eventCode"] ?: ""
+    private val eventKey: String = savedStateHandle["eventKey"] ?: ""
 
     // The fetched event from Firestore
     private val _event = MutableStateFlow<Event?>(null)
@@ -41,21 +42,32 @@ class ParticipantViewModel(
     val submitState = _submitState.asStateFlow()
 
     init {
-        observeEventById(eventCode)
+        syncEvent()
+        observeEventByEventCode(eventCode)
+    }
+
+    /**
+     *  Synchronizes events from the repository.
+     */
+    private fun syncEvent(){
+        viewModelScope.launch(Dispatchers.IO){
+            eventRepository.syncEventByEventCodeAndKey(eventCode, eventKey)
+        }
     }
 
     /**
      * Observes the event with the given ID from the repository.
      * Room database is the single source of truth for event data.
      *
-     * @param id The ID of the event to observe.
+     * @param eventCode The event code of the event to observe.
      */
-    private fun observeEventById(id: String) {
+    private fun observeEventByEventCode(eventCode: String) {
         viewModelScope.launch {
-            eventRepository.getEventById(id)
+            eventRepository.getEventByEventCode(eventCode)
                 .collect { event ->
                     if (event != null) {
                         _event.value = event
+                        _participantState.update { it.copy(eventId = event.id) }
                         _fetchState.value = FetchState.Success
                     } else {
                         _fetchState.value = FetchState.Error("Event not found")

@@ -32,5 +32,11 @@ interface EventRepository {
     suspend fun syncEvents()
 
     // Room database operations
+    suspend fun syncEventByEventCodeAndKey(eventCode: String, eventKey: String)
+
+    // Room database operations
     fun getEventById(id: String): Flow<Event?>
+
+    // Room database operations
+    fun getEventByEventCode(eventCode: String): Flow<Event?>
 }
