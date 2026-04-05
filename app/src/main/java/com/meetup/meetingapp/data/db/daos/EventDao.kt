@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.meetup.meetingapp.data.db.entities.EventEntity
-import com.meetup.meetingapp.data.db.entities.UserEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

@@ -2,6 +2,7 @@ package com.meetup.meetingapp.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.DateRange
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.LocationOption
@@ -50,6 +51,13 @@ sealed interface EventState {
     object Loading: EventState
 }
 
+// Fetch state
+sealed interface CitiesFetchState {
+    object Loading : CitiesFetchState
+    object Success : CitiesFetchState
+    data class Error(val message: String) : CitiesFetchState
+}
+
 /**
  * ViewModel responsible for managing the event creation flow.
  *
@@ -74,6 +82,15 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     val eventState = _eventState.asStateFlow()
 
+    // Cities fetch state
+    private val _citiesFetchState = MutableStateFlow<CitiesFetchState>(CitiesFetchState.Loading)
+
+    val citiesFetchState = _citiesFetchState.asStateFlow()
+
+    private val _citiesState = MutableStateFlow(listOf<String>())
+
+    val citiesState = _citiesState.asStateFlow()
+
     /**
      * Synchronizes events from the repository.
      */
@@ -83,6 +100,34 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
+    init {
+        syncCities()
+        observeCities(CountryOption.Finland)
+    }
+
+    /**
+     *  Synchronizes cities from the repository.
+     */
+    private fun syncCities(){
+        viewModelScope.launch(Dispatchers.IO){
+            eventRepository.syncCities()
+        }
+    }
+
+    fun observeCities(country: CountryOption) {
+        viewModelScope.launch {
+            try {
+                eventRepository.getCitiesByCountry(country)
+                    .collect { cities ->
+                        _citiesState.value = cities
+                        _citiesFetchState.value = CitiesFetchState.Success
+                    }
+            } catch (e: Error){
+                _citiesFetchState.value = CitiesFetchState.Error("Cities not found")
+            }
+        }
+    }
 
     /**
      * Attempts to create a new event using the current UI state.
@@ -180,14 +225,16 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
         }
     }
 
-    fun selectCountry(country: String){
+    fun selectCountry(country: CountryOption){
         _uiState.update { current ->
             current.copy(
                 locations = current.locations.copy(
-                    country = country
+                    country = country.name
                 )
             )
         }
+
+        observeCities(country)
     }
 
     fun toggleCity(city: String) {
@@ -202,6 +249,8 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
                 )
             )
         }
+
+
     }
 
     /**

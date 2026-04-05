@@ -14,13 +14,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
-import com.meetup.meetingapp.data.model.CountryOptions
-import com.meetup.meetingapp.ui.AppViewModelProvider
+import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.CitiesFetchState
 import com.meetup.meetingapp.ui.screens.EventViewModel
+import com.meetup.meetingapp.ui.screens.event_created_page.ErrorScreen
+import com.meetup.meetingapp.ui.screens.event_created_page.LoadingScreen
+import com.meetup.meetingapp.ui.screens.participant_input.SubmitState
 
 /**
  * Navigation destination for the Area Selecting screen.
@@ -47,16 +49,34 @@ fun AreaSelectingPage(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    AreaSelectingContent(
-        onCountryChange = { viewModel.selectCountry(it) },
-        selectedCountry = uiState.locations.country,
-        countryOptions = CountryOptions.entries,
-        cityOptions = listOf("Helsinki", "Espoo", "Vantaa"),
-        selectedCities = uiState.locations.cities,
-        onCityChange = {viewModel.toggleCity(it)},
-        onBack = onBack,
-        onNextClick = navigateToCreatingEventPage
-    )
+    val citiesState by viewModel.citiesState.collectAsState()
+
+    val citiesFetchState by viewModel.citiesFetchState.collectAsState()
+
+    when(citiesFetchState){
+        is CitiesFetchState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+
+        is CitiesFetchState.Success ->
+        AreaSelectingContent(
+            onCountryChange = { viewModel.selectCountry(it) },
+            selectedCountry = uiState.locations.country,
+            countryOptions = CountryOption.entries,
+            cityOptions = citiesState,
+            selectedCities = uiState.locations.cities,
+            onCityChange = {viewModel.toggleCity(it)},
+            onBack = onBack,
+            onNextClick = navigateToCreatingEventPage
+        )
+
+        is CitiesFetchState.Error -> {
+            val state = citiesFetchState as CitiesFetchState.Error
+            ErrorScreen(
+                message = state.message,
+                onRetry = { viewModel.observeCities(CountryOption.Finland) },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
 }
 
 /**
@@ -72,9 +92,9 @@ fun AreaSelectingPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AreaSelectingContent(
-    onCountryChange: (String) -> Unit,
+    onCountryChange: (CountryOption) -> Unit,
     selectedCountry: String,
-    countryOptions: List<CountryOptions>,
+    countryOptions: List<CountryOption>,
     cityOptions: List<String>,
     selectedCities: List<String>,
     onCityChange: (String) -> Unit,
@@ -117,13 +137,13 @@ fun AreaSelectingContent(
 
                 var countryExpanded by remember { mutableStateOf(false) }
 
-                // Searchable Dropdown Menu
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ){
                 ExposedDropdownMenuBox(
                     expanded = countryExpanded,
-                    onExpandedChange = { countryExpanded = !countryExpanded },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(0.8f)
+                    onExpandedChange = { countryExpanded = !countryExpanded }
                 ) {
                     TextField(
                         value = selectedCountry,
@@ -145,12 +165,13 @@ fun AreaSelectingContent(
                             DropdownMenuItem(
                                 text = { Text(option.toString()) },
                                 onClick = {
-                                    onCountryChange(option.toString())
+                                    onCountryChange(option)
                                     countryExpanded = false
                                 },
                                 contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                             )
                         }
+                    }
                     }
                     }
                 }
@@ -173,58 +194,59 @@ fun AreaSelectingContent(
                 var cityExpanded by remember { mutableStateOf(false) }
                 var cityQuery by remember { mutableStateOf("") }
 
-                // Searchable Dropdown Menu
-                ExposedDropdownMenuBox(
-                    expanded = cityExpanded,
-                    onExpandedChange = { cityExpanded = true},
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(0.8f)
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    TextField(
-                        value = cityQuery,
-                        onValueChange = {
-                            cityQuery = it
-                            cityExpanded = true
-                        },
-                        readOnly = false,
-                        placeholder = { Text("Type city’s name") },
-                        trailingIcon = { TrailingIcon(expanded = cityExpanded) },
-                        colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                        modifier = Modifier.menuAnchor(),
-                        shape = RoundedCornerShape(8.dp),
-                        singleLine = true
-                    )
-
-                    val filteredCities = cityOptions.filter {
-                        it.contains(cityQuery, ignoreCase = true)
-                    }
-
-                    ExposedDropdownMenu(
+                    // Searchable Dropdown Menu
+                    ExposedDropdownMenuBox(
                         expanded = cityExpanded,
-                        onDismissRequest = { cityExpanded = false }
+                        onExpandedChange = { cityExpanded = true }
                     ) {
-                        filteredCities.forEach { option ->
-                            val isSelected = option in selectedCities
-                            DropdownMenuItem(
-                                text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Checkbox(
-                                            checked = isSelected,
-                                            onCheckedChange = null
-                                        )
-                                        Text(option)
-                                    }
-                                },
-                                onClick = {
-                                    onCityChange(option)
-                                },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                            )
+                        TextField(
+                            value = cityQuery,
+                            onValueChange = {
+                                cityQuery = it
+                                cityExpanded = true
+                            },
+                            readOnly = false,
+                            placeholder = { Text("Type city’s name") },
+                            trailingIcon = { TrailingIcon(expanded = cityExpanded) },
+                            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                            modifier = Modifier.menuAnchor(),
+                            shape = RoundedCornerShape(8.dp),
+                            singleLine = true
+                        )
+
+                        val filteredCities = cityOptions.filter {
+                            it.contains(cityQuery, ignoreCase = true)
+                        }
+
+                        ExposedDropdownMenu(
+                            expanded = cityExpanded,
+                            onDismissRequest = { cityExpanded = false }
+                        ) {
+                            filteredCities.forEach { option ->
+                                val isSelected = option in selectedCities
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Checkbox(
+                                                checked = isSelected,
+                                                onCheckedChange = null
+                                            )
+                                            Text(option)
+                                        }
+                                    },
+                                    onClick = {
+                                        onCityChange(option)
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
                         }
                     }
                 }
-
             }
             item {
                 Spacer(modifier = Modifier.padding(48.dp))
