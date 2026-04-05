@@ -1,5 +1,5 @@
 package com.meetup.meetingapp.data.model
 
-enum class CountryOptions {
+enum class CountryOption {
     Finland
 }

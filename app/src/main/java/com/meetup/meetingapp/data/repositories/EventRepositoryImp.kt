@@ -2,8 +2,13 @@ package com.meetup.meetingapp.data.repositories
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
+import com.meetup.meetingapp.data.db.entities.CityEntity
+import com.meetup.meetingapp.data.db.mapper.CityMapper
 import com.meetup.meetingapp.data.db.mapper.EventMapper
+import com.meetup.meetingapp.data.db.mapper.FirestoreCityList
+import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.ui.screens.EventUiState
@@ -26,7 +31,8 @@ import kotlinx.coroutines.tasks.await
 class EventRepositoryImp(
     private val db: FirebaseFirestore,
     private val userRepository: UserRepository,
-    private val eventDao: EventDao
+    private val eventDao: EventDao,
+    private val cityDao: CityDao,
 ): EventRepository {
 
     // Firebase Authentication instance to retrieve the current user.
@@ -87,6 +93,34 @@ class EventRepositoryImp(
         }
     }
 
+    override suspend fun syncCities() {
+        try {
+            val docs = db.collection("static_data")
+                .get()
+                .await()
+                .documents
+
+            val allCities = docs
+                .filter { it.id.endsWith("_cities") }
+                .flatMap { doc ->
+                    val country = doc.id
+                        .removeSuffix("_cities")
+                        .replaceFirstChar { it.uppercase() }
+
+                    val data = doc.toObject(FirestoreCityList::class.java)
+
+                    data?.items?.map { city ->
+                        with(CityMapper) { city.toEntity(country) }
+                    } ?: emptyList()
+                }
+
+            cityDao.upsertCities(allCities)
+
+        } catch (e: Exception) {
+            // sync failure won't crash the app, Room still serves cached data
+        }
+    }
+
     override fun getEventById(id: String): Flow<Event?> {
         return eventDao.getEventById(id)
             .map { it?.let { with(EventMapper) { it.toDomain() } } }
@@ -95,6 +129,13 @@ class EventRepositoryImp(
     override fun getEventByEventCode(eventCode: String): Flow<Event?>{
         return eventDao.getEventByCode(eventCode)
             .map { it?.let { with(EventMapper) { it.toDomain() } } }
+    }
+
+    override fun getCitiesByCountry(country: CountryOption): Flow<List<String>>{
+        return cityDao.getCitiesByCountry(country.name)
+            .map { entityCity ->
+                entityCity.map{it.name}
+            }
     }
 
     /**
