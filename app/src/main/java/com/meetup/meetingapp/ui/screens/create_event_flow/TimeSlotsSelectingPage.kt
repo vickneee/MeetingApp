@@ -138,20 +138,24 @@ fun TimeSlotsSelectingPageContent(
                             .width(220.dp) // Fixed width so delete button fits
                     )
 
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    IconButton(
-                        onClick = { onRemoveTimeSlot(timeSlot) },
-                        modifier = Modifier
-                            .size(40.dp)
-                            .background(Color.Red, shape = RoundedCornerShape(16.dp))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Remove,
-                            contentDescription = "Remove",
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
+                    if (index != 0) {
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        IconButton(
+                            onClick = { onRemoveTimeSlot(timeSlot) },
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(Color.Red, shape = RoundedCornerShape(16.dp))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Remove,
+                                contentDescription = "Remove",
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        Spacer(modifier = Modifier.size(40.dp)) // ← sama koko kuin nappi
                     }
                 }
             }
