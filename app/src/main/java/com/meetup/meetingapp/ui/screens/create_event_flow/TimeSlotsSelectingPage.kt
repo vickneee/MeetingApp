@@ -54,7 +54,7 @@ object TimeSlotsSelectingPageDestination : NavigationDestination {
  * * This screen allows users to select time slots for an event.
  *
  * @param onBack Navigate back to the previous screen.
- * @param onNextClick Callback to navigate to the next screen after selection.
+ * @param navigateToAreaSelectingPage Navigate to the area selecting page.
  * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
 
@@ -81,8 +81,9 @@ fun TimeSlotsSelectingPage(
  *
  * @param uiState Current UI state containing event title, host name, and other form values.
  * @param onBack Navigate back to the previous screen.
- * @param navigateToCreatingEventPage Navigate to the date range selection page.
  * @param modifier Optional [Modifier] for layout adjustments.
+ * @param onRemoveTimeSlot Callback to remove a selected time slot.
+ * @param navigateToAreaSelectingPage Callback to navigate to the area selecting page.
  */
 
 @OptIn(ExperimentalMaterial3Api::class)

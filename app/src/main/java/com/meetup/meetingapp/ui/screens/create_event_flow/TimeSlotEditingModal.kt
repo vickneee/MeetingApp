@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -24,6 +25,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -56,11 +61,11 @@ object EditTimeSlotDestination : NavigationDestination {
  * This screen allows the user to edit the start and end time of an event.
  *
  * @param onBack Navigate back to the previous screen.
-// * @param onSave Callback to save the changes made to the time slots.
  * @param navigateToCreatingEventPage Navigate to the CreatingEventPage after saving the changes.
  * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTimeSlotScreen(
     onBack: () -> Unit,
@@ -76,9 +81,12 @@ fun EditTimeSlotScreen(
     var showPickerType by remember { mutableStateOf<String?>(null) } // "start" or "end"
 
     EditTimeSlotContent(
+        modifier = Modifier,
         uiState = uiState,
         startTime = startTime,
         endTime = endTime,
+        onStartTimeClick = { showPickerType = "start" },
+        onEndTimeClick = { showPickerType = "end" },
         showDialog = showDialog,
         selectedTime = selectedTime,
         showPickerType = showPickerType,
@@ -87,22 +95,41 @@ fun EditTimeSlotScreen(
             println("Start: $start, End: $end")
         },
         navigateToCreatingEventPage = navigateToCreatingEventPage, // real navigation
-        modifier = Modifier,
+
+
     )
-    // Handle Time Picker Dialog
-//    if (showPickerType != null) {
-//        AdvancedTimePickerExample(
-//            onConfirm = { state ->
-//                val formattedTime = String.format("%02d:%02d", state.hour, state.minute)
-//                if (showPickerType == "start") startTime = formattedTime
-//                else endTime = formattedTime
-//                showPickerType = null
-//            },
-//            onDismiss = { showPickerType = null }
-//        )
-//    }
+     // Handle Time Picker Dialog
+    if (showPickerType != null) {
+        AdvancedTimePicker(
+            onConfirm = { state ->
+                val formattedTime = String.format("%02d:%02d", state.hour, state.minute)
+                if (showPickerType == "start") startTime = formattedTime
+                else endTime = formattedTime
+                showPickerType = null
+            },
+            onDismiss = { showPickerType = null }
+        )
+    }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdvancedTimePicker(
+    onConfirm: (TimePickerState) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val state = rememberTimePickerState()
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = { onConfirm(state) }) { Text("OK") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+        text = { TimePicker(state = state) }
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,6 +137,8 @@ fun EditTimeSlotContent(
     uiState: EventUiState,
     startTime: String,
     endTime: String,
+    onStartTimeClick: () -> Unit,
+    onEndTimeClick: () -> Unit,
     showDialog: Boolean,
     selectedTime: String,
     showPickerType: String?,
@@ -146,7 +175,7 @@ fun EditTimeSlotContent(
                 TimeSelectorField(
                     label = "Start Time",
                     time = startTime,
-                    onClick = {  } //showPickerType = "start"
+                    onClick = { onStartTimeClick() } // showPickerType = "start"
                 )
                 Spacer(modifier = Modifier.height(40.dp))
             }
@@ -161,7 +190,7 @@ fun EditTimeSlotContent(
                 TimeSelectorField(
                     label = "End Time",
                     time = endTime,
-                    onClick = {  } // showPickerType = "end"
+                    onClick = { onEndTimeClick() } // showPickerType = "end"
                 )
             }
 
@@ -181,18 +210,6 @@ fun EditTimeSlotContent(
             }
         }
     }
-    // Handle Time Picker Dialog
-//    if (showPickerType != null) {
-//        AdvancedTimePickerExample(
-//            onConfirm = { state ->
-//                val formattedTime = String.format("%02d:%02d", state.hour, state.minute)
-//                if (showPickerType == "start") startTime = formattedTime
-//                else endTime = formattedTime
-//                showPickerType = null
-//            },
-//            onDismiss = { showPickerType = null }
-//        )
-//    }
 }
 
 @Composable
@@ -204,7 +221,7 @@ fun TimeSelectorField(
     Card(
         modifier = Modifier
         .padding(horizontal = 16.dp)
-        .clickable {  }, //onEditClick()
+        .clickable { onClick() }, // onEditClick()
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -250,6 +267,8 @@ fun EditTimeSlotScreenPreview() {
                 uiState = EventUiState(),
                 startTime = "00:00",
                 endTime = "00:00",
+                onStartTimeClick = {},
+                onEndTimeClick = {},
                 showDialog = false,
                 selectedTime = "No time selected",
                 showPickerType = null,
