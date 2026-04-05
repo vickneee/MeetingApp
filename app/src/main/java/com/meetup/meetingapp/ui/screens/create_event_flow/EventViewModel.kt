@@ -170,7 +170,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
             current.copy(
                 eventTitle = title
             )
-
         }
     }
 
@@ -216,6 +215,19 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     }
 
     /**
+     * Updates an existing time slot in the event.
+     *
+     * @param index The index of the time slot to update.
+     * @param start The new start time of the time slot.
+     * @param end The new end time of the time slot.
+     */
+    fun updateTimeSlot(index: Int, start: String, end: String) {
+        val current = _uiState.value.timeSlots.toMutableList()
+        current[index] = TimeSlot(start, end)
+        _uiState.update { it.copy(timeSlots = current) }
+    }
+
+    /**
      * Removes a time slot from the event.
      *
      * @param slot The time slot to remove.
@@ -236,7 +248,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
                 )
             )
         }
-
         observeCities(country)
     }
 
@@ -252,8 +263,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
                 )
             )
         }
-
-
     }
 
     /**
