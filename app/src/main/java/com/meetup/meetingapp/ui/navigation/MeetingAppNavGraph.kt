@@ -143,8 +143,11 @@ fun MeetingAppNavHost(
                 TimeSlotsSelectingPage(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
-                    navigateToAreaSelectingPage = {
+                    navigateToTimeEditPage = {
                         navController.navigate(EditTimeSlotDestination.route)
+                        },
+                    navigateToAreaSelectingPage = {
+                        navController.navigate(AreaSelectingDestination.route)
                     }
                 )
             }
