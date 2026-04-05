@@ -12,4 +12,5 @@
     <string name="title_submission_complete">Submission Complete</string>
     <string name="title_small_area_selection_page">Small Area Selection</string>
     <string name="title_area_selecting_page">Area Selection</string>
+    <string name="title_time_slots_selecting_page">Select Time Slots</string>
 </resources>
