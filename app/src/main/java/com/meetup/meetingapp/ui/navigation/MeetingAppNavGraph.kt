@@ -164,8 +164,8 @@ fun MeetingAppNavHost(
                 EditTimeSlotScreen(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
-                    navigateToCreatingEventPage = {
-                        navController.navigate(CreateEventButtonDestination.route)
+                    navigateToTimeSlotsSelectingPage = {
+                        navController.navigate(TimeSlotsSelectingPageDestination.route)
                     }
                 )
             }

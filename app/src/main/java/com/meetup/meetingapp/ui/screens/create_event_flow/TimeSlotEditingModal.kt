@@ -61,7 +61,7 @@ object EditTimeSlotDestination : NavigationDestination {
  * This screen allows the user to edit the start and end time of an event.
  *
  * @param onBack Navigate back to the previous screen.
- * @param navigateToCreatingEventPage Navigate to the CreatingEventPage after saving the changes.
+ * @param navigateToTimeSlotsSelectingPage Navigate to the Time Slots Selecting Page after saving the time slot.
  * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
 
@@ -69,7 +69,7 @@ object EditTimeSlotDestination : NavigationDestination {
 @Composable
 fun EditTimeSlotScreen(
     onBack: () -> Unit,
-    navigateToCreatingEventPage: () -> Unit,
+    navigateToTimeSlotsSelectingPage: () -> Unit,
     viewModel: EventViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -94,7 +94,7 @@ fun EditTimeSlotScreen(
         onSaveTimeSlot = { start, end ->
             println("Start: $start, End: $end")
         },
-        navigateToCreatingEventPage = navigateToCreatingEventPage, // real navigation
+        navigateToTimeSlotsSelectingPage = navigateToTimeSlotsSelectingPage, // real navigation
 
 
     )
@@ -144,7 +144,7 @@ fun EditTimeSlotContent(
     showPickerType: String?,
     onBack: () -> Unit,
     onSaveTimeSlot: (String, String) -> Unit,
-    navigateToCreatingEventPage: () -> Unit,
+    navigateToTimeSlotsSelectingPage: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -198,7 +198,7 @@ fun EditTimeSlotContent(
             item {
                 Spacer(modifier = Modifier.height(40.dp))
                 Button(
-                    onClick = {  },//onSave(startTime, endTime)
+                    onClick = { navigateToTimeSlotsSelectingPage() }, // onSave(startTime, endTime)
                     modifier = Modifier
                         .width(140.dp)
                         .height(48.dp),
@@ -260,7 +260,7 @@ fun EditTimeSlotScreenPreview() {
         Surface {
             EditTimeSlotScreen(
                 onBack = { /* No-op for preview */ },
-                navigateToCreatingEventPage = {},
+                navigateToTimeSlotsSelectingPage = { /* No-op for preview */ },
                 viewModel = viewModel()
             )
             EditTimeSlotContent(
@@ -276,7 +276,8 @@ fun EditTimeSlotScreenPreview() {
                 onSaveTimeSlot = {start, end ->
                     println("Start: $start, End: $end")
                 },
-                navigateToCreatingEventPage = {}
+                navigateToTimeSlotsSelectingPage = {},
+                modifier = Modifier
                 )
         }
     }
