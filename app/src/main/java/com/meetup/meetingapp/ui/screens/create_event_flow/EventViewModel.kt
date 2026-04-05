@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens
+package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

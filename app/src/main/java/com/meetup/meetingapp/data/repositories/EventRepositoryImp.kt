@@ -4,14 +4,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
-import com.meetup.meetingapp.data.db.entities.CityEntity
 import com.meetup.meetingapp.data.db.mapper.CityMapper
 import com.meetup.meetingapp.data.db.mapper.EventMapper
 import com.meetup.meetingapp.data.db.mapper.FirestoreCityList
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.ParticipantResponse
-import com.meetup.meetingapp.ui.screens.EventUiState
+import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

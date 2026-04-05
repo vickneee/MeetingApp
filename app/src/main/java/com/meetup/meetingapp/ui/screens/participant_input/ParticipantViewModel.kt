@@ -118,6 +118,16 @@ class ParticipantViewModel(
         }
     }
 
+    fun toggleLocation(city: String) {
+        _participantState.update { current ->
+            val updated = if (current.selectedLocations.contains(city))
+                current.selectedLocations - city
+            else
+                current.selectedLocations + city
+            current.copy(selectedLocations = updated)
+        }
+    }
+
     fun toggleFoodCategory(category: FoodCategory) {
         _participantState.update { current ->
             val updated = if (current.selectedFoodCategories.contains(category))
