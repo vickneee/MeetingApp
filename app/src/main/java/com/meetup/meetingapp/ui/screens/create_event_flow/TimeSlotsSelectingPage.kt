@@ -157,7 +157,7 @@ fun TimeSlotsSelectingPageContent(
             item {
                 Spacer(modifier = Modifier.padding(12.dp))
                 Button(
-                    onClick = { },// <- editTimeSlot()
+                    onClick = { navigateToAreaSelectingPage() },// <- editTimeSlot()
                     border = BorderStroke(2.dp, Color(0xFF3B82F6)),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
