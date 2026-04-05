@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.create_creating_event_page
+package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -31,8 +31,6 @@ import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.EventUiState
-import com.meetup.meetingapp.ui.screens.EventViewModel
 import com.meetup.meetingapp.ui.screens.select_date_range.CustomDateRangePickerModal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

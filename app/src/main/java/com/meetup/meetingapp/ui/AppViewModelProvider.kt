@@ -6,12 +6,9 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.meetup.meetingapp.MeetingApplication
-import com.meetup.meetingapp.ui.screens.EventViewModel
+import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinViewModel
-import com.meetup.meetingapp.ui.screens.create_event_button_page.CreateEventButtonViewModel
-import com.meetup.meetingapp.ui.screens.create_creating_event_page.CreateCreatingEventPageViewModel
-import com.meetup.meetingapp.ui.screens.event_created_page.EventCreatedViewModel
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardViewModel
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantViewModel
 
@@ -47,27 +44,6 @@ object AppViewModelProvider {
             EventViewModel(
                 meetingApplication().container.eventRepository
             )
-        }
-
-        /**
-         * Initializer for CreateCreatingEventPageViewModel
-         */
-        initializer {
-            CreateCreatingEventPageViewModel()
-        }
-
-        /**
-         * Initializer for CreateEventButtonViewModel
-         */
-        initializer {
-            CreateEventButtonViewModel()
-        }
-
-        /**
-         * Initializer for EventCreatedViewModel
-         */
-        initializer {
-            EventCreatedViewModel()
         }
 
         /**

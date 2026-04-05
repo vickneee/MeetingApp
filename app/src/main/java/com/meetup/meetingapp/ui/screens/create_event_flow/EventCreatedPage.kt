@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.event_created_page
+package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import android.content.ClipData
 import android.content.Intent
@@ -30,8 +30,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.EventState
-import com.meetup.meetingapp.ui.screens.EventViewModel
 import kotlinx.coroutines.launch
 
 /**

@@ -179,7 +179,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
             }
 
             item{
-                Spacer(modifier = Modifier.height(132.dp))
+                Spacer(modifier = Modifier.height(108.dp))
 
                 MultiSelectDropdown(
                     options = FoodCategory.entries,
@@ -192,7 +192,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(108.dp))
+                Spacer(modifier = Modifier.padding(88.dp))
 
                 // Center the button and make it only as wide as its content
                 Box(
@@ -272,7 +272,7 @@ fun <T> MultiSelectDropdown(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
-                    .heightIn(max = 200.dp)
+                    .heightIn(max = 100.dp)
             ) {
                 options.forEach { option ->
                     val isSelected = option in selected

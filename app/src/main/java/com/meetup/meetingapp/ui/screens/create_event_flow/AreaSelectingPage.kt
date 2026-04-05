@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.area_selecting_page
+package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,11 +18,6 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.CitiesFetchState
-import com.meetup.meetingapp.ui.screens.EventViewModel
-import com.meetup.meetingapp.ui.screens.event_created_page.ErrorScreen
-import com.meetup.meetingapp.ui.screens.event_created_page.LoadingScreen
-import com.meetup.meetingapp.ui.screens.participant_input.SubmitState
 
 /**
  * Navigation destination for the Area Selecting screen.
@@ -34,13 +29,22 @@ object AreaSelectingDestination : NavigationDestination {
 
 /**
  * Area Selecting Page
- * * This screen allows users to search and select a specific area (city)
- * from a searchable dropdown menu.
  *
- * @param onBack Callback to navigate back.
- * @param navigateToCreatingEventPage Callback to navigate to the CreatingEventPage screen after selection.
- * @param viewModel The [AreaSelectingViewModel] managing the selection state.
+ * This screen allows the user to choose a meeting location by:
+ * - Selecting a country
+ * - Fetching the corresponding city list from Firestore/Room
+ * - Selecting one or more cities
+ *
+ * The UI reacts to the city-fetching state:
+ * - Shows a loading screen while fetching
+ * - Displays the selection UI on success
+ * - Shows an error screen with retry on failure
+ *
+ * @param onBack Callback to navigate back to the previous screen.
+ * @param navigateToCreatingEventPage Callback to navigate to the CreatingEventPage after selections are complete.
+ * @param viewModel The [EventViewModel] providing UI state, city data, and selection logic.
  */
+
 @Composable
 fun AreaSelectingPage(
     onBack: () -> Unit,
@@ -81,14 +85,24 @@ fun AreaSelectingPage(
 
 /**
  * Area Selecting Page Content
- * * A stateless composable featuring a searchable Exposed Dropdown Menu.
  *
- * @param selectedArea The currently typed or selected area.
- * @param onAreaChange Callback when the text input changes.
- * @param onBack Callback for the top bar navigation.
+ * A stateless composable that allows the user to select a country and one or more cities.
+ * The screen provides:
+ * - A searchable dropdown for selecting a country.
+ * - A searchable multi-select dropdown for choosing cities within that country.
+ * - Navigation callbacks for going back or proceeding to the next step.
+ *
+ * @param onCountryChange Callback invoked when the user selects a country.
+ * @param selectedCountry The currently selected country name.
+ * @param countryOptions The list of available countries to display in the dropdown.
+ * @param cityOptions The list of available cities for the selected country.
+ * @param selectedCities The list of currently selected cities.
+ * @param onCityChange Callback invoked when the user selects or deselects a city.
+ * @param onBack Callback for the top bar back navigation.
  * @param onNextClick Callback for the primary action button.
- * @param modifier The [Modifier] to be applied to the layout.
+ * @param modifier Modifier applied to the root layout.
  */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AreaSelectingContent(

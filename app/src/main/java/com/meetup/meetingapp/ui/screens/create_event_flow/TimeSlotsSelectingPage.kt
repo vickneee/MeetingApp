@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.time_slots_selecting_page
+package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -40,8 +40,6 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.EventUiState
-import com.meetup.meetingapp.ui.screens.EventViewModel
 
 /**
  * Navigation destination for the Time Slots Selecting screen.
@@ -63,8 +61,7 @@ object TimeSlotsSelectingPageDestination : NavigationDestination {
 @Composable
 fun TimeSlotsSelectingPage(
     onBack: () -> Unit,
-    onNextClick: () -> Unit,
-    navigateToCreatingEventPage: () -> Unit,
+    navigateToAreaSelectingPage: () -> Unit,
     viewModel: EventViewModel,
 
 ) {
@@ -74,9 +71,8 @@ fun TimeSlotsSelectingPage(
         modifier = Modifier,
         uiState = uiState,
         onBack = onBack,
-        onNextClick = onNextClick,
         onRemoveTimeSlot = viewModel::removeTimeSlot,
-        navigateToCreatingEventPage = navigateToCreatingEventPage, // real navigation
+        navigateToAreaSelectingPage = navigateToAreaSelectingPage, // real navigation
     )
 }
 
@@ -95,9 +91,8 @@ fun TimeSlotsSelectingPageContent(
     modifier: Modifier = Modifier,
     uiState: EventUiState,
     onBack: () -> Unit,
-    onNextClick: () -> Unit,
     onRemoveTimeSlot: (TimeSlot) -> Unit,
-    navigateToCreatingEventPage: () -> Unit,
+    navigateToAreaSelectingPage: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -181,7 +176,7 @@ fun TimeSlotsSelectingPageContent(
             item {
                 Spacer(modifier = Modifier.padding(32.dp))
                 Button(
-                    onClick = { navigateToCreatingEventPage() },
+                    onClick = { navigateToAreaSelectingPage() },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     shape = RoundedCornerShape(8.dp),
                 ) {
@@ -254,9 +249,8 @@ fun TimeSlotsSelectingPagePreview() {
         TimeSlotsSelectingPageContent(
             uiState = mockUiState,
             onBack = {},
-            onNextClick = {},
             onRemoveTimeSlot = {},
-            navigateToCreatingEventPage = {}
+            navigateToAreaSelectingPage = {}
         )
     }
 }

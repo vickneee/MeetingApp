@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.create_event_button_page
+package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
 import com.meetup.meetingapp.data.model.PlaceType
-import com.meetup.meetingapp.ui.screens.EventViewModel
 
 object CreateEventButtonDestination : NavigationDestination {
     override val route = "create_event_button"

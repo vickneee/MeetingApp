@@ -1,9 +1,9 @@
 package com.meetup.meetingapp.data.repositories
 
-import com.meetup.meetingapp.data.db.entities.CityEntity
+
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
-import com.meetup.meetingapp.ui.screens.EventUiState
+import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
 
