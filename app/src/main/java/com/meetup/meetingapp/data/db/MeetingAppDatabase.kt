@@ -6,17 +6,21 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.meetup.meetingapp.data.db.converter.Converters
+import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
 import com.meetup.meetingapp.data.db.daos.UserDao
+import com.meetup.meetingapp.data.db.entities.CityEntity
 import com.meetup.meetingapp.data.db.entities.EventEntity
 import com.meetup.meetingapp.data.db.entities.UserEntity
 
-@Database(entities = [EventEntity::class, UserEntity::class], version = 5, exportSchema = false)
+@Database(entities = [EventEntity::class, UserEntity::class, CityEntity::class], version = 6, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class MeetingAppDatabase : RoomDatabase() {
 
     abstract fun eventDao(): EventDao
     abstract fun userDao(): UserDao
+
+    abstract fun cityDao(): CityDao
 
     companion object {
         @Volatile

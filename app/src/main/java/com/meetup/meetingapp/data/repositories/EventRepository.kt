@@ -1,5 +1,7 @@
 package com.meetup.meetingapp.data.repositories
 
+import com.meetup.meetingapp.data.db.entities.CityEntity
+import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.screens.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantInputState
@@ -35,8 +37,15 @@ interface EventRepository {
     suspend fun syncEventByEventCodeAndKey(eventCode: String, eventKey: String)
 
     // Room database operations
+    suspend fun syncCities()
+
+    // Room database operations
     fun getEventById(id: String): Flow<Event?>
 
     // Room database operations
     fun getEventByEventCode(eventCode: String): Flow<Event?>
+
+    // Room database operations
+    fun getCitiesByCountry(country: CountryOption): Flow<List<String>>
+
 }
