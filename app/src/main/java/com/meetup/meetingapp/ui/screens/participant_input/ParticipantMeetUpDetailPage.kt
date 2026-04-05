@@ -38,8 +38,8 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.event_created_page.ErrorScreen
-import com.meetup.meetingapp.ui.screens.event_created_page.LoadingScreen
+import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
+import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.

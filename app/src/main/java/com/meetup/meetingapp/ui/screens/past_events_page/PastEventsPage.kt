@@ -33,7 +33,7 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.EventViewModel
+import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
 import java.time.LocalDate
 
 /**

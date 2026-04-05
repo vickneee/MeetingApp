@@ -28,8 +28,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.event_created_page.ErrorScreen
-import com.meetup.meetingapp.ui.screens.event_created_page.LoadingScreen
+import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
+import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
 object SubmissionCompleteDestination: NavigationDestination {
     override val route = "submission-complete"
