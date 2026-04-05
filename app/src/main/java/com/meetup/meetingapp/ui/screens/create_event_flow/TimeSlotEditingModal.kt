@@ -177,8 +177,9 @@ fun EditTimeSlotContent(
                     time = startTime,
                     onClick = { onStartTimeClick() } // showPickerType = "start"
                 )
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(100.dp))
             }
+
             // End Time Section
             item {
                 Text(
@@ -192,6 +193,7 @@ fun EditTimeSlotContent(
                     time = endTime,
                     onClick = { onEndTimeClick() } // showPickerType = "end"
                 )
+                Spacer(modifier = Modifier.height(50.dp))
             }
 
             // Save Button
@@ -202,13 +204,12 @@ fun EditTimeSlotContent(
                         onSaveTimeSlot(startTime, endTime)
                         navigateToTimeSlotsSelectingPage()
                               },
-                    modifier = Modifier
-                        .width(140.dp)
-                        .height(48.dp),
+                    modifier = Modifier,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
                 ) {
-                    Text(text = "Save", fontSize = 18.sp, color = Color.White)
+                    Text(text = "Save", fontSize = 18.sp,
+                        modifier = Modifier.padding(vertical = 4.dp))
                 }
             }
         }
@@ -224,7 +225,7 @@ fun TimeSelectorField(
     Card(
         modifier = Modifier
         .padding(horizontal = 16.dp)
-        .clickable { onClick() }, // onEditClick()
+        .clickable { onClick() },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -261,11 +262,6 @@ fun TimeSelectorField(
 fun EditTimeSlotScreenPreview() {
     MaterialTheme {
         Surface {
-            EditTimeSlotScreen(
-                onBack = { /* No-op for preview */ },
-                navigateToTimeSlotsSelectingPage = { /* No-op for preview */ },
-                viewModel = viewModel()
-            )
             EditTimeSlotContent(
                 uiState = EventUiState(),
                 startTime = "00:00",
@@ -276,7 +272,7 @@ fun EditTimeSlotScreenPreview() {
                 selectedTime = "No time selected",
                 showPickerType = null,
                 onBack = {},
-                onSaveTimeSlot = {start, end ->
+                onSaveTimeSlot = { start, end ->
                     // No-op for preview
                 },
                 navigateToTimeSlotsSelectingPage = {},
