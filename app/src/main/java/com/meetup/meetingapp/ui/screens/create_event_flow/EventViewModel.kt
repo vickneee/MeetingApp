@@ -74,7 +74,11 @@ sealed interface CitiesFetchState {
  */
 class EventViewModel(private val eventRepository: EventRepository):  ViewModel(){
 
-    private val _uiState = MutableStateFlow(EventUiState())
+    private val _uiState = MutableStateFlow(
+        EventUiState(
+            timeSlots = mutableListOf(TimeSlot("08:00", "09:00")) // ← default
+        )
+    )
 
     val uiState = _uiState.asStateFlow()
 
