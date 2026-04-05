@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -24,6 +25,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,6 +53,7 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 object EditTimeSlotDestination : NavigationDestination {
     override val route = "edit_time_slot"
     override val titleRes = R.string.edit_time_slot
+    const val routeWithArgs = "edit_time_slot?index={index}"
 }
 
 /**
@@ -56,53 +62,85 @@ object EditTimeSlotDestination : NavigationDestination {
  * This screen allows the user to edit the start and end time of an event.
  *
  * @param onBack Navigate back to the previous screen.
-// * @param onSave Callback to save the changes made to the time slots.
- * @param navigateToCreatingEventPage Navigate to the CreatingEventPage after saving the changes.
+ * @param navigateToTimeSlotsSelectingPage Navigate to the Time Slots Selecting Page after saving the time slot.
  * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTimeSlotScreen(
+    index: Int,
     onBack: () -> Unit,
-    navigateToCreatingEventPage: () -> Unit,
+    navigateToTimeSlotsSelectingPage: () -> Unit,
     viewModel: EventViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var startTime by remember { mutableStateOf("00:00") }
-    var endTime by remember { mutableStateOf("00:00") }
     var showDialog by remember { mutableStateOf(false) }
     var selectedTime by remember { mutableStateOf("No time selected") }
     // Logic to track which picker is open
-    var showPickerType by remember { mutableStateOf<String?>(null) } // "start" or "end"
+
+    var startTime by remember {
+        mutableStateOf(
+            if (index >= 0) uiState.timeSlots[index].start else "00:00"
+        )
+    }
+    var endTime by remember {
+        mutableStateOf(
+            if (index >= 0) uiState.timeSlots[index].end else "00:00"
+        )
+    }
+    var showPickerType by remember { mutableStateOf<String?>(null) }
 
     EditTimeSlotContent(
+        modifier = Modifier,
         uiState = uiState,
         startTime = startTime,
         endTime = endTime,
+        onStartTimeClick = { showPickerType = "start" },
+        onEndTimeClick = { showPickerType = "end" },
         showDialog = showDialog,
         selectedTime = selectedTime,
         showPickerType = showPickerType,
         onBack = onBack,
         onSaveTimeSlot = { start, end ->
-            println("Start: $start, End: $end")
+            if (index >= 0) viewModel.updateTimeSlot(index, start, end)
+            else viewModel.addTimeSlot(start, end)
         },
-        navigateToCreatingEventPage = navigateToCreatingEventPage, // real navigation
-        modifier = Modifier,
+        navigateToTimeSlotsSelectingPage = navigateToTimeSlotsSelectingPage,
     )
-    // Handle Time Picker Dialog
-//    if (showPickerType != null) {
-//        AdvancedTimePickerExample(
-//            onConfirm = { state ->
-//                val formattedTime = String.format("%02d:%02d", state.hour, state.minute)
-//                if (showPickerType == "start") startTime = formattedTime
-//                else endTime = formattedTime
-//                showPickerType = null
-//            },
-//            onDismiss = { showPickerType = null }
-//        )
-//    }
+
+     // Handle Time Picker Dialog
+    if (showPickerType != null) {
+        AdvancedTimePicker(
+            onConfirm = { state ->
+                val formattedTime = String.format("%02d:%02d", state.hour, state.minute)
+                if (showPickerType == "start") startTime = formattedTime
+                else endTime = formattedTime
+                showPickerType = null
+            },
+            onDismiss = { showPickerType = null }
+        )
+    }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdvancedTimePicker(
+    onConfirm: (TimePickerState) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val state = rememberTimePickerState()
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = { onConfirm(state) }) { Text("OK") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+        text = { TimePicker(state = state) }
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,12 +148,14 @@ fun EditTimeSlotContent(
     uiState: EventUiState,
     startTime: String,
     endTime: String,
+    onStartTimeClick: () -> Unit,
+    onEndTimeClick: () -> Unit,
     showDialog: Boolean,
     selectedTime: String,
     showPickerType: String?,
     onBack: () -> Unit,
     onSaveTimeSlot: (String, String) -> Unit,
-    navigateToCreatingEventPage: () -> Unit,
+    navigateToTimeSlotsSelectingPage: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -132,8 +172,8 @@ fun EditTimeSlotContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Start Time Section
             item {
@@ -146,10 +186,11 @@ fun EditTimeSlotContent(
                 TimeSelectorField(
                     label = "Start Time",
                     time = startTime,
-                    onClick = {  } //showPickerType = "start"
+                    onClick = { onStartTimeClick() } // showPickerType = "start"
                 )
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(110.dp))
             }
+
             // End Time Section
             item {
                 Text(
@@ -161,38 +202,30 @@ fun EditTimeSlotContent(
                 TimeSelectorField(
                     label = "End Time",
                     time = endTime,
-                    onClick = {  } // showPickerType = "end"
+                    onClick = { onEndTimeClick() } // showPickerType = "end"
                 )
+                Spacer(modifier = Modifier.height(50.dp))
             }
 
             // Save Button
             item {
                 Spacer(modifier = Modifier.height(40.dp))
                 Button(
-                    onClick = {  },//onSave(startTime, endTime)
-                    modifier = Modifier
-                        .width(140.dp)
-                        .height(48.dp),
+                    onClick = {
+                        onSaveTimeSlot(startTime, endTime)
+                        navigateToTimeSlotsSelectingPage()
+                              },
+                    modifier = Modifier,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
                 ) {
-                    Text(text = "Save", fontSize = 18.sp, color = Color.White)
+                    Text(text = "Save", fontSize = 18.sp,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp))
                 }
             }
         }
     }
-    // Handle Time Picker Dialog
-//    if (showPickerType != null) {
-//        AdvancedTimePickerExample(
-//            onConfirm = { state ->
-//                val formattedTime = String.format("%02d:%02d", state.hour, state.minute)
-//                if (showPickerType == "start") startTime = formattedTime
-//                else endTime = formattedTime
-//                showPickerType = null
-//            },
-//            onDismiss = { showPickerType = null }
-//        )
-//    }
 }
 
 @Composable
@@ -204,7 +237,7 @@ fun TimeSelectorField(
     Card(
         modifier = Modifier
         .padding(horizontal = 16.dp)
-        .clickable {  }, //onEditClick()
+        .clickable { onClick() },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -241,23 +274,21 @@ fun TimeSelectorField(
 fun EditTimeSlotScreenPreview() {
     MaterialTheme {
         Surface {
-            EditTimeSlotScreen(
-                onBack = { /* No-op for preview */ },
-                navigateToCreatingEventPage = {},
-                viewModel = viewModel()
-            )
             EditTimeSlotContent(
                 uiState = EventUiState(),
                 startTime = "00:00",
                 endTime = "00:00",
+                onStartTimeClick = {},
+                onEndTimeClick = {},
                 showDialog = false,
                 selectedTime = "No time selected",
                 showPickerType = null,
                 onBack = {},
-                onSaveTimeSlot = {start, end ->
-                    println("Start: $start, End: $end")
+                onSaveTimeSlot = { start, end ->
+                    // No-op for preview
                 },
-                navigateToCreatingEventPage = {}
+                navigateToTimeSlotsSelectingPage = {},
+                modifier = Modifier
                 )
         }
     }

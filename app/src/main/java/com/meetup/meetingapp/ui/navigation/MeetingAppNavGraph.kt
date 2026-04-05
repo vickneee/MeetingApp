@@ -143,13 +143,17 @@ fun MeetingAppNavHost(
                 TimeSlotsSelectingPage(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
+                    navigateToTimeEditPage = { index ->
+                        navController.navigate(EditTimeSlotDestination.route + "/$index")
+                        },
                     navigateToAreaSelectingPage = {
-                        navController.navigate(EditTimeSlotDestination.route)
+                        navController.navigate(AreaSelectingDestination.route)
                     }
                 )
             }
 
-            composable(EditTimeSlotDestination.route) { backStackEntry ->
+            composable(EditTimeSlotDestination.route + "/{index}") { backStackEntry ->
+                val index = backStackEntry.arguments?.getString("index")?.toInt() ?: -1
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("event_creation_graph")
                 }
@@ -159,14 +163,14 @@ fun MeetingAppNavHost(
                 )
 
                 EditTimeSlotScreen(
+                    index = index,
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
-                    navigateToCreatingEventPage = {
-                        navController.navigate(CreateEventButtonDestination.route)
+                    navigateToTimeSlotsSelectingPage = {
+                        navController.navigate(TimeSlotsSelectingPageDestination.route)
                     }
                 )
             }
-
 
             /**
              * Area selecting destination
