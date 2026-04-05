@@ -206,14 +206,13 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     /**
      * Adds a new time slot to the event.
      *
-     * @param slot The time slot to add.
+     * @param start The start time of the time slot.
+     * @param end The end time of the time slot.
      */
-    fun addTimeSlot(slot: TimeSlot){
-        _uiState.update {current ->
-            current.copy(
-                timeSlots = current.timeSlots + slot
-            )
-        }
+    fun addTimeSlot(start: String, end: String) {
+        val current = _uiState.value.timeSlots.toMutableList()
+        current.add(TimeSlot(start, end))
+        _uiState.update { it.copy(timeSlots = current) }
     }
 
     /**

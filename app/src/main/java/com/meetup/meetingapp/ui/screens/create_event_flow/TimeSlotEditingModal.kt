@@ -92,7 +92,7 @@ fun EditTimeSlotScreen(
         showPickerType = showPickerType,
         onBack = onBack,
         onSaveTimeSlot = { start, end ->
-            println("Start: $start, End: $end")
+            viewModel.addTimeSlot(start, end)
         },
         navigateToTimeSlotsSelectingPage = navigateToTimeSlotsSelectingPage, // real navigation
 
@@ -198,7 +198,10 @@ fun EditTimeSlotContent(
             item {
                 Spacer(modifier = Modifier.height(40.dp))
                 Button(
-                    onClick = { navigateToTimeSlotsSelectingPage() }, // onSave(startTime, endTime)
+                    onClick = {
+                        onSaveTimeSlot(startTime, endTime)
+                        navigateToTimeSlotsSelectingPage()
+                              },
                     modifier = Modifier
                         .width(140.dp)
                         .height(48.dp),
@@ -274,7 +277,7 @@ fun EditTimeSlotScreenPreview() {
                 showPickerType = null,
                 onBack = {},
                 onSaveTimeSlot = {start, end ->
-                    println("Start: $start, End: $end")
+                    // No-op for preview
                 },
                 navigateToTimeSlotsSelectingPage = {},
                 modifier = Modifier
