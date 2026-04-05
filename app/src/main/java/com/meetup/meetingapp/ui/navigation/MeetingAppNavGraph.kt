@@ -9,35 +9,37 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.meetup.meetingapp.ui.AppViewModelProvider
-import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination
-import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailPage
-import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
 import com.meetup.meetingapp.ui.screens.create_event_flow.AreaSelectingDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.AreaSelectingPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.CreateCreatingEventPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.CreateCreatingEventPageDestination
-import com.meetup.meetingapp.ui.screens.home.HomeDestination
-import com.meetup.meetingapp.ui.screens.home.HomeScreen
-import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinPage
-import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinDestination
-import com.meetup.meetingapp.ui.screens.create_event_flow.CreateEventButtonPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.CreateEventButtonDestination
+import com.meetup.meetingapp.ui.screens.create_event_flow.CreateEventButtonPage
+import com.meetup.meetingapp.ui.screens.create_event_flow.EditTimeSlotDestination
+import com.meetup.meetingapp.ui.screens.create_event_flow.EditTimeSlotScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventCreatedDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventCreatedPage
+import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
+import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPage
+import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPageDestination
+import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinDestination
+import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinPage
+import com.meetup.meetingapp.ui.screens.home.HomeDestination
+import com.meetup.meetingapp.ui.screens.home.HomeScreen
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination.eventCodeArg
+import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailPage
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantPlaceTypeAndKeywordDestination
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantPlaceTypeAndKeywordPage
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantViewModel
+import com.meetup.meetingapp.ui.screens.participant_input.SmallAreaSelectingDestination
+import com.meetup.meetingapp.ui.screens.participant_input.SmallAreaSelectingPage
 import com.meetup.meetingapp.ui.screens.participant_input.SubmissionCompleteDestination
 import com.meetup.meetingapp.ui.screens.participant_input.SubmissionCompletePage
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsDestination
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsPage
-import com.meetup.meetingapp.ui.screens.participant_input.SmallAreaSelectingDestination
-import com.meetup.meetingapp.ui.screens.participant_input.SmallAreaSelectingPage
-import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPage
-import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPageDestination
 
 /**
  * Main navigation graph for the MeetingApp.
@@ -142,7 +144,25 @@ fun MeetingAppNavHost(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
                     navigateToAreaSelectingPage = {
-                        navController.navigate(AreaSelectingDestination.route)
+                        navController.navigate(EditTimeSlotDestination.route)
+                    }
+                )
+            }
+
+            composable(EditTimeSlotDestination.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("event_creation_graph")
+                }
+                val viewModel: EventViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                EditTimeSlotScreen(
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                    navigateToCreatingEventPage = {
+                        navController.navigate(CreateEventButtonDestination.route)
                     }
                 )
             }
