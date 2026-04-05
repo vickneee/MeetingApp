@@ -74,7 +74,11 @@ sealed interface CitiesFetchState {
  */
 class EventViewModel(private val eventRepository: EventRepository):  ViewModel(){
 
-    private val _uiState = MutableStateFlow(EventUiState())
+    private val _uiState = MutableStateFlow(
+        EventUiState(
+            timeSlots = mutableListOf(TimeSlot("08:00", "09:00")) // ← default
+        )
+    )
 
     val uiState = _uiState.asStateFlow()
 
@@ -166,7 +170,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
             current.copy(
                 eventTitle = title
             )
-
         }
     }
 
@@ -202,14 +205,26 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     /**
      * Adds a new time slot to the event.
      *
-     * @param slot The time slot to add.
+     * @param start The start time of the time slot.
+     * @param end The end time of the time slot.
      */
-    fun addTimeSlot(slot: TimeSlot){
-        _uiState.update {current ->
-            current.copy(
-                timeSlots = current.timeSlots + slot
-            )
-        }
+    fun addTimeSlot(start: String, end: String) {
+        val current = _uiState.value.timeSlots.toMutableList()
+        current.add(TimeSlot(start, end))
+        _uiState.update { it.copy(timeSlots = current) }
+    }
+
+    /**
+     * Updates an existing time slot in the event.
+     *
+     * @param index The index of the time slot to update.
+     * @param start The new start time of the time slot.
+     * @param end The new end time of the time slot.
+     */
+    fun updateTimeSlot(index: Int, start: String, end: String) {
+        val current = _uiState.value.timeSlots.toMutableList()
+        current[index] = TimeSlot(start, end)
+        _uiState.update { it.copy(timeSlots = current) }
     }
 
     /**
@@ -233,7 +248,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
                 )
             )
         }
-
         observeCities(country)
     }
 
@@ -249,8 +263,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
                 )
             )
         }
-
-
     }
 
     /**

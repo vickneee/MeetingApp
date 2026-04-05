@@ -54,16 +54,17 @@ object TimeSlotsSelectingPageDestination : NavigationDestination {
  * * This screen allows users to select time slots for an event.
  *
  * @param onBack Navigate back to the previous screen.
- * @param onNextClick Callback to navigate to the next screen after selection.
+ * @param navigateToTimeEditPage Navigate to the Time Edit Page after removing a time slot.
+ * @param navigateToAreaSelectingPage Navigate to the Area Selecting Page after adding a time slot.
  * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
 
 @Composable
 fun TimeSlotsSelectingPage(
     onBack: () -> Unit,
+    navigateToTimeEditPage: (Int) -> Unit,
     navigateToAreaSelectingPage: () -> Unit,
     viewModel: EventViewModel,
-
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -72,7 +73,8 @@ fun TimeSlotsSelectingPage(
         uiState = uiState,
         onBack = onBack,
         onRemoveTimeSlot = viewModel::removeTimeSlot,
-        navigateToAreaSelectingPage = navigateToAreaSelectingPage, // real navigation
+        navigateToTimeEditPage = navigateToTimeEditPage,
+        navigateToAreaSelectingPage = navigateToAreaSelectingPage
     )
 }
 
@@ -81,8 +83,10 @@ fun TimeSlotsSelectingPage(
  *
  * @param uiState Current UI state containing event title, host name, and other form values.
  * @param onBack Navigate back to the previous screen.
- * @param navigateToCreatingEventPage Navigate to the date range selection page.
  * @param modifier Optional [Modifier] for layout adjustments.
+ * @param onRemoveTimeSlot Callback to remove a selected time slot.
+ * @param navigateToAreaSelectingPage Callback to navigate to the area selecting page.
+ * @param navigateToTimeEditPage Callback to navigate to the time edit page.
  */
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,6 +97,7 @@ fun TimeSlotsSelectingPageContent(
     onBack: () -> Unit,
     onRemoveTimeSlot: (TimeSlot) -> Unit,
     navigateToAreaSelectingPage: () -> Unit,
+    navigateToTimeEditPage: (Int) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -132,32 +137,36 @@ fun TimeSlotsSelectingPageContent(
                 ) {
                     TimeSlotItem(
                         timeSlot = "${timeSlot.start} - ${timeSlot.end}",
-                        onEditClick = { },
+                        onEditClick = { navigateToTimeEditPage(index) },
                         modifier = Modifier
                             .width(220.dp) // Fixed width so delete button fits
                     )
 
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    IconButton(
-                        onClick = { onRemoveTimeSlot(timeSlot) },
-                        modifier = Modifier
-                            .size(40.dp)
-                            .background(Color.Red, shape = RoundedCornerShape(16.dp))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Remove,
-                            contentDescription = "Remove",
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
+                    if (index != 0) {
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        IconButton(
+                            onClick = { onRemoveTimeSlot(timeSlot) },
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(Color.Red, shape = RoundedCornerShape(16.dp))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Remove,
+                                contentDescription = "Remove",
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        Spacer(modifier = Modifier.size(40.dp))
                     }
                 }
             }
             item {
                 Spacer(modifier = Modifier.padding(12.dp))
                 Button(
-                    onClick = { navigateToAreaSelectingPage() },// <- editTimeSlot()
+                    onClick = { navigateToTimeEditPage(-1) }, // <- editTimeSlot()
                     border = BorderStroke(2.dp, Color(0xFF3B82F6)),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
@@ -250,7 +259,8 @@ fun TimeSlotsSelectingPagePreview() {
             uiState = mockUiState,
             onBack = {},
             onRemoveTimeSlot = {},
-            navigateToAreaSelectingPage = {}
+            navigateToAreaSelectingPage = {},
+            navigateToTimeEditPage = {}
         )
     }
 }
