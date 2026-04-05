@@ -53,6 +53,7 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 object EditTimeSlotDestination : NavigationDestination {
     override val route = "edit_time_slot"
     override val titleRes = R.string.edit_time_slot
+    const val routeWithArgs = "edit_time_slot?index={index}"
 }
 
 /**
@@ -68,17 +69,27 @@ object EditTimeSlotDestination : NavigationDestination {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTimeSlotScreen(
+    index: Int,
     onBack: () -> Unit,
     navigateToTimeSlotsSelectingPage: () -> Unit,
     viewModel: EventViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var startTime by remember { mutableStateOf("00:00") }
-    var endTime by remember { mutableStateOf("00:00") }
     var showDialog by remember { mutableStateOf(false) }
     var selectedTime by remember { mutableStateOf("No time selected") }
     // Logic to track which picker is open
-    var showPickerType by remember { mutableStateOf<String?>(null) } // "start" or "end"
+
+    var startTime by remember {
+        mutableStateOf(
+            if (index >= 0) uiState.timeSlots[index].start else "00:00"
+        )
+    }
+    var endTime by remember {
+        mutableStateOf(
+            if (index >= 0) uiState.timeSlots[index].end else "00:00"
+        )
+    }
+    var showPickerType by remember { mutableStateOf<String?>(null) }
 
     EditTimeSlotContent(
         modifier = Modifier,
@@ -92,12 +103,12 @@ fun EditTimeSlotScreen(
         showPickerType = showPickerType,
         onBack = onBack,
         onSaveTimeSlot = { start, end ->
-            viewModel.addTimeSlot(start, end)
+            if (index >= 0) viewModel.updateTimeSlot(index, start, end)
+            else viewModel.addTimeSlot(start, end)
         },
-        navigateToTimeSlotsSelectingPage = navigateToTimeSlotsSelectingPage, // real navigation
-
-
+        navigateToTimeSlotsSelectingPage = navigateToTimeSlotsSelectingPage,
     )
+
      // Handle Time Picker Dialog
     if (showPickerType != null) {
         AdvancedTimePicker(
@@ -161,8 +172,8 @@ fun EditTimeSlotContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Start Time Section
             item {
@@ -177,7 +188,7 @@ fun EditTimeSlotContent(
                     time = startTime,
                     onClick = { onStartTimeClick() } // showPickerType = "start"
                 )
-                Spacer(modifier = Modifier.height(100.dp))
+                Spacer(modifier = Modifier.height(110.dp))
             }
 
             // End Time Section
@@ -209,7 +220,8 @@ fun EditTimeSlotContent(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
                 ) {
                     Text(text = "Save", fontSize = 18.sp,
-                        modifier = Modifier.padding(vertical = 4.dp))
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp))
                 }
             }
         }

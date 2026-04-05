@@ -62,7 +62,7 @@ object TimeSlotsSelectingPageDestination : NavigationDestination {
 @Composable
 fun TimeSlotsSelectingPage(
     onBack: () -> Unit,
-    navigateToTimeEditPage: () -> Unit,
+    navigateToTimeEditPage: (Int) -> Unit,
     navigateToAreaSelectingPage: () -> Unit,
     viewModel: EventViewModel,
 ) {
@@ -96,8 +96,8 @@ fun TimeSlotsSelectingPageContent(
     uiState: EventUiState,
     onBack: () -> Unit,
     onRemoveTimeSlot: (TimeSlot) -> Unit,
-    navigateToTimeEditPage: () -> Unit,
-    navigateToAreaSelectingPage: () -> Unit
+    navigateToAreaSelectingPage: () -> Unit,
+    navigateToTimeEditPage: (Int) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -137,7 +137,7 @@ fun TimeSlotsSelectingPageContent(
                 ) {
                     TimeSlotItem(
                         timeSlot = "${timeSlot.start} - ${timeSlot.end}",
-                        onEditClick = { navigateToTimeEditPage() },
+                        onEditClick = { navigateToTimeEditPage(index) },
                         modifier = Modifier
                             .width(220.dp) // Fixed width so delete button fits
                     )
@@ -166,7 +166,7 @@ fun TimeSlotsSelectingPageContent(
             item {
                 Spacer(modifier = Modifier.padding(12.dp))
                 Button(
-                    onClick = { navigateToTimeEditPage() }, // <- editTimeSlot()
+                    onClick = { navigateToTimeEditPage(-1) }, // <- editTimeSlot()
                     border = BorderStroke(2.dp, Color(0xFF3B82F6)),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
