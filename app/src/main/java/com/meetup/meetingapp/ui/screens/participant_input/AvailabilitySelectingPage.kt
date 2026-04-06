@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 /**
  * Represents a time slot with its associated information.
@@ -179,6 +181,16 @@ fun DateCard(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+    // Format the date to EU format (dd.MM.yyyy)
+    val displayDate = remember(availability.date) {
+        try {
+            val localDate = LocalDate.parse(availability.date)
+            localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+        } catch (e: Exception) {
+            availability.date
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -194,7 +206,7 @@ fun DateCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = availability.date,
+                text = displayDate,
                 fontWeight = FontWeight.Bold
             )
             Icon(
@@ -237,8 +249,8 @@ fun AvailabilitySelectingPageContentPreview() {
             onBack = {},
             onNext = {},
             dates = listOf(
-                DateAvailability("Mon, Apr 13", listOf(UiTimeSlot(1, "11:00 - 14:00", false))),
-                DateAvailability("Tue, Apr 14", listOf(UiTimeSlot(2, "09:00 - 12:00", true)))
+                DateAvailability("2025-04-13", listOf(UiTimeSlot(1, "11:00 - 14:00", false))),
+                DateAvailability("2025-04-14", listOf(UiTimeSlot(2, "09:00 - 12:00", true)))
             )
         )
     }
