@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.data.db.daos
 
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -8,6 +9,13 @@ import androidx.room.Query
 import androidx.room.Upsert
 import com.meetup.meetingapp.data.db.entities.EventEntity
 import kotlinx.coroutines.flow.Flow
+
+// Represents the combination of dateRangeStart, dateRangeEnd, and timeSlots
+data class EventAvailabilityTuple(
+    @ColumnInfo(name = "dateRangeStartString") val dateRangeStart: String,
+    @ColumnInfo(name = "dateRangeEndString") val dateRangeEnd: String,
+    @ColumnInfo(name = "timeSlotsJson") val timeSlotsJson: String
+)
 
 @Dao
 interface EventDao {
@@ -26,6 +34,9 @@ interface EventDao {
 
     @Query("SELECT * FROM events WHERE status = :status")
     fun getEventsByStatus(status: String): Flow<List<EventEntity>>
+
+    @Query("SELECT dateRangeStartString, dateRangeEndString, timeSlotsJson FROM events WHERE eventCode = :eventCode")
+    fun getAvailabilityByEventCode(eventCode: String): Flow<EventAvailabilityTuple>
 
     @Upsert
     suspend fun upsertEvent(event: EventEntity)
