@@ -44,12 +44,14 @@ object EventCreatedDestination : NavigationDestination {
  * Event Created Page
  * @param onBack Navigate back
  * @param onNavigateToDashboard Navigate to the host dashboard
+ * @param onNavigateToAvailability Navigate to the participant availability
  * @param viewModel [EventViewModel] to retrieve generated codes.
  */
 @Composable
 fun EventCreatedPage(
     onBack: () -> Unit,
     onNavigateToDashboard: (String) -> Unit,
+    onNavigateToAvailability: (String, String) -> Unit,
     viewModel: EventViewModel
 ) {
 
@@ -89,7 +91,7 @@ fun EventCreatedPage(
                     }
                     context.startActivity(Intent.createChooser(intent, "Share event"))
                 },
-                onFillAvailability = { /* Implementation */ }
+                onFillAvailability = { onNavigateToAvailability(state.eventCode, state.eventKey) }
             )
         }
 
@@ -102,7 +104,6 @@ fun EventCreatedPage(
             )
         }
     }
-
 }
 
 /**
@@ -110,10 +111,10 @@ fun EventCreatedPage(
  * @param eventCode The generated event code
  * @param eventKey The generated event key
  * @param onBack Navigate back
- * @param onNavigateToDashboard Navigate to dashboard
  * @param onCopyCode Copy code to clipboard
  * @param onShare Open share sheet
  * @param onFillAvailability Enter availability flow
+ * @param onNavigateToDashboard Navigate to dashboard
  * @param modifier Modifier
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -122,10 +123,10 @@ fun EventCreatedContent(
     eventCode: String,
     eventKey: String,
     onBack: () -> Unit,
-    onNavigateToDashboard: () -> Unit,
     onCopyCode: () -> Unit,
     onShare: () -> Unit,
     onFillAvailability: () -> Unit,
+    onNavigateToDashboard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val brandBlue = Color(0xFF3B82F6)
