@@ -58,7 +58,7 @@ object ParticipantMeetUpDetailDestination : NavigationDestination {
  * @param modifier Modifier.
  * @param onBack Navigate back.
  * @param eventCode The unique code for the event.
- * @param onNavigateToAvailability Navigate to the availability page.
+ * @param onNavigateToTimeAvailability Navigate to the availability page.
  * @param viewModel [ParticipantViewModel] to retrieve event data.
  */
 @Composable
@@ -66,7 +66,7 @@ fun ParticipantMeetUpDetailPage(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     eventCode: String,
-    onNavigateToAvailability: () -> Unit,
+    onNavigateToTimeAvailability: () -> Unit,
     viewModel: ParticipantViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val fetchState by viewModel.fetchState.collectAsStateWithLifecycle(FetchState.Loading)
@@ -89,7 +89,7 @@ fun ParticipantMeetUpDetailPage(
                 participantState = participantState,
                 onNameChange = viewModel::updateName,
                 onBack = onBack,
-                onNavigateToAvailability = onNavigateToAvailability
+                onNavigateToTimeAvailability = onNavigateToTimeAvailability
             )
         }
     }
@@ -111,7 +111,7 @@ fun ParticipantMeetUpDetailContent(
     participantState: ParticipantInputState,
     onNameChange: (String) -> Unit,
     onBack: () -> Unit,
-    onNavigateToAvailability: () -> Unit,
+    onNavigateToTimeAvailability: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -201,7 +201,7 @@ fun ParticipantMeetUpDetailContent(
                     contentAlignment = Alignment.Center
                 ) {
                     Button(
-                        onClick = onNavigateToAvailability,
+                        onClick = onNavigateToTimeAvailability,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
@@ -234,7 +234,7 @@ fun ParticipantMeetUpDetailPreview() {
         participantState = ParticipantInputState(),
         onNameChange = {},
         onBack = {},
-        onNavigateToAvailability = {},
+        onNavigateToTimeAvailability = {},
         modifier = Modifier
     )
 }
