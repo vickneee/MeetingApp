@@ -92,7 +92,12 @@ class ParticipantViewModel(
                 .collect { event ->
                     if (event != null) {
                         _event.value = event
-                        _participantState.update { it.copy(eventId = event.id) }
+                        _participantState.update { 
+                            it.copy(
+                                eventId = event.id,
+                                participantName = if (it.participantName.isEmpty()) event.hostName else it.participantName
+                            ) 
+                        }
                         _fetchState.value = FetchState.Success
                         _isLoading.value = false
                     } else {
