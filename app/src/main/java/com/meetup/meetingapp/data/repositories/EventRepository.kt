@@ -1,8 +1,8 @@
 package com.meetup.meetingapp.data.repositories
 
-
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
+import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
@@ -48,4 +48,6 @@ interface EventRepository {
     // Room database operations
     fun getCitiesByCountry(country: CountryOption): Flow<List<String>>
 
+    // Room database operations
+    fun getAvailabilityByEventCode(eventCode: String): Flow<Pair<List<String>, List<TimeSlot>>>
 }
