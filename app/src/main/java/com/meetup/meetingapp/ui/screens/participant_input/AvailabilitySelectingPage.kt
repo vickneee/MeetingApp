@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,20 +15,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,19 +44,52 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
+import com.meetup.meetingapp.R
+import com.meetup.meetingapp.ui.navigation.NavigationDestination
 
-data class TimeSlot(val id: Int, val timeRange: String, val isSelected: Boolean)
-data class DateAvailability(val date: String, val timeSlots: List<TimeSlot>)
+/**
+ * Represents a time slot with its associated information.
+ *
+ * @property id Unique identifier for the time slot.
+ * @property timeRange The time range represented as a string (e.g., "10:00 - 12:00").
+ * @property isSelected Indicates whether the time slot is currently selected.
+ * @constructor Creates a new instance of [UiTimeSlot].
+ */
+data class UiTimeSlot(val id: Int, val timeRange: String, val isSelected: Boolean)
+
+/**
+ * Represents a date and its associated time slots.
+ *
+ * @property date The date represented as a string (e.g., "Mon, Apr 13").
+ * @property timeSlots A list of [UiTimeSlot] representing the available time slots for that date.
+ * @constructor Creates a new instance of [DateAvailability].
+ * @see UiTimeSlot for more information about time slots.
+ */
+data class DateAvailability(val date: String, val timeSlots: List<UiTimeSlot>)
+
+/**
+ * Navigation destination for the Participant MeetUp Detail screen.
+ */
+object TimeAvailabilityDestination : NavigationDestination {
+    override val route = "participant_time_availability"
+    override val titleRes = R.string.title_time_availability_page
+}
 
 @Composable
 fun AvailabilitySelectingPage(
     onBack: () -> Unit,
-    navigateToNextStep: () -> Unit, // muuta tämä oikeaan osoitteeseen
+    navigateToNextStep: () -> Unit,
     viewModel: ParticipantViewModel
 ) {
+    val dates by viewModel.dates.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
     AvailabilitySelectingPageContent(
         onBack = onBack,
         onNext = navigateToNextStep,
+        dates = dates,
+        isLoading = isLoading,
+        onToggleTimeSlot = { date, slotIndex -> viewModel.toggleDateTime(date, slotIndex) },
         modifier = Modifier
     )
 }
@@ -60,20 +97,13 @@ fun AvailabilitySelectingPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AvailabilitySelectingPageContent(
+    modifier: Modifier = Modifier,
     onBack: () -> Unit,
     onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    dates: List<DateAvailability> = emptyList(),
+    isLoading: Boolean = false,
+    onToggleTimeSlot: (String, Int) -> Unit = { _, _ -> }
 ) {
-    // Mock data
-    val dates = remember {
-        mutableStateListOf(
-            DateAvailability("Mon, Apr 13", listOf(TimeSlot(1, "11:00 - 14:00", true), TimeSlot(2, "15:00 - 17:00", false))),
-            DateAvailability("Tue, Apr 14", listOf(TimeSlot(3, "09:00 - 12:00", false))),
-            DateAvailability("Wed, Apr 15", listOf(TimeSlot(4, "10:00 - 13:00", false))),
-            DateAvailability("Thu, Apr 16", listOf(TimeSlot(5, "13:00 - 16:00", false))),
-            DateAvailability("Fri, Apr 17", listOf(TimeSlot(6, "11:00 - 14:00", false)))
-        )
-    }
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
@@ -83,51 +113,59 @@ fun AvailabilitySelectingPageContent(
             )
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 48.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(48.dp))
-
-                Text(
-                    text = "Choose all dates and time\nslots you can join",
-                    fontSize = 20.sp,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-
-                )
-
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
-            item {
-                Spacer(modifier = Modifier.height(48.dp))
-            }
+        } else {
+            LazyColumn(
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues)
+                    .padding(horizontal = 48.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(48.dp))
 
-            items(dates.size) { dateAvailability ->
-                DateCard(availability = dates[dateAvailability])
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(48.dp))
-
-                Button(
-                    onClick = onNext,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .wrapContentWidth() // only as wide as text
-                ) {
                     Text(
-                        text = "Next",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                        text = "Choose all dates and time\nslots you can join",
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium
                     )
+                }
+                item {
+                    Spacer(modifier = Modifier.height(48.dp))
+                }
+
+                items(dates) { dateAvailability ->
+                    DateCard(
+                        availability = dateAvailability,
+                        onToggleTimeSlot = { slotIndex -> onToggleTimeSlot(dateAvailability.date, slotIndex) }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        onClick = onNext,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .wrapContentWidth() // only as wide as text
+                    ) {
+                        Text(
+                            text = "Next",
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
         }
@@ -135,8 +173,11 @@ fun AvailabilitySelectingPageContent(
 }
 
 @Composable
-fun DateCard(availability: DateAvailability) {
-    var expanded by remember { mutableStateOf(availability.date == "Mon, Apr 13") }
+fun DateCard(
+    availability: DateAvailability,
+    onToggleTimeSlot: (Int) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -154,17 +195,36 @@ fun DateCard(availability: DateAvailability) {
         ) {
             Text(
                 text = availability.date,
-                fontWeight = FontWeight.Bold,
-//                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
             )
             Icon(
                 imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                 contentDescription = null,
-                modifier = Modifier
-//                    .background(Color(0xFF3B82F6))
-//                    .border(1.dp, Color.Gray)
-                    .size(24.dp)
+                modifier = Modifier.size(24.dp)
             )
+        }
+
+        if (expanded) {
+            availability.timeSlots.forEachIndexed { index, slot ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onToggleTimeSlot(index) }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = slot.isSelected,
+                        onCheckedChange = null // Handled by Row clickable
+                    )
+                    Text(
+                        text = slot.timeRange,
+                        modifier = Modifier.padding(start = 8.dp),
+                        fontSize = 14.sp,
+                        color = Color.DarkGray
+                    )
+                }
+            }
         }
     }
 }
@@ -176,7 +236,10 @@ fun AvailabilitySelectingPageContentPreview() {
         AvailabilitySelectingPageContent(
             onBack = {},
             onNext = {},
-            modifier = Modifier
+            dates = listOf(
+                DateAvailability("Mon, Apr 13", listOf(UiTimeSlot(1, "11:00 - 14:00", false))),
+                DateAvailability("Tue, Apr 14", listOf(UiTimeSlot(2, "09:00 - 12:00", true)))
+            )
         )
     }
 }
