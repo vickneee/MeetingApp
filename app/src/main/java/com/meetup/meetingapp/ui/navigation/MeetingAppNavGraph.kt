@@ -28,6 +28,7 @@ import com.meetup.meetingapp.ui.screens.home.HomeDestination
 import com.meetup.meetingapp.ui.screens.home.HomeScreen
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
+import com.meetup.meetingapp.ui.screens.participant_input.AvailabilitySelectingPage
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination.eventCodeArg
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailPage
@@ -38,6 +39,7 @@ import com.meetup.meetingapp.ui.screens.participant_input.SmallAreaSelectingDest
 import com.meetup.meetingapp.ui.screens.participant_input.SmallAreaSelectingPage
 import com.meetup.meetingapp.ui.screens.participant_input.SubmissionCompleteDestination
 import com.meetup.meetingapp.ui.screens.participant_input.SubmissionCompletePage
+import com.meetup.meetingapp.ui.screens.participant_input.TimeAvailabilityDestination
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsDestination
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsPage
 
@@ -231,6 +233,10 @@ fun MeetingAppNavHost(
                     onBack = { navController.popBackStack() },
                     onNavigateToDashboard = { eventId ->
                         navController.navigate("${HostDashboardDestination.route}/$eventId")
+
+                    },
+                    onNavigateToAvailability = { eventCode, eventKey ->
+                        navController.navigate("${ParticipantMeetUpDetailDestination.route}/$eventCode/$eventKey")
                     }
                 )
             }
@@ -260,7 +266,25 @@ fun MeetingAppNavHost(
                     onBack = { navController.popBackStack() },
                     viewModel = participantViewModel,
                     eventCode = eventCodeArg,
-                    onNavigateToAvailability = {
+                    onNavigateToTimeAvailability = {
+                        navController.navigate(TimeAvailabilityDestination.route)
+                    }
+                )
+            }
+
+            composable(TimeAvailabilityDestination.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("participant-input")
+                }
+                val participantViewModel: ParticipantViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                AvailabilitySelectingPage(
+                    onBack = { navController.popBackStack() },
+                    viewModel = participantViewModel,
+                    navigateToNextStep = {
                         navController.navigate(SmallAreaSelectingDestination.route)
                     }
                 )

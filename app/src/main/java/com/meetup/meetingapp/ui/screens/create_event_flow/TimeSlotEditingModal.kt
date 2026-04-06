@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,7 +41,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
@@ -77,7 +75,6 @@ fun EditTimeSlotScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     var selectedTime by remember { mutableStateOf("No time selected") }
-    // Logic to track which picker is open
 
     var startTime by remember {
         mutableStateOf(
@@ -109,11 +106,11 @@ fun EditTimeSlotScreen(
         navigateToTimeSlotsSelectingPage = navigateToTimeSlotsSelectingPage,
     )
 
-     // Handle Time Picker Dialog
+    // Handle Time Picker Dialog
     if (showPickerType != null) {
         AdvancedTimePicker(
             onConfirm = { state ->
-                val formattedTime = String.format("%02d:%02d", state.hour, state.minute)
+                val formattedTime = "%02d:%02d".format(state.hour, state.minute)
                 if (showPickerType == "start") startTime = formattedTime
                 else endTime = formattedTime
                 showPickerType = null
