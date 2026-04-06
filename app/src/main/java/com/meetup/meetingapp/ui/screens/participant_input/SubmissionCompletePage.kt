@@ -31,9 +31,12 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
+/**
+ * Navigation destination for the Submission Complete screen.
+ */
 object SubmissionCompleteDestination: NavigationDestination {
     override val route = "submission-complete"
-    override val titleRes = R.string.title_placetype_and_keyword
+    override val titleRes = R.string.title_submission_complete
 }
 
 /**
@@ -58,6 +61,8 @@ fun SubmissionCompletePage(
 ) {
 
     val submitState by viewModel.submitState.collectAsStateWithLifecycle()
+
+    // Handle different submission states
     when(submitState){
         is SubmitState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
 
@@ -77,8 +82,6 @@ fun SubmissionCompletePage(
             )
         }
     }
-
-
 }
 
 /**
@@ -168,7 +171,6 @@ fun SubmissionCompleteContent(
                 ) {
                     Text("Go to Dashboard", fontSize = 18.sp, modifier = Modifier.padding(8.dp))
                 }
-
             }
         }
     }
