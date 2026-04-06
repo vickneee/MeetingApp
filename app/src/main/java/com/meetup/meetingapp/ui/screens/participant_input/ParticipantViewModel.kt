@@ -10,11 +10,18 @@ import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * ViewModel for the participant input flow.
+ */
 class ParticipantViewModel(
     private val eventRepository: EventRepository,
     savedStateHandle: SavedStateHandle
@@ -39,7 +46,25 @@ class ParticipantViewModel(
     // State representing the submission process (sending participant responses)
     private val _submitState = MutableStateFlow<SubmitState>(SubmitState.Loading)
 
+    // Expose the submit state as a read-only state flow
     val submitState = _submitState.asStateFlow()
+
+    // Loading state
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    /**
+     * Represents the availability of time slots for each date.
+     *
+     * @see UiTimeSlot for more information about time slots.
+     */
+    val dates: StateFlow<List<DateAvailability>> = combine(_event, _participantState) { event, state ->
+        if (event == null) {
+            emptyList()
+        } else {
+            buildDateAvailability(event, state.selectedDateTimes)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
         syncEvent()
@@ -69,10 +94,43 @@ class ParticipantViewModel(
                         _event.value = event
                         _participantState.update { it.copy(eventId = event.id) }
                         _fetchState.value = FetchState.Success
+                        _isLoading.value = false
                     } else {
                         _fetchState.value = FetchState.Error("Event not found")
+                        _isLoading.value = false
                     }
                 }
+        }
+    }
+
+    /**
+     * Builds a list of [DateAvailability] based on the provided event and selected date times.
+     *
+     * @param event The event containing time slots.
+     * @param selectedDateTimes The list of selected date and time slots.
+     * @return A list of [DateAvailability] representing available dates and time slots.
+     * @see UiTimeSlot for more information about time slots.
+     */
+    private fun buildDateAvailability(event: Event, selectedDateTimes: List<DateTime>): List<DateAvailability> {
+        val start = event.dateRange.startDate()
+        val end = event.dateRange.endDate()
+        val allDates = generateSequence(start) { it.plusDays(1) }
+            .takeWhile { !it.isAfter(end) }
+            .toList()
+
+        return allDates.map { date ->
+            val dateString = date.toString()
+            DateAvailability(
+                date = dateString,
+                timeSlots = event.timeSlots.mapIndexed { index, slot ->
+                    val isSelected = selectedDateTimes.any { it.date == dateString && it.timeSlot == slot }
+                    UiTimeSlot(
+                        id = index,
+                        timeRange = "${slot.start} - ${slot.end}",
+                        isSelected = isSelected
+                    )
+                }
+            )
         }
     }
 
@@ -98,7 +156,20 @@ class ParticipantViewModel(
         }
     }
 
-    fun toggleDateTime(dateTime: DateTime) {
+    /**
+     * Toggles the selection of a date and time slot.
+     *
+     * @param date The date of the slot.
+     * @param slotIndex The index of the slot in the list.
+     * @see UiTimeSlot for more information about time slots.
+     */
+    fun toggleDateTime(date: String, slotIndex: Int) {
+        val currentEvent = _event.value ?: return
+        if (slotIndex !in currentEvent.timeSlots.indices) return
+        
+        val slot = currentEvent.timeSlots[slotIndex]
+        val dateTime = DateTime(date = date, timeSlot = slot)
+
         _participantState.update { current ->
             val updated = if (current.selectedDateTimes.contains(dateTime))
                 current.selectedDateTimes - dateTime
@@ -108,6 +179,12 @@ class ParticipantViewModel(
         }
     }
 
+    /**
+     * Toggles the selection of a place type.
+     *
+     * @param placeType The place type to toggle.
+     * @see PlaceType for more information about place types.
+     */
     fun togglePlaceType(placeType: PlaceType) {
         _participantState.update { current ->
             val updated = if (current.selectedPlaceTypes.contains(placeType))
@@ -118,6 +195,11 @@ class ParticipantViewModel(
         }
     }
 
+    /**
+     * Toggles the selection of a location.
+     *
+     * @param city The city to toggle.
+     */
     fun toggleLocation(city: String) {
         _participantState.update { current ->
             val updated = if (current.selectedLocations.contains(city))
@@ -128,6 +210,12 @@ class ParticipantViewModel(
         }
     }
 
+    /**
+     * Toggles the selection of a food category.
+     *
+     * @param category The food category to toggle.
+     * @see FoodCategory for more information about food categories.
+     */
     fun toggleFoodCategory(category: FoodCategory) {
         _participantState.update { current ->
             val updated = if (current.selectedFoodCategories.contains(category))
@@ -138,13 +226,26 @@ class ParticipantViewModel(
         }
     }
 
+    /**
+     * Updates the participant's name.
+     *
+     * @param name The new name of the participant.
+     */
     fun updateName(name: String) {
         _participantState.update { it.copy(participantName = name) }
     }
-
 }
 
-// Participant input UI state
+/**
+ * Represents input state for the participant.
+ *
+ * @property eventId The ID of the event.
+ * @property participantName The name of the participant.
+ * @property selectedDateTimes The list of selected date and time slots.
+ * @property selectedLocations The list of selected locations.
+ * @property selectedPlaceTypes The list of selected place types.
+ * @property selectedFoodCategories The list of selected food categories.
+ */
 data class ParticipantInputState(
     val eventId: String = "",
     val participantName: String = "",
@@ -154,6 +255,15 @@ data class ParticipantInputState(
     val selectedFoodCategories: List<FoodCategory> = emptyList()
 )
 
+/**
+ * Represents the state of fetching an event.
+ *
+ * Used to track the progress and result of the fetch process
+ * (e.g., loading, success, or error).
+ * @see FetchState.Loading for loading state.
+ * @see FetchState.Success for success state.
+ * @see FetchState.Error for error state.
+ */
 // Fetch state
 sealed interface FetchState {
     object Loading : FetchState
@@ -167,6 +277,10 @@ sealed interface FetchState {
  * Used to track the progress and result of the submission process,
  * allowing the UI to react accordingly (e.g., showing loading indicators,
  * navigating on success, or displaying error messages).
+ *
+ * @see SubmitState.Loading for loading state.
+ * @see SubmitState.Success for success state.
+ * @see SubmitState.Error for error state.
  */
 sealed interface SubmitState {
 
