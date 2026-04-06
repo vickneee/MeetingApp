@@ -2,6 +2,8 @@ package com.meetup.meetingapp.data.repositories
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
 import com.meetup.meetingapp.data.db.mapper.CityMapper
@@ -10,6 +12,7 @@ import com.meetup.meetingapp.data.db.mapper.FirestoreCityList
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.ParticipantResponse
+import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
@@ -254,5 +257,21 @@ class EventRepositoryImp(
         } catch (e: Exception){
             Result.failure(e)
         }
+    }
+
+    /**
+     * Retrieves the availability and time slots for a given event code.
+     */
+    override fun getAvailabilityByEventCode(eventCode: String): Flow<Pair<List<String>, List<TimeSlot>>> {
+        val gson = Gson()
+        return eventDao.getAvailabilityByEventCode(eventCode)
+            .map { tuple ->
+                val dateRange = listOf(tuple.dateRangeStart, tuple.dateRangeEnd)
+                val timeSlots: List<TimeSlot> = gson.fromJson(
+                    tuple.timeSlotsJson,
+                    object : TypeToken<List<TimeSlot>>() {}.type
+                )
+                dateRange to timeSlots
+            }
     }
 }

@@ -56,7 +56,7 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 
 object ParticipantPlaceTypeAndKeywordDestination: NavigationDestination {
     override val route = "participant_placeType_and_keyword"
-    override val titleRes = R.string.title_submission_complete
+    override val titleRes = R.string.title_place_type_and_keyword
 }
 
 /**
@@ -127,7 +127,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = stringResource(id = R.string.title_placetype_and_keyword),
+                title = stringResource(id = R.string.title_place_type_and_keyword),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -174,7 +174,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
                     onToggle = { onTogglePlaceType(it) },
                     label = "Place type",
                     instruction = "Select place type",
-                    toText = {it.toString()}
+                    toText = { it.toString() }
                 )
             }
 
@@ -187,7 +187,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
                     onToggle = { onToggleFoodCategory(it) },
                     label = "Food category",
                     instruction = "Select food category",
-                    toText = {it.name}
+                    toText = { it.name }
                 )
             }
 
@@ -204,7 +204,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
-                            .wrapContentWidth() // only as wide as text
+                            .wrapContentWidth()
                     ) {
                         Text(
                             text = "Submit",
@@ -216,7 +216,6 @@ fun ParticipantPlaceTypeAndKeywordContent(
             }
         }
     }
-
 }
 
 /**
