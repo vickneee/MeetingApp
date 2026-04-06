@@ -56,7 +56,7 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 
 object ParticipantPlaceTypeAndKeywordDestination: NavigationDestination {
     override val route = "participant_placeType_and_keyword"
-    override val titleRes = R.string.title_submission_complete
+    override val titleRes = R.string.title_place_type_and_keyword
 }
 
 /**
@@ -127,7 +127,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = stringResource(id = R.string.title_placetype_and_keyword),
+                title = stringResource(id = R.string.title_place_type_and_keyword),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -216,7 +216,6 @@ fun ParticipantPlaceTypeAndKeywordContent(
             }
         }
     }
-
 }
 
 /**
