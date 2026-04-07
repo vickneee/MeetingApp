@@ -2,6 +2,7 @@ package com.meetup.meetingapp.data.repositories
 
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
+import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantInputState
@@ -26,6 +27,9 @@ interface EventRepository {
 
     // Cloud Firestore operations
     suspend fun createParticipantAvailability(participantInput: ParticipantInputState): Result<Unit>
+
+    // Cloud Firestore operations
+    fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>>
 
     // Room database operations
     fun getEvents(): Flow<List<Event>>
