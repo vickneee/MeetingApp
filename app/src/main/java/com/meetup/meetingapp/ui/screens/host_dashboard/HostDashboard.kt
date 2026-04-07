@@ -51,12 +51,13 @@ fun HostDashboardPage(
     )
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     event?.let {
     HostDashboardContent(
         event = it,
-        submissionsCount = 0,
-        attendees = emptyList(),
+        submissionsCount = uiState.submissionsCount,
+        attendees = uiState.attendees,
         onBack = onBack,
         onCloseVotingClick = viewModel::closeVoting
     )
@@ -114,6 +115,15 @@ fun HostDashboardContent(
                         fontSize = 20.sp
                     )
 
+                    Text(buildAnnotatedString {
+                        append("State: ")
+                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                            append(event.status.displayName)
+                        }
+                    },
+                        fontSize = 20.sp
+                    )
+
                     Text(
                         buildAnnotatedString {
                             append("Event Title: ")
@@ -156,7 +166,7 @@ fun HostDashboardContent(
 
             items(attendees) { name ->
                 Text(
-                    text = "•  $name",
+                    text = "• $name",
                     fontSize = 20.sp,
                     modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp)
                 )
