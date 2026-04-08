@@ -27,7 +27,6 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
-
 /**
  * Navigation destination for the Host Dashboard screen.
  */
@@ -46,6 +45,7 @@ object HostDashboardDestination : NavigationDestination {
 @Composable
 fun HostDashboardPage(
     onBack: () -> Unit,
+    onFillHostAvailability: () -> Unit,
     viewModel: HostDashboardViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
@@ -59,7 +59,8 @@ fun HostDashboardPage(
         submissionsCount = uiState.submissionsCount,
         attendees = uiState.attendees,
         onBack = onBack,
-        onCloseVotingClick = viewModel::closeVoting
+        onCloseVotingClick = viewModel::closeVoting,
+        onFillHostAvailability = onFillHostAvailability
     )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
@@ -80,6 +81,7 @@ fun HostDashboardContent(
     submissionsCount: Int,
     attendees: List<String>,
     onBack: () -> Unit,
+    onFillHostAvailability: () -> Unit,
     onCloseVotingClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -179,6 +181,23 @@ fun HostDashboardContent(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = onFillHostAvailability,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        Text(
+                            "Fill in my availability",
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
                     Button(
                         onClick = onCloseVotingClick,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
@@ -187,8 +206,8 @@ fun HostDashboardContent(
                     ) {
                         Text(
                             text = "Close Voting",
-                            fontSize = 20.sp,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(vertical = 6.dp)
                         )
                     }
                 }
@@ -209,6 +228,7 @@ fun HostDashboardPreview() {
         submissionsCount = 4,
         attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
         onBack = {},
+        onFillHostAvailability = {},
         onCloseVotingClick = {}
     )
 }
