@@ -1,9 +1,9 @@
-package com.meetup.meetingapp.ui.screens.host_dashboard
+package com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -27,26 +27,19 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
-/**
- * Navigation destination for the Host Dashboard screen.
- */
-object HostDashboardDestination : NavigationDestination {
-    override val route = "host_dashboard"
-    override val titleRes = R.string.title_host_dashboard
+object ParticipantDashboardWaitingDestination : NavigationDestination {
+    override val route = "participant_dashboard_waiting"
+    override val titleRes = R.string.title_participant_dashboard_waiting
     const val eventIdArg = "eventId"
     val routeWithArgs = "$route/{$eventIdArg}"
 }
 
-/**
- * Host Dashboard Page
- * @param onBack Navigate back
- * @param viewModel [HostDashboardViewModel] to retrieve event data and attendee list.
- */
 @Composable
-fun HostDashboardPage(
+fun ParticipantDashboardWaitingPage(
     onBack: () -> Unit,
-    onVoteForRestaurantClick: () -> Unit,
-    viewModel: HostDashboardViewModel = viewModel(
+    onNavigateToChooseDatePage: () -> Unit,
+    onNavigateToHome: () -> Unit,
+    viewModel: RestaurantViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
 ) {
@@ -54,41 +47,30 @@ fun HostDashboardPage(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     event?.let {
-    HostDashboardContent(
-        event = it,
-        submissionsCount = uiState.submissionsCount,
-        attendees = uiState.attendees,
-        onBack = onBack,
-        onCloseVotingClick = viewModel::closeVoting,
-        onVoteForRestaurantClick = onVoteForRestaurantClick
-    )
+        ParticipantDashboardWaitingContent(
+            event = it,
+            submissionsCount = uiState.submissionsCount,
+            onBack = onBack,
+            onVoteForRestaurantClick = onNavigateToChooseDatePage,
+            onNavigateToHome = onNavigateToHome
+        )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
 
-/**
- * Host Dashboard Content
- * @param event The event data
- * @param submissionsCount Total number of participants
- * @param attendees List of participant names
- * @param onBack Navigate back
- * @param onCloseVotingClick Action to finalize the event
- * @param modifier Modifier
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HostDashboardContent(
+fun ParticipantDashboardWaitingContent(
     event: Event,
     submissionsCount: Int,
-    attendees: List<String>,
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
-    onCloseVotingClick: () -> Unit,
+    onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Dashboard / ${event.eventCode}",
+                title = "Waiting / ${event.eventCode}",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -107,44 +89,33 @@ fun HostDashboardContent(
                 Spacer(modifier = Modifier.padding(24.dp))
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-
                     Text(buildAnnotatedString {
                         append("Event Code: ")
                         withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
                             append(event.eventCode)
                         }
-                    },
-                        fontSize = 20.sp
-                    )
+                    }, fontSize = 20.sp)
 
                     Text(buildAnnotatedString {
                         append("State: ")
                         withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
                             append(event.status.displayName)
                         }
-                    },
-                        fontSize = 20.sp
-                    )
+                    }, fontSize = 20.sp)
 
-                    Text(
-                        buildAnnotatedString {
-                            append("Event Title: ")
-                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                                append(event.eventTitle)
-                            }
-                        },
-                        fontSize = 20.sp
-                    )
+                    Text(buildAnnotatedString {
+                        append("Event Title: ")
+                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                            append(event.eventTitle)
+                        }
+                    }, fontSize = 20.sp)
 
-                    Text(
-                        buildAnnotatedString {
-                            append("Host: ")
-                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                                append(event.hostName)
-                            }
-                        },
-                        fontSize = 20.sp
-                    )
+                    Text(buildAnnotatedString {
+                        append("Host: ")
+                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                            append(event.hostName)
+                        }
+                    }, fontSize = 20.sp)
                 }
 
                 Spacer(modifier = Modifier.padding(24.dp))
@@ -155,23 +126,22 @@ fun HostDashboardContent(
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(modifier = Modifier.padding(20.dp))
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.padding(36.dp))
 
-                Text(
-                    text = "Submitted by:",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
-
-                Spacer(modifier = Modifier.padding(4.dp))
-            }
-
-            items(attendees) { name ->
-                Text(
-                    text = "• $name",
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp)
-                )
+                    Text(
+                        "Waiting for host to close",
+                        fontSize = 22.sp
+                    )
+                    Spacer(modifier = Modifier.padding(4.dp))
+                    Text(
+                        "the voting.",
+                        fontSize = 22.sp
+                    )
+                }
             }
 
             item {
@@ -181,33 +151,35 @@ fun HostDashboardContent(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     Button(
                         onClick = onVoteForRestaurantClick,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.8f)
+                        modifier = Modifier
                     ) {
                         Text(
-                            "Vote for Restaurant",
+                            "Next",
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(8.dp)
+                            modifier = Modifier.padding(6.dp)
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(36.dp))
 
-                    Button(
-                        onClick = onCloseVotingClick,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    OutlinedButton(
+                        onClick = onNavigateToHome,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.8f)
+                        modifier = Modifier
                     ) {
                         Text(
-                            text = "Close Voting",
+                            "Home",
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 6.dp)
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(6.dp)
                         )
                     }
                 }
@@ -218,17 +190,16 @@ fun HostDashboardContent(
 
 @Preview(showBackground = true)
 @Composable
-fun HostDashboardPreview() {
-    HostDashboardContent(
+fun ParticipantDashboardWaitingPreview() {
+    ParticipantDashboardWaitingContent(
         event = Event(
             eventCode = "A7F9K2",
             eventTitle = "Meet & Chat",
             hostName = "Julia",
         ),
         submissionsCount = 4,
-        attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
         onBack = {},
         onVoteForRestaurantClick = {},
-        onCloseVotingClick = {}
+        onNavigateToHome = {}
     )
 }

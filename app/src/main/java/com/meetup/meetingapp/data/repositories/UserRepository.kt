@@ -42,4 +42,14 @@ interface UserRepository {
      * @param uid The unique identifier of the user.
      */
     suspend fun addJoinedEvent(eventId: String, uid: String)
+
+    /**
+     * Retrieves the list of event IDs the user has created.
+     *
+     * This method queries the user's document in the database and returns
+     * the list of event IDs associated with the user's creation.
+     *
+     * @param uid The unique identifier of the user.
+     */
+    suspend fun getJoinedEventIds(uid: String): List<String>
 }
