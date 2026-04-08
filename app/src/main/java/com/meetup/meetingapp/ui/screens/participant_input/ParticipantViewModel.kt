@@ -3,6 +3,8 @@ package com.meetup.meetingapp.ui.screens.participant_input
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.FoodCategory
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -52,6 +55,16 @@ class ParticipantViewModel(
     // Loading state
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    // User ID of the current user
+    private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+
+    // True if user created the event, false if joined via link
+    val isHost: StateFlow<Boolean> = _event
+        .map { event ->
+            event != null && event.hostId == currentUserId  // compare hostId to actual user ID
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /**
      * Represents the availability of time slots for each date.
@@ -95,7 +108,7 @@ class ParticipantViewModel(
                         _participantState.update { 
                             it.copy(
                                 eventId = event.id,
-                                participantName = if (it.participantName.isEmpty()) event.hostName else it.participantName
+                                participantName = if (it.participantName.isEmpty() && event.hostId == currentUserId) event.hostName else it.participantName
                             ) 
                         }
                         _fetchState.value = FetchState.Success
