@@ -50,16 +50,17 @@ object SubmissionCompleteDestination: NavigationDestination {
  *
  * @param onBack Callback invoked when navigating back.
  * @param viewModel The [ParticipantViewModel] providing submission state.
- * @param onNavigateToDashboard Callback invoked when navigating to the dashboard.
+ * @param onNavigateToHostDashboard Callback invoked when navigating to the host dashboard.
+ * @param onNavigateToParticipantDashboard Callback invoked when navigating to the participant dashboard.
  */
 @Composable
 fun SubmissionCompletePage(
     onBack: () -> Unit,
     viewModel: ParticipantViewModel,
-    onNavigateToDashboard: (String) -> Unit,
+    onNavigateToHostDashboard: (String) -> Unit,
+    onNavigateToParticipantDashboard: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     val submitState by viewModel.submitState.collectAsStateWithLifecycle()
 
     // Handle different submission states
@@ -69,7 +70,8 @@ fun SubmissionCompletePage(
         is SubmitState.Success -> SubmissionCompleteContent(
             onBack = onBack,
             viewModel = viewModel,
-            onNavigateToDashboard = onNavigateToDashboard,
+            onNavigateToHostDashboard = onNavigateToHostDashboard,
+            onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
             modifier = modifier
         )
 
@@ -92,16 +94,22 @@ fun SubmissionCompletePage(
  *
  * @param onBack Callback invoked when navigating back.
  * @param viewModel The [ParticipantViewModel] used to access event data.
- * @param onNavigateToDashboard Callback invoked with the event ID to navigate.
+ * @param onNavigateToHostDashboard Callback invoked when navigating to the host dashboard.
+ * @param onNavigateToParticipantDashboard Callback invoked when navigating to the participant dashboard.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubmissionCompleteContent(
     onBack: () -> Unit,
     viewModel: ParticipantViewModel,
-    onNavigateToDashboard: (String) -> Unit,
+    onNavigateToHostDashboard: (String) -> Unit,
+    onNavigateToParticipantDashboard: (String) -> Unit,
     modifier: Modifier = Modifier
 ){
+
+    val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
+    val event by viewModel.event.collectAsStateWithLifecycle(null)
+
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
@@ -164,7 +172,12 @@ fun SubmissionCompleteContent(
                 Spacer(modifier = Modifier.height(100.dp))
 
                 Button(
-                    onClick = { onNavigateToDashboard(viewModel.event.value!!.id) },
+                    onClick = {  val eventId = event?.id ?: return@Button
+                        if (isHost) {
+                            onNavigateToHostDashboard(eventId)
+                        } else {
+                            onNavigateToParticipantDashboard(eventId)
+                        } },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(0.7f)
