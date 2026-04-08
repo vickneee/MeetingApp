@@ -38,6 +38,9 @@ interface EventDao {
     @Query("SELECT dateRangeStartString, dateRangeEndString, timeSlotsJson FROM events WHERE eventCode = :eventCode")
     fun getAvailabilityByEventCode(eventCode: String): Flow<EventAvailabilityTuple>
 
+    @Query("UPDATE events SET status = :status WHERE id = :eventId")
+    suspend fun updateEventStatus(eventId: String, status: String)
+
     @Upsert
     suspend fun upsertEvent(event: EventEntity)
 

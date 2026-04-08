@@ -72,8 +72,8 @@ fun ParticipantMeetUpDetailPage(
     val fetchState by viewModel.fetchState.collectAsStateWithLifecycle(FetchState.Loading)
     val event by viewModel.event.collectAsStateWithLifecycle(null)
     val participantState by viewModel.participantState.collectAsStateWithLifecycle(
-        ParticipantInputState()
-    )
+        ParticipantInputState())
+    val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
 
     when (val currentFetchState = fetchState) {
         is FetchState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -89,7 +89,9 @@ fun ParticipantMeetUpDetailPage(
                 participantState = participantState,
                 onNameChange = viewModel::updateName,
                 onBack = onBack,
-                onNavigateToTimeAvailability = onNavigateToTimeAvailability
+                onNavigateToTimeAvailability = onNavigateToTimeAvailability,
+                isHost = isHost,
+                modifier = modifier
             )
         }
     }
@@ -107,12 +109,13 @@ fun ParticipantMeetUpDetailPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantMeetUpDetailContent(
+    modifier: Modifier = Modifier,
     event: Event,
     participantState: ParticipantInputState,
     onNameChange: (String) -> Unit,
     onBack: () -> Unit,
     onNavigateToTimeAvailability: () -> Unit,
-    modifier: Modifier = Modifier
+    isHost: Boolean = false,
 ) {
     Scaffold(
         topBar = {
@@ -184,7 +187,7 @@ fun ParticipantMeetUpDetailContent(
 
                 // Input for participant name
                 OutlinedTextField(
-                    value = participantState.participantName,
+                    value = if (isHost) event.hostName else participantState.participantName,
                     onValueChange = onNameChange,
                     label = { Text("Enter your name") },
                     singleLine = true,
