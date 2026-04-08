@@ -143,4 +143,16 @@ class UserRepositoryImp(
         val user = UserEntity(uid, created, joined)
         userDao.insertUser(user)
     }
+
+    /**
+     * Retrieves the list of event IDs the user has joined.
+     *
+     * This method queries the user's document in the database and returns
+     * the list of event IDs associated with the user's joining.
+     *
+     * @param uid The unique identifier of the user.
+     */
+    override suspend fun getJoinedEventIds(uid: String): List<String> {
+        return userDao.getUser(uid)?.joinedEventIds ?: emptyList()
+    }
 }

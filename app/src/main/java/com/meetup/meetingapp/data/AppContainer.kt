@@ -45,7 +45,8 @@ class AppDataContainer(private val context: Context) : AppContainer {
             db,
             userRepository,
             MeetingAppDatabase.getDatabase(context).eventDao(),
-            MeetingAppDatabase.getDatabase(context).cityDao()
+            MeetingAppDatabase.getDatabase(context).cityDao(),
+            MeetingAppDatabase.getDatabase(context).participantResponseDao()
         )
     }
 }
