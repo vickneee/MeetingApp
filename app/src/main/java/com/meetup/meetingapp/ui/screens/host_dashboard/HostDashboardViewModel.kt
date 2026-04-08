@@ -46,11 +46,14 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
                 }
         }
         viewModelScope.launch {
+            // Sync from Firestore to Room first
+            eventRepository.syncSubmissions(eventId)
+            // Then collect from Room
             eventRepository.getSubmissionsByEventId(eventId)
                 .collect { submissions ->
                     _uiState.value = _uiState.value.copy(
                         submissionsCount = submissions.size,
-                        attendees = submissions.map { it.name }
+                        attendees = submissions.map { it.name } // From Room
                     )
                 }
         }
