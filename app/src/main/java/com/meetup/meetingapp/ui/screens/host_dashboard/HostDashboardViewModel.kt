@@ -38,6 +38,10 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
                         _uiState.value = _uiState.value.copy(
                             status = it.status
                         )
+                        // Auto-advance from CREATED to COLLECTING_AVAILABILITY
+                        if (it.status == EventStatus.CREATED) {
+                            eventRepository.updateEventStatus(it.id, EventStatus.COLLECTING_AVAILABILITY)
+                        }
                     }
                 }
         }
