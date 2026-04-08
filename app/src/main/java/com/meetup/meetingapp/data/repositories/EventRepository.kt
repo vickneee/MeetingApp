@@ -35,6 +35,9 @@ interface EventRepository {
     // Cloud Firestore operations
     fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>>
 
+    // Cloud Firestore → Room sync
+    suspend fun syncSubmissions(eventId: String)
+
     // Room database operations
     fun getEvents(): Flow<List<Event>>
 
@@ -43,6 +46,9 @@ interface EventRepository {
 
     // Room database operations
     suspend fun syncEventByEventCodeAndKey(eventCode: String, eventKey: String)
+
+    // Cloud Firestore → Room sync for a single event
+    suspend fun syncEventById(eventId: String)
 
     // Room database operations
     suspend fun syncCities()
@@ -61,4 +67,13 @@ interface EventRepository {
 
     // Firebase operations
     suspend fun updateEventStatus(eventId: String, newStatus: EventStatus)
+
+    /**
+     * Synchronizes the list of events the user has joined.
+     *
+     * This method retrieves the user's document from the database and
+     * updates the local Room database with the event IDs associated with
+     * the user's joining.
+     */
+    suspend fun syncJoinedEvents()
 }

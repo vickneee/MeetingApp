@@ -15,4 +15,5 @@
     <string name="title_time_slots_selecting_page">Select Time Slots</string>
     <string name="edit_time_slot">Edit Time Slot</string>
     <string name="title_time_availability_page">Select Your Availability</string>
+    <string name="title_participant_dashboard_waiting">"Dashboard / "</string>
 </resources>

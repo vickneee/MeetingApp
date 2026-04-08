@@ -27,7 +27,6 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
-
 /**
  * Navigation destination for the Host Dashboard screen.
  */
@@ -46,6 +45,7 @@ object HostDashboardDestination : NavigationDestination {
 @Composable
 fun HostDashboardPage(
     onBack: () -> Unit,
+    onVoteForRestaurantClick: () -> Unit,
     viewModel: HostDashboardViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
@@ -60,8 +60,10 @@ fun HostDashboardPage(
         submissionsCount = uiState.submissionsCount,
         attendees = uiState.attendees,
         onBack = onBack,
+
         closeVotingState = closeVotingState,
-        onCloseVotingClick = viewModel::closeVoting
+        onCloseVotingClick = viewModel::closeVoting,
+        onVoteForRestaurantClick = onVoteForRestaurantClick
     )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
@@ -83,6 +85,7 @@ fun HostDashboardContent(
     attendees: List<String>,
     onBack: () -> Unit,
     closeVotingState: CloseVotingState,
+    onVoteForRestaurantClick: () -> Unit,
     onCloseVotingClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -187,6 +190,23 @@ fun HostDashboardContent(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = onVoteForRestaurantClick,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        Text(
+                            "Vote for Restaurant",
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
                     Button(
                         onClick = onCloseVotingClick,
                         enabled = closeVotingState != CloseVotingState.Success
@@ -197,8 +217,8 @@ fun HostDashboardContent(
                     ) {
                         Text(
                             text = buttonText,
-                            fontSize = 20.sp,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(vertical = 6.dp)
                         )
                     }
 
@@ -229,6 +249,7 @@ fun HostDashboardPreview() {
         attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
         onBack = {},
         closeVotingState = CloseVotingState.Idle,
+        onVoteForRestaurantClick = {},
         onCloseVotingClick = {}
     )
 }

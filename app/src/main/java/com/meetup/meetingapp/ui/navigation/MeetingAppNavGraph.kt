@@ -42,6 +42,9 @@ import com.meetup.meetingapp.ui.screens.participant_input.SubmissionCompletePage
 import com.meetup.meetingapp.ui.screens.participant_input.TimeAvailabilityDestination
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsDestination
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsPage
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ParticipantDashboardWaitingDestination
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ParticipantDashboardWaitingPage
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantViewModel
 
 /**
  * Main navigation graph for the MeetingApp.
@@ -361,7 +364,11 @@ fun MeetingAppNavHost(
                 SubmissionCompletePage(
                     onBack = { navController.popBackStack() },
                     viewModel = participantViewModel,
-                    onNavigateToDashboard = {
+                    onNavigateToHostDashboard = { eventId ->
+                        navController.navigate("${HostDashboardDestination.route}/$eventId")
+                    },
+                    onNavigateToParticipantDashboard = { eventId ->
+                        navController.navigate("${ParticipantDashboardWaitingDestination.route}/$eventId")
                     }
                 )
             }
@@ -370,10 +377,43 @@ fun MeetingAppNavHost(
         /**
          * Host Dashboard destination
          */
-        composable(route = HostDashboardDestination.routeWithArgs) {
+        composable(route = HostDashboardDestination.routeWithArgs) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString(HostDashboardDestination.eventIdArg) ?: ""
             HostDashboardPage(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onVoteForRestaurantClick = {
+                    navController.navigate("${ParticipantDashboardWaitingDestination.route}/$eventId")
+                }
             )
+        }
+
+        /**
+         * Nested navigation graph for the participant input flow.
+         * All screens inside this graph share the same ParticipantViewModel instance.
+         */
+        navigation(
+            startDestination = ParticipantDashboardWaitingDestination.routeWithArgs,
+            route = "vote-for-restaurant"
+        ) {
+            composable(ParticipantDashboardWaitingDestination.routeWithArgs) { backStackEntry ->
+                // Parent entry for scoping the ViewModel to this navigation graph
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("vote-for-restaurant")
+                }
+                val viewModel: RestaurantViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                ParticipantDashboardWaitingPage(
+                    onBack = { navController.popBackStack() },
+                    onNavigateToChooseDatePage = { /* */ },
+                    onNavigateToHome = {
+                        navController.navigate(HomeDestination.route)
+                    },
+                    viewModel = viewModel
+                )
+            }
         }
 
         /**
