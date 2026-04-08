@@ -30,6 +30,9 @@ interface EventRepository {
     suspend fun createParticipantAvailability(participantInput: ParticipantInputState): Result<Unit>
 
     // Cloud Firestore operations
+    suspend fun aggregateParticipantResponses(eventId: String): Result<Unit>
+
+    // Cloud Firestore operations
     fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>>
 
     // Cloud Firestore → Room sync

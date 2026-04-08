@@ -52,6 +52,7 @@ fun HostDashboardPage(
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val closeVotingState by viewModel.closeVotingState.collectAsStateWithLifecycle()
 
     event?.let {
     HostDashboardContent(
@@ -59,6 +60,8 @@ fun HostDashboardPage(
         submissionsCount = uiState.submissionsCount,
         attendees = uiState.attendees,
         onBack = onBack,
+
+        closeVotingState = closeVotingState,
         onCloseVotingClick = viewModel::closeVoting,
         onVoteForRestaurantClick = onVoteForRestaurantClick
     )
@@ -81,6 +84,7 @@ fun HostDashboardContent(
     submissionsCount: Int,
     attendees: List<String>,
     onBack: () -> Unit,
+    closeVotingState: CloseVotingState,
     onVoteForRestaurantClick: () -> Unit,
     onCloseVotingClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -175,6 +179,11 @@ fun HostDashboardContent(
             }
 
             item {
+                val buttonText = when (closeVotingState) {
+                    CloseVotingState.Success -> "Voting Closed"
+                    else -> "Close Voting"
+                }
+
                 Spacer(modifier = Modifier.padding(32.dp))
 
                 Column(
@@ -200,14 +209,25 @@ fun HostDashboardContent(
 
                     Button(
                         onClick = onCloseVotingClick,
+                        enabled = closeVotingState != CloseVotingState.Success
+                                && closeVotingState != CloseVotingState.Loading,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
                         Text(
-                            text = "Close Voting",
+                            text = buttonText,
                             fontSize = 18.sp,
                             modifier = Modifier.padding(vertical = 6.dp)
+                        )
+                    }
+
+                    if (closeVotingState is CloseVotingState.Error) {
+                        Text(
+                            text = closeVotingState.error.message ?: "Unknown error, retry close voting",
+                            color = Color.Red,
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(top = 12.dp)
                         )
                     }
                 }
@@ -228,6 +248,7 @@ fun HostDashboardPreview() {
         submissionsCount = 4,
         attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
         onBack = {},
+        closeVotingState = CloseVotingState.Idle,
         onVoteForRestaurantClick = {},
         onCloseVotingClick = {}
     )

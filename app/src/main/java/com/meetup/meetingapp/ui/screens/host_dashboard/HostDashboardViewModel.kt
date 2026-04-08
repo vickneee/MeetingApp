@@ -6,9 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
+import com.meetup.meetingapp.ui.screens.participant_input.SubmitState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * ViewModel for the Host Dashboard screen.
@@ -25,6 +28,10 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
 
     private val _event = MutableStateFlow<Event?>(null)
     val event = _event.asStateFlow()
+
+    private val _closeVotingState = MutableStateFlow<CloseVotingState>(CloseVotingState.Idle)
+
+    val closeVotingState = _closeVotingState.asStateFlow()
 
     private val _uiState = MutableStateFlow(HostDashboardUiState())
     val uiState = _uiState.asStateFlow()
@@ -63,8 +70,22 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
      * Placeholder for the "Close Voting" button logic
      */
     fun closeVoting() {
-        // Implementation
+        _closeVotingState.value = CloseVotingState.Loading
+        viewModelScope.launch(Dispatchers.IO) {
+            try{
+                eventRepository.aggregateParticipantResponses(eventId).getOrThrow()
+
+                withContext(Dispatchers.Main) {
+                    _closeVotingState.value = CloseVotingState.Success
+                }
+            } catch (e: Throwable) {
+                withContext(Dispatchers.Main) {
+                    _closeVotingState.value = CloseVotingState.Error(e)
+                }
+            }
+        }
     }
+
 }
 
 data class HostDashboardUiState(
@@ -72,3 +93,13 @@ data class HostDashboardUiState(
     val attendees: List<String> = emptyList(),
     val status: EventStatus = EventStatus.UNKNOWN
 )
+
+sealed interface CloseVotingState {
+
+    object Idle : CloseVotingState
+
+    object Loading : CloseVotingState
+    object Success : CloseVotingState
+
+    data class Error(val error: Throwable) : CloseVotingState
+}
