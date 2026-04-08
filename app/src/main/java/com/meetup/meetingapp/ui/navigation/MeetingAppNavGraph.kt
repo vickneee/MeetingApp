@@ -364,8 +364,11 @@ fun MeetingAppNavHost(
                 SubmissionCompletePage(
                     onBack = { navController.popBackStack() },
                     viewModel = participantViewModel,
-                    onNavigateToDashboard = {
-                        navController.navigate("${HostDashboardDestination.route}/$it")
+                    onNavigateToHostDashboard = { eventId ->
+                        navController.navigate("${HostDashboardDestination.route}/$eventId")
+                    },
+                    onNavigateToParticipantDashboard = { eventId ->
+                        navController.navigate("${ParticipantDashboardWaitingDestination.route}/$eventId")
                     }
                 )
             }
@@ -389,7 +392,7 @@ fun MeetingAppNavHost(
          * All screens inside this graph share the same ParticipantViewModel instance.
          */
         navigation(
-            startDestination = ParticipantMeetUpDetailDestination.routeWithArgs,
+            startDestination = ParticipantDashboardWaitingDestination.routeWithArgs,
             route = "vote-for-restaurant"
         ) {
             composable(ParticipantDashboardWaitingDestination.routeWithArgs) { backStackEntry ->

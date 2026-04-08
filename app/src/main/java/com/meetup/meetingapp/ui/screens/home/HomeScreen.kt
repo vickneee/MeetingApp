@@ -65,8 +65,6 @@ fun HomeScreen(
         Log.d("HomeScreen", "Signed in anonymously")
     }
 
-    val homeUiState by viewModel.homeUiState.collectAsState()
-
     Scaffold { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -155,9 +153,6 @@ fun HomeScreen(
                     )
                 }
             }
-//            items(items = homeUiState.itemList, key = { it.id }) { item ->
-//                Text(text = "Item ID: ${item.id}, Name: ${item.name}")
-//            }
         }
     }
 }
