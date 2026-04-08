@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
+import kotlin.collections.flatMap
 
 /**
  * Implementation of [EventRepository] responsible for creating events
@@ -262,6 +263,76 @@ class EventRepositoryImp(
         }
     }
 
+
+    override suspend fun aggregateParticipantResponses(eventId: String): Result<Unit>{
+        return try {
+            val snapshot = db.collection("events")
+                .document(eventId)
+                .collection("participantResponses")
+                .get()
+                .await()
+
+            val participantResponses = snapshot.documents.mapNotNull {
+                it.toObject(ParticipantResponse::class.java)
+            }
+
+            if (participantResponses.isEmpty()) {
+                return Result.failure(Exception("No participant responses found"))
+            }
+
+            val dateTimeCandidates = findTopCandidates(
+                participantResponses.flatMap { it.dateTimes }
+            )
+
+            val locationCandidates = findTopCandidates(
+                participantResponses.flatMap { it.locations }
+            )
+
+            val placeTypeCandidates = findTopCandidates(
+                participantResponses.flatMap { it.placeTypes }
+            )
+
+            val foodCategoryCandidates = findTopCandidates(
+                participantResponses.flatMap { it.foodCategories }
+            )
+
+            db.collection("events")
+                .document(eventId)
+                .update(
+                    mapOf(
+                        "status" to EventStatus.FIRST_VOTING_CLOSED,
+                        "dateTimeCandidates" to dateTimeCandidates,
+                        "locationCandidates" to locationCandidates,
+                        "placeTypeCandidates" to placeTypeCandidates,
+                        "foodCategoryCandidates" to foodCategoryCandidates
+                    )
+                )
+                .await()
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private fun <T> findTopCandidates(items: List<T>): List<T> {
+        if (items.isEmpty()) return emptyList()
+
+        val grouped = items
+            .groupBy { it }
+            .mapValues { (_, list) -> list.size }
+            .entries
+            .sortedByDescending { it.value }
+
+        val maxCount = grouped.first().value
+
+        return grouped
+            .filter { it.value == maxCount }
+            .map { it.key }
+    }
+
+
     /**
      * Retrieves the availability and time slots for a given event code.
      */
@@ -316,3 +387,5 @@ class EventRepositoryImp(
         }
     }
 }
+
+
