@@ -2,23 +2,23 @@ package com.meetup.meetingapp.data.repositories
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
+import com.meetup.meetingapp.data.db.daos.ParticipantResponseDao
 import com.meetup.meetingapp.data.db.mapper.CityMapper
 import com.meetup.meetingapp.data.db.mapper.EventMapper
 import com.meetup.meetingapp.data.db.mapper.FirestoreCityList
+import com.meetup.meetingapp.data.db.mapper.ParticipantResponseMapper
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
+import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantInputState
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.meetup.meetingapp.data.model.EventStatus
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlin.collections.flatMap
@@ -39,6 +39,7 @@ class EventRepositoryImp(
     private val userRepository: UserRepository,
     private val eventDao: EventDao,
     private val cityDao: CityDao,
+    private val participantResponseDao: ParticipantResponseDao
 ): EventRepository {
 
     // Firebase Authentication instance to retrieve the current user.
@@ -85,9 +86,7 @@ class EventRepositoryImp(
                 .whereEqualTo("eventKey", eventKey)
                 .get()
                 .await()
-                .documents
-                .mapNotNull { it.toObject(Event::class.java) }
-                .firstOrNull()
+                .documents.firstNotNullOfOrNull { it.toObject(Event::class.java) }
 
             if (event != null) {
                 val entity = with(EventMapper) { event.toEntity() }
@@ -96,6 +95,29 @@ class EventRepositoryImp(
 
         } catch (e: Exception) {
             // sync failure won't crash the app, Room still serves cached data
+        }
+    }
+
+    /**
+     * Retrieves an event by its ID from the local Room database.
+     *
+     * @param eventId The ID of the event to retrieve.
+     * @return A [Flow] emitting the [Event] object with the specified ID.
+     */
+    override suspend fun syncEventById(eventId: String) {
+        try {
+            val event = db.collection("events")
+                .document(eventId)
+                .get()
+                .await()
+                .toObject(Event::class.java)
+
+            if (event != null) {
+                val entity = with(EventMapper) { event.toEntity() }
+                eventDao.upsertEvent(entity)
+            }
+        } catch (e: Exception) {
+            // sync failure won't crash the app
         }
     }
 
@@ -257,6 +279,13 @@ class EventRepositoryImp(
                 .set(participantResponse)
                 .await()
 
+            // Track joined event on user document
+            userRepository.addJoinedEvent(eventId = eventId, uid = uid)
+
+            // Also save to Room immediately
+            val entity = with(ParticipantResponseMapper) { participantResponse.toEntity(eventId) }
+            participantResponseDao.upsertResponses(listOf(entity))
+
             Result.success(Unit)
         } catch (e: Exception){
             Result.failure(e)
@@ -350,29 +379,41 @@ class EventRepositoryImp(
     }
 
     /**
-     * Retrieves the participant responses for a given event ID.
-     * @param eventId The ID of the event.
-     * @return A [Flow] emitting a list of [ParticipantResponse] objects.
+     * Retrieves participant responses from local Room database.
      */
-    override fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>> = callbackFlow {
-        val subscription = db.collection("events")
-            .document(eventId)
-            .collection("participantResponses")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-                if (snapshot != null) {
-                    val submissions = snapshot.documents.mapNotNull {
-                        it.toObject(ParticipantResponse::class.java)
-                    }
-                    trySend(submissions)
-                }
+    override fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>> {
+        return participantResponseDao.getResponsesByEventId(eventId)
+            .map { entities ->
+                entities.map { with(ParticipantResponseMapper) { it.toDomain() } }
             }
-        awaitClose { subscription.remove() }
     }
 
+    /**
+     * Syncs participant responses from Firestore to local Room database.
+     */
+    override suspend fun syncSubmissions(eventId: String) {
+        try {
+            db.collection("events")
+                .document(eventId)
+                .collection("participantResponses")
+                .get()
+                .await()
+                .documents
+                .mapNotNull { it.toObject(ParticipantResponse::class.java) }
+                .map { with(ParticipantResponseMapper) { it.toEntity(eventId) } }
+                .also { participantResponseDao.upsertResponses(it) }
+        } catch (e: Exception) {
+            // Room still serves cached data
+        }
+    }
+
+    /**
+     * Updates the status of an event in the database.
+     *
+     * @param eventId The ID of the event to update.
+     * @param newStatus The new status to set for the event.
+     * @throws Exception if the update operation fails.
+     */
     override suspend fun updateEventStatus(eventId: String, newStatus: EventStatus) {
         try {
             db.collection("events")
@@ -384,6 +425,35 @@ class EventRepositoryImp(
             eventDao.updateEventStatus(eventId, newStatus.name)
         } catch (e: Exception) {
             // sync failure won't crash the app
+        }
+    }
+
+    /**
+     * Synchronizes the list of events the user has joined.
+     *
+     * This method retrieves the user's document from the database
+     * and updates the local Room database with the event IDs associated
+     * with the user's joining.
+     * @throws Exception if the synchronization operation fails.
+     * @see syncEventById for details on the synchronization process.
+     */
+    override suspend fun syncJoinedEvents() {
+        val uid = uid ?: return
+        try {
+            val joinedIds = userRepository.getJoinedEventIds(uid)
+            joinedIds.forEach { eventId ->
+                val event = db.collection("events")
+                    .document(eventId)
+                    .get()
+                    .await()
+                    .toObject(Event::class.java)
+
+                if (event != null) {
+                    eventDao.upsertEvent(with(EventMapper) { event.toEntity() })
+                }
+            }
+        } catch (e: Exception) {
+            // Room still serves cached data
         }
     }
 }
