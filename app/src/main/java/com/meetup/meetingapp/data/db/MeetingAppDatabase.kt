@@ -8,12 +8,20 @@ import androidx.room.TypeConverters
 import com.meetup.meetingapp.data.db.converter.Converters
 import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
+import com.meetup.meetingapp.data.db.daos.ParticipantResponseDao
 import com.meetup.meetingapp.data.db.daos.UserDao
 import com.meetup.meetingapp.data.db.entities.CityEntity
 import com.meetup.meetingapp.data.db.entities.EventEntity
+import com.meetup.meetingapp.data.db.entities.ParticipantResponseEntity
 import com.meetup.meetingapp.data.db.entities.UserEntity
 
-@Database(entities = [EventEntity::class, UserEntity::class, CityEntity::class], version = 6, exportSchema = false)
+/**
+ * The Room database for the Meeting App.
+ * This class defines the database configuration and serves as the
+ * access point for the underlying storage.
+ * @constructor Creates a new instance of the MeetingAppDatabase.
+ */
+@Database(entities = [EventEntity::class, UserEntity::class, CityEntity::class, ParticipantResponseEntity::class], version = 7, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class MeetingAppDatabase : RoomDatabase() {
 
@@ -21,6 +29,8 @@ abstract class MeetingAppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     abstract fun cityDao(): CityDao
+
+    abstract fun participantResponseDao(): ParticipantResponseDao
 
     companion object {
         @Volatile
