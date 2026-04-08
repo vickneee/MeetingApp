@@ -2,8 +2,6 @@ package com.meetup.meetingapp.data.repositories
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
 import com.meetup.meetingapp.data.db.mapper.CityMapper
@@ -15,7 +13,12 @@ import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input.ParticipantInputState
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.meetup.meetingapp.data.model.EventStatus
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 
@@ -273,5 +276,43 @@ class EventRepositoryImp(
                 )
                 dateRange to timeSlots
             }
+    }
+
+    /**
+     * Retrieves the participant responses for a given event ID.
+     * @param eventId The ID of the event.
+     * @return A [Flow] emitting a list of [ParticipantResponse] objects.
+     */
+    override fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>> = callbackFlow {
+        val subscription = db.collection("events")
+            .document(eventId)
+            .collection("participantResponses")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val submissions = snapshot.documents.mapNotNull {
+                        it.toObject(ParticipantResponse::class.java)
+                    }
+                    trySend(submissions)
+                }
+            }
+        awaitClose { subscription.remove() }
+    }
+
+    override suspend fun updateEventStatus(eventId: String, newStatus: EventStatus) {
+        try {
+            db.collection("events")
+                .document(eventId)
+                .update("status", newStatus.name)
+                .await()
+
+            // Also update local Room cache
+            eventDao.updateEventStatus(eventId, newStatus.name)
+        } catch (e: Exception) {
+            // sync failure won't crash the app
+        }
     }
 }

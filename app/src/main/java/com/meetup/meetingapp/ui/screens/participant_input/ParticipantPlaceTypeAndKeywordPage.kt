@@ -11,9 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -243,6 +246,8 @@ fun <T> MultiSelectDropdown(
     toText: (T) -> String
 ){
     var expanded by rememberSaveable() { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
+
     Column {
         Text(text = label,
             fontWeight = FontWeight.Bold,
@@ -270,8 +275,9 @@ fun <T> MultiSelectDropdown(
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
+                scrollState = scrollState,
                 modifier = Modifier
-                    .heightIn(max = 100.dp)
+                    .verticalScroll(scrollState)
             ) {
                 options.forEach { option ->
                     val isSelected = option in selected
@@ -283,6 +289,7 @@ fun <T> MultiSelectDropdown(
                                     checked = isSelected,
                                     onCheckedChange = null
                                 )
+                                Spacer(modifier = Modifier.width(4.dp))
                                 Text(toText(option))
                             }
                         },

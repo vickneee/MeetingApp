@@ -1,9 +1,12 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.runtime.*
@@ -236,9 +239,15 @@ fun AreaSelectingContent(
                             it.contains(cityQuery, ignoreCase = true)
                         }
 
+                        val scrollState = rememberScrollState()
+
                         ExposedDropdownMenu(
                             expanded = cityExpanded,
-                            onDismissRequest = { cityExpanded = false }
+                            onDismissRequest = { cityExpanded = false },
+                                    scrollState = scrollState,
+                            modifier = Modifier
+                                .heightIn(max = 300.dp)
+                                .verticalScroll(scrollState)
                         ) {
                             filteredCities.forEach { option ->
                                 val isSelected = option in selectedCities
@@ -249,6 +258,7 @@ fun AreaSelectingContent(
                                                 checked = isSelected,
                                                 onCheckedChange = null
                                             )
+                                            Spacer(modifier = Modifier.width(4.dp))
                                             Text(option)
                                         }
                                     },
