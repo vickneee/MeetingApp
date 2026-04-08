@@ -56,11 +56,13 @@ data class Event (
     val locationOptions: LocationOption = LocationOption(),
     val placeTypeOptions: List<PlaceType> = listOf(),
 
-    // Voting results.
+    // The first voting results.
     val dateTimeCandidates: List<DateTime> = listOf(),
     val locationCandidates: List<String> = listOf(),
     val placeTypeCandidates: List<PlaceType> = listOf(),
     val foodCategoryCandidates: List<FoodCategory> = listOf(),
+
+    // The second voting result
     val restaurantCandidates: List<String> = listOf(),
 
     // Final selections.
