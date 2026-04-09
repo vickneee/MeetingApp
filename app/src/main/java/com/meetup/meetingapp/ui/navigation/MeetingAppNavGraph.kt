@@ -1,8 +1,11 @@
 package com.meetup.meetingapp.ui.navigation
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -24,6 +27,8 @@ import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPageDestination
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinDestination
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinPage
+import com.meetup.meetingapp.ui.screens.events_list_page.EventsListDestination
+import com.meetup.meetingapp.ui.screens.events_list_page.EventsListPage
 import com.meetup.meetingapp.ui.screens.home.HomeDestination
 import com.meetup.meetingapp.ui.screens.home.HomeScreen
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
@@ -41,8 +46,7 @@ import com.meetup.meetingapp.ui.screens.participant_input_flow.SmallAreaSelectin
 import com.meetup.meetingapp.ui.screens.participant_input_flow.SubmissionCompleteDestination
 import com.meetup.meetingapp.ui.screens.participant_input_flow.SubmissionCompletePage
 import com.meetup.meetingapp.ui.screens.participant_input_flow.TimeAvailabilityDestination
-import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsDestination
-import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsPage
+import com.meetup.meetingapp.ui.screens.home.HomeViewModel
 import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardPage
 import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardViewModel
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantViewModel
@@ -74,6 +78,9 @@ fun MeetingAppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
+    val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val currentUserId by homeViewModel.currentUserId.collectAsStateWithLifecycle()
+
     NavHost(
         navController = navController, startDestination = HomeDestination.route, modifier = modifier
     ) {
@@ -83,7 +90,7 @@ fun MeetingAppNavHost(
         composable(route = HomeDestination.route) {
             HomeScreen(
                 onMainClick = { navController.navigate(CreateOrJoinDestination.route) },
-                onEventsClick = { navController.navigate(PastEventsDestination.route) }
+                onEventsClick = { navController.navigate(EventsListDestination.route) }
             )
         }
 
@@ -97,7 +104,7 @@ fun MeetingAppNavHost(
                     navController.navigate("event_creation_graph")
                 },
                 navigateToPastEventsPage = {
-                    navController.navigate(PastEventsDestination.route)
+                    navController.navigate(EventsListDestination.route)
                 },
                 navigateToParticipantPage = { (eventCode, eventKey) ->
                     navController.navigate("${ParticipantMeetUpDetailDestination.route}/$eventCode/$eventKey")
@@ -151,7 +158,7 @@ fun MeetingAppNavHost(
                     onBack = { navController.popBackStack() },
                     navigateToTimeEditPage = { index ->
                         navController.navigate(EditTimeSlotDestination.route + "/$index")
-                        },
+                    },
                     navigateToAreaSelectingPage = {
                         navController.navigate(AreaSelectingDestination.route)
                     }
@@ -379,11 +386,16 @@ fun MeetingAppNavHost(
          * Host Dashboard destination
          */
         composable(route = HostDashboardDestination.routeWithArgs) { backStackEntry ->
-            val eventId = backStackEntry.arguments?.getString(HostDashboardDestination.eventIdArg) ?: ""
+            val eventId =
+                backStackEntry.arguments?.getString(HostDashboardDestination.eventIdArg) ?: ""
             HostDashboardPage(
                 onBack = { navController.popBackStack() },
-                onVoteForRestaurantClick = { /* TODO */ } // Does nothing for now
+                onVoteForRestaurantClick = { /* TODO */ }, // Does nothing for now
+                onNavigateToHome = {
+                    navController.navigate(HomeDestination.route)
+                }
             )
+
         }
 
         /**
@@ -425,11 +437,18 @@ fun MeetingAppNavHost(
         }
 
         /**
-         * Past Events destination
+         * Events List destination
          */
-        composable(route = "past_events") {
-            PastEventsPage(
-                onBack = { navController.popBackStack() }
+        composable(route = "events-list") {
+            EventsListPage(
+                onBack = { navController.popBackStack() },
+                currentUserId = currentUserId,
+                onNavigateToHostDashboard = { eventId ->
+                    navController.navigate("${HostDashboardDestination.route}/$eventId")
+                },
+                onNavigateToParticipantDashboard = { eventId ->
+                    navController.navigate("${ParticipantDashboardDestination.route}/$eventId")
+                }
             )
         }
     }
