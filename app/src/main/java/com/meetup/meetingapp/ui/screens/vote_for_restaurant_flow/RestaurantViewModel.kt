@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.TimeSlot
+import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,19 +15,13 @@ import kotlinx.coroutines.launch
 import java.time.format.TextStyle
 import java.util.Locale
 
-/**
- * ViewModel for the Restaurant screen.
- *
- * @param eventRepository The repository to access event data.
- * @param savedStateHandle The saved state handle to retrieve navigation arguments.
- * @constructor Creates a new instance of the RestaurantViewModel.
- */
 class RestaurantViewModel(
     private val eventRepository: EventRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val eventId: String = savedStateHandle[ParticipantDashboardWaitingDestination.eventIdArg] ?: ""
+    private val eventId: String =
+        savedStateHandle[ParticipantDashChooseDateAndAreaDestination.eventIdArg] ?: ""
 
     private val _event = MutableStateFlow<Event?>(null)
     val event: StateFlow<Event?> = _event.asStateFlow()
@@ -39,24 +34,14 @@ class RestaurantViewModel(
 
     init {
         viewModelScope.launch {
+            eventRepository.syncEventById(eventId) // Sync from Firestore to Room first
             eventRepository.getEventById(eventId).collect { event ->
-                _event.value = event // From Room
+                _event.value = event
 
                 if(event != null){
                     buildDateLocationOptions(event.dateTimeCandidates, event.locationCandidates)
                 }
 
-            }
-        }
-        viewModelScope.launch {
-            // Sync from Firestore to Room first
-            eventRepository.syncSubmissions(eventId)
-            // Then collect from Room
-            eventRepository.getSubmissionsByEventId(eventId).collect { submissions ->
-                _uiState.value = _uiState.value.copy(
-                    submissionsCount = submissions.size,
-                    attendees = submissions.map { it.name } // From Room
-                )
             }
         }
     }
@@ -82,17 +67,17 @@ class RestaurantViewModel(
     fun getRestaurants(timing: DateTime, location: String){
 
     }
+
+    fun submitVote(restaurantId: String) {
+        // handle vote submission
+    }
 }
 
-/**
- * UI state for the Restaurant screen.
- *
- * @property submissionsCount The number of submissions made.
- * @property attendees The list of attendees' names.
- */
 data class RestaurantUiState(
-    val submissionsCount: Int = 0,
-    val attendees: List<String> = emptyList()
+    val restaurants: List<Restaurant> = emptyList(),
+    val selectedRestaurantId: String? = null,
+    val isSubmitting: Boolean = false,
+    val isSubmitted: Boolean = false
 )
 
 fun DateTime.toDisplayLabel(): String {
@@ -114,3 +99,4 @@ data class DateLocationOption(
 data class DateAndAreaState(
     val dateLocationOptions: List<DateLocationOption> = listOf<DateLocationOption>()
 )
+

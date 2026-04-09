@@ -1,11 +1,21 @@
 package com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,50 +37,44 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
-object ParticipantDashboardWaitingDestination : NavigationDestination {
-    override val route = "participant_dashboard_waiting"
+object ParticipantDashChooseDateAndAreaDestination : NavigationDestination {
+    override val route = "participant_choose_date_and_area"
     override val titleRes = R.string.title_participant_dashboard_waiting
     const val eventIdArg = "eventId"
     val routeWithArgs = "$route/{$eventIdArg}"
 }
 
 @Composable
-fun ParticipantDashboardWaitingPage(
+fun ParticipantDashChooseDateAndArea(
     onBack: () -> Unit,
     onNavigateToChooseDatePage: () -> Unit,
-    onNavigateToHome: () -> Unit,
     viewModel: RestaurantViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     event?.let {
-        ParticipantDashboardWaitingContent(
+        ParticipantDashChooseDateAndAreaContent(
             event = it,
-            submissionsCount = uiState.submissionsCount,
             onBack = onBack,
             onVoteForRestaurantClick = onNavigateToChooseDatePage,
-            onNavigateToHome = onNavigateToHome
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParticipantDashboardWaitingContent(
+fun ParticipantDashChooseDateAndAreaContent(
     event: Event,
-    submissionsCount: Int,
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
-    onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Waiting / ${event.eventCode}",
+                title = "Dashboard / ${event.eventCode}",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -120,28 +124,6 @@ fun ParticipantDashboardWaitingContent(
 
                 Spacer(modifier = Modifier.padding(24.dp))
 
-                Text(
-                    text = "Submissions: $submissionsCount",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Spacer(modifier = Modifier.padding(36.dp))
-
-                    Text(
-                        "Waiting for host to close",
-                        fontSize = 22.sp
-                    )
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Text(
-                        "the voting.",
-                        fontSize = 22.sp
-                    )
-                }
             }
 
             item {
@@ -160,25 +142,8 @@ fun ParticipantDashboardWaitingContent(
                         modifier = Modifier
                     ) {
                         Text(
-                            "Next",
+                            "Choose Date & Area",
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(36.dp))
-
-                    OutlinedButton(
-                        onClick = onNavigateToHome,
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                    ) {
-                        Text(
-                            "Home",
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(6.dp)
                         )
                     }
@@ -190,16 +155,14 @@ fun ParticipantDashboardWaitingContent(
 
 @Preview(showBackground = true)
 @Composable
-fun ParticipantDashboardWaitingPreview() {
-    ParticipantDashboardWaitingContent(
+fun ParticipantDashChooseDateAndAreaPreview() {
+    ParticipantDashChooseDateAndAreaContent(
         event = Event(
             eventCode = "A7F9K2",
             eventTitle = "Meet & Chat",
             hostName = "Julia",
         ),
-        submissionsCount = 4,
         onBack = {},
         onVoteForRestaurantClick = {},
-        onNavigateToHome = {}
     )
 }
