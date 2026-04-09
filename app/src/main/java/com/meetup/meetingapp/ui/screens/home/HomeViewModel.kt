@@ -21,6 +21,12 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
     val homeUiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow()
 
     /**
+     * The current user ID.
+     */
+    private val _currentUserId = MutableStateFlow(auth.currentUser?.uid ?: "")
+    val currentUserId: StateFlow<String> = _currentUserId.asStateFlow()
+
+    /**
      * Signs in anonymously using Firebase Authentication.
      */
     fun signInAnonymously() {
@@ -31,6 +37,7 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     if(user?.uid != null){
+                        _currentUserId.value = user.uid // Update the current user ID
                         viewModelScope.launch{
                             userRepository.createUser(user.uid)
                         }
