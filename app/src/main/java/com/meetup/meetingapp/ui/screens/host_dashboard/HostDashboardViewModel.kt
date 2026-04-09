@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
-import com.meetup.meetingapp.ui.screens.participant_input.SubmitState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -103,7 +102,6 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
             }
         }
     }
-
 }
 
 data class HostDashboardUiState(
