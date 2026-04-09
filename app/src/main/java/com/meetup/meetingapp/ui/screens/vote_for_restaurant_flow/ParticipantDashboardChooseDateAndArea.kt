@@ -74,7 +74,7 @@ fun ParticipantDashChooseDateAndAreaContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Waiting / ${event.eventCode}",
+                title = "Dashboard / ${event.eventCode}",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
