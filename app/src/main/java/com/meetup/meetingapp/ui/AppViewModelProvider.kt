@@ -10,7 +10,8 @@ import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
 import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinViewModel
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardViewModel
-import com.meetup.meetingapp.ui.screens.participant_input.ParticipantViewModel
+import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardViewModel
+import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantViewModel
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantViewModel
 
 /**
@@ -72,6 +73,16 @@ object AppViewModelProvider {
          */
         initializer {
             RestaurantViewModel(
+                meetingApplication().container.eventRepository,
+                this.createSavedStateHandle()
+            )
+        }
+
+        /**
+         * Initializer for ParticipantDashboardViewModel
+         */
+        initializer {
+            ParticipantDashboardViewModel(
                 meetingApplication().container.eventRepository,
                 this.createSavedStateHandle()
             )
