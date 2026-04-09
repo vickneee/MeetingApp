@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.past_events_page
+package com.meetup.meetingapp.ui.screens.events_list_page
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,25 +39,32 @@ import java.time.LocalDate
 /**
  * Navigation destination for the Past Events screen.
  */
-object PastEventsDestination : NavigationDestination {
-    override val route = "past_events"
-    override val titleRes = R.string.title_past_events_page
+object EventsListDestination : NavigationDestination {
+    override val route = "events-list"
+    override val titleRes = R.string.title_events_list_page
 }
 
 /**
  * Past Events Page
  * @param onBack Navigate back
+ * @param onNavigateToHostDashboard Navigate to the Host Dashboard
+ * @param onNavigateToParticipantDashboard Navigate to the Participant Dashboard
+ * @param currentUserId The current user's ID
  * @param modifier Modifier for the page
  * @param viewModel [EventViewModel] to retrieve all items in the Room database.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PastEventsPage(
+fun EventsListPage(
     onBack: () -> Unit,
+    onNavigateToHostDashboard: (eventId: String) -> Unit,
+    onNavigateToParticipantDashboard: (eventId: String) -> Unit,
+    currentUserId: String,
     modifier: Modifier = Modifier,
     viewModel: EventViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val events by viewModel.events.collectAsStateWithLifecycle()
+    val sortedEvents = events.sortedByDescending { it.dateRange.startDate() }
 
     Scaffold(
         topBar = {
@@ -80,8 +87,16 @@ fun PastEventsPage(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(events) { event ->
-                EventItem(event = event)
+            items(sortedEvents) { event ->
+                EventItem(event = event,
+                    onItemClick = {
+                        if (event.hostId == currentUserId) {
+                            onNavigateToHostDashboard(event.id)
+                        } else {
+                            onNavigateToParticipantDashboard(event.id)
+                        }
+                    }
+                )
             }
         }
     }
@@ -92,8 +107,17 @@ fun PastEventsPage(
  * @param event The event to display
  */
 @Composable
-fun EventItem(event: Event) {
+fun EventItem(
+    event: Event,
+    onItemClick: (Event) -> Unit = {}
+) {
+    val statusLabel = if (event.status == EventStatus.FINALIZED) {
+        event.finalTime ?: "Finalized" // show the date if available
+    } else {
+        "Ongoing"
+    }
     Card(
+        onClick = { onItemClick(event) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 40.dp),
@@ -104,7 +128,7 @@ fun EventItem(event: Event) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Text(
-            text = "${event.eventCode} / ${event.status}",
+            text = "${event.eventCode} / $statusLabel",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 20.dp, horizontal = 16.dp),
@@ -119,7 +143,7 @@ fun EventItem(event: Event) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-fun PastEventsPagePreview() {
+fun EventsListPagePreview() {
     val events = listOf(
         Event(
             eventCode = "A7F9K2",

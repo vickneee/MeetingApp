@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -57,6 +58,7 @@ object HostDashboardDestination : NavigationDestination {
 fun HostDashboardPage(
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
+    onNavigateToHome: () -> Unit,
     viewModel: HostDashboardViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
@@ -66,16 +68,17 @@ fun HostDashboardPage(
     val closeVotingState by viewModel.closeVotingState.collectAsStateWithLifecycle()
 
     event?.let {
-    HostDashboardContent(
-        event = it,
-        submissionsCount = uiState.submissionsCount,
-        attendees = uiState.attendees,
-        onBack = onBack,
+        HostDashboardContent(
+            event = it,
+            submissionsCount = uiState.submissionsCount,
+            attendees = uiState.attendees,
+            onBack = onBack,
 
-        closeVotingState = closeVotingState,
-        onCloseVotingClick = viewModel::closeVoting,
-        onVoteForRestaurantClick = onVoteForRestaurantClick
-    )
+            closeVotingState = closeVotingState,
+            onCloseVotingClick = viewModel::closeVoting,
+            onVoteForRestaurantClick = onVoteForRestaurantClick,
+            onNavigateToHome = onNavigateToHome
+        )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
 
@@ -110,6 +113,7 @@ fun HostDashboardContent(
     closeVotingState: CloseVotingState,
     onVoteForRestaurantClick: () -> Unit,
     onCloseVotingClick: () -> Unit,
+    onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -135,21 +139,23 @@ fun HostDashboardContent(
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
-                    Text(buildAnnotatedString {
-                        append("Event Code: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.eventCode)
-                        }
-                    },
+                    Text(
+                        buildAnnotatedString {
+                            append("Event Code: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.eventCode)
+                            }
+                        },
                         fontSize = 20.sp
                     )
 
-                    Text(buildAnnotatedString {
-                        append("State: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.status.displayName)
-                        }
-                    },
+                    Text(
+                        buildAnnotatedString {
+                            append("State: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.status.displayName)
+                            }
+                        },
                         fontSize = 20.sp
                     )
 
@@ -207,7 +213,7 @@ fun HostDashboardContent(
                     else -> "Close Voting"
                 }
 
-                Spacer(modifier = Modifier.padding(32.dp))
+                Spacer(modifier = Modifier.padding(12.dp))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -247,11 +253,35 @@ fun HostDashboardContent(
 
                     if (closeVotingState is CloseVotingState.Error) {
                         Text(
-                            text = closeVotingState.error.message ?: "Unknown error, retry close voting",
+                            text = closeVotingState.error.message
+                                ?: "Unknown error, retry close voting",
                             color = Color.Red,
                             fontSize = 16.sp,
                             modifier = Modifier.padding(top = 12.dp)
                         )
+                    }
+
+                    Spacer(modifier = Modifier.height(36.dp))
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        OutlinedButton(
+                            onClick = onNavigateToHome,
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                        ) {
+                            Text(
+                                "Home",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(6.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(36.dp))
                     }
                 }
             }
@@ -273,6 +303,7 @@ fun HostDashboardPreview() {
         onBack = {},
         closeVotingState = CloseVotingState.Idle,
         onVoteForRestaurantClick = {},
-        onCloseVotingClick = {}
+        onCloseVotingClick = {},
+        onNavigateToHome = {}
     )
 }
