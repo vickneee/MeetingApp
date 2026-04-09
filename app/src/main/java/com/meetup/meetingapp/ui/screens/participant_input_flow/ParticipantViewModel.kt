@@ -1,9 +1,8 @@
-package com.meetup.meetingapp.ui.screens.participant_input
+package com.meetup.meetingapp.ui.screens.participant_input_flow
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event

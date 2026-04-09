@@ -1,12 +1,12 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
-import com.meetup.meetingapp.ui.screens.participant_input.SubmitState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,8 +46,12 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
 
     init {
         viewModelScope.launch {
+            Log.d("HostDashboard", "eventId: $eventId")
+            eventRepository.syncEventById(eventId) // Sync from Firestore to Room first
+            Log.d("HostDashboard", "sync done")
             eventRepository.getEventById(eventId)
                 .collect { event ->
+                    Log.d("HostDashboard", "event: $event")
                     _event.value = event
                     event?.let {
                         _uiState.value = _uiState.value.copy(
@@ -103,7 +107,6 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
             }
         }
     }
-
 }
 
 data class HostDashboardUiState(
