@@ -23,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
+import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
@@ -38,10 +39,20 @@ object HostDashboardDestination : NavigationDestination {
 }
 
 /**
- * Host Dashboard Page
- * @param onBack Navigate back
- * @param viewModel [HostDashboardViewModel] to retrieve event data and attendee list.
+ * Entry point composable for the Host Dashboard screen.
+ *
+ * This composable:
+ * - Retrieves the HostDashboardViewModel instance.
+ * - Collects event data, UI state, and close-voting state from the ViewModel.
+ * - Displays a loading screen until the event is available.
+ * - Delegates UI rendering to [HostDashboardContent].
+ *
+ * @param onBack Callback invoked when the user navigates back.
+ * @param onVoteForRestaurantClick Callback invoked when the user selects
+ *        "Vote for Restaurant".
+ * @param viewModel The ViewModel providing event and submission data.
  */
+
 @Composable
 fun HostDashboardPage(
     onBack: () -> Unit,
@@ -69,13 +80,25 @@ fun HostDashboardPage(
 }
 
 /**
- * Host Dashboard Content
- * @param event The event data
- * @param submissionsCount Total number of participants
- * @param attendees List of participant names
- * @param onBack Navigate back
- * @param onCloseVotingClick Action to finalize the event
- * @param modifier Modifier
+ * Main UI layout for the Host Dashboard screen.
+ *
+ * This composable displays:
+ * - Event metadata (code, title, host, status)
+ * - Submission count and attendee list
+ * - Actions for voting on restaurants and closing the voting phase
+ *
+ * The "Close Voting" button is enabled or disabled based on:
+ * - The event's current status (cannot close again once FIRST_VOTING_CLOSED)
+ * - The in-progress state of the close-voting operation
+ *
+ * @param event The event being displayed.
+ * @param submissionsCount Number of participant submissions.
+ * @param attendees List of participant names who submitted availability.
+ * @param onBack Callback to navigate back.
+ * @param closeVotingState UI state for the close-voting action.
+ * @param onVoteForRestaurantClick Callback for navigating to restaurant voting.
+ * @param onCloseVotingClick Callback to trigger the close-voting operation.
+ * @param modifier Optional modifier for layout customization.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -209,7 +232,7 @@ fun HostDashboardContent(
 
                     Button(
                         onClick = onCloseVotingClick,
-                        enabled = closeVotingState != CloseVotingState.Success
+                        enabled = event.status != EventStatus.FIRST_VOTING_CLOSED
                                 && closeVotingState != CloseVotingState.Loading,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),

@@ -15,10 +15,18 @@ import kotlinx.coroutines.withContext
 
 /**
  * ViewModel for the Host Dashboard screen.
- * @param eventRepository The repository to access event data.
- * @param savedStateHandle The saved state handle to retrieve navigation arguments.
- * @constructor Creates a new instance of the HostDashboardViewModel.
+ *
+ * This ViewModel is responsible for:
+ * - Loading the event data for the given eventId.
+ * - Observing real-time updates to the event from Firestore (via the repository).
+ * - Syncing participant submissions from Firestore into the local Room database.
+ * - Exposing UI state such as submission count, attendee names, and event status.
+ * - Handling the "Close Voting" action and updating the event's aggregated results.
+ *
+ * @param eventRepository Repository providing access to event and submission data.
+ * @param savedStateHandle Used to retrieve the navigation argument `eventId`.
  */
+
 class HostDashboardViewModel(private val eventRepository: EventRepository,
                              savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -67,7 +75,17 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
     }
 
     /**
-     * Placeholder for the "Close Voting" button logic
+     * Triggers the "Close Voting" operation for the current event.
+     *
+     * This function:
+     * 1. Sets the UI state to Loading.
+     * 2. Calls `aggregateParticipantResponses(eventId)` on a background thread to compute
+     *    the majority-voted candidates and update the event status in Firestore.
+     * 3. Updates the UI state to Success if the operation completes successfully.
+     * 4. Updates the UI state to Error if any exception occurs.
+     *
+     * The result is exposed through [closeVotingState], which the UI observes to
+     * enable/disable the button and display error messages.
      */
     fun closeVoting() {
         _closeVotingState.value = CloseVotingState.Loading
@@ -94,6 +112,14 @@ data class HostDashboardUiState(
     val status: EventStatus = EventStatus.UNKNOWN
 )
 
+/**
+ * Represents the UI state of the "Close Voting" action.
+ *
+ * - Idle: No action has been taken yet.
+ * - Loading: The aggregation process is running.
+ * - Success: Voting has been successfully closed and results saved.
+ * - Error: An exception occurred during the process.
+ */
 sealed interface CloseVotingState {
 
     object Idle : CloseVotingState

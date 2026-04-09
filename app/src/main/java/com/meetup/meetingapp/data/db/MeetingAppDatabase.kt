@@ -21,7 +21,7 @@ import com.meetup.meetingapp.data.db.entities.UserEntity
  * access point for the underlying storage.
  * @constructor Creates a new instance of the MeetingAppDatabase.
  */
-@Database(entities = [EventEntity::class, UserEntity::class, CityEntity::class, ParticipantResponseEntity::class], version = 7, exportSchema = false)
+@Database(entities = [EventEntity::class, UserEntity::class, CityEntity::class, ParticipantResponseEntity::class], version = 8, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class MeetingAppDatabase : RoomDatabase() {
 

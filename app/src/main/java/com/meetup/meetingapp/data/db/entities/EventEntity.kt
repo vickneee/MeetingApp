@@ -24,6 +24,7 @@ data class EventEntity(
     val locationCandidatesJson: String,
     val foodCategoryCandidatesJson: String,
     val restaurantCandidatesJson: String,
+    val placeTypeCandidatesJson: String,
 
     // Final selections → JSON strings
     val finalTimeJson: String?,

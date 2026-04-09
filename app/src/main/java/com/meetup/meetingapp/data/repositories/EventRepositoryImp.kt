@@ -292,7 +292,24 @@ class EventRepositoryImp(
         }
     }
 
-
+    /**
+     * Aggregates all participant responses for the given event and updates the event document
+     * with the majority-voted candidates (date/time, location, place type, and food category).
+     *
+     * This function:
+     * 1. Fetches all participantResponses under the event.
+     * 2. Computes the top candidates for each category using `findTopCandidates`.
+     * 3. Updates the event document with the aggregated results and sets the event status
+     *    to `FIRST_VOTING_CLOSED`.
+     * 4. Calls `syncEventById(eventId)` to refresh the local cache after the update.
+     *
+     * @param eventId The ID of the event whose participant responses should be aggregated.
+     *
+     * @return [Result.success] if aggregation and update succeed, or [Result.failure]
+     *         if no responses are found or any Firestore/processing error occurs.
+     *
+     * @throws Exception Wrapped inside [Result.failure] if Firestore operations fail.
+     */
     override suspend fun aggregateParticipantResponses(eventId: String): Result<Unit>{
         return try {
             val snapshot = db.collection("events")
@@ -338,6 +355,8 @@ class EventRepositoryImp(
                 )
                 .await()
 
+            syncEventById(eventId)
+
             Result.success(Unit)
 
         } catch (e: Exception) {
@@ -345,6 +364,17 @@ class EventRepositoryImp(
         }
     }
 
+    /**
+     * Returns the list of items that appear most frequently in the given collection.
+     *
+     * This function groups all items by equality, counts their occurrences, and
+     * identifies the maximum frequency. All items whose count matches the maximum
+     * frequency are returned. If the input list is empty, an empty list is returned.
+     *
+     * @param items The list of items to evaluate.
+     * @return A list of the most frequent item(s). Multiple items are returned if
+     *         there is a tie for the highest frequency.
+     */
     private fun <T> findTopCandidates(items: List<T>): List<T> {
         if (items.isEmpty()) return emptyList()
 
