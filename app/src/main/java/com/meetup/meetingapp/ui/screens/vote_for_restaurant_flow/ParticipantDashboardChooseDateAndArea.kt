@@ -48,21 +48,17 @@ object ParticipantDashChooseDateAndAreaDestination : NavigationDestination {
 fun ParticipantDashChooseDateAndArea(
     onBack: () -> Unit,
     onNavigateToChooseDatePage: () -> Unit,
-    onNavigateToHome: () -> Unit,
     viewModel: RestaurantViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     event?.let {
         ParticipantDashChooseDateAndAreaContent(
             event = it,
-            submissionsCount = uiState.submissionsCount,
             onBack = onBack,
             onVoteForRestaurantClick = onNavigateToChooseDatePage,
-            onNavigateToHome = onNavigateToHome
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
@@ -71,10 +67,8 @@ fun ParticipantDashChooseDateAndArea(
 @Composable
 fun ParticipantDashChooseDateAndAreaContent(
     event: Event,
-    submissionsCount: Int,
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
-    onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -168,9 +162,7 @@ fun ParticipantDashChooseDateAndAreaPreview() {
             eventTitle = "Meet & Chat",
             hostName = "Julia",
         ),
-        submissionsCount = 4,
         onBack = {},
         onVoteForRestaurantClick = {},
-        onNavigateToHome = {}
     )
 }
