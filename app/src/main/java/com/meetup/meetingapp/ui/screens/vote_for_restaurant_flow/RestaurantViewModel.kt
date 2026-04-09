@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
-import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardDestination
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +16,8 @@ class RestaurantViewModel(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val eventId: String = savedStateHandle[ParticipantDashboardDestination.eventIdArg] ?: ""
+    private val eventId: String =
+        savedStateHandle[ParticipantDashChooseDateAndAreaDestination.eventIdArg] ?: ""
 
     private val _event = MutableStateFlow<Event?>(null)
     val event: StateFlow<Event?> = _event.asStateFlow()
@@ -27,7 +27,10 @@ class RestaurantViewModel(
 
     init {
         viewModelScope.launch {
-            // load restaurants to vote on
+            eventRepository.syncEventById(eventId) // Sync from Firestore to Room first
+            eventRepository.getEventById(eventId).collect { event ->
+                _event.value = event
+            }
         }
     }
 

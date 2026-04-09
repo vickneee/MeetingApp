@@ -38,7 +38,7 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
 object ParticipantDashChooseDateAndAreaDestination : NavigationDestination {
-    override val route = "participant_dashboard_waiting"
+    override val route = "participant_choose_date_and_area"
     override val titleRes = R.string.title_participant_dashboard_waiting
     const val eventIdArg = "eventId"
     val routeWithArgs = "$route/{$eventIdArg}"
