@@ -48,6 +48,8 @@ import com.meetup.meetingapp.ui.screens.participant_input_flow.TimeAvailabilityD
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardViewModel
 import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardPage
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.DateAndAreaPage
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.DateAndAreaPageDestination
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ParticipantDashChooseDateAndArea
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ParticipantDashChooseDateAndAreaDestination
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantViewModel
@@ -456,6 +458,26 @@ fun MeetingAppNavHost(
                 ParticipantDashChooseDateAndArea(
                     onBack = { navController.popBackStack() },
                     onNavigateToChooseDatePage = {
+                        navController.navigate(DateAndAreaPageDestination.route)
+                    },
+                    viewModel = viewModel
+                )
+            }
+
+            /**
+             * Date and area destination
+             */
+            composable(DateAndAreaPageDestination.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("vote-for-restaurant/{eventId}")
+                }
+                val viewModel: RestaurantViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+                DateAndAreaPage(
+                    onBack = { navController.popBackStack() },
+                    onNavigateToRestaurantListPage = {
                         // navigate to next step
                     },
                     viewModel = viewModel
