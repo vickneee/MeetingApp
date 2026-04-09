@@ -6,7 +6,7 @@ import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
-import com.meetup.meetingapp.ui.screens.participant_input.ParticipantInputState
+import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
 
 /**

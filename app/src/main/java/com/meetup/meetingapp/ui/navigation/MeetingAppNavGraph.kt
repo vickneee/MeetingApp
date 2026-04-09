@@ -28,22 +28,23 @@ import com.meetup.meetingapp.ui.screens.home.HomeDestination
 import com.meetup.meetingapp.ui.screens.home.HomeScreen
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
-import com.meetup.meetingapp.ui.screens.participant_input.AvailabilitySelectingPage
-import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination
-import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailDestination.eventCodeArg
-import com.meetup.meetingapp.ui.screens.participant_input.ParticipantMeetUpDetailPage
-import com.meetup.meetingapp.ui.screens.participant_input.ParticipantPlaceTypeAndKeywordDestination
-import com.meetup.meetingapp.ui.screens.participant_input.ParticipantPlaceTypeAndKeywordPage
-import com.meetup.meetingapp.ui.screens.participant_input.ParticipantViewModel
-import com.meetup.meetingapp.ui.screens.participant_input.SmallAreaSelectingDestination
-import com.meetup.meetingapp.ui.screens.participant_input.SmallAreaSelectingPage
-import com.meetup.meetingapp.ui.screens.participant_input.SubmissionCompleteDestination
-import com.meetup.meetingapp.ui.screens.participant_input.SubmissionCompletePage
-import com.meetup.meetingapp.ui.screens.participant_input.TimeAvailabilityDestination
+import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardDestination
+import com.meetup.meetingapp.ui.screens.participant_input_flow.AvailabilitySelectingPage
+import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantMeetUpDetailDestination
+import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantMeetUpDetailDestination.eventCodeArg
+import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantMeetUpDetailPage
+import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantPlaceTypeAndKeywordDestination
+import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantPlaceTypeAndKeywordPage
+import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantViewModel
+import com.meetup.meetingapp.ui.screens.participant_input_flow.SmallAreaSelectingDestination
+import com.meetup.meetingapp.ui.screens.participant_input_flow.SmallAreaSelectingPage
+import com.meetup.meetingapp.ui.screens.participant_input_flow.SubmissionCompleteDestination
+import com.meetup.meetingapp.ui.screens.participant_input_flow.SubmissionCompletePage
+import com.meetup.meetingapp.ui.screens.participant_input_flow.TimeAvailabilityDestination
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsDestination
 import com.meetup.meetingapp.ui.screens.past_events_page.PastEventsPage
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ParticipantDashboardWaitingDestination
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ParticipantDashboardWaitingPage
+import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardPage
+import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardViewModel
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantViewModel
 
 /**
@@ -368,7 +369,7 @@ fun MeetingAppNavHost(
                         navController.navigate("${HostDashboardDestination.route}/$eventId")
                     },
                     onNavigateToParticipantDashboard = { eventId ->
-                        navController.navigate("${ParticipantDashboardWaitingDestination.route}/$eventId")
+                        navController.navigate("${ParticipantDashboardDestination.route}/$eventId")
                     }
                 )
             }
@@ -381,9 +382,26 @@ fun MeetingAppNavHost(
             val eventId = backStackEntry.arguments?.getString(HostDashboardDestination.eventIdArg) ?: ""
             HostDashboardPage(
                 onBack = { navController.popBackStack() },
-                onVoteForRestaurantClick = {
-                    navController.navigate("${ParticipantDashboardWaitingDestination.route}/$eventId")
-                }
+                onVoteForRestaurantClick = { /* TODO */ } // Does nothing for now
+            )
+        }
+
+        /**
+         * Participant Dashboard destination
+         */
+        composable(ParticipantDashboardDestination.routeWithArgs) { backStackEntry ->
+            val viewModel: ParticipantDashboardViewModel = viewModel(
+                backStackEntry,
+                factory = AppViewModelProvider.Factory
+            )
+
+            ParticipantDashboardPage(
+                onBack = { navController.popBackStack() },
+                onNavigateToChooseDatePage = { /* TODO */ }, // Does nothing for now
+                onNavigateToHome = {
+                    navController.navigate(HomeDestination.route)
+                },
+                viewModel = viewModel
             )
         }
 
@@ -392,26 +410,16 @@ fun MeetingAppNavHost(
          * All screens inside this graph share the same ParticipantViewModel instance.
          */
         navigation(
-            startDestination = ParticipantDashboardWaitingDestination.routeWithArgs,
-            route = "vote-for-restaurant"
+            startDestination = "restaurant/{eventId}",
+            route = "vote-for-restaurant/{eventId}"
         ) {
-            composable(ParticipantDashboardWaitingDestination.routeWithArgs) { backStackEntry ->
-                // Parent entry for scoping the ViewModel to this navigation graph
+            composable("restaurant/{eventId}") { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("vote-for-restaurant")
+                    navController.getBackStackEntry("vote-for-restaurant/{eventId}")
                 }
                 val viewModel: RestaurantViewModel = viewModel(
                     parentEntry,
                     factory = AppViewModelProvider.Factory
-                )
-
-                ParticipantDashboardWaitingPage(
-                    onBack = { navController.popBackStack() },
-                    onNavigateToChooseDatePage = { /* */ },
-                    onNavigateToHome = {
-                        navController.navigate(HomeDestination.route)
-                    },
-                    viewModel = viewModel
                 )
             }
         }

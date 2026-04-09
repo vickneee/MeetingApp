@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.participant_input
+package com.meetup.meetingapp.ui.screens.participant_input_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
