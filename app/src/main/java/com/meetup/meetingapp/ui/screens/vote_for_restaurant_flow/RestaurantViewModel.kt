@@ -3,6 +3,7 @@ package com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
 import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardDestination
@@ -17,6 +18,9 @@ class RestaurantViewModel(
 ) : ViewModel() {
 
     private val eventId: String = savedStateHandle[ParticipantDashboardDestination.eventIdArg] ?: ""
+
+    private val _event = MutableStateFlow<Event?>(null)
+    val event: StateFlow<Event?> = _event.asStateFlow()
 
     private val _uiState = MutableStateFlow(RestaurantUiState())
     val uiState: StateFlow<RestaurantUiState> = _uiState.asStateFlow()
