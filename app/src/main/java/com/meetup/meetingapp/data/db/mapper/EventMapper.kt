@@ -52,6 +52,7 @@ object EventMapper {
         locationCandidatesJson = gson.toJson(locationCandidates),
         foodCategoryCandidatesJson = gson.toJson(foodCategoryCandidates),
         restaurantCandidatesJson = gson.toJson(restaurantCandidates),
+        placeTypeCandidatesJson = gson.toJson(placeTypeCandidates),
 
         // Final selections
         finalTimeJson = finalTime?.let { gson.toJson(it) },
