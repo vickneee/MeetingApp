@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow
+package com.meetup.meetingapp.ui.screens.participant_dashboard
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -27,7 +27,7 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
-object ParticipantDashboardWaitingDestination : NavigationDestination {
+object ParticipantDashboardDestination : NavigationDestination {
     override val route = "participant_dashboard_waiting"
     override val titleRes = R.string.title_participant_dashboard_waiting
     const val eventIdArg = "eventId"
@@ -35,11 +35,11 @@ object ParticipantDashboardWaitingDestination : NavigationDestination {
 }
 
 @Composable
-fun ParticipantDashboardWaitingPage(
+fun ParticipantDashboardPage(
     onBack: () -> Unit,
     onNavigateToChooseDatePage: () -> Unit,
     onNavigateToHome: () -> Unit,
-    viewModel: RestaurantViewModel = viewModel(
+    viewModel: ParticipantDashboardViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
 ) {
@@ -47,7 +47,7 @@ fun ParticipantDashboardWaitingPage(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     event?.let {
-        ParticipantDashboardWaitingContent(
+        ParticipantDashboardContent(
             event = it,
             submissionsCount = uiState.submissionsCount,
             onBack = onBack,
@@ -59,7 +59,7 @@ fun ParticipantDashboardWaitingPage(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParticipantDashboardWaitingContent(
+fun ParticipantDashboardContent(
     event: Event,
     submissionsCount: Int,
     onBack: () -> Unit,
@@ -190,8 +190,8 @@ fun ParticipantDashboardWaitingContent(
 
 @Preview(showBackground = true)
 @Composable
-fun ParticipantDashboardWaitingPreview() {
-    ParticipantDashboardWaitingContent(
+fun ParticipantDashboardPreview() {
+    ParticipantDashboardContent(
         event = Event(
             eventCode = "A7F9K2",
             eventTitle = "Meet & Chat",
