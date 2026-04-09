@@ -23,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
+import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
@@ -70,7 +71,7 @@ fun ParticipantDashboardContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Waiting / ${event.eventCode}",
+                title = "Dashboard / ${event.eventCode}",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -131,21 +132,23 @@ fun ParticipantDashboardContent(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Spacer(modifier = Modifier.padding(36.dp))
-
-                    Text(
-                        "Waiting for host to close",
-                        fontSize = 22.sp
-                    )
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Text(
-                        "the voting.",
-                        fontSize = 22.sp
-                    )
+                    if (event.status != EventStatus.FIRST_VOTING_CLOSED) {
+                        Text(
+                            text = "Waiting for host to close",
+                            fontSize = 22.sp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                        Spacer(modifier = Modifier.padding(4.dp))
+                        Text(
+                            "the voting...",
+                            fontSize = 22.sp
+                        )
+                    }
                 }
             }
 
             item {
-                Spacer(modifier = Modifier.padding(32.dp))
+                Spacer(modifier = Modifier.padding(16.dp))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -155,10 +158,12 @@ fun ParticipantDashboardContent(
 
                     Button(
                         onClick = onVoteForRestaurantClick,
+                        enabled = event.status == EventStatus.FIRST_VOTING_CLOSED,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
                     ) {
+
                         Text(
                             "Next",
                             fontSize = 18.sp,
