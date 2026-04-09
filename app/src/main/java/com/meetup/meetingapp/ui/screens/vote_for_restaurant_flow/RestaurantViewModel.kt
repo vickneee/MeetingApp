@@ -46,6 +46,22 @@ class RestaurantViewModel(
         }
     }
 
+    /**
+     * Builds all combinations of date/time and location options.
+     *
+     * Example:
+     * dateTimes = [Apr 12 (09–12), Apr 12 (12–15)]
+     * locations = ["Helsinki", "Espoo"]
+     *
+     * Result:
+     * - Apr 12 (09–12) — Helsinki
+     * - Apr 12 (09–12) — Espoo
+     * - Apr 12 (12–15) — Helsinki
+     * - Apr 12 (12–15) — Espoo
+     *
+     * @param dateTimes List of available date/time candidates.
+     * @param locations List of available location candidates.
+     */
     fun buildDateLocationOptions(
         dateTimes: List<DateTime>,
         locations: List<String>
@@ -65,7 +81,7 @@ class RestaurantViewModel(
 
 
     fun getRestaurants(timing: DateTime, location: String){
-
+        // Implement restaurant fetching logic
     }
 
     fun submitVote(restaurantId: String) {
@@ -80,6 +96,14 @@ data class RestaurantUiState(
     val isSubmitted: Boolean = false
 )
 
+/**
+ * Converts a [DateTime] into a human-readable label.
+ *
+ * Example output:
+ * "Apr 12 (09:00–12:00)"
+ *
+ * @return A formatted display string.
+ */
 fun DateTime.toDisplayLabel(): String {
     val localDate = this.toLocalDate()
     val month = localDate.month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
@@ -88,6 +112,12 @@ fun DateTime.toDisplayLabel(): String {
     return "$month $day (${timeSlot.start}–${timeSlot.end})"
 }
 
+/**
+ * Represents a single selectable combination of date/time and location.
+ *
+ * @param timing The date and time slot.
+ * @param location The location name.
+ */
 data class DateLocationOption(
     val timing: DateTime,
     val location: String
@@ -96,6 +126,11 @@ data class DateLocationOption(
         get() = "${timing.toDisplayLabel()} — $location"
 }
 
+/**
+ * UI state for the date & area selection screen.
+ *
+ * @param dateLocationOptions List of all selectable date–location combinations.
+ */
 data class DateAndAreaState(
     val dateLocationOptions: List<DateLocationOption> = listOf<DateLocationOption>()
 )
