@@ -493,6 +493,21 @@ class EventRepositoryImp(
         }
     }
 
+    /**
+     * Checks whether the event already has at least one restaurant candidate stored in Firestore.
+     *
+     * This is used to determine whether the app should:
+     *  - Load existing restaurant candidates from Firestore → Room, or
+     *  - Trigger a new Places API fetch to generate candidates.
+     *
+     * Implementation details:
+     *  - Reads the "events/{eventId}/restaurants" subcollection.
+     *  - Uses `.limit(1)` for efficiency (we only need to know if *any* exist).
+     *  - Returns true if at least one document exists.
+     *
+     * @param eventId The ID of the event whose restaurant candidates should be checked.
+     * @return True if at least one restaurant document exists, false otherwise.
+     */
     override suspend fun hasRestaurantCandidates(eventId: String): Boolean {
         val snapshot = db.collection("events")
             .document(eventId)
@@ -506,13 +521,28 @@ class EventRepositoryImp(
 
 
 
-
+    /**
+     * Saves a list of restaurant candidates to Firestore under:
+     *     events/{eventId}/restaurants/{placeId}
+     *
+     * Workflow:
+     *  1. Writes each restaurant document to Firestore.
+     *  2. Calls [syncRestaurants] to pull the saved data into Room.
+     *  3. Wraps the entire operation in a Result for safe error handling.
+     *
+     * Notes:
+     *  - Each restaurant is stored using its placeId as the document ID.
+     *  - If Firestore write succeeds but Room sync fails, the failure is propagated.
+     *
+     * @param eventId The ID of the event to which restaurants belong.
+     * @param restaurants The list of restaurants to save.
+     * @return Result.success(Unit) on success, or Result.failure(e) on any error.
+     */
     override suspend fun saveAllRestaurants(
         eventId: String,
         restaurants: List<Restaurant>
     ): Result<Unit> {
-        Log.d("saveAllRestaurants", "$restaurants")
-        Log.d("saveAllRestaurants", eventId)
+
         return try {
             val ref = db.collection("events")
                 .document(eventId)
@@ -540,6 +570,24 @@ class EventRepositoryImp(
         }
     }
 
+    /**
+     * Synchronizes restaurant candidates from Firestore into the local Room database.
+     *
+     * Workflow:
+     *  1. Checks if Firestore contains any restaurant candidates.
+     *     - If none exist, returns failure.
+     *  2. Fetches all restaurant documents from:
+     *        events/{eventId}/restaurants
+     *  3. Converts Firestore models → Room entities.
+     *  4. Upserts them into the local Room database.
+     *
+     * Purpose:
+     *  - Ensures Room is always the single source of truth for restaurant data.
+     *  - Used after saving new candidates or when loading existing ones.
+     *
+     * @param eventId The ID of the event whose restaurants should be synced.
+     * @return Result.success(Unit) on success, or Result.failure(e) on error.
+     */
     override suspend fun syncRestaurants(eventId: String):Result<Unit>{
         if (!hasRestaurantCandidates(eventId)){
             return Result.failure(Exception("No Restaurant information is available"))
@@ -562,6 +610,20 @@ class EventRepositoryImp(
         }
     }
 
+    /**
+     * Returns a Flow of restaurant candidates for the given event from Room.
+     *
+     * Behavior:
+     *  - Room is the single source of truth.
+     *  - Emits updates automatically whenever the underlying database changes.
+     *  - Converts Room entities → domain models using RestaurantMapper.
+     *
+     * Usage:
+     *  - Collected by ViewModel to provide reactive UI updates.
+     *
+     * @param eventId The ID of the event whose restaurants should be observed.
+     * @return A Flow emitting the list of restaurants for the event.
+     */
     override fun getRestaurants(eventId: String): Flow<List<Restaurant>>{
         return restaurantDao.getRestaurants(eventId)
             .map { list ->

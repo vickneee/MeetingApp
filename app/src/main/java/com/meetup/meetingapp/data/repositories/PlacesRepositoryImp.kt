@@ -8,12 +8,55 @@ import com.meetup.meetingapp.network.GooglePlacesApiService
 
 import retrofit2.HttpException
 
-
+/**
+ * Concrete implementation of [PlacesRepository] that fetches restaurant data
+ * from the Google Places API using Retrofit.
+ *
+ * Responsibilities:
+ *  - Execute a Places Text Search request based on a human-readable query
+ *  - Filter out irrelevant or banned place types (e.g., shopping malls)
+ *  - Rank results using a weighted score (rating × log(reviewCount))
+ *  - Fetch detailed information for the top candidate using Place Details API
+ *  - Construct a domain-level [Restaurant] model with merged data
+ *  - Wrap all results in [Result] for safe error propagation
+ *
+ * This class does **not** cache results; persistence is handled by the repository
+ * layer that stores results in Firestore and Room.
+ */
 class PlacesRepositoryImp(
     private val api: GooglePlacesApiService,
     private val apiKey: String
 ) : PlacesRepository {
 
+    /**
+     * Fetches restaurant candidates using Google Places Text Search + Details API.
+     *
+     * Workflow:
+     *  1. Perform a Text Search request using the provided query.
+     *  2. Filter out banned place types (e.g., shopping malls, supermarkets).
+     *  3. Rank remaining places by a weighted score:
+     *         score = rating × ln(reviewCount + 1)
+     *  4. Select the top-ranked place and fetch full details via Place Details API.
+     *  5. Validate that the place is a restaurant/cafe/bar.
+     *  6. Build a [Restaurant] domain model combining Text Search + Details data.
+     *
+     * Error handling:
+     *  - Returns `Result.success(emptyList())` for:
+     *        • No results
+     *        • Banned types
+     *        • Missing details
+     *        • 404 Not Found
+     *  - Returns `Result.failure(e)` for:
+     *        • Network errors
+     *        • HTTP errors other than 404
+     *        • Unexpected exceptions
+     *
+     * @param query A human-readable search query (e.g., "sushi restaurant in Helsinki").
+     * @return A [Result] containing either:
+     *         • A list with a single [Restaurant] candidate, or
+     *         • An empty list if no valid restaurant is found, or
+     *         • A failure if an unexpected error occurs.
+     */
     override suspend fun fetchRestaurants(
         query: String
     ): Result<List<Restaurant>> {
