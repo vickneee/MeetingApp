@@ -56,7 +56,7 @@ import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 
-object ParticipantPlaceTypeAndKeywordDestination: NavigationDestination {
+object PlaceTypeAndKeywordDestination: NavigationDestination {
     override val route = "participant_placeType_and_keyword"
     override val titleRes = R.string.title_place_type_and_keyword
 }
@@ -74,7 +74,7 @@ object ParticipantPlaceTypeAndKeywordDestination: NavigationDestination {
  * @param onNavigateToSubmissionCompletePage Callback invoked after successful submission.
  */
 @Composable
-fun ParticipantPlaceTypeAndKeywordPage(
+fun PlaceTypeAndKeywordPage(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     viewModel: ParticipantViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -86,7 +86,7 @@ fun ParticipantPlaceTypeAndKeywordPage(
     )
 
     event?.let {
-        ParticipantPlaceTypeAndKeywordContent(
+        PlaceTypeAndKeywordContent(
             event = it,
             participantState = participantState,
             onBack = onBack,
@@ -117,7 +117,7 @@ fun ParticipantPlaceTypeAndKeywordPage(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParticipantPlaceTypeAndKeywordContent(
+fun PlaceTypeAndKeywordContent(
     event: Event,
     participantState: ParticipantInputState,
     onBack: () -> Unit,
@@ -150,7 +150,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
 
                 Text(
                     "Choose a place type and",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -161,7 +161,7 @@ fun ParticipantPlaceTypeAndKeywordContent(
 
                 Text(
                     "a food category",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -304,9 +304,9 @@ fun <T> MultiSelectDropdown(
 
 @Preview(showBackground = true)
 @Composable
-fun ParticipantPlaceTypeAndKeywordContentPreview() {
+fun PlaceTypeAndKeywordContentPreview() {
     MaterialTheme {
-        ParticipantPlaceTypeAndKeywordContent(
+        PlaceTypeAndKeywordContent(
             event = Event(
                 id = "1",
                 eventCode = "ABC123",

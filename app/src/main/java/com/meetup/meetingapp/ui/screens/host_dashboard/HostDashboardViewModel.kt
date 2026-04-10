@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,10 +24,18 @@ import kotlinx.coroutines.withContext
  *
  * @param eventRepository Repository providing access to event and submission data.
  * @param savedStateHandle Used to retrieve the navigation argument `eventId`.
+ * @property eventId The ID of the event to load.
+ * @property _event Mutable state flow containing the event data.
+ * @property event State flow exposing the event data.
+ * @property _uiState Mutable state flow containing the UI state.
+ * @property uiState State flow exposing the UI state.
+ * @property _closeVotingState Mutable state flow indicating the state of the "Close Voting" action.
+ * @property closeVotingState State flow exposing the state of the "Close Voting" action.
+ * @property viewModelScope Coroutine scope associated with the ViewModel.
  */
-
-class HostDashboardViewModel(private val eventRepository: EventRepository,
-                             savedStateHandle: SavedStateHandle
+class HostDashboardViewModel(
+    private val eventRepository: EventRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     // Pass eventId via navigation
@@ -46,35 +53,31 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
 
     init {
         viewModelScope.launch {
-            Log.d("HostDashboard", "eventId: $eventId")
-            eventRepository.syncEventById(eventId) // Sync from Firestore to Room first
-            Log.d("HostDashboard", "sync done")
-            eventRepository.getEventById(eventId)
-                .collect { event ->
-                    Log.d("HostDashboard", "event: $event")
-                    _event.value = event
-                    event?.let {
-                        _uiState.value = _uiState.value.copy(
-                            status = it.status
+            // Observe event from Firestore and update Room cache
+            eventRepository.observeEventById(eventId).collect { event ->
+                _event.value = event
+                event?.let {
+                    _uiState.value = _uiState.value.copy(
+                        status = it.status
+                    )
+                    // If event is created, set status to COLLECTING_AVAILABILITY
+                    if (it.status == EventStatus.CREATED) {
+                        eventRepository.updateEventStatus(
+                            it.id,
+                            EventStatus.COLLECTING_AVAILABILITY
                         )
-                        // Auto-advance from CREATED to COLLECTING_AVAILABILITY
-                        if (it.status == EventStatus.CREATED) {
-                            eventRepository.updateEventStatus(it.id, EventStatus.COLLECTING_AVAILABILITY)
-                        }
                     }
                 }
+            }
         }
         viewModelScope.launch {
-            // Sync from Firestore to Room first
-            eventRepository.syncSubmissions(eventId)
-            // Then collect from Room
-            eventRepository.getSubmissionsByEventId(eventId)
-                .collect { submissions ->
-                    _uiState.value = _uiState.value.copy(
-                        submissionsCount = submissions.size,
-                        attendees = submissions.map { it.name } // From Room
-                    )
-                }
+            // Observe submissions from Firestore and update Room cache
+            eventRepository.observeSubmissions(eventId).collect { submissions ->
+                _uiState.value = _uiState.value.copy(
+                    submissionsCount = submissions.size,
+                    attendees = submissions.map { it.name } // From Room
+                )
+            }
         }
     }
 
@@ -94,7 +97,7 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
     fun closeVoting() {
         _closeVotingState.value = CloseVotingState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            try{
+            try {
                 eventRepository.aggregateParticipantResponses(eventId).getOrThrow()
 
                 withContext(Dispatchers.Main) {
@@ -124,11 +127,8 @@ data class HostDashboardUiState(
  * - Error: An exception occurred during the process.
  */
 sealed interface CloseVotingState {
-
     object Idle : CloseVotingState
-
     object Loading : CloseVotingState
     object Success : CloseVotingState
-
     data class Error(val error: Throwable) : CloseVotingState
 }

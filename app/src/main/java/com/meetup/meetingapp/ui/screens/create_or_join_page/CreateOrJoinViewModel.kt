@@ -30,14 +30,14 @@ class CreateOrJoinViewModel(
         key = newKey
     }
 
-    var navigateToPastEventsPage by mutableStateOf(false)
+    var navigateToEventsListPage by mutableStateOf(false)
         private set
 
     var navigateToParticipantPage by mutableStateOf<Pair<String, String>?>(null)
         private set
 
     fun onNavigatedToPastEvents() {
-        navigateToPastEventsPage = false
+        navigateToEventsListPage = false
     }
 
     fun onNavigatedToParticipantPage() {

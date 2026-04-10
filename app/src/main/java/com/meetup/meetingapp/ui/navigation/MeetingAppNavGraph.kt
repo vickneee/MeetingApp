@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -14,10 +15,10 @@ import androidx.navigation.navigation
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.screens.create_event_flow.AreaSelectingDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.AreaSelectingPage
-import com.meetup.meetingapp.ui.screens.create_event_flow.CreateCreatingEventPage
-import com.meetup.meetingapp.ui.screens.create_event_flow.CreateCreatingEventPageDestination
-import com.meetup.meetingapp.ui.screens.create_event_flow.CreateEventButtonDestination
-import com.meetup.meetingapp.ui.screens.create_event_flow.CreateEventButtonPage
+import com.meetup.meetingapp.ui.screens.create_event_flow.CreatingEventPageDestination
+import com.meetup.meetingapp.ui.screens.create_event_flow.CreateEventDestination
+import com.meetup.meetingapp.ui.screens.create_event_flow.CreateEventPage
+import com.meetup.meetingapp.ui.screens.create_event_flow.CreatingEventPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.EditTimeSlotDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.EditTimeSlotScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventCreatedDestination
@@ -35,11 +36,7 @@ import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
 import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardDestination
 import com.meetup.meetingapp.ui.screens.participant_input_flow.AvailabilitySelectingPage
-import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantMeetUpDetailDestination
-import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantMeetUpDetailDestination.eventCodeArg
-import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantMeetUpDetailPage
-import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantPlaceTypeAndKeywordDestination
-import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantPlaceTypeAndKeywordPage
+import com.meetup.meetingapp.ui.screens.participant_input_flow.PlaceTypeAndKeywordDestination
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantViewModel
 import com.meetup.meetingapp.ui.screens.participant_input_flow.SmallAreaSelectingDestination
 import com.meetup.meetingapp.ui.screens.participant_input_flow.SmallAreaSelectingPage
@@ -59,6 +56,17 @@ import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantListP
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantListPageDestination.locationArg
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantViewModel
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.toDateTime
+import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDestination
+import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDestination.eventCodeArg
+import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailPage
+import com.meetup.meetingapp.ui.screens.participant_input_flow.PlaceTypeAndKeywordPage
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPage
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPageDestination
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.ChooseDateAndAreaDestination
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.ChooseDateAndAreaPage
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceListPage
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceListPageDestination
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
 
 /**
  * Main navigation graph for the MeetingApp.
@@ -116,7 +124,7 @@ fun MeetingAppNavHost(
                     navController.navigate(EventsListDestination.route)
                 },
                 navigateToParticipantPage = { (eventCode, eventKey) ->
-                    navController.navigate("${ParticipantMeetUpDetailDestination.route}/$eventCode/$eventKey")
+                    navController.navigate("${MeetUpDetailDestination.route}/$eventCode/$eventKey")
                 }
             )
         }
@@ -126,13 +134,13 @@ fun MeetingAppNavHost(
          * All screens inside this graph share the same EventViewModel instance.
          */
         navigation(
-            startDestination = CreateCreatingEventPageDestination.route,
+            startDestination = CreatingEventPageDestination.route,
             route = "event_creation_graph"
         ) {
             /**
              * Create event destination
              */
-            composable(CreateCreatingEventPageDestination.route) { backStackEntry ->
+            composable(CreatingEventPageDestination.route) { backStackEntry ->
                 // Parent entry for scoping the ViewModel to this navigation graph
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("event_creation_graph")
@@ -142,7 +150,7 @@ fun MeetingAppNavHost(
                     factory = AppViewModelProvider.Factory
                 )
 
-                CreateCreatingEventPage(
+                CreatingEventPage(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
                     navigateToCreatingEventPage = {
@@ -214,7 +222,7 @@ fun MeetingAppNavHost(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
                     navigateToCreatingEventPage = {
-                        navController.navigate(CreateEventButtonDestination.route)
+                        navController.navigate(CreateEventDestination.route)
                     }
                 )
             }
@@ -222,7 +230,7 @@ fun MeetingAppNavHost(
             /**
              * Create event button destination (The Checkbox Page)
              */
-            composable(CreateEventButtonDestination.route) { backStackEntry ->
+            composable(CreateEventDestination.route) { backStackEntry ->
                 // Parent entry for scoping the ViewModel to this navigation graph
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("event_creation_graph")
@@ -232,7 +240,7 @@ fun MeetingAppNavHost(
                     factory = AppViewModelProvider.Factory
                 )
 
-                CreateEventButtonPage(
+                CreateEventPage(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
                     onCreatedEvent = {
@@ -262,7 +270,7 @@ fun MeetingAppNavHost(
 
                     },
                     onNavigateToAvailability = { eventCode, eventKey ->
-                        navController.navigate("${ParticipantMeetUpDetailDestination.route}/$eventCode/$eventKey")
+                        navController.navigate("${MeetUpDetailDestination.route}/$eventCode/$eventKey")
                     }
                 )
             }
@@ -273,10 +281,10 @@ fun MeetingAppNavHost(
          * All screens inside this graph share the same ParticipantViewModel instance.
          */
         navigation(
-            startDestination = ParticipantMeetUpDetailDestination.routeWithArgs,
+            startDestination = MeetUpDetailDestination.routeWithArgs,
             route = "participant-input"
         ) {
-            composable(ParticipantMeetUpDetailDestination.routeWithArgs) { backStackEntry ->
+            composable(MeetUpDetailDestination.routeWithArgs) { backStackEntry ->
                 // Parent entry for scoping the ViewModel to this navigation graph
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("participant-input")
@@ -288,7 +296,7 @@ fun MeetingAppNavHost(
                     factory = AppViewModelProvider.Factory
                 )
 
-                ParticipantMeetUpDetailPage(
+                MeetUpDetailPage(
                     onBack = { navController.popBackStack() },
                     viewModel = participantViewModel,
                     eventCode = eventCodeArg,
@@ -337,7 +345,7 @@ fun MeetingAppNavHost(
                     onBack = { navController.popBackStack() },
                     viewModel = participantViewModel,
                     onNext = {
-                        navController.navigate(ParticipantPlaceTypeAndKeywordDestination.route)
+                        navController.navigate(PlaceTypeAndKeywordDestination.route)
                     }
                 )
             }
@@ -346,7 +354,7 @@ fun MeetingAppNavHost(
              * Screen for selecting preferred place types (e.g., café, restaurant) and food categories.
              *
              */
-            composable(ParticipantPlaceTypeAndKeywordDestination.route) { backStackEntry ->
+            composable(PlaceTypeAndKeywordDestination.route) { backStackEntry ->
                 // Parent entry for scoping the ViewModel to this navigation graph
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("participant-input")
@@ -358,7 +366,7 @@ fun MeetingAppNavHost(
                     factory = AppViewModelProvider.Factory
                 )
 
-                ParticipantPlaceTypeAndKeywordPage(
+                PlaceTypeAndKeywordPage(
                     onBack = { navController.popBackStack() },
                     viewModel = participantViewModel,
                     onNavigateToSubmissionCompletePage = {
@@ -410,7 +418,7 @@ fun MeetingAppNavHost(
                 backStackEntry.arguments?.getString(HostDashboardDestination.eventIdArg) ?: ""
             HostDashboardPage(
                 onBack = { navController.popBackStack() },
-                onVoteForRestaurantClick = { navController.navigate("${ParticipantDashChooseDateAndAreaDestination.route}/$eventId") },
+                onVoteForRestaurantClick = { navController.navigate("${ChooseDateAndAreaDestination.route}/$eventId") },
                 onNavigateToHome = {
                     navController.navigate(HomeDestination.route)
                 },
@@ -427,7 +435,7 @@ fun MeetingAppNavHost(
             ParticipantDashboardPage(
                 onBack = { navController.popBackStack() },
                 onNavigateToChooseDatePage = {
-                    navController.navigate("${ParticipantDashChooseDateAndAreaDestination.route}/$eventId")
+                    navController.navigate("${ChooseDateAndAreaDestination.route}/$eventId")
                 },
                 onNavigateToHome = {
                     navController.navigate(HomeDestination.route)
@@ -437,31 +445,24 @@ fun MeetingAppNavHost(
 
         /**
          * Nested navigation graph for the participant input flow.
-         * All screens inside this graph share the same ParticipantViewModel instance.
+         * All screens inside this graph share the same PlaceViewModel instance.
          */
         navigation(
-            startDestination = "restaurant/{eventId}",
-            route = "vote-for-restaurant/{eventId}"
+            startDestination = ChooseDateAndAreaDestination.routeWithArgs,
+            route = "vote-for-place/{eventId}"
         ) {
-            composable("restaurant/{eventId}") { backStackEntry ->
+            /**
+             * Choose date and area destination
+             */
+            composable(ChooseDateAndAreaDestination.routeWithArgs) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("vote-for-restaurant/{eventId}")
+                    navController.getBackStackEntry("vote-for-place/{eventId}")
                 }
-                val viewModel: RestaurantViewModel = viewModel(
+                val viewModel: PlaceViewModel = viewModel(
                     parentEntry,
                     factory = AppViewModelProvider.Factory
                 )
-            }
-
-            composable(ParticipantDashChooseDateAndAreaDestination.routeWithArgs) { backStackEntry ->
-                val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("vote-for-restaurant/{eventId}")
-                }
-                val viewModel: RestaurantViewModel = viewModel(
-                    parentEntry,
-                    factory = AppViewModelProvider.Factory
-                )
-                ParticipantDashChooseDateAndArea(
+                ChooseDateAndAreaPage(
                     onBack = { navController.popBackStack() },
                     onNavigateToChooseDatePage = {
                         navController.navigate(DateAndAreaPageDestination.route)
@@ -475,9 +476,9 @@ fun MeetingAppNavHost(
              */
             composable(DateAndAreaPageDestination.route) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("vote-for-restaurant/{eventId}")
+                    navController.getBackStackEntry("vote-for-place/{eventId}")
                 }
-                val viewModel: RestaurantViewModel = viewModel(
+                val viewModel: PlaceViewModel = viewModel(
                     parentEntry,
                     factory = AppViewModelProvider.Factory
                 )
@@ -508,6 +509,27 @@ fun MeetingAppNavHost(
                 )
             }
         }
+
+        /**
+         * Place List destination
+         */
+        composable(PlaceListPageDestination.route) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry("vote-for-place/{eventId}")
+            }
+            val viewModel: PlaceViewModel = viewModel(
+                parentEntry,
+                factory = AppViewModelProvider.Factory
+            )
+            PlaceListPage(
+                onBack = { navController.popBackStack() },
+                onNavigateToPlaceDetails = {
+                // navigate to next step
+                },
+                viewModel = viewModel
+            )
+        }
+
 
         /**
          * Events List destination
