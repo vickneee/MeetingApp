@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow
+package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import java.time.format.TextStyle
 import java.util.Locale
 
-class RestaurantViewModel(
+class PlaceViewModel(
     private val eventRepository: EventRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -25,8 +25,8 @@ class RestaurantViewModel(
     private val _event = MutableStateFlow<Event?>(null)
     val event: StateFlow<Event?> = _event.asStateFlow()
 
-    private val _uiState = MutableStateFlow(RestaurantUiState())
-    val uiState: StateFlow<RestaurantUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(PlaceUiState())
+    val uiState: StateFlow<PlaceUiState> = _uiState.asStateFlow()
 
     private val _dateAndAreaState = MutableStateFlow(DateAndAreaState())
     val dateAndAreaState = _dateAndAreaState.asStateFlow()
@@ -76,9 +76,6 @@ class RestaurantViewModel(
         )
     }
 
-
-
-
     fun getRestaurants(timing: DateTime, location: String){
         // Implement restaurant fetching logic
     }
@@ -88,7 +85,7 @@ class RestaurantViewModel(
     }
 }
 
-data class RestaurantUiState(
+data class PlaceUiState(
     val restaurants: List<Restaurant> = emptyList(),
     val selectedRestaurantId: String? = null,
     val isSubmitting: Boolean = false,
