@@ -65,6 +65,14 @@ fun SubmissionCompletePage(
 
     // Handle different submission states
     when(submitState){
+        is SubmitState.Idle -> SubmissionCompleteContent(
+            onBack = onBack,
+            viewModel = viewModel,
+            onNavigateToHostDashboard = onNavigateToHostDashboard,
+            onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
+            modifier = modifier
+        )
+
         is SubmitState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
 
         is SubmitState.Success -> SubmissionCompleteContent(
