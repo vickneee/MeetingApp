@@ -24,8 +24,15 @@ import kotlinx.coroutines.withContext
  *
  * @param eventRepository Repository providing access to event and submission data.
  * @param savedStateHandle Used to retrieve the navigation argument `eventId`.
+ * @property eventId The ID of the event to load.
+ * @property _event Mutable state flow containing the event data.
+ * @property event State flow exposing the event data.
+ * @property _uiState Mutable state flow containing the UI state.
+ * @property uiState State flow exposing the UI state.
+ * @property _closeVotingState Mutable state flow indicating the state of the "Close Voting" action.
+ * @property closeVotingState State flow exposing the state of the "Close Voting" action.
+ * @property viewModelScope Coroutine scope associated with the ViewModel.
  */
-
 class HostDashboardViewModel(
     private val eventRepository: EventRepository,
     savedStateHandle: SavedStateHandle
@@ -46,12 +53,14 @@ class HostDashboardViewModel(
 
     init {
         viewModelScope.launch {
+            // Observe event from Firestore and update Room cache
             eventRepository.observeEventById(eventId).collect { event ->
                 _event.value = event
                 event?.let {
                     _uiState.value = _uiState.value.copy(
                         status = it.status
                     )
+                    // If event is created, set status to COLLECTING_AVAILABILITY
                     if (it.status == EventStatus.CREATED) {
                         eventRepository.updateEventStatus(
                             it.id,
@@ -62,6 +71,7 @@ class HostDashboardViewModel(
             }
         }
         viewModelScope.launch {
+            // Observe submissions from Firestore and update Room cache
             eventRepository.observeSubmissions(eventId).collect { submissions ->
                 _uiState.value = _uiState.value.copy(
                     submissionsCount = submissions.size,
@@ -117,11 +127,8 @@ data class HostDashboardUiState(
  * - Error: An exception occurred during the process.
  */
 sealed interface CloseVotingState {
-
     object Idle : CloseVotingState
-
     object Loading : CloseVotingState
     object Success : CloseVotingState
-
     data class Error(val error: Throwable) : CloseVotingState
 }
