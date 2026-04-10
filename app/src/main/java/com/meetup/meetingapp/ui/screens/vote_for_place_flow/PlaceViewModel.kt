@@ -10,6 +10,7 @@ import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.format.TextStyle
 import java.util.Locale
@@ -45,6 +46,9 @@ class PlaceViewModel(
 
     private val _dateAndAreaState = MutableStateFlow(DateAndAreaState())
     val dateAndAreaState = _dateAndAreaState.asStateFlow()
+
+    private val _placeListState = MutableStateFlow<List<Restaurant>>(emptyList())
+    val placeListState = _placeListState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -91,8 +95,8 @@ class PlaceViewModel(
         )
     }
 
-    fun getRestaurants(timing: DateTime, location: String){
-        // Implement restaurant fetching logic
+    fun getRestaurants(timing: DateTime, location: String) {
+         val restaurants = eventRepository.getRestaurantsByLocation(location)
     }
 
     fun submitVote(restaurantId: String) {

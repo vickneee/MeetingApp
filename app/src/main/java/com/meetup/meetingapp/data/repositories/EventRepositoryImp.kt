@@ -13,6 +13,8 @@ import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
+import com.meetup.meetingapp.data.model.Restaurant
+import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -327,6 +330,13 @@ class EventRepositoryImp(
     }
 
     /**
+     * Retrieves a list of restaurants for a given location.
+     *
+     * @param location The location for which to retrieve restaurants.
+     * @return A [Flow] emitting a list of [Restaurant] objects.
+     */
+    override fun getRestaurantsByLocation(location: String): Flow<List<Restaurant>> {
+        return flowOf(emptyList())
      * Retrieves an event by its ID from the local Room database.
      *
      * @param id The ID of the event to retrieve.

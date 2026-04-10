@@ -4,6 +4,8 @@ import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
+import com.meetup.meetingapp.data.model.Restaurant
+import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
@@ -84,12 +86,17 @@ interface EventRepository {
      */
     fun getEventByEventCode(eventCode: String): Flow<Event?>
 
-    /**
-     * Updates the status of an event in Firestore and local Room database.
-     *
-     * @param eventId The ID of the event to update.
-     * @param newStatus The new status to set for the event.
-     */
+    // Room database operations
+    fun getCitiesByCountry(country: CountryOption): Flow<List<String>>
+
+    // Room database operations
+    fun getAvailabilityByEventCode(eventCode: String): Flow<Pair<List<String>, List<TimeSlot>>>
+
+    // Room database operations
+    fun getRestaurantsByLocation(location: String): Flow<List<Restaurant>>
+
+
+    // Firebase operations
     suspend fun updateEventStatus(eventId: String, newStatus: EventStatus)
 
     /**

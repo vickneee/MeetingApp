@@ -53,6 +53,8 @@ import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPage
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPageDestination
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.ChooseDateAndAreaDestination
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.ChooseDateAndAreaPage
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceListPage
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceListPageDestination
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
 
 /**
@@ -473,11 +475,33 @@ fun MeetingAppNavHost(
                     onBack = { navController.popBackStack() },
                     onNavigateToRestaurantListPage = {
                         // navigate to next step
+                        navController.navigate(PlaceListPageDestination.route)
                     },
                     viewModel = viewModel
                 )
             }
         }
+
+        /**
+         * Place List destination
+         */
+        composable(PlaceListPageDestination.route) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry("vote-for-place/{eventId}")
+            }
+            val viewModel: PlaceViewModel = viewModel(
+                parentEntry,
+                factory = AppViewModelProvider.Factory
+            )
+            PlaceListPage(
+                onBack = { navController.popBackStack() },
+                onNavigateToPlaceDetails = {
+                // navigate to next step
+                },
+                viewModel = viewModel
+            )
+        }
+
 
         /**
          * Events List destination
