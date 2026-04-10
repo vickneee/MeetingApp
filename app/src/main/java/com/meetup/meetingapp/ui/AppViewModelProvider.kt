@@ -74,6 +74,7 @@ object AppViewModelProvider {
         initializer {
             RestaurantViewModel(
                 meetingApplication().container.eventRepository,
+                meetingApplication().container.placesRepository,
                 this.createSavedStateHandle()
             )
         }

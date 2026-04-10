@@ -66,7 +66,7 @@ object DateAndAreaPageDestination: NavigationDestination {
 fun DateAndAreaPage(
     onBack: () -> Unit,
     viewModel: RestaurantViewModel,
-    onNavigateToRestaurantListPage: () -> Unit,
+    onNavigateToRestaurantListPage: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val dateAndAreaState by viewModel.dateAndAreaState.collectAsStateWithLifecycle(null)
@@ -76,8 +76,7 @@ fun DateAndAreaPage(
             onBack = onBack,
             dateLocationOptions = it.dateLocationOptions,
             navigateToRestaurantListPage = { timing, location ->
-                viewModel.getRestaurants(timing, location)
-                onNavigateToRestaurantListPage()
+                onNavigateToRestaurantListPage(timing, location)
             },
             modifier = modifier
         )
@@ -107,7 +106,7 @@ fun DateAndAreaPage(
 fun DateAndAreaContent(
     onBack: () -> Unit,
     dateLocationOptions: List<DateLocationOption>,
-    navigateToRestaurantListPage: (DateTime, String) -> Unit,
+    navigateToRestaurantListPage: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ){
     Scaffold(
@@ -140,7 +139,7 @@ fun DateAndAreaContent(
 
             items(dateLocationOptions){option ->
                 Card(
-                    onClick = {navigateToRestaurantListPage(option.timing, option.location)},
+                    onClick = {navigateToRestaurantListPage(option.timingArg, option.location)},
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 12.dp),
