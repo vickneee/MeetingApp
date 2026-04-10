@@ -139,7 +139,7 @@ fun SubmissionCompleteContent(
                 Spacer(modifier = Modifier.height(48.dp))
                 Text(
                     "Thank you!",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -148,7 +148,7 @@ fun SubmissionCompleteContent(
                 Spacer(modifier = Modifier.height(48.dp))
                 Text(
                     "Your availability and preferences",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                 )
             }
 
@@ -156,7 +156,7 @@ fun SubmissionCompleteContent(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     "have been submitted.",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                 )
             }
 
