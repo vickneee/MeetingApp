@@ -76,6 +76,7 @@ fun DateAndAreaPage(
             onBack = onBack,
             dateLocationOptions = it.dateLocationOptions,
             navigateToRestaurantListPage = { timing, location ->
+                viewModel.setFilter(timing.toDateTime(), location)
                 onNavigateToRestaurantListPage(timing, location)
             },
             modifier = modifier

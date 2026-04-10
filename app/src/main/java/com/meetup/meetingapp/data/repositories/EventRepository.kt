@@ -78,16 +78,20 @@ interface EventRepository {
      */
     suspend fun syncJoinedEvents()
 
+    // Cloud Firestore
     suspend fun hasRestaurantCandidates(eventId: String): Boolean
 
+    // Cloud Firestore
     suspend fun saveAllRestaurants(
         eventId: String,
         restaurants: List<Restaurant>
     ): Result<Unit>
 
+    // Cloud Firestore → Room sync
     suspend fun syncRestaurants(
         eventId: String
     ): Result<Unit>
 
+    // Room database operations
     fun getRestaurants(eventId: String): Flow<List<Restaurant>>
 }

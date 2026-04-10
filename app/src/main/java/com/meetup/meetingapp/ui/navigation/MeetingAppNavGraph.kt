@@ -499,15 +499,6 @@ fun MeetingAppNavHost(
                     factory = AppViewModelProvider.Factory
                 )
 
-                val timingArg = backStackEntry.arguments?.getString(dateTimeArg)!!
-                val locationArg = backStackEntry.arguments?.getString(locationArg)!!
-
-                val timing = timingArg.toDateTime()
-
-                LaunchedEffect(Unit) {
-                    viewModel.setFilter(timing, locationArg)
-                }
-
                 RestaurantListPage(
                     onBack = { navController.popBackStack() },
                     onNavigateToRestaurantDetailPage = {
