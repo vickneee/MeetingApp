@@ -4,6 +4,7 @@ import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
+import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
@@ -64,6 +65,10 @@ interface EventRepository {
 
     // Room database operations
     fun getAvailabilityByEventCode(eventCode: String): Flow<Pair<List<String>, List<TimeSlot>>>
+
+    // Room database operations
+    fun getRestaurantsByLocation(location: String): Flow<List<Restaurant>>
+
 
     // Firebase operations
     suspend fun updateEventStatus(eventId: String, newStatus: EventStatus)
