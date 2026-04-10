@@ -44,7 +44,7 @@ import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
  */
-object ParticipantMeetUpDetailDestination : NavigationDestination {
+object MeetUpDetailDestination : NavigationDestination {
     override val route = "participant_meetUp_detail"
     override val titleRes = R.string.title_meetup_details_page
     const val eventCodeArg = "eventCode"
@@ -62,7 +62,7 @@ object ParticipantMeetUpDetailDestination : NavigationDestination {
  * @param viewModel [ParticipantViewModel] to retrieve event data.
  */
 @Composable
-fun ParticipantMeetUpDetailPage(
+fun MeetUpDetailPage(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     eventCode: String,
@@ -84,7 +84,7 @@ fun ParticipantMeetUpDetailPage(
         )
 
         is FetchState.Success -> event?.let {
-            ParticipantMeetUpDetailContent(
+            MeetUpDetailContent(
                 event = it,
                 participantState = participantState,
                 onNameChange = viewModel::updateName,
@@ -108,7 +108,7 @@ fun ParticipantMeetUpDetailPage(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParticipantMeetUpDetailContent(
+fun MeetUpDetailContent(
     modifier: Modifier = Modifier,
     event: Event,
     participantState: ParticipantInputState,
@@ -224,7 +224,7 @@ fun ParticipantMeetUpDetailContent(
 
 @Preview(showBackground = true)
 @Composable
-fun ParticipantMeetUpDetailPreview() {
+fun MeetUpDetailPreview() {
     // Sample Event
     val sampleEvent = Event(
         eventCode = "AX4C2G",
@@ -232,7 +232,7 @@ fun ParticipantMeetUpDetailPreview() {
         hostName = "Victoria"
     )
 
-    ParticipantMeetUpDetailContent(
+    MeetUpDetailContent(
         event = sampleEvent,
         participantState = ParticipantInputState(),
         onNameChange = {},
