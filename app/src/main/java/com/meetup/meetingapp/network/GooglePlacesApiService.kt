@@ -28,7 +28,7 @@ val retrofit = Retrofit.Builder()
  * Lazily created Retrofit service for accessing Google Places API endpoints.
  *
  * This service is injected into repository implementations such as
- * [PlacesRepositoryImp], enabling clean separation between networking
+ * [PlacesRepositoryImp] to provide access to the Google Places API
  * and business logic.
  */
 val retrofitService: GooglePlacesApiService =

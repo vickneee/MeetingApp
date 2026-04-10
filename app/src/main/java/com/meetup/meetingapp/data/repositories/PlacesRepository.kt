@@ -18,7 +18,6 @@ import com.meetup.meetingapp.data.model.Restaurant
  */
 interface PlacesRepository {
 
-
     /**
      * Fetches a list of restaurants based on a text query.
      *

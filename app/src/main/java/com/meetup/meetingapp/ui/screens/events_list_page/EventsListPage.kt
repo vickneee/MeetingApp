@@ -105,6 +105,7 @@ fun EventsListPage(
 /**
  * Event Item in the Past Events Page
  * @param event The event to display
+ * @param onItemClick Callback to invoke when the event is clicked
  */
 @Composable
 fun EventItem(
