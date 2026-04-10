@@ -207,10 +207,20 @@ fun HostDashboardContent(
             }
 
             item {
-                val buttonText = when (closeVotingState) {
-                    CloseVotingState.Success -> "Voting Closed"
+                val buttonText = when (event.status) {
+                    EventStatus.COLLECTING_AVAILABILITY -> "Close Voting" // active
+                    EventStatus.FIRST_VOTING_CLOSED -> "Voting Closed" // inactive
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Restaurant Voting" // inactive
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Restaurant Voting" // active again
+                    EventStatus.FINALIZED -> "Event Finalized" // inactive
                     else -> "Close Voting"
                 }
+
+                val buttonEnabled = when (event.status) {
+                    EventStatus.COLLECTING_AVAILABILITY -> true
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> true
+                    else -> false
+                } && closeVotingState != CloseVotingState.Loading
 
                 Spacer(modifier = Modifier.padding(12.dp))
 
@@ -238,8 +248,7 @@ fun HostDashboardContent(
 
                     Button(
                         onClick = onCloseVotingClick,
-                        enabled = event.status != EventStatus.FIRST_VOTING_CLOSED
-                                && closeVotingState != CloseVotingState.Loading,
+                        enabled = buttonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(0.8f)
