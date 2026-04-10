@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
-import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,7 @@ class RestaurantViewModel(
 ) : ViewModel() {
 
     private val eventId: String =
-        savedStateHandle[ParticipantDashChooseDateAndAreaDestination.eventIdArg] ?: ""
+        savedStateHandle[ChooseDateAndAreaDestination.eventIdArg] ?: ""
 
     private val _event = MutableStateFlow<Event?>(null)
     val event: StateFlow<Event?> = _event.asStateFlow()

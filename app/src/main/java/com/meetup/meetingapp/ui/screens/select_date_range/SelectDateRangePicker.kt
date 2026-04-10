@@ -19,8 +19,12 @@ import androidx.compose.ui.window.DialogProperties
 import java.text.SimpleDateFormat
 import java.util.*
 
-private val ScreenPurple = Color(0xFF6200EE)
-
+/**
+ * Custom date range picker modal dialog.
+ *
+ * @param onDismiss Callback to be invoked when the dialog is dismissed.
+ * @param onSave Callback to be invoked when the user saves the selected date range
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomDateRangePickerModal(

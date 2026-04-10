@@ -37,15 +37,24 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
-object ParticipantDashChooseDateAndAreaDestination : NavigationDestination {
+/**
+ * Navigation destination for the Participant MeetUp Detail screen.
+ */
+object ChooseDateAndAreaDestination : NavigationDestination {
     override val route = "participant_choose_date_and_area"
     override val titleRes = R.string.title_participant_dashboard_waiting
     const val eventIdArg = "eventId"
     val routeWithArgs = "$route/{$eventIdArg}"
 }
 
+/**
+ * Participant MeetUp Detail Page
+ * @param onBack Navigate back.
+ * @param onNavigateToChooseDatePage Navigate to the availability page.
+ * @param viewModel [RestaurantViewModel] to retrieve event data.
+ */
 @Composable
-fun ParticipantDashChooseDateAndArea(
+fun ChooseDateAndAreaPage(
     onBack: () -> Unit,
     onNavigateToChooseDatePage: () -> Unit,
     viewModel: RestaurantViewModel = viewModel(
@@ -55,7 +64,7 @@ fun ParticipantDashChooseDateAndArea(
     val event by viewModel.event.collectAsStateWithLifecycle()
 
     event?.let {
-        ParticipantDashChooseDateAndAreaContent(
+        ChooseDateAndAreaContent(
             event = it,
             onBack = onBack,
             onVoteForRestaurantClick = onNavigateToChooseDatePage,
@@ -63,9 +72,16 @@ fun ParticipantDashChooseDateAndArea(
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
 
+/**
+ * Content for the ChooseDateAndAreaPage.
+ * @param event The event data.
+ * @param onBack Navigate back.
+ * @param onVoteForRestaurantClick Navigate to the availability page.
+ * @param modifier Modifier.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParticipantDashChooseDateAndAreaContent(
+fun ChooseDateAndAreaContent(
     event: Event,
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
@@ -121,9 +137,7 @@ fun ParticipantDashChooseDateAndAreaContent(
                         }
                     }, fontSize = 20.sp)
                 }
-
                 Spacer(modifier = Modifier.padding(24.dp))
-
             }
 
             item {
@@ -155,8 +169,8 @@ fun ParticipantDashChooseDateAndAreaContent(
 
 @Preview(showBackground = true)
 @Composable
-fun ParticipantDashChooseDateAndAreaPreview() {
-    ParticipantDashChooseDateAndAreaContent(
+fun ChooseDateAndAreaPagePreview() {
+    ChooseDateAndAreaContent(
         event = Event(
             eventCode = "A7F9K2",
             eventTitle = "Meet & Chat",
