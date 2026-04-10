@@ -15,6 +15,21 @@ import kotlinx.coroutines.launch
 import java.time.format.TextStyle
 import java.util.Locale
 
+/**
+ * ViewModel for the Place selection screen.
+ *
+ * @param eventRepository Repository providing access to event and submission data.
+ * @param savedStateHandle Used to retrieve the navigation argument `eventId`.
+ * @property eventId The ID of the event to load.
+ * @property _event Mutable state flow containing the event data.
+ * @property event State flow exposing the event data.
+ * @property _uiState Mutable state flow containing the UI state.
+ * @property uiState State flow exposing the UI state.
+ * @property _dateAndAreaState Mutable state flow containing the date and area state.
+ * @property dateAndAreaState State flow exposing the date and area state.
+ * @property viewModelScope Coroutine scope associated with the ViewModel.
+ * @constructor Creates a new instance of the PlaceViewModel.
+ */
 class PlaceViewModel(
     private val eventRepository: EventRepository,
     savedStateHandle: SavedStateHandle
@@ -37,8 +52,8 @@ class PlaceViewModel(
 
     init {
         viewModelScope.launch {
-            eventRepository.syncEventById(eventId) // Sync from Firestore to Room first
-            eventRepository.getEventById(eventId).collect { event ->
+            // Observe event from Firestore and update Room cache
+            eventRepository.observeEventById(eventId).collect { event ->
                 _event.value = event
 
                 if(event != null){
@@ -68,7 +83,7 @@ class PlaceViewModel(
     fun buildDateLocationOptions(
         dateTimes: List<DateTime>,
         locations: List<String>
-    ){
+    ) {
         val options = dateTimes.flatMap { dt ->
             locations.map { loc ->
                 DateLocationOption(timing = dt, location = loc)
@@ -121,7 +136,7 @@ fun DateTime.toDisplayLabel(): String {
 data class DateLocationOption(
     val timing: DateTime,
     val location: String
-){
+) {
     val label: String
         get() = "${timing.toDisplayLabel()} — $location"
 }
