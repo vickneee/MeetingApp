@@ -179,6 +179,16 @@ fun ParticipantDashboardContent(
                             "the voting...",
                             fontSize = 22.sp
                         )
+                    } else {
+                        Text(
+                            text = "Host has closed the voting!",
+                            fontSize = 22.sp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                        Text(
+                            "You can now vote.",
+                            fontSize = 22.sp
+                        )
                     }
                 }
             }
