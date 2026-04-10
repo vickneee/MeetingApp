@@ -127,7 +127,7 @@ fun DateAndAreaContent(
 
                 Text(
                     "Choose a date, time & area",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier
                         .padding(bottom = 14.dp)
                 )

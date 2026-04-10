@@ -114,7 +114,14 @@ fun SmallAreaSelectingContent(
             // Header Section
             item {
                 Text(
-                    text = "Choose the area where you prefer to meet",
+                    text = "Choose the area where you",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+                Text(
+                    text = "prefer to meet",
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier

@@ -134,9 +134,8 @@ fun AvailabilitySelectingPageContent(
 
                     Text(
                         text = "Choose all dates and time\nslots you can join",
-                        fontSize = 20.sp,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Medium
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
                     )
                 }
                 item {

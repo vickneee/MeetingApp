@@ -133,7 +133,7 @@ fun CreateOrJoinContent(
                 Text(
                     text = "Make plans easy for everyone.",
                     modifier = Modifier.padding(16.dp),
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
