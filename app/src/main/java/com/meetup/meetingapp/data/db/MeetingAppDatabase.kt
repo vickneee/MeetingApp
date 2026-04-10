@@ -9,10 +9,12 @@ import com.meetup.meetingapp.data.db.converter.Converters
 import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
 import com.meetup.meetingapp.data.db.daos.ParticipantResponseDao
+import com.meetup.meetingapp.data.db.daos.RestaurantDao
 import com.meetup.meetingapp.data.db.daos.UserDao
 import com.meetup.meetingapp.data.db.entities.CityEntity
 import com.meetup.meetingapp.data.db.entities.EventEntity
 import com.meetup.meetingapp.data.db.entities.ParticipantResponseEntity
+import com.meetup.meetingapp.data.db.entities.RestaurantEntity
 import com.meetup.meetingapp.data.db.entities.UserEntity
 
 /**
@@ -21,7 +23,7 @@ import com.meetup.meetingapp.data.db.entities.UserEntity
  * access point for the underlying storage.
  * @constructor Creates a new instance of the MeetingAppDatabase.
  */
-@Database(entities = [EventEntity::class, UserEntity::class, CityEntity::class, ParticipantResponseEntity::class], version = 8, exportSchema = false)
+@Database(entities = [EventEntity::class, UserEntity::class, CityEntity::class, ParticipantResponseEntity::class, RestaurantEntity::class], version = 9, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class MeetingAppDatabase : RoomDatabase() {
 
@@ -29,6 +31,8 @@ abstract class MeetingAppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     abstract fun cityDao(): CityDao
+
+    abstract fun restaurantDao(): RestaurantDao
 
     abstract fun participantResponseDao(): ParticipantResponseDao
 

@@ -7,8 +7,12 @@ import com.google.firebase.firestore.firestore
 import com.meetup.meetingapp.data.db.MeetingAppDatabase
 import com.meetup.meetingapp.data.repositories.EventRepository
 import com.meetup.meetingapp.data.repositories.EventRepositoryImp
+import com.meetup.meetingapp.data.repositories.PlacesRepository
+import com.meetup.meetingapp.data.repositories.PlacesRepositoryImp
 import com.meetup.meetingapp.data.repositories.UserRepository
 import com.meetup.meetingapp.data.repositories.UserRepositoryImp
+import com.meetup.meetingapp.network.GooglePlacesApiService
+import com.meetup.meetingapp.network.retrofitService
 
 /**
  * Dependency Injection container at the application level.
@@ -16,6 +20,7 @@ import com.meetup.meetingapp.data.repositories.UserRepositoryImp
 interface AppContainer {
     val userRepository: UserRepository
     val eventRepository: EventRepository
+    val placesRepository: PlacesRepository
     val db: FirebaseFirestore
 }
 
@@ -46,7 +51,26 @@ class AppDataContainer(private val context: Context) : AppContainer {
             userRepository,
             MeetingAppDatabase.getDatabase(context).eventDao(),
             MeetingAppDatabase.getDatabase(context).cityDao(),
-            MeetingAppDatabase.getDatabase(context).participantResponseDao()
+            MeetingAppDatabase.getDatabase(context).participantResponseDao(),
+            MeetingAppDatabase.getDatabase(context).restaurantDao()
         )
     }
+    private val apiKey = loadApiKey(context)
+
+    override val placesRepository: PlacesRepository by lazy {
+        PlacesRepositoryImp(
+            api = retrofitService,
+            apiKey = apiKey
+        )
+    }
+
+    private fun loadApiKey(context: Context): String {
+        val props = java.util.Properties()
+        context.assets.open("secret.properties").use { stream ->
+            props.load(stream)
+        }
+        return props.getProperty("PLACES_API_KEY") ?: ""
+    }
+
+
 }
