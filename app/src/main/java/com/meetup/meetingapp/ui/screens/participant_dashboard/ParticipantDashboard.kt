@@ -28,6 +28,14 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
+/**
+ * Navigation destination for the Participant Dashboard screen.
+ *
+ * @property route The route for navigating to this destination.
+ * @property titleRes The resource ID for the title to be displayed on the screen.
+ * @property eventIdArg The argument representing the event ID.
+ * @property routeWithArgs The route with the eventId argument.
+ */
 object ParticipantDashboardDestination : NavigationDestination {
     override val route = "participant_dashboard_waiting"
     override val titleRes = R.string.title_participant_dashboard_waiting
@@ -35,6 +43,22 @@ object ParticipantDashboardDestination : NavigationDestination {
     val routeWithArgs = "$route/{$eventIdArg}"
 }
 
+/**
+ * Entry point composable for the Participant Dashboard screen.
+ *
+ * This composable:
+ * - Retrieves the ParticipantDashboardViewModel instance.
+ * - Collects event data, UI state, and close-voting state from the ViewModel.
+ * - Displays a loading screen until the event is available.
+ * - Delegates UI rendering to [ParticipantDashboardContent].
+ *
+ * @param onBack Callback invoked when the user navigates back.
+ * @param onNavigateToChooseDatePage Callback invoked when the user navigates to the choose date page.
+ * @param onNavigateToHome Callback invoked when the user navigates to the home screen.
+ * @param viewModel The ViewModel providing event and submission data.
+ *
+ * @see ParticipantDashboardViewModel ParticipantDashboardViewModel
+ */
 @Composable
 fun ParticipantDashboardPage(
     onBack: () -> Unit,
@@ -58,6 +82,18 @@ fun ParticipantDashboardPage(
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
 
+/**
+ * Main UI layout for the Participant Dashboard screen.
+ *
+ * @param event The event being displayed.
+ * @param submissionsCount Number of participant submissions.
+ * @param onBack Callback to navigate back.
+ * @param onVoteForRestaurantClick Callback for navigating to restaurant voting.
+ * @param onNavigateToHome Callback for navigating to the home screen.
+ * @param modifier Optional modifier for layout customization.
+ *
+ * @see ParticipantDashboardViewModel ParticipantDashboardViewModel
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantDashboardContent(
