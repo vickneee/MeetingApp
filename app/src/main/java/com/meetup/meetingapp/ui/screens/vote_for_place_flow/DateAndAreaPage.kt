@@ -43,7 +43,6 @@ object DateAndAreaPageDestination: NavigationDestination {
     override val titleRes = R.string.title_date_and_area
 }
 
-
 /**
  * Top-level composable for the Date & Area selection screen.
  *
@@ -128,7 +127,7 @@ fun DateAndAreaContent(
 
                 Text(
                     "Choose a date, time & area",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier
                         .padding(bottom = 14.dp)
                 )

@@ -19,45 +19,71 @@ import kotlinx.coroutines.flow.Flow
  * Room and Cloud Firestore.
  */
 interface EventRepository {
-    // Cloud Firestore operations
+
+    /**
+     * Creates a new event in Firestore and returns the generated event code and event key.
+     *
+     * @return A [Result] containing a triple of (eventCode, eventKey, eventId) on success,
+     * or an error on failure.
+     */
     suspend fun createEvent(
         eventValues: EventUiState
     ): Result<Triple<String, String, String>>
 
-    // Cloud Firestore operations
-    suspend fun getEventByCode(eventCode: String): Event?
-
-    // Cloud Firestore operations
+    /**
+     * Stores the participant's availability and preferences in Firestore.
+     *
+     * @param participantInput The participant's selected availability, locations,
+     * place types, and food categories.
+     */
     suspend fun createParticipantAvailability(participantInput: ParticipantInputState): Result<Unit>
 
-    // Cloud Firestore operations
+    /**
+     * Aggregates all participant responses for the given event and updates the event document
+     * with the majority-voted candidates (date/time, location, place type, and food category).
+     *
+     * @param eventId The ID of the event whose participant responses should be aggregated.
+     * @return [Result.success] if aggregation and update succeed, or [Result.failure]
+     *         if no responses are found or any Firestore/processing error occurs.
+     */
     suspend fun aggregateParticipantResponses(eventId: String): Result<Unit>
 
-    // Cloud Firestore operations
-    fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>>
-
-    // Cloud Firestore → Room sync
-    suspend fun syncSubmissions(eventId: String)
-
-    // Room database operations
+    /**
+     * Retrieves a list of events from the local Room database.
+     *
+     * @return A [Flow] emitting a list of [Event] objects.
+     */
     fun getEvents(): Flow<List<Event>>
 
-    // Room database operations SyncEvents
-    suspend fun syncEvents()
-
-    // Room database operations
+    /**
+     * Synchronizes events from Firestore with the local Room database.
+     *
+     * @param eventCode The event code to search for.
+     * @param eventKey The event key to search for.
+     */
     suspend fun syncEventByEventCodeAndKey(eventCode: String, eventKey: String)
 
-    // Cloud Firestore → Room sync for a single event
+    /**
+     * Synchronizes an event by its ID from Firestore with the local Room database.
+     *
+     * @param eventId The ID of the event to retrieve.
+     */
     suspend fun syncEventById(eventId: String)
 
-    // Room database operations
-    suspend fun syncCities()
-
-    // Room database operations
+    /**
+     * Retrieves an event by its ID from the local Room database.
+     *
+     * @param id The ID of the event to retrieve.
+     * @return A [Flow] emitting the [Event] object with the specified ID.
+     */
     fun getEventById(id: String): Flow<Event?>
 
-    // Room database operations
+    /**
+     * Retrieves an event by its event code from the local Room database.
+     *
+     * @param eventCode The event code to search for.
+     * @return A [Flow] emitting the [Event] object with the specified event code
+     */
     fun getEventByEventCode(eventCode: String): Flow<Event?>
 
     // Room database operations
@@ -74,14 +100,35 @@ interface EventRepository {
     suspend fun updateEventStatus(eventId: String, newStatus: EventStatus)
 
     /**
-     * Synchronizes the list of events the user has joined.
+     * Retrieves a list of cities from the local Room database.
      *
-     * This method retrieves the user's document from the database and
-     * updates the local Room database with the event IDs associated with
-     * the user's joining.
+     * @param country The country for which to retrieve cities.
+     * @return A [Flow] emitting a list of [String] representing city names.
      */
-    suspend fun syncJoinedEvents()
+    fun getCitiesByCountry(country: CountryOption): Flow<List<String>>
 
+    /**
+     * Retrieves a list of cities from the local Room database.
+     *
+     * @return A [Flow] emitting a list of [String] representing city names.
+     */
+    suspend fun syncCities()
+
+    /**
+     * Retrieves participant responses from Firestore and updates the local Room database.
+     *
+     * @param eventId The ID of the event to retrieve responses for.
+     * @return A [Flow] emitting a list of [ParticipantResponse] objects.
+     */
     // Firestore real-time listener
     fun observeEventById(eventId: String): Flow<Event?>
+
+    /**
+     * Retrieves participant responses from Firestore and updates the local Room database.
+     *
+     * @param eventId The ID of the event to retrieve responses for.
+     * @return A [Flow] emitting a list of [ParticipantResponse] objects
+     */
+    // Firestore real-time listener
+    fun observeSubmissions(eventId: String): Flow<List<ParticipantResponse>>
 }

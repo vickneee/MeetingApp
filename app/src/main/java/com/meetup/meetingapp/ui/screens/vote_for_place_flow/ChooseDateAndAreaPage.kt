@@ -52,6 +52,7 @@ object ChooseDateAndAreaDestination : NavigationDestination {
  * @param onBack Navigate back.
  * @param onNavigateToChooseDatePage Navigate to the availability page.
  * @param viewModel [PlaceViewModel] to retrieve event data.
+ * @see PlaceViewModel for retrieving event data.
  */
 @Composable
 fun ChooseDateAndAreaPage(
