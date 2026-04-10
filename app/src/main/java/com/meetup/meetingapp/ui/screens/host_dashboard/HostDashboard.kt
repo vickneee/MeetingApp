@@ -211,7 +211,7 @@ fun HostDashboardContent(
                     EventStatus.COLLECTING_AVAILABILITY -> "Close Voting" // active
                     EventStatus.FIRST_VOTING_CLOSED -> "Voting Closed" // inactive
                     EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Restaurant Voting" // inactive
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Restaurant Voting" // active again
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Place Voting" // active again
                     EventStatus.FINALIZED -> "Event Finalized" // inactive
                     else -> "Close Voting"
                 }
