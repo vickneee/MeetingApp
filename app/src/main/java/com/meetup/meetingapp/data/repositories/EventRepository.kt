@@ -32,11 +32,11 @@ interface EventRepository {
     // Cloud Firestore operations
     suspend fun aggregateParticipantResponses(eventId: String): Result<Unit>
 
-    // Cloud Firestore operations
-    fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>>
+//    // Cloud Firestore operations
+//    fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>>
 
-    // Cloud Firestore → Room sync
-    suspend fun syncSubmissions(eventId: String)
+//    // Cloud Firestore → Room sync
+//    suspend fun syncSubmissions(eventId: String)
 
     // Room database operations
     fun getEvents(): Flow<List<Event>>
@@ -79,4 +79,7 @@ interface EventRepository {
 
     // Firestore real-time listener
     fun observeEventById(eventId: String): Flow<Event?>
+
+    // Firestore real-time listener
+    fun observeSubmissions(eventId: String): Flow<List<ParticipantResponse>>
 }

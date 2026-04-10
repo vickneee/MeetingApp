@@ -456,34 +456,34 @@ class EventRepositoryImp(
             }
     }
 
-    /**
-     * Retrieves participant responses from local Room database.
-     */
-    override fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>> {
-        return participantResponseDao.getResponsesByEventId(eventId)
-            .map { entities ->
-                entities.map { with(ParticipantResponseMapper) { it.toDomain() } }
-            }
-    }
+//    /**
+//     * Retrieves participant responses from local Room database.
+//     */
+//    override fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>> {
+//        return participantResponseDao.getResponsesByEventId(eventId)
+//            .map { entities ->
+//                entities.map { with(ParticipantResponseMapper) { it.toDomain() } }
+//            }
+//    }
 
-    /**
-     * Syncs participant responses from Firestore to local Room database.
-     */
-    override suspend fun syncSubmissions(eventId: String) {
-        try {
-            db.collection("events")
-                .document(eventId)
-                .collection("participantResponses")
-                .get()
-                .await()
-                .documents
-                .mapNotNull { it.toObject(ParticipantResponse::class.java) }
-                .map { with(ParticipantResponseMapper) { it.toEntity(eventId) } }
-                .also { participantResponseDao.upsertResponses(it) }
-        } catch (e: Exception) {
-            // Room still serves cached data
-        }
-    }
+//    /**
+//     * Syncs participant responses from Firestore to local Room database.
+//     */
+//    override suspend fun syncSubmissions(eventId: String) {
+//        try {
+//            db.collection("events")
+//                .document(eventId)
+//                .collection("participantResponses")
+//                .get()
+//                .await()
+//                .documents
+//                .mapNotNull { it.toObject(ParticipantResponse::class.java) }
+//                .map { with(ParticipantResponseMapper) { it.toEntity(eventId) } }
+//                .also { participantResponseDao.upsertResponses(it) }
+//        } catch (e: Exception) {
+//            // Room still serves cached data
+//        }
+//    }
 
     /**
      * Updates the status of an event in the database.
@@ -553,6 +553,30 @@ class EventRepositoryImp(
                     CoroutineScope(Dispatchers.IO).launch { eventDao.upsertEvent(entity) }
                 }
                 trySend(event)
+            }
+        awaitClose { listener.remove() }
+    }
+
+    /**
+     * Retrieves participant responses from Firestore and updates the local Room database.
+     * @param eventId The ID of the event to retrieve responses for.
+     * @return A [Flow] emitting a list of [ParticipantResponse] objects
+     */
+    override fun observeSubmissions(eventId: String): Flow<List<ParticipantResponse>> = callbackFlow {
+        val listener = db.collection("events")
+            .document(eventId)
+            .collection("participantResponses")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) { close(error); return@addSnapshotListener }
+                val responses = snapshot?.documents
+                    ?.mapNotNull { it.toObject(ParticipantResponse::class.java) }
+                    ?: emptyList()
+                // Also update Room cache
+                CoroutineScope(Dispatchers.IO).launch {
+                    val entities = responses.map { with(ParticipantResponseMapper) { it.toEntity(eventId) } }
+                    participantResponseDao.upsertResponses(entities)
+                }
+                trySend(responses)
             }
         awaitClose { listener.remove() }
     }

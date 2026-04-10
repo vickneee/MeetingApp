@@ -25,13 +25,12 @@ class ParticipantDashboardViewModel(
 
     init {
         viewModelScope.launch {
-            eventRepository.observeEventById(eventId).collect { event -> // Use observeEventById
+            eventRepository.observeEventById(eventId).collect { event ->
                 _event.value = event
             }
         }
         viewModelScope.launch {
-            eventRepository.syncSubmissions(eventId)
-            eventRepository.getSubmissionsByEventId(eventId).collect { submissions ->
+            eventRepository.observeSubmissions(eventId).collect { submissions ->
                 _uiState.value = _uiState.value.copy(
                     submissionsCount = submissions.size,
                     attendees = submissions.map { it.name }
