@@ -43,7 +43,6 @@ object DateAndAreaPageDestination: NavigationDestination {
     override val titleRes = R.string.title_date_and_area
 }
 
-
 /**
  * Top-level composable for the Date & Area selection screen.
  *
