@@ -14,7 +14,6 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.Restaurant
-import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
 import kotlinx.coroutines.CoroutineScope
@@ -337,6 +336,9 @@ class EventRepositoryImp(
      */
     override fun getRestaurantsByLocation(location: String): Flow<List<Restaurant>> {
         return flowOf(emptyList())
+    }
+
+    /**
      * Retrieves an event by its ID from the local Room database.
      *
      * @param id The ID of the event to retrieve.
