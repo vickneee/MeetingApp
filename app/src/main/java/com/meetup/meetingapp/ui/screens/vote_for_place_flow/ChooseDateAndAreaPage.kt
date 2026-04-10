@@ -35,6 +35,7 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
 /**
@@ -71,6 +72,37 @@ fun ChooseDateAndAreaPage(
             onVoteForRestaurantClick = onNavigateToChooseDatePage,
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
+    val restaurantState by viewModel.restaurantState.collectAsStateWithLifecycle()
+
+    when(restaurantState){
+        is RestaurantState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+
+        is RestaurantState.Available -> event?.let {
+            ChooseDateAndAreaContent(
+                event = it,
+                onBack = onBack,
+                onVoteForRestaurantClick = onNavigateToChooseDatePage,
+            )
+        } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
+
+        is RestaurantState.Empty ->  event?.let {
+            ErrorScreen(
+                message = "There is no available restaurant information.",
+                onRetry = { viewModel.fetchAllCombinations(it) },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        is RestaurantState.Error ->  event?.let {
+
+            val state = restaurantState as RestaurantState.Error
+            ErrorScreen(
+                message = state.error.message ?: "Something went wrong",
+                onRetry = { viewModel.fetchAllCombinations(it) },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
 }
 
 /**

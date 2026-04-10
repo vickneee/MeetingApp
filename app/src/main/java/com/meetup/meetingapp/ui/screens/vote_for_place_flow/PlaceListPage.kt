@@ -1,73 +1,116 @@
 package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
-import android.R.attr.label
-import android.R.attr.name
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import com.meetup.meetingapp.R
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
+import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Restaurant
+import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 
-
+/**
+ * Navigation destination for the Place List screen.
+ * This destination is used to navigate to the Place List screen.
+ *
+ * @property route The route for the Place List screen.
+ * @property titleRes The resource ID for the title of the Place List screen.
+ * @property timingArg The argument key for the selected timing.
+ * @property locationArg The argument key for the selected location.
+ * @property routeWithArgs The route with arguments for the Place List screen.
+ */
 object PlaceListPageDestination : NavigationDestination {
     override val route = "place_list"
     override val titleRes = R.string.title_place_list
+    const val timingArg = "timing"
+    const val locationArg = "location"
+    val routeWithArgs = "$route/{$timingArg}/{$locationArg}"
 }
 
+
+/**
+ * Top-level composable for the Place List screen.
+ *
+ * @param onBack Navigate back.
+ * @param viewModel The [PlaceViewModel] to retrieve place list data.
+ * @param onNavigateToPlaceDetails Navigate to the Place Details screen.
+ * @param modifier Modifier.
+ */
 @Composable
 fun PlaceListPage(
     onBack: () -> Unit,
     viewModel: PlaceViewModel,
-//    restaurantId: String,
-    onNavigateToPlaceDetails: () -> Unit,
+    onNavigateToPlaceDetails: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val placeListState by viewModel.placeListState.collectAsStateWithLifecycle(null)
+    val placeListState by viewModel.filteredRestaurants.collectAsStateWithLifecycle(emptyList())
+    val selectedTiming by viewModel.selectedTiming.collectAsStateWithLifecycle()
+    val selectedLocation by viewModel.selectedLocation.collectAsStateWithLifecycle()
 
-    placeListState?.let {
-        PlaceListContent(
-            onBack = onBack,
-            placeListState = it,
-//            navigateToPlaceDetails = { /*TODO*/ },
-            modifier = modifier
-        )
-    }
+    PlaceListContent(
+        onBack = onBack,
+        placeListState = placeListState,
+        selectedTiming = selectedTiming,
+        selectedLocation = selectedLocation,
+        onNavigateToPlaceDetails = onNavigateToPlaceDetails,
+        modifier = modifier
+    )
 }
 
+/**
+ * Content for the Place List screen.
+ *
+ * @param onBack Navigate back.
+ * @param placeListState The list of restaurants to display.
+ * @param selectedTiming The selected timing.
+ * @param selectedLocation The selected location.
+ * @param onNavigateToPlaceDetails Navigate to the Place Details screen.
+ * @param modifier Modifier.
+ * @see PlaceViewModel for retrieving place list data.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaceListContent(
     onBack: () -> Unit,
     placeListState: List<Restaurant>,
-//    navigateToPlaceDetails = { /*TODO*/ },
+    selectedTiming: DateTime?,
+    selectedLocation: String?,
+    onNavigateToPlaceDetails: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -89,16 +132,42 @@ fun PlaceListContent(
             verticalArrangement = Arrangement.Top
         ) {
 
-            item() {
-                Spacer(modifier = Modifier.height(48.dp))
+            item {
+                Spacer(modifier = Modifier.height(36.dp))
 
-                Text(
-                    text = "Apr 14 (11:00-14:00)\nEspoo",
-                    fontSize = 20.sp,
-                    modifier = Modifier
-                        .padding(bottom = 14.dp)
-                )
+                if (selectedTiming != null && selectedLocation != null) {
+                    Column(
+                        Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = selectedTiming.toDisplayLabel(),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(
+                            text = selectedLocation ?: "",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                } else {
+                    Text(
+                        text = "Selected Places",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
+
             item {
                 Spacer(modifier = Modifier.height(48.dp))
 
@@ -106,31 +175,90 @@ fun PlaceListContent(
                     "Places",
                     fontSize = 20.sp,
                     modifier = Modifier
-                        .padding(bottom = 14.dp)
+                        .fillMaxWidth()
+                        .padding(bottom = 14.dp),
+                    textAlign = TextAlign.Start,
+                    fontWeight = FontWeight.Bold
                 )
             }
-            items(placeListState) { option ->
-                Card(
-                    onClick = { }, // navigateToPlaceDetails()
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Text(
-                        text = option.name,
+
+            if (placeListState.isEmpty()) {
+                item {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 20.dp, horizontal = 16.dp),
-                        textAlign = TextAlign.Center,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                            .padding(top = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No places found for this selection.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            } else {
+                items(placeListState) { option ->
+                    Card(
+                        onClick = { onNavigateToPlaceDetails(option.placeId) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 20.dp, horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = option.name,
+                                textAlign = TextAlign.Center,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                            if (option.rating != null && option.rating > 0) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = "(",
+                                        fontSize = 14.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Filled.Star,
+                                        contentDescription = null,
+                                        tint = Color(0xFFFFB400),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.padding(2.dp))
+                                    Text(
+                                        text = "${option.rating}",
+                                        fontSize = 14.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        text = ")",
+                                        fontSize = 14.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -142,14 +270,24 @@ fun PlaceListContent(
 fun PLaceListContentPreview() {
     val sampleOptions = listOf(
         Restaurant(
-//            id = "1",
-            name = "Restaurant A"),
-//            address = "Iso Omena"
-            Restaurant(name = "Restaurant B")
+            placeId = "1",
+            name = "Restaurant A",
+            rating = 4.5,
+            userRatingCount = 120
+        ),
+        Restaurant(
+            placeId = "2",
+            name = "Restaurant B",
+            rating = 3.8,
+            userRatingCount = 85
+        )
     )
 
     PlaceListContent(
         onBack = {},
         placeListState = sampleOptions,
+        selectedTiming = DateTime("2024-04-14", TimeSlot("11:00", "14:00")),
+        selectedLocation = "Espoo",
+        onNavigateToPlaceDetails = {}
     )
 }

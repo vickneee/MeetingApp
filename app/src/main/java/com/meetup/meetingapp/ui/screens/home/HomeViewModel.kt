@@ -26,15 +26,22 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
     private val _currentUserId = MutableStateFlow(auth.currentUser?.uid ?: "")
     val currentUserId: StateFlow<String> = _currentUserId.asStateFlow()
 
+    init {
+        Log.d("Auth", "init called, currentUser: ${auth.currentUser?.uid}")
+        signInAnonymously()
+    }
+
     /**
      * Signs in anonymously using Firebase Authentication.
      */
     fun signInAnonymously() {
+        Log.d("Auth", "signInAnonymously called, currentUser: ${auth.currentUser?.uid}")
         if (auth.currentUser != null) return
 
         auth.signInAnonymously()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    Log.d("Auth", "sign in success: ${auth.currentUser?.uid}")
                     val user = auth.currentUser
                     if(user?.uid != null){
                         _currentUserId.value = user.uid // Update the current user ID
@@ -44,6 +51,7 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
                     }
                     Log.d("Auth", "SUCCESS UID: ${user?.uid}")
                 } else {
+                    Log.e("Auth", "sign in failed: ${task.exception}")
                     Log.w("Auth", "ERROR: ${task.exception}")
                 }
             }

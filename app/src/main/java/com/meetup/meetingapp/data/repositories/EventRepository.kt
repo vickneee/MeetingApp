@@ -94,7 +94,6 @@ interface EventRepository {
      */
     fun getRestaurantsByLocation(location: String): Flow<List<Restaurant>>
 
-
     /**
      * Updates the status of an event in the database.
      *
@@ -120,10 +119,49 @@ interface EventRepository {
     suspend fun syncCities()
 
     /**
-     * Retrieves participant responses from Firestore and updates the local Room database.
+     * Checks if restaurant candidates exist for a given event.
      *
-     * @param eventId The ID of the event to retrieve responses for.
-     * @return A [Flow] emitting a list of [ParticipantResponse] objects.
+     * @param eventId The ID of the event to check.
+     * @return `true` if restaurant candidates exist, `false` otherwise
+     */
+    suspend fun hasRestaurantCandidates(eventId: String): Boolean
+
+    /**
+     * Saves a list of restaurants to the local Room database.
+     *
+     * @param eventId The ID of the event to associate with the restaurants.
+     * @param restaurants The list of [Restaurant] objects to save.
+     * @return A [Result] indicating the success or failure of the operation.
+     */
+    suspend fun saveAllRestaurants(
+        eventId: String,
+        restaurants: List<Restaurant>
+    ): Result<Unit>
+
+    /**
+     * Retrieves a list of restaurants from the local Room database.
+     *
+     * @param eventId The ID of the event to retrieve restaurants for.
+     * @return A [Flow] emitting a list of [Restaurant] objects.
+     */
+    suspend fun syncRestaurants(
+        eventId: String
+    ): Result<Unit>
+
+    /**
+     * Retrieves a list of restaurants from the local Room database.
+     *
+     * @param eventId The ID of the event to retrieve restaurants for.
+     * @return A [Flow] emitting a list of [Restaurant] objects.
+     * @throws Exception if the synchronization operation fails.
+     */
+    fun getRestaurants(eventId: String): Flow<List<Restaurant>>
+
+    /**
+     * Retrieves an event by its ID from Firestore and updates the local Room database.
+     *
+     * @param eventId The ID of the event to retrieve.
+     * @return A [Flow] emitting the [Event] object with the specified ID.
      */
     // Firestore real-time listener
     fun observeEventById(eventId: String): Flow<Event?>
