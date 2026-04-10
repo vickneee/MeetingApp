@@ -150,7 +150,7 @@ fun PlaceTypeAndKeywordContent(
 
                 Text(
                     "Choose a place type and",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -161,7 +161,7 @@ fun PlaceTypeAndKeywordContent(
 
                 Text(
                     "a food category",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
