@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow
+package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
@@ -18,14 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
 
 object RestaurantListPageDestination : NavigationDestination {
     override val route = "restaurant-list"
     override val titleRes = R.string.title_restaurant_list
-
     const val dateTimeArg = "dateTime"
     const val locationArg = "location"
-
     val routeWithArgs = "$route/{$dateTimeArg}/{$locationArg}"
 }
 
@@ -34,7 +33,7 @@ object RestaurantListPageDestination : NavigationDestination {
 @Composable
 fun RestaurantListPage(
     onBack: () -> Unit,
-    viewModel: RestaurantViewModel,
+    viewModel: PlaceViewModel,
     onNavigateToRestaurantDetailPage: () -> Unit,
     modifier: Modifier = Modifier
 ) {

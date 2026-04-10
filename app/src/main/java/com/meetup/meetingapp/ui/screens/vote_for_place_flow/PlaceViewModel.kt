@@ -12,6 +12,7 @@ import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
 import com.meetup.meetingapp.data.repositories.PlacesRepository
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ChooseDateAndAreaDestination
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

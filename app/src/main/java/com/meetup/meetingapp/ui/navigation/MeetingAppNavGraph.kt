@@ -1,11 +1,9 @@
 package com.meetup.meetingapp.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -48,25 +46,17 @@ import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardViewModel
 import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardPage
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.DateAndAreaPage
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.DateAndAreaPageDestination
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ParticipantDashChooseDateAndArea
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ParticipantDashChooseDateAndAreaDestination
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantListPage
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantListPageDestination
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantListPageDestination.dateTimeArg
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantListPageDestination.locationArg
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantViewModel
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.toDateTime
 import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDestination
 import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDestination.eventCodeArg
 import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailPage
 import com.meetup.meetingapp.ui.screens.participant_input_flow.PlaceTypeAndKeywordPage
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPage
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPageDestination
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.ChooseDateAndAreaDestination
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.ChooseDateAndAreaPage
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceListPage
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceListPageDestination
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.RestaurantListPage
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.RestaurantListPageDestination
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ChooseDateAndAreaDestination
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ChooseDateAndAreaPage
 
 /**
  * Main navigation graph for the MeetingApp.
@@ -493,9 +483,9 @@ fun MeetingAppNavHost(
 
             composable(RestaurantListPageDestination.routeWithArgs) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("vote-for-restaurant/{eventId}")
+                    navController.getBackStackEntry("vote-for-place/{eventId}")
                 }
-                val viewModel: RestaurantViewModel = viewModel(
+                val viewModel: PlaceViewModel = viewModel(
                     parentEntry,
                     factory = AppViewModelProvider.Factory
                 )
