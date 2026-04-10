@@ -35,6 +35,13 @@ import com.meetup.meetingapp.ui.screens.select_date_range.CustomDateRangePickerM
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+/**
+ * Formats the start and end dates in the "dd.MM.yyyy" format.
+ *
+ * @param start The start date as a string.
+ * @param end The end date as a string.
+ * @return A formatted string representing the date range.
+ */
 fun formatDisplayDate(start: String, end: String): String {
     return try {
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
@@ -46,7 +53,11 @@ fun formatDisplayDate(start: String, end: String): String {
         "Invalid date"
     }
 }
-object CreateCreatingEventPageDestination : NavigationDestination {
+
+/**
+ * Navigation destination for the Create Creating Event Page.
+ */
+object CreatingEventPageDestination : NavigationDestination {
     override val route = "create_creating_event_page"
     override val titleRes = R.string.title_create_creating_event_page
 }
@@ -59,7 +70,7 @@ object CreateCreatingEventPageDestination : NavigationDestination {
  */
 
 @Composable
-fun CreateCreatingEventPage(
+fun CreatingEventPage(
     onBack: () -> Unit,
     navigateToCreatingEventPage: () -> Unit,
     viewModel: EventViewModel
@@ -67,7 +78,7 @@ fun CreateCreatingEventPage(
     val uiState by viewModel.uiState.collectAsState()
     var showModal by remember { mutableStateOf(false) }
 
-    CreateCreatingEventPageContent(
+    CreatingEventContent(
         uiState = uiState,
         onEventTitleChange = viewModel::updateTitle,
         onHostNameChange = viewModel::updateHostName,
@@ -100,7 +111,7 @@ fun CreateCreatingEventPage(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateCreatingEventPageContent(
+fun CreatingEventContent(
     uiState: EventUiState,
     onEventTitleChange: (String) -> Unit,
     onHostNameChange: (String) -> Unit,
@@ -220,8 +231,8 @@ fun CreateCreatingEventPageContent(
 
 @Preview(showBackground = true)
 @Composable
-fun CreateCreatingEventPagePreview() {
-    CreateCreatingEventPageContent(
+fun CreatingEventPagePreview() {
+    CreatingEventContent(
         uiState = EventUiState(eventTitle = "Sample Event", hostName = "host"),
         onEventTitleChange = {},
         onHostNameChange = {},

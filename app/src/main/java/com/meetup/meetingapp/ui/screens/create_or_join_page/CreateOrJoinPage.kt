@@ -34,6 +34,9 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 
+/**
+ * Navigation destination for the Create or Join screen.
+ */
 object CreateOrJoinDestination : NavigationDestination {
     override val route = "create_or_join"
     override val titleRes = R.string.title_create_or_join_page
@@ -43,6 +46,8 @@ object CreateOrJoinDestination : NavigationDestination {
  * Create or Join Page
  * @param onBack Navigate back
  * @param navigateToCreatingEventPage Navigate to the next page
+ * @param navigateToPastEventsPage Navigate to the past events page
+ * @param navigateToParticipantPage Navigate to the participant page
  * @param viewModel [CreateOrJoinViewModel] to retrieve all items in the Room database.
  */
 @Composable
@@ -56,8 +61,8 @@ fun CreateOrJoinPage(
     )
 ) {
     // Navigate when join succeeds
-    LaunchedEffect(viewModel.navigateToPastEventsPage) {
-        if (viewModel.navigateToPastEventsPage) {
+    LaunchedEffect(viewModel.navigateToEventsListPage) {
+        if (viewModel.navigateToEventsListPage) {
             viewModel.onNavigatedToPastEvents()
             navigateToPastEventsPage()
         }
@@ -91,6 +96,8 @@ fun CreateOrJoinPage(
  * @param onBack Navigate back
  * @param onCreateEventClick Navigate to the next page
  * @param modifier Modifier
+ * @param onJoinEventClick Join Event
+ * @param onEventsClick Navigate to the past events page
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
