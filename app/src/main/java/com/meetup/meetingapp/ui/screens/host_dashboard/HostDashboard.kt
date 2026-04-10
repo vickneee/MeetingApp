@@ -53,7 +53,6 @@ object HostDashboardDestination : NavigationDestination {
  *        "Vote for Restaurant".
  * @param viewModel The ViewModel providing event and submission data.
  */
-
 @Composable
 fun HostDashboardPage(
     onBack: () -> Unit,

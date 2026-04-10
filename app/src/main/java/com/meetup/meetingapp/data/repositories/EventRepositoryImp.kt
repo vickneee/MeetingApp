@@ -2,8 +2,6 @@ package com.meetup.meetingapp.data.repositories
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
 import com.meetup.meetingapp.data.db.daos.ParticipantResponseDao
@@ -15,7 +13,6 @@ import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
-import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
 import kotlinx.coroutines.CoroutineScope
@@ -56,157 +53,6 @@ class EventRepositoryImp(
      * Retrieves the UID of the currently authenticated user.
      */
     private val uid get() = auth.currentUser?.uid
-
-    /**
-     * Retrieves a list of events from the local Room database.
-     *
-     * @return A [Flow] emitting a list of [Event] objects.
-     */
-    // UI reads from Room (single source of truth)
-    override fun getEvents(): Flow<List<Event>> =
-        eventDao.getAllEvents()
-            .map { entities -> entities.map { with(EventMapper) { it.toDomain() } } }
-
-    /**
-     * Synchronizes events from Firestore with the local Room database.
-     *
-     * This method retrieves events from Firestore and converts them to
-     * Room entities before storing them in the database.
-     *
-     * @throws Exception if the synchronization operation fails.
-     */
-    override suspend fun syncEvents() {
-        val uid = uid ?: return
-        try {
-            db.collection("events")
-                .whereEqualTo("hostId", uid)
-                .get()
-                .await()
-                .documents
-                .mapNotNull { it.toObject(Event::class.java) }
-                .map { with(EventMapper) { it.toEntity() } }
-                .also { eventDao.upsertEvents(it) }
-        } catch (e: Exception) {
-            // sync failure won't crash the app, Room still serves cached data
-        }
-    }
-
-    /**
-     * Retrieves an event by its event code and key from Firestore and updates the local Room database.
-     *
-     * @param eventCode The event code to search for.
-     * @param eventKey The event key to search for.
-     */
-    override suspend fun syncEventByEventCodeAndKey(eventCode: String, eventKey: String){
-        try {
-            val event = db.collection("events")
-                .whereEqualTo("eventCode", eventCode)
-                .whereEqualTo("eventKey", eventKey)
-                .get()
-                .await()
-                .documents.firstNotNullOfOrNull { it.toObject(Event::class.java) }
-
-            if (event != null) {
-                val entity = with(EventMapper) { event.toEntity() }
-                eventDao.upsertEvent(entity)
-            }
-
-        } catch (e: Exception) {
-            // sync failure won't crash the app, Room still serves cached data
-        }
-    }
-
-    /**
-     * Retrieves an event by its ID from the local Room database.
-     *
-     * @param eventId The ID of the event to retrieve.
-     * @return A [Flow] emitting the [Event] object with the specified ID.
-     */
-    override suspend fun syncEventById(eventId: String) {
-        try {
-            val event = db.collection("events")
-                .document(eventId)
-                .get()
-                .await()
-                .toObject(Event::class.java)
-
-            if (event != null) {
-                val entity = with(EventMapper) { event.toEntity() }
-                eventDao.upsertEvent(entity)
-            }
-        } catch (e: Exception) {
-            // sync failure won't crash the app
-        }
-    }
-
-    /**
-     * Retrieves a list of cities from the local Room database.
-     *
-     * @return A [Flow] emitting a list of [String] representing city names.
-     * @throws Exception if the synchronization operation fails.
-     */
-    override suspend fun syncCities() {
-        try {
-            val docs = db.collection("static_data")
-                .get()
-                .await()
-                .documents
-
-            val allCities = docs
-                .filter { it.id.endsWith("_cities") }
-                .flatMap { doc ->
-                    val country = doc.id
-                        .removeSuffix("_cities")
-                        .replaceFirstChar { it.uppercase() }
-
-                    val data = doc.toObject(FirestoreCityList::class.java)
-
-                    data?.items?.map { city ->
-                        with(CityMapper) { city.toEntity(country) }
-                    } ?: emptyList()
-                }
-
-            cityDao.upsertCities(allCities)
-
-        } catch (e: Exception) {
-            // sync failure won't crash the app, Room still serves cached data
-        }
-    }
-
-    /**
-     * Retrieves an event by its ID from the local Room database.
-     *
-     * @param id The ID of the event to retrieve.
-     * @return A [Flow] emitting the [Event] object with the specified ID.
-     */
-    override fun getEventById(id: String): Flow<Event?> {
-        return eventDao.getEventById(id)
-            .map { it?.let { with(EventMapper) { it.toDomain() } } }
-    }
-
-    /**
-     * Retrieves an event by its event code from the local Room database.
-     *
-     * @param eventCode The event code to search for.
-     * @return A [Flow] emitting the [Event] object with the specified event code
-     */
-    override fun getEventByEventCode(eventCode: String): Flow<Event?>{
-        return eventDao.getEventByCode(eventCode)
-            .map { it?.let { with(EventMapper) { it.toDomain() } } }
-    }
-
-    /**
-     * Retrieves a list of cities from the local Room database.
-     *
-     * @param country The country for which to retrieve cities.
-     * @return A [Flow] emitting a list of [String] representing city names.
-     */
-    override fun getCitiesByCountry(country: CountryOption): Flow<List<String>>{
-        return cityDao.getCitiesByCountry(country.name)
-            .map { entityCity ->
-                entityCity.map{it.name}
-            }
-    }
 
     /**
      * Creates a new event in Firestore and returns the generated event code and event key.
@@ -274,23 +120,6 @@ class EventRepositoryImp(
             // Return the error if any Firestore operation fails.
             return Result.failure(e)
         }
-    }
-
-    /**
-     * Retrieves an event by its event code from Firestore.
-     *
-     * @param eventCode The event code to search for.
-     * @return The [Event] object with the specified event code, or null if not found.
-     * @throws Exception if the Firestore query fails.
-     */
-    override suspend fun getEventByCode(eventCode: String): Event? {
-        return db.collection("events")
-            .whereEqualTo("eventCode", eventCode)
-            .get()
-            .await()
-            .documents
-            .firstOrNull()
-            ?.toObject(Event::class.java)
     }
 
     /**
@@ -441,48 +270,82 @@ class EventRepositoryImp(
     }
 
     /**
-     * Retrieves the availability and time slots for a given event code.
+     * Retrieves a list of events from the local Room database.
+     *
+     * @return A [Flow] emitting a list of [Event] objects.
      */
-    override fun getAvailabilityByEventCode(eventCode: String): Flow<Pair<List<String>, List<TimeSlot>>> {
-        val gson = Gson()
-        return eventDao.getAvailabilityByEventCode(eventCode)
-            .map { tuple ->
-                val dateRange = listOf(tuple.dateRangeStart, tuple.dateRangeEnd)
-                val timeSlots: List<TimeSlot> = gson.fromJson(
-                    tuple.timeSlotsJson,
-                    object : TypeToken<List<TimeSlot>>() {}.type
-                )
-                dateRange to timeSlots
-            }
-    }
+    override fun getEvents(): Flow<List<Event>> =
+        eventDao.getAllEvents()
+            .map { entities -> entities.map { with(EventMapper) { it.toDomain() } } }
 
     /**
-     * Retrieves participant responses from local Room database.
+     * Retrieves an event by its event code and key from Firestore and updates the local Room database.
+     *
+     * @param eventCode The event code to search for.
+     * @param eventKey The event key to search for.
      */
-    override fun getSubmissionsByEventId(eventId: String): Flow<List<ParticipantResponse>> {
-        return participantResponseDao.getResponsesByEventId(eventId)
-            .map { entities ->
-                entities.map { with(ParticipantResponseMapper) { it.toDomain() } }
-            }
-    }
-
-    /**
-     * Syncs participant responses from Firestore to local Room database.
-     */
-    override suspend fun syncSubmissions(eventId: String) {
+    override suspend fun syncEventByEventCodeAndKey(eventCode: String, eventKey: String){
         try {
-            db.collection("events")
-                .document(eventId)
-                .collection("participantResponses")
+            val event = db.collection("events")
+                .whereEqualTo("eventCode", eventCode)
+                .whereEqualTo("eventKey", eventKey)
                 .get()
                 .await()
-                .documents
-                .mapNotNull { it.toObject(ParticipantResponse::class.java) }
-                .map { with(ParticipantResponseMapper) { it.toEntity(eventId) } }
-                .also { participantResponseDao.upsertResponses(it) }
+                .documents.firstNotNullOfOrNull { it.toObject(Event::class.java) }
+
+            if (event != null) {
+                val entity = with(EventMapper) { event.toEntity() }
+                eventDao.upsertEvent(entity)
+            }
+
         } catch (e: Exception) {
-            // Room still serves cached data
+            // sync failure won't crash the app, Room still serves cached data
         }
+    }
+
+    /**
+     * Retrieves an event by its ID from the local Room database.
+     *
+     * @param eventId The ID of the event to retrieve.
+     * @return A [Flow] emitting the [Event] object with the specified ID.
+     */
+    override suspend fun syncEventById(eventId: String) {
+        try {
+            val event = db.collection("events")
+                .document(eventId)
+                .get()
+                .await()
+                .toObject(Event::class.java)
+
+            if (event != null) {
+                val entity = with(EventMapper) { event.toEntity() }
+                eventDao.upsertEvent(entity)
+            }
+        } catch (e: Exception) {
+            // sync failure won't crash the app
+        }
+    }
+
+    /**
+     * Retrieves an event by its ID from the local Room database.
+     *
+     * @param id The ID of the event to retrieve.
+     * @return A [Flow] emitting the [Event] object with the specified ID.
+     */
+    override fun getEventById(id: String): Flow<Event?> {
+        return eventDao.getEventById(id)
+            .map { it?.let { with(EventMapper) { it.toDomain() } } }
+    }
+
+    /**
+     * Retrieves an event by its event code from the local Room database.
+     *
+     * @param eventCode The event code to search for.
+     * @return A [Flow] emitting the [Event] object with the specified event code
+     */
+    override fun getEventByEventCode(eventCode: String): Flow<Event?>{
+        return eventDao.getEventByCode(eventCode)
+            .map { it?.let { with(EventMapper) { it.toDomain() } } }
     }
 
     /**
@@ -507,31 +370,49 @@ class EventRepositoryImp(
     }
 
     /**
-     * Synchronizes the list of events the user has joined.
+     * Retrieves a list of cities from the local Room database.
      *
-     * This method retrieves the user's document from the database
-     * and updates the local Room database with the event IDs associated
-     * with the user's joining.
-     * @throws Exception if the synchronization operation fails.
-     * @see syncEventById for details on the synchronization process.
+     * @param country The country for which to retrieve cities.
+     * @return A [Flow] emitting a list of [String] representing city names.
      */
-    override suspend fun syncJoinedEvents() {
-        val uid = uid ?: return
-        try {
-            val joinedIds = userRepository.getJoinedEventIds(uid)
-            joinedIds.forEach { eventId ->
-                val event = db.collection("events")
-                    .document(eventId)
-                    .get()
-                    .await()
-                    .toObject(Event::class.java)
-
-                if (event != null) {
-                    eventDao.upsertEvent(with(EventMapper) { event.toEntity() })
-                }
+    override fun getCitiesByCountry(country: CountryOption): Flow<List<String>>{
+        return cityDao.getCitiesByCountry(country.name)
+            .map { entityCity ->
+                entityCity.map{it.name}
             }
+    }
+
+    /**
+     * Retrieves a list of cities from the local Room database.
+     *
+     * @return A [Flow] emitting a list of [String] representing city names.
+     * @throws Exception if the synchronization operation fails.
+     */
+    override suspend fun syncCities() {
+        try {
+            val docs = db.collection("static_data")
+                .get()
+                .await()
+                .documents
+
+            val allCities = docs
+                .filter { it.id.endsWith("_cities") }
+                .flatMap { doc ->
+                    val country = doc.id
+                        .removeSuffix("_cities")
+                        .replaceFirstChar { it.uppercase() }
+
+                    val data = doc.toObject(FirestoreCityList::class.java)
+
+                    data?.items?.map { city ->
+                        with(CityMapper) { city.toEntity(country) }
+                    } ?: emptyList()
+                }
+
+            cityDao.upsertCities(allCities)
+
         } catch (e: Exception) {
-            // Room still serves cached data
+            // sync failure won't crash the app, Room still serves cached data
         }
     }
 
@@ -553,6 +434,30 @@ class EventRepositoryImp(
                     CoroutineScope(Dispatchers.IO).launch { eventDao.upsertEvent(entity) }
                 }
                 trySend(event)
+            }
+        awaitClose { listener.remove() }
+    }
+
+    /**
+     * Retrieves participant responses from Firestore and updates the local Room database.
+     * @param eventId The ID of the event to retrieve responses for.
+     * @return A [Flow] emitting a list of [ParticipantResponse] objects
+     */
+    override fun observeSubmissions(eventId: String): Flow<List<ParticipantResponse>> = callbackFlow {
+        val listener = db.collection("events")
+            .document(eventId)
+            .collection("participantResponses")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) { close(error); return@addSnapshotListener }
+                val responses = snapshot?.documents
+                    ?.mapNotNull { it.toObject(ParticipantResponse::class.java) }
+                    ?: emptyList()
+                // Also update Room cache
+                CoroutineScope(Dispatchers.IO).launch {
+                    val entities = responses.map { with(ParticipantResponseMapper) { it.toEntity(eventId) } }
+                    participantResponseDao.upsertResponses(entities)
+                }
+                trySend(responses)
             }
         awaitClose { listener.remove() }
     }
