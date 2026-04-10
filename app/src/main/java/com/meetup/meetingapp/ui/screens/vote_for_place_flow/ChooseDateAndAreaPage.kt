@@ -38,6 +38,8 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.screens.participant_input_flow.SubmitState
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.RestaurantState
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
@@ -79,7 +81,7 @@ fun ChooseDateAndAreaPage(
         is RestaurantState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
 
         is RestaurantState.Available -> event?.let {
-            ParticipantDashChooseDateAndAreaContent(
+            ChooseDateAndAreaContent(
                 event = it,
                 onBack = onBack,
                 onVoteForRestaurantClick = onNavigateToChooseDatePage,

@@ -5,8 +5,6 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.Restaurant
-import com.meetup.meetingapp.data.model.Restaurant
-import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
@@ -121,13 +119,13 @@ interface EventRepository {
      */
     suspend fun syncCities()
 
-    /**
-     * Retrieves participant responses from Firestore and updates the local Room database.
-     *
-     * @param eventId The ID of the event to retrieve responses for.
-     * @return A [Flow] emitting a list of [ParticipantResponse] objects.
-     */
-    suspend fun syncJoinedEvents()
+//    /**
+//     * Retrieves participant responses from Firestore and updates the local Room database.
+//     *
+//     * @param eventId The ID of the event to retrieve responses for.
+//     * @return A [Flow] emitting a list of [ParticipantResponse] objects.
+//     */
+//    suspend fun syncJoinedEvents()
 
     // Cloud Firestore
     suspend fun hasRestaurantCandidates(eventId: String): Boolean

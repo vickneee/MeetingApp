@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.DateRange
 import com.meetup.meetingapp.data.model.Event
-import com.meetup.meetingapp.data.model.LocationOption
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.repositories.EventRepository
+import com.meetup.meetingapp.ui.AppViewModelProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,63 +20,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneId
-import kotlin.collections.plus
-
-/**
- * Represents all possible states of the event creation process.
- *
- * This sealed interface ensures that all states are known at compile time,
- */
-sealed interface EventState {
-
-    /**
-     * Represents a successful event creation.
-     *
-     * @property eventCode The unique code generated for the event.
-     * @property eventKey The secret key associated with the event.
-     * @property eventId The unique identifier of the created event.
-     */
-    data class Success(val eventCode: String, val eventKey: String, val eventId: String): EventState
-
-    /**
-     * Represents a failure during event creation.
-     *
-     * @property error The exception that caused the failure.
-     */
-    data class Error(val error: Throwable): EventState
-
-    /**
-     * Represents the initial idle state before any event creation attempt.
-     */
-    object Loading: EventState
-}
-
-// Fetch state
-sealed interface CitiesFetchState {
-    object Loading : CitiesFetchState
-    object Success : CitiesFetchState
-    data class Error(val message: String) : CitiesFetchState
-}
 
 /**
  * ViewModel responsible for managing the event creation flow.
- *
- * This ViewModel exposes:
- * - [uiState]: The current user input for the event creation form.
- * - [eventState]: The result of the event creation attempt (success, error, idle).
- *
- * Responsibilities:
- * - Maintain and update the event creation form data.
- * - Provide functions to update individual fields (title, host name, date range, etc.).
- * - Call [EventRepository] to create the event and emit the result.
- *
- * @property eventRepository The repository used to create and persist events.
  */
 class EventViewModel(private val eventRepository: EventRepository):  ViewModel(){
 
     private val _uiState = MutableStateFlow(
         EventUiState(
-            timeSlots = mutableListOf(TimeSlot("08:00", "09:00")) // ← default
+            timeSlots = mutableListOf(TimeSlot("08:00", "09:00"))
         )
     )
 
@@ -127,7 +79,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
                         _citiesState.value = cities
                         _citiesFetchState.value = CitiesFetchState.Success
                     }
-            } catch (e: Error){
+            } catch (e: Exception){
                 _citiesFetchState.value = CitiesFetchState.Error("Cities not found")
             }
         }
@@ -135,16 +87,9 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Attempts to create a new event using the current UI state.
-     *
-     * Steps:
-     * 1. Retrieve the latest [EventUiState] value.
-     * 2. Pass it to the repository to create the event.
-     * 3. If successful, emit [EventState.Success].
-     * 4. If an exception occurs, emit [EventState.Error].
-     *
-     * This function runs inside [viewModelScope] to ensure proper lifecycle handling.
      */
     fun createEvent(){
+        _eventState.value = EventState.Loading
         viewModelScope.launch(Dispatchers.IO)  {
             try {
                 val(eventCode, eventKey, eventId) = eventRepository.createEvent(uiState.value).getOrThrow()
@@ -162,8 +107,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Updates the event title field in the UI state.
-     *
-     * @param title The new event title entered by the user.
      */
     fun updateTitle(title: String){
         _uiState.update {current ->
@@ -175,8 +118,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Updates the host name field in the UI state.
-     *
-     * @param name The name of the event host.
      */
     fun updateHostName(name: String){
         _uiState.update {current ->
@@ -204,9 +145,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Adds a new time slot to the event.
-     *
-     * @param start The start time of the time slot.
-     * @param end The end time of the time slot.
      */
     fun addTimeSlot(start: String, end: String) {
         val current = _uiState.value.timeSlots.toMutableList()
@@ -216,10 +154,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Updates an existing time slot in the event.
-     *
-     * @param index The index of the time slot to update.
-     * @param start The new start time of the time slot.
-     * @param end The new end time of the time slot.
      */
     fun updateTimeSlot(index: Int, start: String, end: String) {
         val current = _uiState.value.timeSlots.toMutableList()
@@ -229,8 +163,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Removes a time slot from the event.
-     *
-     * @param slot The time slot to remove.
      */
     fun removeTimeSlot(slot: TimeSlot){
         _uiState.update {current ->
@@ -267,8 +199,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Adds a city to the list of selected cities in the location options.
-     *
-     * @param city The city name to add.
      */
     fun addCity(city: String) {
         _uiState.update { current ->
@@ -282,8 +212,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Removes a city from the list of selected cities.
-     *
-     * @param city The city name to remove.
      */
     fun removeCity(city: String) {
         _uiState.update { current ->
@@ -297,8 +225,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Adds a place type (e.g., RESTAURANT, CAFE) to the selected list.
-     *
-     * @param placeType The place type to add.
      */
     fun addPlaceType(placeType: PlaceType){
         _uiState.update {current ->
@@ -310,8 +236,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Removes a place type from the selected list.
-     *
-     * @param placeType The place type to remove.
      */
     fun removePlaceType(placeType: PlaceType){
         _uiState.update {current ->
@@ -322,26 +246,24 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     }
 }
 
-/**
- * Represents the full UI state for the event creation screen.
- *
- * This state is immutable and updated through copy() operations inside the ViewModel.
- * Each field corresponds to a user input required to create an event.
- *
- * @property eventTitle The title of the event.
- * @property hostName The name of the event host.
- * @property dateRange The selected date range for the event.
- * @property hasSelectedDateRange Indicates if a date range has been selected.
- * @property timeSlots A list of selected time slots.
- * @property locations The selected location information (country, region, cities).
- * @property placeTypes A list of selected place types (e.g., RESTAURANT, CAFE).
- */
 data class EventUiState(
     val eventTitle: String = "",
-    val hostName:String = "",
-    val dateRange: DateRange = DateRange(),
+    val hostName: String = "",
+    val dateRange: DateRange = DateRange("", ""),
     val hasSelectedDateRange: Boolean = false,
-    val timeSlots: List<TimeSlot> = listOf(),
-    val locations: LocationOption = LocationOption(country = "Finland"),
-    val placeTypes: List<PlaceType> = listOf()
-    )
+    val timeSlots: List<TimeSlot> = emptyList(),
+    val locations: com.meetup.meetingapp.data.model.LocationOption = com.meetup.meetingapp.data.model.LocationOption(),
+    val placeTypes: List<PlaceType> = emptyList()
+)
+
+sealed interface EventState {
+    object Loading : EventState
+    data class Success(val eventCode: String, val eventKey: String, val eventId: String) : EventState
+    data class Error(val error: Throwable) : EventState
+}
+
+sealed interface CitiesFetchState {
+    object Loading : CitiesFetchState
+    object Success : CitiesFetchState
+    data class Error(val message: String) : CitiesFetchState
+}
