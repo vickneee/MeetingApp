@@ -207,6 +207,7 @@ fun HostDashboardContent(
             }
 
             item {
+                // Close Voting button text
                 val buttonText = when (event.status) {
                     EventStatus.COLLECTING_AVAILABILITY -> "Close Voting" // active
                     EventStatus.FIRST_VOTING_CLOSED -> "Voting Closed" // inactive
@@ -216,11 +217,27 @@ fun HostDashboardContent(
                     else -> "Close Voting"
                 }
 
+                // Close Voting button enabled
                 val buttonEnabled = when (event.status) {
                     EventStatus.COLLECTING_AVAILABILITY -> true
                     EventStatus.COLLECTING_RESTAURANT_VOTES -> true
                     else -> false
                 } && closeVotingState != CloseVotingState.Loading
+
+                // "Vote for Time & Area" button text
+                val voteButtonText = when (event.status) {
+                    EventStatus.FINALIZED -> "View Final Plan"
+                    else -> "Vote for Time & Area"
+                }
+
+                // "Vote for Time & Area" button enabled
+                val voteButtonEnabled = when (event.status) {
+                    EventStatus.FIRST_VOTING_CLOSED,
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED,
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> true
+                    EventStatus.FINALIZED -> true
+                    else -> false
+                }
 
                 Spacer(modifier = Modifier.padding(12.dp))
 
@@ -232,13 +249,13 @@ fun HostDashboardContent(
 
                     Button(
                         onClick = onVoteForRestaurantClick,
-                        enabled = event.dateTimeCandidates.isNotEmpty() && event.locationCandidates.isNotEmpty(),
+                        enabled = voteButtonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
                         Text(
-                            "Vote for Time & Area",
+                            voteButtonText,
                             fontSize = 18.sp,
                             modifier = Modifier.padding(8.dp)
                         )

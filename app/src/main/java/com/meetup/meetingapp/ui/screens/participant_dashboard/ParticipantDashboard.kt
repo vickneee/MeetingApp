@@ -168,25 +168,30 @@ fun ParticipantDashboardContent(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Spacer(modifier = Modifier.padding(36.dp))
-                    if (event.status != EventStatus.FIRST_VOTING_CLOSED) {
-                        Text(
-                            text = "Waiting for host to close",
-                            fontSize = 22.sp,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                        Spacer(modifier = Modifier.padding(4.dp))
-                        Text(
-                            "the voting...",
-                            fontSize = 22.sp
-                        )
-                    } else {
-                        Text(
-                            text = "Host has closed the voting!",
-                            fontSize = 22.sp,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                        Text(
-                            "You can now vote.",
+                    when (event.status) {
+                        EventStatus.COLLECTING_AVAILABILITY -> {
+                            Text("Waiting for host to close", fontSize = 22.sp, modifier = Modifier.padding(top = 4.dp))
+                            Spacer(modifier = Modifier.padding(4.dp))
+                            Text("the voting...", fontSize = 22.sp)
+                        }
+                        EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
+                            Text(
+                                "Host has closed the voting!",
+                                fontSize = 22.sp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                            Text("You can now vote.", fontSize = 22.sp)
+                        }
+                        EventStatus.FINALIZED -> {
+                            Text(
+                                "The event has been finalized!",
+                                fontSize = 22.sp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                            Text("Check the final plan.", fontSize = 22.sp)
+                        }
+                        else -> Text(
+                            "Please wait...",
                             fontSize = 22.sp
                         )
                     }
@@ -196,6 +201,20 @@ fun ParticipantDashboardContent(
             item {
                 Spacer(modifier = Modifier.padding(16.dp))
 
+                // Button text and enabled
+                val voteButtonText = when (event.status) {
+                    EventStatus.FINALIZED -> "View Final Plan"
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Vote for a Place"
+                    else -> "Vote for Time & Area"
+                }
+
+                val voteButtonEnabled = when (event.status) {
+                    EventStatus.FIRST_VOTING_CLOSED,
+                    EventStatus.COLLECTING_RESTAURANT_VOTES,
+                    EventStatus.FINALIZED -> true
+                    else -> false
+                }
+
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -204,14 +223,14 @@ fun ParticipantDashboardContent(
 
                     Button(
                         onClick = onVoteForRestaurantClick,
-                        enabled = event.status == EventStatus.FIRST_VOTING_CLOSED,
+                        enabled = voteButtonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
                     ) {
 
                         Text(
-                            "Vote for Time & Area",
+                            voteButtonText,
                             fontSize = 18.sp,
                             modifier = Modifier.padding(6.dp)
                         )
