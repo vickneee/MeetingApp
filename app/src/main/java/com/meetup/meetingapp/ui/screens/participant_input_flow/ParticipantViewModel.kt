@@ -23,6 +23,24 @@ import kotlinx.coroutines.withContext
 
 /**
  * ViewModel for the participant input flow.
+ *
+ * @param eventRepository Repository providing access to event and submission data.
+ * @param savedStateHandle Used to retrieve the navigation argument `eventCode`.
+ * @property eventCode The event code to load.
+ * @property eventKey The event key to load.
+ * @property _event Mutable state flow containing the event data.
+ * @property event State flow exposing the event data.
+ * @property _participantState Mutable state flow containing the participant input state.
+ * @property participantState State flow exposing the participant input state.
+ * @property _fetchState Mutable state flow containing the fetch state.
+ * @property fetchState State flow exposing the fetch state.
+ * @property _submitState Mutable state flow containing the submit state.
+ * @property submitState State flow exposing the submit state.
+ * @property _isLoading Mutable state flow indicating whether data is loading.
+ * @property isLoading State flow exposing the loading state.
+ * @property currentUserId User ID of the current user.
+ * @property dates State flow exposing the list of available dates and time slots.
+ * @constructor Creates a new instance of the ParticipantViewModel.
  */
 class ParticipantViewModel(
     private val eventRepository: EventRepository,
