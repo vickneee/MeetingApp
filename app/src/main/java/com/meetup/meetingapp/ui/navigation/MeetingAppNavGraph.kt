@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -48,11 +49,11 @@ import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDesti
 import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDestination.eventCodeArg
 import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailPage
 import com.meetup.meetingapp.ui.screens.participant_input_flow.PlaceTypeAndKeywordPage
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.DateAndAreaPage
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.DateAndAreaPageDestination
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ChooseDateAndAreaDestination
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ChooseDateAndAreaPage
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantViewModel
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPage
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPageDestination
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.ChooseDateAndAreaDestination
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.ChooseDateAndAreaPage
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
 
 /**
  * Main navigation graph for the MeetingApp.
@@ -431,27 +432,20 @@ fun MeetingAppNavHost(
 
         /**
          * Nested navigation graph for the participant input flow.
-         * All screens inside this graph share the same ParticipantViewModel instance.
+         * All screens inside this graph share the same PlaceViewModel instance.
          */
         navigation(
-            startDestination = "restaurant/{eventId}",
-            route = "vote-for-restaurant/{eventId}"
+            startDestination = ChooseDateAndAreaDestination.routeWithArgs,
+            route = "vote-for-place/{eventId}"
         ) {
-            composable("restaurant/{eventId}") { backStackEntry ->
-                val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("vote-for-restaurant/{eventId}")
-                }
-                val viewModel: RestaurantViewModel = viewModel(
-                    parentEntry,
-                    factory = AppViewModelProvider.Factory
-                )
-            }
-
+            /**
+             * Choose date and area destination
+             */
             composable(ChooseDateAndAreaDestination.routeWithArgs) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("vote-for-restaurant/{eventId}")
+                    navController.getBackStackEntry("vote-for-place/{eventId}")
                 }
-                val viewModel: RestaurantViewModel = viewModel(
+                val viewModel: PlaceViewModel = viewModel(
                     parentEntry,
                     factory = AppViewModelProvider.Factory
                 )
@@ -469,9 +463,9 @@ fun MeetingAppNavHost(
              */
             composable(DateAndAreaPageDestination.route) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("vote-for-restaurant/{eventId}")
+                    navController.getBackStackEntry("vote-for-place/{eventId}")
                 }
-                val viewModel: RestaurantViewModel = viewModel(
+                val viewModel: PlaceViewModel = viewModel(
                     parentEntry,
                     factory = AppViewModelProvider.Factory
                 )

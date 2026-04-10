@@ -18,8 +18,13 @@ import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlin.collections.flatMap
 
@@ -42,10 +47,14 @@ class EventRepositoryImp(
     private val participantResponseDao: ParticipantResponseDao
 ): EventRepository {
 
-    // Firebase Authentication instance to retrieve the current user.
+    /**
+     * Firebase Firestore instance.
+     */
     private val auth = FirebaseAuth.getInstance()
 
-    // UID of the currently authenticated user (event host).
+    /**
+     * Retrieves the UID of the currently authenticated user.
+     */
     private val uid get() = auth.currentUser?.uid
 
     /**
@@ -61,8 +70,11 @@ class EventRepositoryImp(
     /**
      * Synchronizes events from Firestore with the local Room database.
      *
+     * This method retrieves events from Firestore and converts them to
+     * Room entities before storing them in the database.
+     *
+     * @throws Exception if the synchronization operation fails.
      */
-    // Sync events from Firestore to Room
     override suspend fun syncEvents() {
         val uid = uid ?: return
         try {
@@ -79,6 +91,12 @@ class EventRepositoryImp(
         }
     }
 
+    /**
+     * Retrieves an event by its event code and key from Firestore and updates the local Room database.
+     *
+     * @param eventCode The event code to search for.
+     * @param eventKey The event key to search for.
+     */
     override suspend fun syncEventByEventCodeAndKey(eventCode: String, eventKey: String){
         try {
             val event = db.collection("events")
@@ -121,6 +139,12 @@ class EventRepositoryImp(
         }
     }
 
+    /**
+     * Retrieves a list of cities from the local Room database.
+     *
+     * @return A [Flow] emitting a list of [String] representing city names.
+     * @throws Exception if the synchronization operation fails.
+     */
     override suspend fun syncCities() {
         try {
             val docs = db.collection("static_data")
@@ -149,16 +173,34 @@ class EventRepositoryImp(
         }
     }
 
+    /**
+     * Retrieves an event by its ID from the local Room database.
+     *
+     * @param id The ID of the event to retrieve.
+     * @return A [Flow] emitting the [Event] object with the specified ID.
+     */
     override fun getEventById(id: String): Flow<Event?> {
         return eventDao.getEventById(id)
             .map { it?.let { with(EventMapper) { it.toDomain() } } }
     }
 
+    /**
+     * Retrieves an event by its event code from the local Room database.
+     *
+     * @param eventCode The event code to search for.
+     * @return A [Flow] emitting the [Event] object with the specified event code
+     */
     override fun getEventByEventCode(eventCode: String): Flow<Event?>{
         return eventDao.getEventByCode(eventCode)
             .map { it?.let { with(EventMapper) { it.toDomain() } } }
     }
 
+    /**
+     * Retrieves a list of cities from the local Room database.
+     *
+     * @param country The country for which to retrieve cities.
+     * @return A [Flow] emitting a list of [String] representing city names.
+     */
     override fun getCitiesByCountry(country: CountryOption): Flow<List<String>>{
         return cityDao.getCitiesByCountry(country.name)
             .map { entityCity ->
@@ -234,6 +276,13 @@ class EventRepositoryImp(
         }
     }
 
+    /**
+     * Retrieves an event by its event code from Firestore.
+     *
+     * @param eventCode The event code to search for.
+     * @return The [Event] object with the specified event code, or null if not found.
+     * @throws Exception if the Firestore query fails.
+     */
     override suspend fun getEventByCode(eventCode: String): Event? {
         return db.collection("events")
             .whereEqualTo("eventCode", eventCode)
@@ -391,7 +440,6 @@ class EventRepositoryImp(
             .map { it.key }
     }
 
-
     /**
      * Retrieves the availability and time slots for a given event code.
      */
@@ -485,6 +533,28 @@ class EventRepositoryImp(
         } catch (e: Exception) {
             // Room still serves cached data
         }
+    }
+
+    /**
+     * Retrieves an event by its ID from Firestore and updates the local Room database.
+     *
+     * @param eventId The ID of the event to retrieve.
+     * @return A [Flow] emitting the [Event] object with the specified ID.
+     * @throws Exception if the synchronization operation fails.
+     */
+    override fun observeEventById(eventId: String): Flow<Event?> = callbackFlow {
+        val listener = db.collection("events")
+            .document(eventId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) { close(error); return@addSnapshotListener }
+                val event = snapshot?.toObject(Event::class.java)
+                if (event != null) {
+                    val entity = with(EventMapper) { event.toEntity() }
+                    CoroutineScope(Dispatchers.IO).launch { eventDao.upsertEvent(entity) }
+                }
+                trySend(event)
+            }
+        awaitClose { listener.remove() }
     }
 }
 

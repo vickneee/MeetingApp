@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow
+package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -41,7 +41,7 @@ import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
  * Navigation destination for the Participant MeetUp Detail screen.
  */
 object ChooseDateAndAreaDestination : NavigationDestination {
-    override val route = "participant_choose_date_and_area"
+    override val route = "choose_date_and_area"
     override val titleRes = R.string.title_participant_dashboard_waiting
     const val eventIdArg = "eventId"
     val routeWithArgs = "$route/{$eventIdArg}"
@@ -51,13 +51,13 @@ object ChooseDateAndAreaDestination : NavigationDestination {
  * Participant MeetUp Detail Page
  * @param onBack Navigate back.
  * @param onNavigateToChooseDatePage Navigate to the availability page.
- * @param viewModel [RestaurantViewModel] to retrieve event data.
+ * @param viewModel [PlaceViewModel] to retrieve event data.
  */
 @Composable
 fun ChooseDateAndAreaPage(
     onBack: () -> Unit,
     onNavigateToChooseDatePage: () -> Unit,
-    viewModel: RestaurantViewModel = viewModel(
+    viewModel: PlaceViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
 ) {

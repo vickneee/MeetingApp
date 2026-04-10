@@ -76,4 +76,7 @@ interface EventRepository {
      * the user's joining.
      */
     suspend fun syncJoinedEvents()
+
+    // Firestore real-time listener
+    fun observeEventById(eventId: String): Flow<Event?>
 }

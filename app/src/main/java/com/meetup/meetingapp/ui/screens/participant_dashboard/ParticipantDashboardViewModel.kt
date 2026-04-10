@@ -25,7 +25,7 @@ class ParticipantDashboardViewModel(
 
     init {
         viewModelScope.launch {
-            eventRepository.getEventById(eventId).collect { event ->
+            eventRepository.observeEventById(eventId).collect { event -> // Use observeEventById
                 _event.value = event
             }
         }
