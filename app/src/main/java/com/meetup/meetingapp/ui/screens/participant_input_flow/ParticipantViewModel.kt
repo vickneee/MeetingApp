@@ -46,7 +46,7 @@ class ParticipantViewModel(
     val fetchState = _fetchState.asStateFlow()
 
     // State representing the submission process (sending participant responses)
-    private val _submitState = MutableStateFlow<SubmitState>(SubmitState.Loading)
+    private val _submitState = MutableStateFlow<SubmitState>(SubmitState.Idle)
 
     // Expose the submit state as a read-only state flow
     val submitState = _submitState.asStateFlow()
@@ -300,7 +300,10 @@ sealed interface FetchState {
  * @see SubmitState.Error for error state.
  */
 sealed interface SubmitState {
-
+    /**
+     * Initial state of the submission process.
+     */
+    object Idle : SubmitState
     /** Submission is in progress or has not started yet. */
     object Loading : SubmitState
 

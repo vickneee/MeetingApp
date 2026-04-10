@@ -223,12 +223,13 @@ fun HostDashboardContent(
 
                     Button(
                         onClick = onVoteForRestaurantClick,
+                        enabled = event.dateTimeCandidates.isNotEmpty() && event.locationCandidates.isNotEmpty(),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
                         Text(
-                            "Vote for Restaurant",
+                            "Vote for Time & Area",
                             fontSize = 18.sp,
                             modifier = Modifier.padding(8.dp)
                         )

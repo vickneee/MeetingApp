@@ -12,7 +12,7 @@ import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinViewMode
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardViewModel
 import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardViewModel
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantViewModel
-import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantViewModel
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -72,7 +72,7 @@ object AppViewModelProvider {
          * Initializer for RestaurantViewModel
          */
         initializer {
-            RestaurantViewModel(
+            PlaceViewModel(
                 meetingApplication().container.eventRepository,
                 this.createSavedStateHandle()
             )

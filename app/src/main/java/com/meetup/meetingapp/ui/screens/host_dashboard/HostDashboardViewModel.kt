@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,8 +26,9 @@ import kotlinx.coroutines.withContext
  * @param savedStateHandle Used to retrieve the navigation argument `eventId`.
  */
 
-class HostDashboardViewModel(private val eventRepository: EventRepository,
-                             savedStateHandle: SavedStateHandle
+class HostDashboardViewModel(
+    private val eventRepository: EventRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     // Pass eventId via navigation
@@ -46,35 +46,31 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
 
     init {
         viewModelScope.launch {
-            Log.d("HostDashboard", "eventId: $eventId")
-            eventRepository.syncEventById(eventId) // Sync from Firestore to Room first
-            Log.d("HostDashboard", "sync done")
-            eventRepository.getEventById(eventId)
-                .collect { event ->
-                    Log.d("HostDashboard", "event: $event")
-                    _event.value = event
-                    event?.let {
-                        _uiState.value = _uiState.value.copy(
-                            status = it.status
+            eventRepository.observeEventById(eventId).collect { event ->
+                _event.value = event
+                event?.let {
+                    _uiState.value = _uiState.value.copy(
+                        status = it.status
+                    )
+                    if (it.status == EventStatus.CREATED) {
+                        eventRepository.updateEventStatus(
+                            it.id,
+                            EventStatus.COLLECTING_AVAILABILITY
                         )
-                        // Auto-advance from CREATED to COLLECTING_AVAILABILITY
-                        if (it.status == EventStatus.CREATED) {
-                            eventRepository.updateEventStatus(it.id, EventStatus.COLLECTING_AVAILABILITY)
-                        }
                     }
                 }
+            }
         }
         viewModelScope.launch {
             // Sync from Firestore to Room first
             eventRepository.syncSubmissions(eventId)
             // Then collect from Room
-            eventRepository.getSubmissionsByEventId(eventId)
-                .collect { submissions ->
-                    _uiState.value = _uiState.value.copy(
-                        submissionsCount = submissions.size,
-                        attendees = submissions.map { it.name } // From Room
-                    )
-                }
+            eventRepository.getSubmissionsByEventId(eventId).collect { submissions ->
+                _uiState.value = _uiState.value.copy(
+                    submissionsCount = submissions.size,
+                    attendees = submissions.map { it.name } // From Room
+                )
+            }
         }
     }
 
@@ -94,7 +90,7 @@ class HostDashboardViewModel(private val eventRepository: EventRepository,
     fun closeVoting() {
         _closeVotingState.value = CloseVotingState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            try{
+            try {
                 eventRepository.aggregateParticipantResponses(eventId).getOrThrow()
 
                 withContext(Dispatchers.Main) {

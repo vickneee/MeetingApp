@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
 import com.meetup.meetingapp.data.model.PlaceType
 
-object CreateEventButtonDestination : NavigationDestination {
+object CreateEventDestination : NavigationDestination {
     override val route = "create_event_button"
     override val titleRes = R.string.title_create_event_button_page
 }
@@ -30,14 +30,14 @@ object CreateEventButtonDestination : NavigationDestination {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateEventButtonPage(
+fun CreateEventPage(
     onBack: () -> Unit,
     viewModel: EventViewModel,
     onCreatedEvent: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    CreateEventButtonContent(
+    CreateEventContent(
         placeTypes = uiState.placeTypes,
         onPlaceTypeToggle = { type, selected ->
             if (selected) viewModel.addPlaceType(type)
@@ -53,7 +53,7 @@ fun CreateEventButtonPage(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateEventButtonContent(
+fun CreateEventContent(
     placeTypes: List<PlaceType>,
     onPlaceTypeToggle: (PlaceType, Boolean) -> Unit,
     onBack: () -> Unit,
@@ -170,8 +170,8 @@ fun PlaceTypeItem(
 
 @Preview(showBackground = true)
 @Composable
-fun CreateEventButtonPagePreview() {
-    CreateEventButtonContent(
+fun CreateEventPagePreview() {
+    CreateEventContent(
         placeTypes = listOf(),
         onPlaceTypeToggle = { _, _ -> },
         onBack = {},

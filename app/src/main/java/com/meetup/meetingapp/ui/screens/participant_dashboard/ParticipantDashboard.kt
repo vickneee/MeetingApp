@@ -165,7 +165,7 @@ fun ParticipantDashboardContent(
                     ) {
 
                         Text(
-                            "Next",
+                            "Vote for Time & Area",
                             fontSize = 18.sp,
                             modifier = Modifier.padding(6.dp)
                         )
