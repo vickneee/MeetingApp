@@ -1,6 +1,7 @@
 /build
 /.idea/
 .idea/deploymentTargetSelector.xml
-local.properties
 app/src/main/assets/secret.properties
+local.properties
+
 
