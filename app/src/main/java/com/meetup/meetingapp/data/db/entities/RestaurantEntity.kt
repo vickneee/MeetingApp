@@ -3,7 +3,6 @@ package com.meetup.meetingapp.data.db.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-
 /**
  * Room entity representing a restaurant candidate stored locally for an event.
  *
@@ -45,7 +44,6 @@ data class RestaurantEntity(
 
     val latitude: Double,
     val longitude: Double,
-
 
     val openingHoursJson: String,
     val typesJson: String?,

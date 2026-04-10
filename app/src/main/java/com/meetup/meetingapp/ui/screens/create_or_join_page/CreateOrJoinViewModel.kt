@@ -12,6 +12,15 @@ import com.meetup.meetingapp.data.repositories.UserRepository
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+/**
+ * ViewModel for the Create or Join screen.
+ * @param db Firebase Firestore database instance.
+ * @param userRepository Repository for user-related operations.
+ * @property code The code entered by the user.
+ * @property key The key entered by the user.
+ * @property navigateToEventsListPage Whether to navigate to the past events list page.
+ * @property navigateToParticipantPage Whether to navigate to the participant page.
+ */
 class CreateOrJoinViewModel(
     private val db: FirebaseFirestore,
     private val userRepository: UserRepository

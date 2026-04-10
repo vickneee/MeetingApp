@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow
+package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,9 +31,6 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateLocationOption
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.toDateTime
 
 /**
  * Navigation destination for the Date & Area selection page.

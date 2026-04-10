@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow
+package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,9 +37,6 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
-import com.meetup.meetingapp.ui.screens.participant_input_flow.SubmitState
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.RestaurantState
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.

@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.data.repositories
 
-
 import android.util.Log
 
 import com.meetup.meetingapp.data.model.Restaurant
@@ -185,4 +184,3 @@ class PlacesRepositoryImp(
         }
     }
 }
-

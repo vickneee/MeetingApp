@@ -1,8 +1,5 @@
 package com.meetup.meetingapp.network
 
-
-
-
 /**
  * Represents the top‑level response object returned by the
  * Google Places **Text Search API**.

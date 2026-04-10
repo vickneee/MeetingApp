@@ -8,7 +8,6 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.repositories.EventRepository
-import com.meetup.meetingapp.ui.AppViewModelProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -249,7 +248,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 data class EventUiState(
     val eventTitle: String = "",
     val hostName: String = "",
-    val dateRange: DateRange = DateRange("", ""),
+    val dateRange: DateRange = DateRange(), // Fixed: Use default constructor instead of empty strings
     val hasSelectedDateRange: Boolean = false,
     val timeSlots: List<TimeSlot> = emptyList(),
     val locations: com.meetup.meetingapp.data.model.LocationOption = com.meetup.meetingapp.data.model.LocationOption(),
