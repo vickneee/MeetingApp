@@ -1,6 +1,7 @@
 package com.meetup.meetingapp.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -52,7 +53,12 @@ import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.DateAndAreaPage
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.DateAndAreaPageDestination
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ParticipantDashChooseDateAndArea
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.ParticipantDashChooseDateAndAreaDestination
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantListPage
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantListPageDestination
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantListPageDestination.dateTimeArg
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantListPageDestination.locationArg
 import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.RestaurantViewModel
+import com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow.toDateTime
 
 /**
  * Main navigation graph for the MeetingApp.
@@ -477,8 +483,35 @@ fun MeetingAppNavHost(
                 )
                 DateAndAreaPage(
                     onBack = { navController.popBackStack() },
-                    onNavigateToRestaurantListPage = {
-                        // navigate to next step
+                    onNavigateToRestaurantListPage = { timing, location ->
+                        navController.navigate("${RestaurantListPageDestination.route}/$timing/$location")
+                    },
+                    viewModel = viewModel
+                )
+            }
+
+            composable(RestaurantListPageDestination.routeWithArgs) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("vote-for-restaurant/{eventId}")
+                }
+                val viewModel: RestaurantViewModel = viewModel(
+                    parentEntry,
+                    factory = AppViewModelProvider.Factory
+                )
+
+                val timingArg = backStackEntry.arguments?.getString(dateTimeArg)!!
+                val locationArg = backStackEntry.arguments?.getString(locationArg)!!
+
+                val timing = timingArg.toDateTime()
+
+                LaunchedEffect(Unit) {
+                    viewModel.setFilter(timing, locationArg)
+                }
+
+                RestaurantListPage(
+                    onBack = { navController.popBackStack() },
+                    onNavigateToRestaurantDetailPage = {
+
                     },
                     viewModel = viewModel
                 )

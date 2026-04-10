@@ -1,6 +1,18 @@
 package com.meetup.meetingapp.data.model
 
-// For now, only keep the name field. Other fields will be added later.
+
 data class Restaurant(
-    val name: String = ""
+    val placeId: String,
+    val name: String,
+    val address: String?,
+    val rating: Double?,
+    val userRatingCount: Int?,
+    val priceLevel: Int?,
+    val types: List<String>?,
+    val latitude: Double?,
+    val longitude: Double?,
+    val openingHours: List<String>?,
+    val photoReference: String?
 )
+
+

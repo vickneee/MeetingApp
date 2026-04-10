@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.data.repositories
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
@@ -7,14 +8,18 @@ import com.google.gson.reflect.TypeToken
 import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
 import com.meetup.meetingapp.data.db.daos.ParticipantResponseDao
+import com.meetup.meetingapp.data.db.daos.RestaurantDao
 import com.meetup.meetingapp.data.db.mapper.CityMapper
 import com.meetup.meetingapp.data.db.mapper.EventMapper
 import com.meetup.meetingapp.data.db.mapper.FirestoreCityList
 import com.meetup.meetingapp.data.db.mapper.ParticipantResponseMapper
+import com.meetup.meetingapp.data.db.mapper.RestaurantMapper
+import com.meetup.meetingapp.data.db.mapper.RestaurantMapper.toEntity
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
+import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
@@ -39,7 +44,8 @@ class EventRepositoryImp(
     private val userRepository: UserRepository,
     private val eventDao: EventDao,
     private val cityDao: CityDao,
-    private val participantResponseDao: ParticipantResponseDao
+    private val participantResponseDao: ParticipantResponseDao,
+    private val restaurantDao : RestaurantDao
 ): EventRepository {
 
     // Firebase Authentication instance to retrieve the current user.
@@ -486,6 +492,87 @@ class EventRepositoryImp(
             // Room still serves cached data
         }
     }
+
+    override suspend fun hasRestaurantCandidates(eventId: String): Boolean {
+        val snapshot = db.collection("events")
+            .document(eventId)
+            .collection("restaurants")
+            .limit(1)
+            .get()
+            .await()
+
+        return !snapshot.isEmpty
+    }
+
+
+
+
+    override suspend fun saveAllRestaurants(
+        eventId: String,
+        restaurants: List<Restaurant>
+    ): Result<Unit> {
+        Log.d("saveAllRestaurants", "$restaurants")
+        Log.d("saveAllRestaurants", eventId)
+        return try {
+            val ref = db.collection("events")
+                .document(eventId)
+                .collection("restaurants")
+
+            restaurants.forEach { restaurant ->
+                ref.document(restaurant.placeId)
+                    .set(restaurant)
+                    .await()
+            }
+
+            val syncResult = syncRestaurants(eventId)
+
+            syncResult.fold(
+                onSuccess = {
+                    Result.success(Unit)
+                },
+                onFailure = { e ->
+                    Result.failure(e)
+                }
+            )
+        } catch (e: Exception) {
+            Log.e("EventRepository", "API error", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun syncRestaurants(eventId: String):Result<Unit>{
+        if (!hasRestaurantCandidates(eventId)){
+            return Result.failure(Exception("No Restaurant information is available"))
+        } else{
+            try{
+                val restaurants =  db.collection("events")
+                    .document(eventId)
+                    .collection("restaurants")
+                    .get()
+                    .await()
+                    .mapNotNull { it.toObject(Restaurant::class.java) }
+                    .map { it.toEntity(eventId) }
+
+                restaurantDao.upsertRestaurants(restaurants)
+
+                return Result.success(Unit)
+            }catch (e: Exception) {
+                return Result.failure(e)
+            }
+        }
+    }
+
+    override fun getRestaurants(eventId: String): Flow<List<Restaurant>>{
+        return restaurantDao.getRestaurants(eventId)
+            .map { list ->
+                list.map { entity ->
+                    with(RestaurantMapper) { entity.toDomain() }
+                }
+            }
+    }
+
+
+
 }
 
 

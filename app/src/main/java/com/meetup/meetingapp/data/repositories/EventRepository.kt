@@ -4,6 +4,7 @@ import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
+import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
@@ -76,4 +77,17 @@ interface EventRepository {
      * the user's joining.
      */
     suspend fun syncJoinedEvents()
+
+    suspend fun hasRestaurantCandidates(eventId: String): Boolean
+
+    suspend fun saveAllRestaurants(
+        eventId: String,
+        restaurants: List<Restaurant>
+    ): Result<Unit>
+
+    suspend fun syncRestaurants(
+        eventId: String
+    ): Result<Unit>
+
+    fun getRestaurants(eventId: String): Flow<List<Restaurant>>
 }

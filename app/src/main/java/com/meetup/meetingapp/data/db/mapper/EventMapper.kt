@@ -84,6 +84,8 @@ object EventMapper {
         locationCandidates = safeFromJson(locationCandidatesJson, emptyList()),
         foodCategoryCandidates = safeFromJson(foodCategoryCandidatesJson, emptyList()),
         restaurantCandidates = safeFromJson(restaurantCandidatesJson, emptyList()),
+        placeTypeCandidates = safeFromJson(placeTypeCandidatesJson, emptyList()),
+
         // finalTime is nullable — safe to keep ?.let pattern
         finalTime = finalTimeJson?.let {
             runCatching { gson.fromJson(it, DateTime::class.java) }.getOrNull()
