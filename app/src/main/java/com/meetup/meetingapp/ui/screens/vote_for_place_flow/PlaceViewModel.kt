@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.vote_for_restaurant_flow
+package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
@@ -18,10 +18,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlinx.coroutines.flow.combine
@@ -30,7 +30,22 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 
-class RestaurantViewModel(
+/**
+ * ViewModel for the Place selection screen.
+ *
+ * @param eventRepository Repository providing access to event and submission data.
+ * @param savedStateHandle Used to retrieve the navigation argument `eventId`.
+ * @property eventId The ID of the event to load.
+ * @property _event Mutable state flow containing the event data.
+ * @property event State flow exposing the event data.
+ * @property _uiState Mutable state flow containing the UI state.
+ * @property uiState State flow exposing the UI state.
+ * @property _dateAndAreaState Mutable state flow containing the date and area state.
+ * @property dateAndAreaState State flow exposing the date and area state.
+ * @property viewModelScope Coroutine scope associated with the ViewModel.
+ * @constructor Creates a new instance of the PlaceViewModel.
+ */
+class PlaceViewModel(
     private val eventRepository: EventRepository,
     private val placesRepository: PlacesRepository,
     savedStateHandle: SavedStateHandle
@@ -38,17 +53,20 @@ class RestaurantViewModel(
 
 
     private val eventId: String =
-        savedStateHandle[ParticipantDashChooseDateAndAreaDestination.eventIdArg] ?: ""
+        savedStateHandle[ChooseDateAndAreaDestination.eventIdArg] ?: ""
 
     private val _event = MutableStateFlow<Event?>(null)
     val event: StateFlow<Event?> = _event.asStateFlow()
 
-    private val _uiState = MutableStateFlow(RestaurantUiState())
-    val uiState: StateFlow<RestaurantUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(PlaceUiState())
+    val uiState: StateFlow<PlaceUiState> = _uiState.asStateFlow()
 
     /** Available date × location combinations for filtering */
     private val _dateAndAreaState = MutableStateFlow(DateAndAreaState())
     val dateAndAreaState = _dateAndAreaState.asStateFlow()
+
+    private val _placeListState = MutableStateFlow<List<Restaurant>>(emptyList())
+    val placeListState = _placeListState.asStateFlow()
 
     /** Loading state for restaurant candidates */
     private val _restaurantState = MutableStateFlow<RestaurantState>(RestaurantState.Loading)
@@ -73,8 +91,8 @@ class RestaurantViewModel(
      */
     init {
         viewModelScope.launch {
-            eventRepository.syncEventById(eventId) // Sync from Firestore to Room first
-            eventRepository.getEventById(eventId).collect { event ->
+            // Observe event from Firestore and update Room cache
+            eventRepository.observeEventById(eventId).collect { event ->
                 _event.value = event
 
                 if(event != null){
@@ -401,13 +419,16 @@ class RestaurantViewModel(
     }
 
 
+    fun getRestaurants(timing: DateTime, location: String) {
+         val restaurants = eventRepository.getRestaurantsByLocation(location)
+    }
 
     fun submitVote(restaurantId: String) {
         // handle vote submission
     }
 }
 
-data class RestaurantUiState(
+data class PlaceUiState(
     val restaurants: List<Restaurant> = emptyList(),
     val selectedRestaurantId: String? = null,
     val isSubmitting: Boolean = false,
@@ -443,7 +464,7 @@ fun DateTime.toDisplayLabel(): String {
 data class DateLocationOption(
     val timing: DateTime,
     val location: String
-){
+) {
     val label: String
         get() = "${timing.toDisplayLabel()} — $location"
 
