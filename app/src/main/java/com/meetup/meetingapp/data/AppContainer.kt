@@ -1,6 +1,7 @@
 package com.meetup.meetingapp.data
 
 import android.content.Context
+import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
@@ -11,7 +12,6 @@ import com.meetup.meetingapp.data.repositories.PlacesRepository
 import com.meetup.meetingapp.data.repositories.PlacesRepositoryImp
 import com.meetup.meetingapp.data.repositories.UserRepository
 import com.meetup.meetingapp.data.repositories.UserRepositoryImp
-import com.meetup.meetingapp.network.GooglePlacesApiService
 import com.meetup.meetingapp.network.retrofitService
 
 /**
@@ -65,11 +65,16 @@ class AppDataContainer(private val context: Context) : AppContainer {
     }
 
     private fun loadApiKey(context: Context): String {
-        val props = java.util.Properties()
-        context.assets.open("secret.properties").use { stream ->
-            props.load(stream)
+        return try {
+            val props = java.util.Properties()
+            context.assets.open("secret.properties").use { stream ->
+                props.load(stream)
+            }
+            props.getProperty("PLACES_API_KEY") ?: ""
+        } catch (e: Exception) {
+            Log.e("AppDataContainer", "Failed to load API key from secret.properties: ${e.message}")
+            ""
         }
-        return props.getProperty("PLACES_API_KEY") ?: ""
     }
 
 
