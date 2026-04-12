@@ -35,7 +35,6 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
 /**
@@ -64,14 +63,6 @@ fun ChooseDateAndAreaPage(
     )
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle()
-
-    event?.let {
-        ChooseDateAndAreaContent(
-            event = it,
-            onBack = onBack,
-            onVoteForRestaurantClick = onNavigateToChooseDatePage,
-        )
-    } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
     val restaurantState by viewModel.restaurantState.collectAsStateWithLifecycle()
 
     when(restaurantState){
@@ -82,43 +73,47 @@ fun ChooseDateAndAreaPage(
                 event = it,
                 onBack = onBack,
                 onVoteForRestaurantClick = onNavigateToChooseDatePage,
+                buttonEnabled = true
             )
         } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 
-        is RestaurantState.Empty ->  event?.let {
-            ErrorScreen(
-                message = "There is no available restaurant information.",
-                onRetry = { viewModel.fetchAllCombinations(it) },
-                modifier = Modifier.fillMaxSize()
+        is RestaurantState.Error -> event?.let {
+            ChooseDateAndAreaContent(
+                event = it,
+                onBack = onBack,
+                onVoteForRestaurantClick = {},
+                buttonEnabled = false
             )
-        }
+        } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 
-        is RestaurantState.Error ->  event?.let {
-
-            val state = restaurantState as RestaurantState.Error
-            ErrorScreen(
-                message = state.error.message ?: "Something went wrong",
-                onRetry = { viewModel.fetchAllCombinations(it) },
-                modifier = Modifier.fillMaxSize()
+        else -> event?.let {
+            ChooseDateAndAreaContent(
+                event = it,
+                onBack = onBack,
+                onVoteForRestaurantClick = {},
+                buttonEnabled = false
             )
-        }
+        } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
     }
 }
 
 /**
  * Content for the ChooseDateAndAreaPage.
- * @param event The event data.
+ * @param modifier Modifier.
+ * @param event Event data.
  * @param onBack Navigate back.
  * @param onVoteForRestaurantClick Navigate to the availability page.
+ * @param buttonEnabled Whether the button should be enabled.
  * @param modifier Modifier.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChooseDateAndAreaContent(
+    modifier: Modifier = Modifier,
     event: Event,
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
-    modifier: Modifier = Modifier
+    buttonEnabled: Boolean = true,
 ) {
     Scaffold(
         topBar = {
@@ -184,6 +179,7 @@ fun ChooseDateAndAreaContent(
 
                     Button(
                         onClick = onVoteForRestaurantClick,
+                        enabled = buttonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
@@ -211,5 +207,6 @@ fun ChooseDateAndAreaPagePreview() {
         ),
         onBack = {},
         onVoteForRestaurantClick = {},
+        buttonEnabled = true
     )
 }

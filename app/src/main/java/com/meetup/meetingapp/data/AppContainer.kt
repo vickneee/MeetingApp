@@ -52,7 +52,8 @@ class AppDataContainer(private val context: Context) : AppContainer {
             MeetingAppDatabase.getDatabase(context).eventDao(),
             MeetingAppDatabase.getDatabase(context).cityDao(),
             MeetingAppDatabase.getDatabase(context).participantResponseDao(),
-            MeetingAppDatabase.getDatabase(context).restaurantDao()
+            MeetingAppDatabase.getDatabase(context).restaurantDao(),
+            placesRepository
         )
     }
     private val apiKey = loadApiKey(context)
