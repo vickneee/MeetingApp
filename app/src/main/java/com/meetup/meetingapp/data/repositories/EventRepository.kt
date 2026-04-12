@@ -9,7 +9,6 @@ import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
-import java.util.Date
 
 /**
  * Repository interface for managing event and participant-related operations.
@@ -193,4 +192,12 @@ interface EventRepository {
      * @return Result<Boolean> — true if the vote document exists in Firestore.
      */
     suspend fun getUserVote(eventId: String, placeId: String, userId: String, dateTime: DateTime): Result<Boolean>
+
+    /**
+     * Fetches and saves restaurants for the given event.
+     *
+     * @param event The event for which to fetch and save restaurants.
+     * @return Result.success(Unit) on success, or Result.failure(e) on error.
+     */
+    suspend fun fetchAndSaveRestaurants(event: Event): Result<Unit>
 }

@@ -9,6 +9,8 @@ import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -99,6 +101,18 @@ class HostDashboardViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 eventRepository.aggregateParticipantResponses(eventId).getOrThrow()
+
+                // Re-sync event to get updated candidates
+                eventRepository.syncEventById(eventId)
+
+                // Now read the fresh event from Room
+                val updatedEvent = eventRepository.getEventById(eventId)
+                    .take(1)
+                    .first() // import kotlinx.coroutines.flow.first
+
+                updatedEvent?.let { event ->
+                    eventRepository.fetchAndSaveRestaurants(event)
+                }
 
                 withContext(Dispatchers.Main) {
                     _closeVotingState.value = CloseVotingState.Success

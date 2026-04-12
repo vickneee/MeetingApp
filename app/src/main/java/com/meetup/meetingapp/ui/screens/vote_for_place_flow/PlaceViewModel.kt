@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -78,6 +79,8 @@ class PlaceViewModel(
     private val _allRestaurants = MutableStateFlow(AllRestaurantState())
     val allRestaurants = _allRestaurants.asStateFlow()
 
+    private var restaurantsLoaded = false
+
     /**
      * Initialization:
      * - Sync event from Firestore → Room
@@ -92,21 +95,20 @@ class PlaceViewModel(
                 return@launch
             }
 
+            debugLoad()
+
             // Observe event from Firestore and update Room cache
             eventRepository.observeEventById(eventId).collect { event ->
                 _event.value = event
-
-                if(event != null){
+                if (event != null) {
                     buildDateLocationOptions(event.dateTimeCandidates, event.locationCandidates)
 
-                    val hasCandidates = eventRepository.hasRestaurantCandidates(event.id)
-
-                    if (hasCandidates) {
+                    // ↓ REPLACE the old hasCandidates block with this
+                    if (!restaurantsLoaded && eventRepository.hasRestaurantCandidates(event.id)) {
+                        restaurantsLoaded = true
                         getAllRestaurant(event.id)
-
                         _restaurantState.value = RestaurantState.Available
-                    } else {
-                        // If no candidates found locally, set to Empty to allow manual fetch
+                    } else if (!restaurantsLoaded) {
                         _restaurantState.value = RestaurantState.Empty
                     }
                 }
@@ -114,19 +116,42 @@ class PlaceViewModel(
         }
     }
 
+    fun debugLoad() {
+        viewModelScope.launch {
+            Log.d("DEBUG", "=== Starting debug load ===")
+            Log.d("DEBUG", "eventId: $eventId")
+
+            val hasCandidates = eventRepository.hasRestaurantCandidates(eventId)
+            Log.d("DEBUG", "hasRestaurantCandidates: $hasCandidates")
+
+            val syncResult = runCatching { eventRepository.syncRestaurants(eventId) }
+            Log.d("DEBUG", "syncRestaurants result: $syncResult")
+
+            eventRepository.getRestaurants(eventId)
+                .take(1) // just first emission
+                .collect { restaurants ->
+                    Log.d("DEBUG", "getRestaurants returned ${restaurants.size} items")
+                    restaurants.forEach { Log.d("DEBUG", "  → ${it.name} | ${it.placeId}") }
+                }
+        }
+    }
+
     /**
      * Loads all restaurant candidates for the event from Room.
      * Ensures Firestore → Room sync before collecting.
      */
-    private fun getAllRestaurant(eventId: String){
+    private fun getAllRestaurant(eventId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             Log.d("PlaceViewModel", "getAllRestaurant called for $eventId")
             eventRepository.syncRestaurants(eventId)
             eventRepository.getRestaurants(eventId)
                 .collect { restaurants ->
-                    Log.d("PlaceViewModel", "Loaded ${restaurants.size} restaurants from repository")
-                    _allRestaurants.update {
-                        it.copy(allRestaurants = restaurants)
+                    Log.d("PlaceViewModel", "Loaded ${restaurants.size} restaurants")
+                    _allRestaurants.update { it.copy(allRestaurants = restaurants) }
+                    if (restaurants.isNotEmpty()) {
+                        _restaurantState.value = RestaurantState.Available
+                    } else {
+                        _restaurantState.value = RestaurantState.Empty
                     }
                 }
         }
@@ -149,8 +174,8 @@ class PlaceViewModel(
                 // Robust location matching
                 val query = location?.trim() ?: ""
                 val locationMatch = query.isEmpty() ||
-                            (restaurant.address?.contains(query, ignoreCase = true) == true) ||
-                            (restaurant.name.contains(query, ignoreCase = true))
+                        (restaurant.address?.contains(query, ignoreCase = true) == true) ||
+                        (restaurant.name.contains(query, ignoreCase = true))
 
                 val timingMatch =
                     timing == null || isRestaurantOpenForTiming(restaurant, timing)
@@ -179,11 +204,11 @@ class PlaceViewModel(
     fun parseDays(hours: String): List<String> {
         val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
         val normalized = hours.takeWhile { it != ':' }
-        
+
         // Handle ranges like "Monday-Friday"
         if (normalized.contains("-") || normalized.contains("–")) {
-            val parts = normalized.split(Regex("[-–]")).map { 
-                it.trim().take(3).lowercase().replaceFirstChar { c -> c.uppercase() } 
+            val parts = normalized.split(Regex("[-–]")).map {
+                it.trim().take(3).lowercase().replaceFirstChar { c -> c.uppercase() }
             }
             if (parts.size == 2) {
                 val startIdx = daysOfWeek.indexOf(parts[0])
@@ -198,7 +223,7 @@ class PlaceViewModel(
                 }
             }
         }
-        
+
         // Fallback to literal matches
         val found = daysOfWeek.filter { normalized.contains(it, ignoreCase = true) }
         if (found.isNotEmpty()) return found
@@ -214,7 +239,7 @@ class PlaceViewModel(
     fun normalizeHours(raw: String): String {
         return raw
             .replace("–", "-")
-            .replace(Regex("[\\u202F\\u2009\\u200A\\u200B\\uFEFF\\u00A0]"), "") 
+            .replace(Regex("[\\u202F\\u2009\\u200A\\u200B\\uFEFF\\u00A0]"), "")
             .replace("AM", " AM")
             .replace("PM", " PM")
             .trim()
@@ -255,17 +280,18 @@ class PlaceViewModel(
             if (parts.size < 2) return 0
             return (parts[0].toIntOrNull() ?: 0) * 60 + (parts[1].toIntOrNull() ?: 0)
         }
+
         val oStart = toMinutes(openStart)
         val oEnd = toMinutes(openEnd)
         val tStart = toMinutes(targetStart)
         val tEnd = toMinutes(targetEnd)
-        
+
         // Handle cross-midnight (e.g., 18:00 - 02:00)
         val actualOEnd = if (oEnd <= oStart) oEnd + 1440 else oEnd
-        
+
         val overlapStart = maxOf(oStart, tStart)
         val overlapEnd = minOf(actualOEnd, tEnd)
-        
+
         return overlapEnd > overlapStart
     }
 
@@ -277,10 +303,10 @@ class PlaceViewModel(
         val targetStart = timing.timeSlot.start
         val targetEnd = timing.timeSlot.end
         val hoursList = restaurant.openingHours
-        
+
         // If no opening hours are available, assume it's open to be safe
         if (hoursList.isNullOrEmpty()) return true
-        
+
         return hoursList.any { hours ->
             val days = parseDays(hours)
             if (!days.contains(targetDay)) return@any false
@@ -304,7 +330,7 @@ class PlaceViewModel(
     fun buildDateLocationOptions(
         dateTimes: List<DateTime>,
         locations: List<String>
-    ){
+    ) {
         val options = dateTimes.flatMap { dt ->
             locations.map { loc ->
                 DateLocationOption(timing = dt, location = loc)
@@ -313,102 +339,11 @@ class PlaceViewModel(
         _dateAndAreaState.value = DateAndAreaState(
             dateLocationOptions = options
         )
-    }
 
-    /**
-     * Fetches fallback restaurant candidates using Places API
-     * when no Firestore candidates exist.
-     */
-    fun fetchAllCombinations(event: Event) {
-        viewModelScope.launch {
-            _restaurantState.value = RestaurantState.Loading
-            Log.d("PlaceViewModel", "fetchAllCombinations started.")
-            
-            // Fallback to host's initial options if participant votes are missing
-            val citiesToSearch = event.locationCandidates.ifEmpty { 
-                Log.d("PlaceViewModel", "Falling back to host location options: ${event.locationOptions.cities}")
-                event.locationOptions.cities 
-            }
-            val typesToSearch = event.placeTypeCandidates.ifEmpty { 
-                Log.d("PlaceViewModel", "Falling back to host place type options: ${event.placeTypeOptions}")
-                event.placeTypeOptions 
-            }
-
-            if (citiesToSearch.isEmpty() || typesToSearch.isEmpty()) {
-                Log.w("PlaceViewModel", "No cities or place types to search. Aborting.")
-                _restaurantState.value = RestaurantState.Empty
-                return@launch
-            }
-
-            val maxCallsPerCity = 5
-            val allRestaurantsFound = mutableListOf<Restaurant>()
-            val seenPlaceIds = mutableSetOf<String>()
-
-            citiesToSearch.forEach { city ->
-                val combinations = typesToSearch.flatMap { placeType ->
-                    when (placeType) {
-                        PlaceType.RESTAURANT -> {
-                            if (event.foodCategoryCandidates.isEmpty()) {
-                                listOf(Triple(city, placeType, null))
-                            } else {
-                                event.foodCategoryCandidates.map { foodCategory ->
-                                    Triple(city, placeType, foodCategory)
-                                }
-                            }
-                        }
-                        else -> listOf(Triple(city, placeType, null))
-                    }
-                }
-
-                val limitedQueries = combinations.shuffled().take(maxCallsPerCity)
-                Log.d("PlaceViewModel", "City: $city, Queries to execute: ${limitedQueries.size}")
-
-                limitedQueries.forEach { (city, placeType, foodCategory) ->
-                    val query = when {
-                        placeType == PlaceType.RESTAURANT && foodCategory != null ->
-                            "${foodCategory.queryName} restaurant in $city"
-                        placeType == PlaceType.RESTAURANT ->
-                            "restaurant in $city"
-                        placeType == PlaceType.CAFE ->
-                            "cafe in $city"
-                        placeType == PlaceType.BAR ->
-                            "bar in $city"
-                        else ->
-                            "${placeType.queryName} in $city"
-                    }
-
-                    Log.d("PlaceViewModel", "Executing query: $query")
-                    val result = placesRepository.fetchRestaurants(query)
-
-                    result.onSuccess { restaurants ->
-                        val first = restaurants.firstOrNull()
-                        if (first != null && seenPlaceIds.add(first.placeId)) {
-                            allRestaurantsFound.add(first)
-                            Log.d("PlaceViewModel", "Found: ${first.name} (${first.placeId})")
-                        } else if (first == null) {
-                            Log.d("PlaceViewModel", "No results for query: $query")
-                        }
-                    }.onFailure { e ->
-                        Log.e("PlaceViewModel", "API call failed for query: $query", e)
-                    }
-                }
-            }
-
-            if (allRestaurantsFound.isEmpty()) {
-                Log.w("PlaceViewModel", "Total restaurants found: 0")
-                _restaurantState.value = RestaurantState.Empty
-            } else {
-                Log.d("PlaceViewModel", "Found ${allRestaurantsFound.size} unique restaurants. Saving to Firestore...")
-                val saveResult = eventRepository.saveAllRestaurants(event.id, allRestaurantsFound)
-
-                saveResult.onSuccess {
-                    getAllRestaurant(event.id)
-                    _restaurantState.value = RestaurantState.Available
-                }.onFailure { e ->
-                    Log.e("PlaceViewModel", "Failed to save restaurants to Firestore", e)
-                    _restaurantState.value = RestaurantState.Error(e)
-                }
-            }
+        // Auto-select first option so the list isn't empty before the user picks
+        if (selectedTiming.value == null && options.isNotEmpty()) {
+            selectedTiming.value = options.first().timing
+            selectedLocation.value = options.first().location
         }
     }
 
@@ -434,9 +369,12 @@ class PlaceViewModel(
                     Log.e("PlaceViewModel", "Vote submission failed", e)
                     when (e) {
                         is FirebaseNetworkException ->
-                            _voteResultState.value = VoteResultState.VoteError("Network error, please check your connection")
+                            _voteResultState.value =
+                                VoteResultState.VoteError("Network error, please check your connection")
+
                         else ->
-                            _voteResultState.value = VoteResultState.VoteError("Failed to submit vote, please retry")
+                            _voteResultState.value =
+                                VoteResultState.VoteError("Failed to submit vote, please retry")
                     }
                 }
             }
@@ -468,9 +406,8 @@ class PlaceViewModel(
             }
         }
     }
-
-
 }
+
 /**
  * UI state for all restaurants.
  * @property allRestaurants List of all restaurants.
