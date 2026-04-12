@@ -18,6 +18,7 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
+import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.model.Vote
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
@@ -50,7 +51,8 @@ class EventRepositoryImp(
     private val eventDao: EventDao,
     private val cityDao: CityDao,
     private val participantResponseDao: ParticipantResponseDao,
-    private val restaurantDao : RestaurantDao
+    private val restaurantDao : RestaurantDao,
+    private val placesRepository: PlacesRepository
 ): EventRepository {
 
     /**
@@ -695,6 +697,52 @@ class EventRepositoryImp(
 
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    /**
+     * Retrieves a list of restaurants for a given location.
+     *
+     * @param event The event for which to retrieve restaurants.
+     * @return A [Result] containing a list of [Restaurant] objects on success,
+     */
+    override suspend fun fetchAndSaveRestaurants(event: Event): Result<Unit> {
+        val seen = mutableSetOf<String>()
+        val allRestaurants = mutableListOf<Restaurant>()
+
+        event.locationCandidates.forEach { city ->
+            val combinations = event.placeTypeCandidates.flatMap { placeType ->
+                when (placeType) {
+                    PlaceType.RESTAURANT -> event.foodCategoryCandidates.map { Triple(city, placeType, it) }
+                    PlaceType.CAFE -> listOf(Triple(city, placeType, null))
+                    PlaceType.BAR -> listOf(Triple(city, placeType, null))
+                }
+            }.shuffled().take(5)
+
+            combinations.forEach { (city, placeType, foodCategory) ->
+                val query = when {
+                    placeType == PlaceType.RESTAURANT && foodCategory != null ->
+                        "${foodCategory.queryName} restaurant in $city"
+                    placeType == PlaceType.CAFE -> "cafe in $city"
+                    placeType == PlaceType.BAR -> "bar in $city"
+                    else -> "${placeType.queryName} in $city"
+                }
+                placesRepository.fetchRestaurants(query).onSuccess { restaurants ->
+                    restaurants.firstOrNull()?.let {
+                        if (seen.add(it.placeId)) allRestaurants.add(it)
+                    }
+                }
+            }
+        }
+
+        return if (allRestaurants.isNotEmpty()) {
+            saveAllRestaurants(event.id, allRestaurants).also {
+                if (it.isSuccess) {
+                    updateEventStatus(event.id, EventStatus.RESTAURANT_CANDIDATES_GENERATED)
+                }
+            }
+        } else {
+            Result.failure(Exception("No restaurants found"))
         }
     }
 
