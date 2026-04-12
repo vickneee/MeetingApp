@@ -22,6 +22,7 @@ interface AppContainer {
     val eventRepository: EventRepository
     val placesRepository: PlacesRepository
     val db: FirebaseFirestore
+    val placesApiKey: String
 }
 
 /**
@@ -56,12 +57,14 @@ class AppDataContainer(private val context: Context) : AppContainer {
             placesRepository
         )
     }
-    private val apiKey = loadApiKey(context)
+    override val placesApiKey: String by lazy {
+        loadApiKey(context)
+    }
 
     override val placesRepository: PlacesRepository by lazy {
         PlacesRepositoryImp(
             api = retrofitService,
-            apiKey = apiKey
+            apiKey = placesApiKey
         )
     }
 

@@ -74,7 +74,7 @@ object AppViewModelProvider {
         initializer {
             PlaceViewModel(
                 meetingApplication().container.eventRepository,
-                meetingApplication().container.placesRepository,
+                meetingApplication().container.placesApiKey,
                 this.createSavedStateHandle()
             )
         }
