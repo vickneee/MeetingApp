@@ -14,10 +14,12 @@ import com.meetup.meetingapp.data.db.mapper.ParticipantResponseMapper
 import com.meetup.meetingapp.data.db.mapper.RestaurantMapper
 import com.meetup.meetingapp.data.db.mapper.RestaurantMapper.toEntity
 import com.meetup.meetingapp.data.model.CountryOption
+import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.Restaurant
+import com.meetup.meetingapp.data.model.Vote
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
 import kotlinx.coroutines.CoroutineScope
@@ -616,6 +618,86 @@ class EventRepositoryImp(
                 }
             }
     }
+
+    /**
+     * Submits a vote for a specific restaurant and date-time within an event.
+     *
+     * This method writes a Vote document to Firestore at the following path:
+     *
+     * events/{eventId}/restaurants/{placeId}/votes/{userId}_{dateTime}
+     *
+     * The document ID is constructed using the userId and dateTime to ensure that:
+     * - A user cannot vote more than once for the same restaurant at the same date-time
+     * - Subsequent submissions overwrite the existing vote for that combination
+     *
+     * The Vote data is stored only in Firestore. It is not cached in Room because
+     * vote data is highly dynamic and should rely on Firestore as the single source
+     * of truth. The caller should re-query Firestore (e.g., via getUserVote) to
+     * reflect the updated voting state in the UI.
+     *
+     * @param eventId The ID of the event
+     * @param placeId The ID of the restaurant being voted for
+     * @param userId The ID of the user submitting the vote
+     * @param dateTime The selected date-time slot for the vote
+     * @return A Result indicating success or failure of the Firestore write operation
+     */
+    override suspend fun submitVote(
+        eventId: String,
+        placeId: String,
+        userId: String,
+        dateTime: DateTime
+    ): Result<Unit> {
+        val vote = Vote(dateTime = dateTime)
+        return try {
+            db.collection("events")
+                .document(eventId)
+                .collection("restaurants")
+                .document(placeId)
+                .collection("votes")
+                .document("${userId}_${dateTime}")
+                .set(vote)
+                .await()
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    }
+
+    /**
+     * Checks whether the user has already submitted a vote for the given restaurant and time slot.
+     *
+     * This queries Firestore at:
+     * events/{eventId}/restaurants/{placeId}/votes/{userId}_{dateTime}
+     *
+     * @return Result<Boolean> — true if the vote document exists, false if not.
+     *         Returns Result.failure(e) if the Firestore request fails.
+     */
+    override suspend fun getUserVote(
+        eventId: String,
+        placeId: String,
+        userId: String,
+        dateTime: DateTime
+    ): Result<Boolean> {
+        return try {
+            val snapshot = db.collection("events")
+                .document(eventId)
+                .collection("restaurants")
+                .document(placeId)
+                .collection("votes")
+                .document("${userId}_${dateTime}")
+                .get()
+                .await()
+
+            Result.success(snapshot.exists())
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 }
 
 
