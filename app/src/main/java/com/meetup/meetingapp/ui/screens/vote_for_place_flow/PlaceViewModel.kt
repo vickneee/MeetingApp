@@ -14,6 +14,7 @@ import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
 import com.meetup.meetingapp.data.repositories.PlacesRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,22 +24,38 @@ import kotlinx.coroutines.launch
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 /**
- * ViewModel for the Place selection screen.
+ * ViewModel responsible for managing restaurant details, voting state,
+ * and Google Places–related data for the Place Details screen.
  *
- * @param eventRepository Repository for interacting with Event data.
- * @param placesRepository Repository for interacting with Google Places API.
- * @param savedStateHandle State handle for saving and restoring UI state.
- * @see PlaceViewModel for retrieving place list data.
+ * This ViewModel exposes:
+ * - A flow of restaurant details resolved from the global restaurant list
+ * - The user's current vote state for the selected restaurant
+ * - The result of vote submission attempts (success or error)
+ * - Utility functions for formatting opening hours, price levels, and photo URLs
+ *
+ * Responsibilities:
+ * - Fetch and observe the user's vote for a given place
+ * - Submit votes to the backend via [EventRepository]
+ * - Build Google Places Photo API URLs using the provided API key
+ * - Provide derived UI state such as open/closed labels and formatted price levels
+ *
+ * @param eventRepository Repository used for reading and writing event‑related data,
+ *                        including user votes.
+ * @param apiKey Google Places API key used for building photo URLs.
+ * @param savedStateHandle State handle for restoring and persisting UI‑related state.
  */
 class PlaceViewModel(
     private val eventRepository: EventRepository,
-    private val placesRepository: PlacesRepository,
+    private val apiKey: String,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -380,6 +397,91 @@ class PlaceViewModel(
             }
         }
     }
+
+    /**
+     * Returns a flow that emits the restaurant matching the given Place ID.
+     *
+     * This simply maps the current list of all restaurants and finds the one
+     * whose `placeId` matches the provided value. Emits `null` if not found.
+     *
+     * @param placeId Google Places ID of the restaurant to retrieve.
+     * @return A [Flow] emitting the matching [Restaurant] or null.
+     */
+    fun fetchRestaurantDetail(placeId: String): Flow<Restaurant?> {
+        return allRestaurants.map { state ->
+            state.allRestaurants.find { it.placeId == placeId }
+        }
+    }
+
+    /**
+     * Builds a human‑readable opening hours label for the given restaurant
+     * based on the selected timing.
+     *
+     * Example output: `"10:00 AM – 8:00 PM"`
+     *
+     * @param restaurant The restaurant whose opening hours should be evaluated.
+     * @param timing The selected date/time used to determine the correct weekday.
+     * @return A formatted label or null if opening hours are unavailable.
+     */
+    fun getOpenLabel(restaurant: Restaurant, timing: DateTime): String? {
+        val day = timing.toLocalDate()
+            .dayOfWeek
+            .getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+
+        val todayHours = restaurant.openingHours
+            ?.firstOrNull { it.startsWith(day) }
+            ?: return null
+
+        val range = extractTimeRange(todayHours) ?: return null
+        val (start, end) = range
+
+        return "${format24ToAmPm(start)} – ${format24ToAmPm(end)}"
+    }
+
+    /**
+     * Converts a 24‑hour time string (e.g., `"18:30"`) into a 12‑hour AM/PM format.
+     *
+     * @param time A time string in `"HH:mm"` format.
+     * @return A formatted time string in `"h:mm a"` format.
+     */
+    fun format24ToAmPm(time: String): String {
+        val formatter24 = DateTimeFormatter.ofPattern("HH:mm")
+        val formatter12 = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
+        return LocalTime.parse(time, formatter24).format(formatter12)
+    }
+
+    /**
+     * Converts a Google Places price level (0–4) into a dollar‑sign representation.
+     *
+     * Example:
+     * - 0 → "$"
+     * - 1 → "$$"
+     * - 2 → "$$$"
+     *
+     * @param level The price level integer from Google Places.
+     * @return A repeated dollar‑sign string, or empty string if invalid.
+     */
+    fun formatPriceLevel(level: Int?): String {
+        if (level == null || level < 0) return ""
+        return "$".repeat(level + 1)
+    }
+
+    /**
+     * Builds a fully‑qualified Google Places Photo API URL from a photo reference.
+     *
+     * The returned URL can be passed directly to image loaders such as Coil.
+     *
+     * @param photoReference The Google Places photo reference string.
+     * @return A complete photo URL, or null if the reference is empty.
+     */
+    fun buildPhotoUrl(photoReference: String?): String? {
+        if (photoReference.isNullOrEmpty()) return null
+        return "https://maps.googleapis.com/maps/api/place/photo" +
+                "?maxwidth=800" +
+                "&photo_reference=$photoReference" +
+                "&key=$apiKey"
+    }
+
 
     /**
      * Loads whether the user has already voted for this restaurant at the selected time.

@@ -50,16 +50,10 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
  *
  * @property route The route for the Place List screen.
  * @property titleRes The resource ID for the title of the Place List screen.
- * @property timingArg The argument key for the selected timing.
- * @property locationArg The argument key for the selected location.
- * @property routeWithArgs The route with arguments for the Place List screen.
  */
 object PlaceListPageDestination : NavigationDestination {
     override val route = "place_list"
     override val titleRes = R.string.title_place_list
-    const val timingArg = "timing"
-    const val locationArg = "location"
-    val routeWithArgs = "$route/{$timingArg}/{$locationArg}"
 }
 
 

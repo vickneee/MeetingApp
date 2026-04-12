@@ -16,7 +16,7 @@ package com.meetup.meetingapp.data.model
  *
  * @property placeId Unique Google Places ID for the restaurant.
  * @property name Display name of the restaurant.
- * @property address Full formatted address (may be null if API omits it).
+ * @property address Full formatted address (maybe null if API omits it).
  * @property rating Average Google rating (0.0–5.0).
  * @property userRatingCount Number of user reviews contributing to the rating.
  * @property priceLevel Google price level (0–4), where higher means more expensive.
