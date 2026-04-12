@@ -1,6 +1,7 @@
 package com.meetup.meetingapp.data.repositories
 
 import com.meetup.meetingapp.data.model.CountryOption
+import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
@@ -8,6 +9,7 @@ import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 /**
  * Repository interface for managing event and participant-related operations.
@@ -174,4 +176,21 @@ interface EventRepository {
      */
     // Firestore real-time listener
     fun observeSubmissions(eventId: String): Flow<List<ParticipantResponse>>
+
+    /**
+     * Writes a vote to Firestore for the given event, restaurant, user, and date-time.
+     *
+     * The vote is stored under:
+     * events/{eventId}/restaurants/{placeId}/votes/{userId}_{dateTime}
+     *
+     * @return Result.success(Unit) on success, or Result.failure(e) on error.
+     */
+    suspend fun submitVote(eventId: String, placeId: String, userId: String, dateTime: DateTime): Result<Unit>
+
+    /**
+     * Returns whether the user has already voted for the given restaurant and time slot.
+     *
+     * @return Result<Boolean> — true if the vote document exists in Firestore.
+     */
+    suspend fun getUserVote(eventId: String, placeId: String, userId: String, dateTime: DateTime): Result<Boolean>
 }

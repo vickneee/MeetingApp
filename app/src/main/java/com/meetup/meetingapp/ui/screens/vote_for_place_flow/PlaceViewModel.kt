@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.PlaceType
@@ -39,21 +41,28 @@ class PlaceViewModel(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    /** Currently authenticated user's UID (empty if not logged in). */
+    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    /** Event ID passed from navigation arguments. */
     private val eventId: String =
         savedStateHandle[ChooseDateAndAreaDestination.eventIdArg] ?: ""
 
+    /** The event data observed from Firestore. */
     private val _event = MutableStateFlow<Event?>(null)
     val event: StateFlow<Event?> = _event.asStateFlow()
 
-    private val _uiState = MutableStateFlow(PlaceUiState())
-    val uiState: StateFlow<PlaceUiState> = _uiState.asStateFlow()
+    /** Whether the user has voted for the selected restaurant. */
+    private val _voteState = MutableStateFlow(VoteState())
+    val voteState = _voteState.asStateFlow()
+
+    /** Result of a vote submission (success or error message). */
+    private val _voteResultState = MutableStateFlow<VoteResultState?>(null)
+    val voteResultState = _voteResultState.asStateFlow()
 
     /** Available date × location combinations for filtering */
     private val _dateAndAreaState = MutableStateFlow(DateAndAreaState())
     val dateAndAreaState = _dateAndAreaState.asStateFlow()
-
-    private val _placeListState = MutableStateFlow<List<Restaurant>>(emptyList())
-    val placeListState = _placeListState.asStateFlow()
 
     /** Loading state for restaurant candidates */
     private val _restaurantState = MutableStateFlow<RestaurantState>(RestaurantState.Loading)
@@ -403,25 +412,65 @@ class PlaceViewModel(
         }
     }
 
-    fun submitVote(restaurantId: String) {
-        // handle vote submission
+    /**
+     * Submits the user's vote for the specified restaurant and time slot.
+     *
+     * @return Result.success on success, or Result. Failure on Firestore error.
+     */
+    fun submitVote(placeId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            selectedTiming.value?.let { timing ->
+                val result = eventRepository.submitVote(
+                    eventId = eventId,
+                    placeId = placeId,
+                    userId = userId,
+                    dateTime = timing
+                )
+
+                result.onSuccess {
+                    _voteState.update { it.copy(isVoted = true) }
+                    _voteResultState.value = VoteResultState.VoteSuccess
+                }.onFailure { e ->
+                    Log.e("PlaceViewModel", "Vote submission failed", e)
+                    when (e) {
+                        is FirebaseNetworkException ->
+                            _voteResultState.value = VoteResultState.VoteError("Network error, please check your connection")
+                        else ->
+                            _voteResultState.value = VoteResultState.VoteError("Failed to submit vote, please retry")
+                    }
+                }
+            }
+        }
     }
+
+    /**
+     * Loads whether the user has already voted for this restaurant at the selected time.
+     *
+     * Updates voteState.isVoted based on Firestore result.
+     */
+    fun fetchUserVote(placeId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            selectedTiming.value?.let { timing ->
+                val result = eventRepository.getUserVote(
+                    eventId = eventId,
+                    placeId = placeId,
+                    userId = userId,
+                    dateTime = timing
+                )
+
+                result.onSuccess { exists ->
+                    _voteState.update { it.copy(isVoted = exists) }
+                }.onFailure { e ->
+                    Log.e("PlaceViewModel", "Failed to fetch user vote", e)
+                    _voteResultState.value =
+                        VoteResultState.VoteError("Failed to load vote status")
+                }
+            }
+        }
+    }
+
+
 }
-
-/**
- * UI state for the Place selection screen.
- * @property restaurants List of available restaurants.
- * @property selectedRestaurantId ID of the selected restaurant.
- * @property isSubmitting Whether a vote is currently being submitted.
- * @property isSubmitted Whether a vote has been successfully submitted.
- */
-data class PlaceUiState(
-    val restaurants: List<Restaurant> = emptyList(),
-    val selectedRestaurantId: String? = null,
-    val isSubmitting: Boolean = false,
-    val isSubmitted: Boolean = false
-)
-
 /**
  * UI state for all restaurants.
  * @property allRestaurants List of all restaurants.
@@ -512,3 +561,21 @@ sealed interface RestaurantState {
     object Empty : RestaurantState
     data class Error(val error: Throwable) : RestaurantState
 }
+
+/**
+ * Holds the user's current voting status for the selected restaurant.
+ *
+ * @property isVoted True if the user has already voted.
+ */
+data class VoteState(
+    val isVoted: Boolean = false
+)
+
+/**
+ * Represents the result of a vote submission attempt.
+ */
+sealed class VoteResultState {
+    object VoteSuccess : VoteResultState()
+    data class VoteError(val message: String) : VoteResultState()
+}
+
