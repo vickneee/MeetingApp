@@ -38,7 +38,7 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 
 /**
- * Navigation destination for the Participant MeetUp Detail screen.
+ * Navigation destination for the choose date and area button screen.
  */
 object ChooseDateAndAreaDestination : NavigationDestination {
     override val route = "choose_date_and_area"

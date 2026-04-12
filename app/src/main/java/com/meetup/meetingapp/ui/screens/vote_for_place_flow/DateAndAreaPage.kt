@@ -47,7 +47,7 @@ object DateAndAreaPageDestination: NavigationDestination {
 fun DateAndAreaPage(
     onBack: () -> Unit,
     viewModel: PlaceViewModel,
-    onNavigateToRestaurantListPage: (String, String) -> Unit,
+    onNavigateToRestaurantListPage: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val dateAndAreaState by viewModel.dateAndAreaState.collectAsStateWithLifecycle()
@@ -57,7 +57,7 @@ fun DateAndAreaPage(
         dateLocationOptions = dateAndAreaState.dateLocationOptions,
         navigateToRestaurantListPage = { timing, location ->
             viewModel.setFilter(timing.toDateTime(), location)
-            onNavigateToRestaurantListPage(timing, location)
+            onNavigateToRestaurantListPage()
         },
         modifier = modifier
     )
