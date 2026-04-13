@@ -61,6 +61,21 @@ fun PlaceDetailsPage(
     val voteResultState by viewModel.voteResultState.collectAsState()
     val restaurant by viewModel.fetchRestaurantDetail(placeId).collectAsState(null)
     val timing by viewModel.selectedTiming.collectAsState()
+    val event by viewModel.event.collectAsState()
+
+    // Handle navigation after successful vote
+    LaunchedEffect(voteResultState) {
+        if (voteResultState is VoteResultState.VoteSuccess) {
+            val currentEvent = event ?: return@LaunchedEffect
+            val currentUserId = viewModel.userId
+            
+            if (currentEvent.hostId == currentUserId) {
+                onNavigateToHostDashboard(currentEvent.id)
+            } else {
+                onNavigateToParticipantDashboard(currentEvent.id)
+            }
+        }
+    }
 
     val openLabel = if (restaurant != null && timing != null) {
         viewModel.getOpenLabel(restaurant!!, timing!!)
@@ -277,7 +292,7 @@ fun PlaceDetailsPreview() {
                 photoReference = ""
             ),
             openLabel = "4:00PM – 2:00AM",
-            priceLabel = "$$",
+            priceLabel = "€€",
             photoUrl = "",
             isVoted = false,
             voteResultState = null,
