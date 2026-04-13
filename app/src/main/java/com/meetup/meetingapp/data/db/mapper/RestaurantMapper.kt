@@ -59,15 +59,13 @@ object RestaurantMapper {
     fun Restaurant.toEntity(eventId: String): RestaurantEntity = RestaurantEntity(
         placeId = placeId,
         eventId = eventId,
-
         name = name,
         address = address ?: "",
+        searchLocation = searchLocation ?: "",
         latitude = latitude ?: 0.0,
         longitude = longitude ?: 0.0,
-
         openingHoursJson = gson.toJson(openingHours),
         typesJson = gson.toJson(types),
-
         photoReference = photoReference,
         priceLevel = priceLevel ?: 0,
         rating = rating ?: 0.0,
@@ -90,13 +88,12 @@ object RestaurantMapper {
         placeId = placeId,
         name = name,
         address = address,
+        searchLocation = searchLocation,
         latitude = latitude,
         longitude = longitude,
-
         // Safe JSON decode
         openingHours = safeFromJson(openingHoursJson, emptyList()),
         types = safeFromJson(typesJson, emptyList()),
-
         photoReference = photoReference,
         priceLevel = priceLevel,
         rating = rating,
