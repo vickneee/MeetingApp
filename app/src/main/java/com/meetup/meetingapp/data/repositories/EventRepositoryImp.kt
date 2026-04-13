@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.Locale
 import kotlin.collections.flatMap
 
 /**
@@ -417,11 +418,11 @@ class EventRepositoryImp(
                 .documents
 
             val allCities = docs
-                .filter { it.id.endsWith("_cities") }
+                .filter { it.id.lowercase().endsWith("_cities") }
                 .flatMap { doc ->
                     val country = doc.id
-                        .removeSuffix("_cities")
-                        .replaceFirstChar { it.uppercase() }
+                        .split("_")[0]
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
                     val data = doc.toObject(FirestoreCityList::class.java)
 
@@ -430,10 +431,12 @@ class EventRepositoryImp(
                     } ?: emptyList()
                 }
 
-            cityDao.upsertCities(allCities)
+            if (allCities.isNotEmpty()) {
+                cityDao.upsertCities(allCities)
+            }
 
         } catch (e: Exception) {
-            // sync failure won't crash the app, Room still serves cached data
+            Log.e("CitySync", "Sync failed", e)
         }
     }
 
@@ -665,7 +668,6 @@ class EventRepositoryImp(
         } catch (e: Exception) {
             Result.failure(e)
         }
-
     }
 
     /**
@@ -713,11 +715,17 @@ class EventRepositoryImp(
         event.locationCandidates.forEach { city ->
             val combinations = event.placeTypeCandidates.flatMap { placeType ->
                 when (placeType) {
-                    PlaceType.RESTAURANT -> event.foodCategoryCandidates.map { Triple(city, placeType, it) }
+                    PlaceType.RESTAURANT -> {
+                        if (event.foodCategoryCandidates.isEmpty()) {
+                            listOf(Triple(city, placeType, null))
+                        } else {
+                            event.foodCategoryCandidates.map { Triple(city, placeType, it) }
+                        }
+                    }
                     PlaceType.CAFE -> listOf(Triple(city, placeType, null))
                     PlaceType.BAR -> listOf(Triple(city, placeType, null))
                 }
-            }.shuffled().take(5)
+            }.shuffled().take(10)
 
             combinations.forEach { (city, placeType, foodCategory) ->
                 val query = when {
@@ -728,8 +736,11 @@ class EventRepositoryImp(
                     else -> "${placeType.queryName} in $city"
                 }
                 placesRepository.fetchRestaurants(query).onSuccess { restaurants ->
-                    restaurants.firstOrNull()?.let {
-                        if (seen.add(it.placeId)) allRestaurants.add(it)
+                    restaurants.firstOrNull()?.let { restaurant ->
+                        if (seen.add(restaurant.placeId)) {
+                            // TAG with the city name
+                            allRestaurants.add(restaurant.copy(searchLocation = city))
+                        }
                     }
                 }
             }
@@ -745,7 +756,4 @@ class EventRepositoryImp(
             Result.failure(Exception("No restaurants found"))
         }
     }
-
 }
-
-

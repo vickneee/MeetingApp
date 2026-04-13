@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.CountryOption
@@ -27,7 +28,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     private val _uiState = MutableStateFlow(
         EventUiState(
-            timeSlots = mutableListOf(TimeSlot("08:00", "09:00"))
+            timeSlots = mutableListOf(TimeSlot("11:00", "13:00"))
         )
     )
 
@@ -75,10 +76,15 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
             try {
                 eventRepository.getCitiesByCountry(country)
                     .collect { cities ->
+                        if (cities.isEmpty()) {
+                            // If list is empty, we might want to trigger sync again or show a specific state
+                            Log.w("EventViewModel", "No cities found in Room for ${country.name}")
+                        }
                         _citiesState.value = cities
                         _citiesFetchState.value = CitiesFetchState.Success
                     }
-            } catch (e: Exception){
+            } catch (e: Exception) {
+                Log.e("EventViewModel", "Error observing cities", e) // Added logging
                 _citiesFetchState.value = CitiesFetchState.Error("Cities not found")
             }
         }

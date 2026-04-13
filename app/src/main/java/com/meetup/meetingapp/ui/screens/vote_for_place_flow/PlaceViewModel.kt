@@ -8,11 +8,9 @@ import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
-import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
-import com.meetup.meetingapp.data.repositories.PlacesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,11 +22,8 @@ import kotlinx.coroutines.launch
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
-import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
@@ -112,15 +107,13 @@ class PlaceViewModel(
                 return@launch
             }
 
-            debugLoad()
-
             // Observe event from Firestore and update Room cache
             eventRepository.observeEventById(eventId).collect { event ->
                 _event.value = event
                 if (event != null) {
                     buildDateLocationOptions(event.dateTimeCandidates, event.locationCandidates)
 
-                    // ↓ REPLACE the old hasCandidates block with this
+                    // HasCandidates block
                     if (!restaurantsLoaded && eventRepository.hasRestaurantCandidates(event.id)) {
                         restaurantsLoaded = true
                         getAllRestaurant(event.id)
@@ -130,26 +123,6 @@ class PlaceViewModel(
                     }
                 }
             }
-        }
-    }
-
-    fun debugLoad() {
-        viewModelScope.launch {
-            Log.d("DEBUG", "=== Starting debug load ===")
-            Log.d("DEBUG", "eventId: $eventId")
-
-            val hasCandidates = eventRepository.hasRestaurantCandidates(eventId)
-            Log.d("DEBUG", "hasRestaurantCandidates: $hasCandidates")
-
-            val syncResult = runCatching { eventRepository.syncRestaurants(eventId) }
-            Log.d("DEBUG", "syncRestaurants result: $syncResult")
-
-            eventRepository.getRestaurants(eventId)
-                .take(1) // just first emission
-                .collect { restaurants ->
-                    Log.d("DEBUG", "getRestaurants returned ${restaurants.size} items")
-                    restaurants.forEach { Log.d("DEBUG", "  → ${it.name} | ${it.placeId}") }
-                }
         }
     }
 
@@ -451,19 +424,19 @@ class PlaceViewModel(
     }
 
     /**
-     * Converts a Google Places price level (0–4) into a dollar‑sign representation.
+     * Converts a Google Places price level (0–4) into a Euro‑sign representation.
      *
      * Example:
-     * - 0 → "$"
-     * - 1 → "$$"
-     * - 2 → "$$$"
+     * - 0 → "€"
+     * - 1 → "€€"
+     * - 2 → "€€€"
      *
      * @param level The price level integer from Google Places.
-     * @return A repeated dollar‑sign string, or empty string if invalid.
+     * @return A repeated Euro‑sign string, or empty string if invalid.
      */
     fun formatPriceLevel(level: Int?): String {
         if (level == null || level < 0) return ""
-        return "$".repeat(level + 1)
+        return "€".repeat(level + 1)
     }
 
     /**
@@ -617,4 +590,3 @@ sealed class VoteResultState {
     object VoteSuccess : VoteResultState()
     data class VoteError(val message: String) : VoteResultState()
 }
-
