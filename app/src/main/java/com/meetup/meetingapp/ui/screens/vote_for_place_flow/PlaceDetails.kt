@@ -1,5 +1,7 @@
 package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,7 +27,6 @@ import coil3.compose.AsyncImage
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Restaurant
-import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
@@ -38,25 +40,9 @@ object PlaceDetailsDestination : NavigationDestination {
     val routeWithArgs = "$route/{$placeIdArg}"
 }
 
-
 /**
- * High‑level screen that loads restaurant details, computes derived UI state,
- * and delegates rendering to [PlaceDetailsContent].
- *
- * Responsibilities:
- * - Fetch restaurant details from the ViewModel
- * - Observe vote state and vote result state
- * - Compute open/closed label based on selected timing
- * - Build photo URL from Google Places photo reference
- * - Trigger user vote fetch on first composition
- *
- * @param onBack Navigate‑up callback.
- * @param onNavigateToHostDashboard Navigation callback for host dashboard.
- * @param onNavigateToParticipantDashboard Navigation callback for participant dashboard.
- * @param viewModel The [PlaceViewModel] providing restaurant and voting state.
- * @param placeId The Google Places ID of the restaurant to display.
+ * High‑level screen that handles logic, Intents, and data collection.
  */
-
 @Composable
 fun PlaceDetailsPage(
     onBack: () -> Unit,
@@ -65,22 +51,19 @@ fun PlaceDetailsPage(
     viewModel: PlaceViewModel,
     placeId: String
 ) {
+    val context = LocalContext.current
 
     LaunchedEffect(placeId) {
         viewModel.fetchUserVote(placeId)
-
     }
 
     val voteState by viewModel.voteState.collectAsState()
-
     val voteResultState by viewModel.voteResultState.collectAsState()
-
     val restaurant by viewModel.fetchRestaurantDetail(placeId).collectAsState(null)
-
-    val timing = viewModel.selectedTiming.collectAsState().value
+    val timing by viewModel.selectedTiming.collectAsState()
 
     val openLabel = if (restaurant != null && timing != null) {
-        viewModel.getOpenLabel(restaurant!!, timing)
+        viewModel.getOpenLabel(restaurant!!, timing!!)
     } else null
 
     val priceLabel = restaurant?.priceLevel
@@ -88,11 +71,11 @@ fun PlaceDetailsPage(
         ?: ""
 
     val photoUrl = restaurant?.photoReference
-        ?.let{viewModel.buildPhotoUrl(it)}
+        ?.let { viewModel.buildPhotoUrl(it) }
         ?: ""
 
-
     restaurant?.let { r ->
+        // We ensure openLabel is calculated before showing content
         openLabel?.let { label ->
             PlaceDetailsContent(
                 restaurantDetail = r,
@@ -103,37 +86,32 @@ fun PlaceDetailsPage(
                 voteResultState = voteResultState,
                 onBack = onBack,
                 onVoteClick = { viewModel.submitVote(placeId) },
-                onMapsClick = { }
+                onMapsClick = {
+                    val encodedAddress = Uri.encode(r.address)
+                    val gmmIntentUri = Uri.parse("geo:0,0?q=$encodedAddress")
+                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                        setPackage("com.google.android.apps.maps")
+                    }
+
+                    try {
+                        context.startActivity(mapIntent)
+                    } catch (e: Exception) {
+                        // Fallback to browser search if Google Maps app is missing
+                        val webIntent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress")
+                        )
+                        context.startActivity(webIntent)
+                    }
+                }
             )
         }
     }
-
-
 }
 
 /**
  * UI for displaying detailed information about a selected restaurant.
- *
- * This composable renders:
- * - Restaurant image (Google Places photo)
- * - Name, rating, category, price level
- * - Opening status label based on the selected timing
- * - Address and Google Maps navigation button
- * - Vote button whose label and enabled state depend on the user's vote status
- * - Error message when a vote submission fails
- *
- * @param restaurantDetail The restaurant entity containing all displayable details.
- * @param openLabel A human‑readable label describing whether the restaurant is open during the selected timing.
- * @param priceLabel A formatted price indicator (e.g., "$$", "$$$").
- * @param photoUrl Fully‑resolved Google Places photo URL for AsyncImage.
- * @param isVoted Whether the current user has already voted for this restaurant.
- * @param voteResultState Represents the result of the latest vote submission (success or error).
- * @param onBack Callback invoked when the user navigates back.
- * @param onVoteClick Callback invoked when the user presses the vote button.
- * @param onMapsClick Callback invoked when the user opens the restaurant in Google Maps.
- * @param modifier Optional modifier for layout customization.
  */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaceDetailsContent(
@@ -176,8 +154,8 @@ fun PlaceDetailsContent(
                         modifier = Modifier.padding(28.dp),
                         verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        // Image
-                        if (!photoUrl.isNullOrEmpty()) {
+                        // Image Section
+                        if (photoUrl.isNotEmpty()) {
                             AsyncImage(
                                 model = photoUrl,
                                 contentDescription = "Visual of ${restaurantDetail.name}",
@@ -191,7 +169,11 @@ fun PlaceDetailsContent(
 
                         // Info Section
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Text(text = restaurantDetail.name, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = restaurantDetail.name,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold
+                            )
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
@@ -207,7 +189,7 @@ fun PlaceDetailsContent(
                                 )
                             }
                             Text(
-                                text = "${restaurantDetail.types?.get(0)} · $priceLabel",
+                                text = "${restaurantDetail.types?.firstOrNull() ?: "Restaurant"} · $priceLabel",
                                 color = Color.Gray
                             )
                         }
@@ -216,10 +198,7 @@ fun PlaceDetailsContent(
 
                         // Location/Status Section
                         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                            Text(
-                                text = "Distance: ",
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            // Note: Distance logic depends on your specific implementation
                             Text(
                                 text = "Open: $openLabel",
                                 fontWeight = FontWeight.SemiBold
@@ -233,8 +212,8 @@ fun PlaceDetailsContent(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
+                        // Action Buttons
                         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-
                             OutlinedButton(
                                 onClick = onMapsClick,
                                 modifier = Modifier.fillMaxWidth(),
@@ -253,7 +232,10 @@ fun PlaceDetailsContent(
                                 enabled = !isVoted,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF3B82F6),
+                                    disabledContainerColor = Color.Gray
+                                )
                             ) {
                                 Text(
                                     text = if (isVoted) "Voted" else "Vote for this restaurant",
@@ -262,13 +244,12 @@ fun PlaceDetailsContent(
                                 )
                             }
 
-
                             if (voteResultState is VoteResultState.VoteError) {
                                 Text(
                                     text = voteResultState.message,
                                     color = Color.Red,
                                     fontSize = 14.sp,
-                                    modifier = Modifier.padding(top = 4.dp)
+                                    modifier = Modifier.align(Alignment.CenterHorizontally)
                                 )
                             }
                         }
@@ -279,10 +260,6 @@ fun PlaceDetailsContent(
     }
 }
 
-/**
- * Preview provider for [PlaceDetailsContent].
- * Generates a mock restaurant view within the application's theme.
- */
 @Preview(showBackground = true)
 @Composable
 fun PlaceDetailsPreview() {
@@ -297,16 +274,16 @@ fun PlaceDetailsPreview() {
                 priceLevel = 2,
                 openingHours = listOf("Monday: 4:00PM – 2:00AM"),
                 address = "Iso Omena, Piispansilta 11, Espoo",
-                photoReference = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4"
+                photoReference = ""
             ),
             openLabel = "4:00PM – 2:00AM",
-            onBack = {},
-            onVoteClick = {},
-            onMapsClick = {},
-            priceLabel = "",
+            priceLabel = "$$",
             photoUrl = "",
             isVoted = false,
             voteResultState = null,
+            onBack = {},
+            onVoteClick = {},
+            onMapsClick = {}
         )
     }
 }
