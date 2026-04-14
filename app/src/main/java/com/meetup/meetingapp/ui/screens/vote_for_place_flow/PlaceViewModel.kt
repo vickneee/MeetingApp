@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
@@ -32,7 +31,6 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.flow.take
 
 /**
  * ViewModel responsible for managing restaurant details, voting state,
@@ -97,6 +95,7 @@ class PlaceViewModel(
 
     /** User-selected timing filter */
     val selectedTiming = MutableStateFlow<DateTime?>(null)
+
     /** User-selected location filter */
     val selectedLocation = MutableStateFlow<String?>(null)
 
@@ -104,7 +103,12 @@ class PlaceViewModel(
     private val _allRestaurants = MutableStateFlow(AllRestaurantState())
     val allRestaurants = _allRestaurants.asStateFlow()
 
+    /** Whether all restaurants have been loaded from Room. */
     private var restaurantsLoaded = false
+
+    /** UI state for the Place Details screen. */
+    private val _uiState = MutableStateFlow(PlaceUiState())
+    val uiState: StateFlow<PlaceUiState> = _uiState.asStateFlow()
 
     /**
      * Initialization:
@@ -135,6 +139,13 @@ class PlaceViewModel(
                         _restaurantState.value = RestaurantState.Empty
                     }
                 }
+            }
+        }
+
+        // Separate launch — runs concurrently, not blocked by the collect above
+        viewModelScope.launch {
+            eventRepository.observeSubmissions(eventId).collect { submissions ->
+                _uiState.update { it.copy(submissionsCount = submissions.size) }
             }
         }
     }
@@ -194,20 +205,6 @@ class PlaceViewModel(
                 Log.e("PlaceViewModel", "Distance calculation failed", e)
                 _restaurantDistance.value = "Error getting distance"
             }
-        }
-    }
-
-    fun debugLoad() {
-        viewModelScope.launch {
-            Log.d("DEBUG", "=== Starting debug load ===")
-            val hasCandidates = eventRepository.hasRestaurantCandidates(eventId)
-            Log.d("DEBUG", "hasRestaurantCandidates: $hasCandidates")
-
-            eventRepository.getRestaurants(eventId)
-                .take(1)
-                .collect { restaurants ->
-                    Log.d("DEBUG", "getRestaurants returned ${restaurants.size} items")
-                }
         }
     }
 
@@ -332,11 +329,17 @@ class PlaceViewModel(
     /**
      * Checks if restaurant is open during the target time slot (lenient overlap).
      */
-    fun hasOverlap(oStartStr: String, oEndStr: String, tStartStr: String, tEndStr: String): Boolean {
+    fun hasOverlap(
+        oStartStr: String,
+        oEndStr: String,
+        tStartStr: String,
+        tEndStr: String
+    ): Boolean {
         fun toMin(t: String): Int {
             val p = t.split(":")
             return (p[0].toIntOrNull() ?: 0) * 60 + (p[1].toIntOrNull() ?: 0)
         }
+
         val oStart = toMin(oStartStr)
         val oEnd = toMin(oEndStr)
         val tStart = toMin(tStartStr)
@@ -457,7 +460,8 @@ class PlaceViewModel(
      * @param level The price level integer from Google Places.
      * @return A repeated Euro‑sign string, or empty string if invalid.
      */
-    fun formatPriceLevel(level: Int?): String = if (level == null || level < 0) "" else "€".repeat(level + 1)
+    fun formatPriceLevel(level: Int?): String =
+        if (level == null || level < 0) "" else "€".repeat(level + 1)
 
     fun buildPhotoUrl(photoReference: String?): String? {
         if (photoReference.isNullOrEmpty()) return null
@@ -493,7 +497,12 @@ data class AllRestaurantState(val allRestaurants: List<Restaurant> = listOf())
 
 fun DateTime.toDisplayLabel(): String {
     val localDate = this.toLocalDate()
-    return "${localDate.month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)} ${localDate.dayOfMonth} (${timeSlot.start}–${timeSlot.end})"
+    return "${
+        localDate.month.getDisplayName(
+            TextStyle.SHORT,
+            Locale.ENGLISH
+        )
+    } ${localDate.dayOfMonth} (${timeSlot.start}–${timeSlot.end})"
 }
 
 /**
@@ -561,3 +570,12 @@ sealed class VoteResultState {
     object VoteSuccess : VoteResultState()
     data class VoteError(val message: String) : VoteResultState()
 }
+
+/**
+ * UI state for the Place Details screen.
+ *
+ * @property submissionsCount The number of submissions for this event.
+ */
+data class PlaceUiState(
+    val submissionsCount: Int = 0
+)
