@@ -150,14 +150,15 @@ fun SmallAreaSelectingContent(
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     modifier = Modifier
+                        .wrapContentWidth()
                 ) {
                     Text(
                         text = "Next",
                         fontSize = 18.sp,
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                 }
+                Spacer(modifier = Modifier.height(48.dp))
             }
         }
     }

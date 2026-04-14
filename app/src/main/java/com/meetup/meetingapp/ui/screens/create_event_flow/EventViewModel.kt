@@ -59,7 +59,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     init {
         syncCities()
-        observeCities(CountryOption.Finland)
+        observeCities(listOf(CountryOption.Finland))
     }
 
     /**
@@ -71,20 +71,35 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
         }
     }
 
-    fun observeCities(country: CountryOption) {
+    fun observeCities(countries: List<CountryOption>) {
         viewModelScope.launch {
             try {
-                eventRepository.getCitiesByCountry(country)
-                    .collect { cities ->
-                        if (cities.isEmpty()) {
-                            // If list is empty, we might want to trigger sync again or show a specific state
-                            Log.w("EventViewModel", "No cities found in Room for ${country.name}")
-                        }
-                        _citiesState.value = cities
+                // For now, let's just collect cities for all selected countries and merge them
+                // Or if the repository supports multiple countries, use that.
+                // Assuming it might take a while, showing loading.
+                _citiesFetchState.value = CitiesFetchState.Loading
+                
+                val allCities = mutableListOf<String>()
+                countries.forEach { country ->
+                    // This is a bit naive if we have multiple flows, but for now we take the first snapshot or use a combine.
+                    // Simplified: just get for each and add to list.
+                    // Better would be to have a repository method that takes a list.
+                    // For now, let's stick to the current API and just handle the first one if only one is expected, 
+                    // or collect all.
+                    eventRepository.getCitiesByCountry(country).collect { cities ->
+                        allCities.addAll(cities)
+                        _citiesState.value = allCities.distinct().sorted()
                         _citiesFetchState.value = CitiesFetchState.Success
                     }
+                }
+                
+                if (countries.isEmpty()) {
+                    _citiesState.value = emptyList()
+                    _citiesFetchState.value = CitiesFetchState.Success
+                }
+
             } catch (e: Exception) {
-                Log.e("EventViewModel", "Error observing cities", e) // Added logging
+                Log.e("EventViewModel", "Error observing cities", e)
                 _citiesFetchState.value = CitiesFetchState.Error("Cities not found")
             }
         }
@@ -177,15 +192,25 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
         }
     }
 
-    fun selectCountry(country: CountryOption){
+    fun toggleCountry(country: CountryOption) {
         _uiState.update { current ->
+            val updatedCountries = if (current.locations.countries.contains(country.name))
+                current.locations.countries - country.name
+            else
+                current.locations.countries + country.name
+            
             current.copy(
                 locations = current.locations.copy(
-                    country = country.name
+                    countries = updatedCountries
                 )
             )
         }
-        observeCities(country)
+        
+        // Refresh cities based on all selected countries
+        val selectedCountryOptions = _uiState.value.locations.countries.mapNotNull { name ->
+            CountryOption.entries.find { it.name == name }
+        }
+        observeCities(selectedCountryOptions)
     }
 
     fun toggleCity(city: String) {
@@ -254,7 +279,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 data class EventUiState(
     val eventTitle: String = "",
     val hostName: String = "",
-    val dateRange: DateRange = DateRange(), // Fixed: Use default constructor instead of empty strings
+    val dateRange: DateRange = DateRange(),
     val hasSelectedDateRange: Boolean = false,
     val timeSlots: List<TimeSlot> = emptyList(),
     val locations: com.meetup.meetingapp.data.model.LocationOption = com.meetup.meetingapp.data.model.LocationOption(),
