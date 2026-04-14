@@ -96,6 +96,26 @@ class ParticipantViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    /**
+     * Flattened list of all available date and time slot combinations for the event.
+     */
+    val allAvailableDateTimes: StateFlow<List<DateTime>> = _event.map { event ->
+        if (event == null) emptyList()
+        else {
+            val start = event.dateRange.startDate()
+            val end = event.dateRange.endDate()
+            val allDates = generateSequence(start) { it.plusDays(1) }
+                .takeWhile { !it.isAfter(end) }
+                .toList()
+            
+            allDates.flatMap { date ->
+                event.timeSlots.map { slot ->
+                    DateTime(date.toString(), slot)
+                }
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     init {
         syncEvent()
         observeEventByEventCode(eventCode)
@@ -194,6 +214,21 @@ class ParticipantViewModel(
     /**
      * Toggles the selection of a date and time slot.
      *
+     * @param dateTime The date and time slot to toggle.
+     */
+    fun toggleDateTime(dateTime: DateTime) {
+        _participantState.update { current ->
+            val updated = if (current.selectedDateTimes.contains(dateTime))
+                current.selectedDateTimes - dateTime
+            else
+                current.selectedDateTimes + dateTime
+            current.copy(selectedDateTimes = updated)
+        }
+    }
+
+    /**
+     * Toggles the selection of a date and time slot.
+     *
      * @param date The date of the slot.
      * @param slotIndex The index of the slot in the list.
      * @see UiTimeSlot for more information about time slots.
@@ -204,14 +239,7 @@ class ParticipantViewModel(
         
         val slot = currentEvent.timeSlots[slotIndex]
         val dateTime = DateTime(date = date, timeSlot = slot)
-
-        _participantState.update { current ->
-            val updated = if (current.selectedDateTimes.contains(dateTime))
-                current.selectedDateTimes - dateTime
-            else
-                current.selectedDateTimes + dateTime
-            current.copy(selectedDateTimes = updated)
-        }
+        toggleDateTime(dateTime)
     }
 
     /**
