@@ -252,7 +252,7 @@ fun HostDashboardContent(
                         enabled = voteButtonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.8f)
+                        modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
                         Text(
                             voteButtonText,
