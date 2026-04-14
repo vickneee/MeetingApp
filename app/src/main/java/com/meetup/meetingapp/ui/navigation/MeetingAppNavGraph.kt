@@ -457,6 +457,9 @@ fun MeetingAppNavHost(
                     onNavigateToChooseDatePage = {
                         navController.navigate(DateAndAreaPageDestination.route)
                     },
+                    onNavigateToHome = {
+                        navController.navigate(HomeDestination.route)
+                    },
                     viewModel = viewModel
                 )
             }
