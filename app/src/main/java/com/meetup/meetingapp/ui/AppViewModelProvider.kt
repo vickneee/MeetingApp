@@ -69,13 +69,20 @@ object AppViewModelProvider {
         }
 
         /**
-         * Initializer for RestaurantViewModel
+         * Initializer for PlaceViewModel (formerly RestaurantViewModel)
          */
         initializer {
+            val app = meetingApplication()
+
+            // Create the location client using the application context
+            val locationClient = com.google.android.gms.location.LocationServices
+                .getFusedLocationProviderClient(app)
+
             PlaceViewModel(
-                meetingApplication().container.eventRepository,
-                meetingApplication().container.placesApiKey,
-                this.createSavedStateHandle()
+                eventRepository = app.container.eventRepository,
+                apiKey = app.container.placesApiKey,
+                fusedLocationClient = locationClient,           // Added this
+                savedStateHandle = this.createSavedStateHandle() // Moved this to the end
             )
         }
 

@@ -53,13 +53,11 @@ fun PlaceDetailsPage(
 ) {
     val context = LocalContext.current
 
-    LaunchedEffect(placeId) {
-        viewModel.fetchUserVote(placeId)
-    }
-
+    // Collect restaurant data first to get coordinates
+    val restaurant by viewModel.fetchRestaurantDetail(placeId).collectAsState(null)
+    val distanceLabel by viewModel.restaurantDistance.collectAsState(initial = null)
     val voteState by viewModel.voteState.collectAsState()
     val voteResultState by viewModel.voteResultState.collectAsState()
-    val restaurant by viewModel.fetchRestaurantDetail(placeId).collectAsState(null)
     val timing by viewModel.selectedTiming.collectAsState()
     val event by viewModel.event.collectAsState()
 
@@ -77,6 +75,16 @@ fun PlaceDetailsPage(
         }
     }
 
+    // Trigger data loading and GPS calculation
+    LaunchedEffect(placeId, restaurant) {
+        // This calls the new function in viewmodel to fetch data
+        viewModel.loadPlaceData(
+            placeId = placeId,
+            lat = restaurant?.latitude, // Ensure your Restaurant model has these
+            lng = restaurant?.longitude
+        )
+    }
+
     val openLabel = if (restaurant != null && timing != null) {
         viewModel.getOpenLabel(restaurant!!, timing!!)
     } else null
@@ -90,13 +98,13 @@ fun PlaceDetailsPage(
         ?: ""
 
     restaurant?.let { r ->
-        // We ensure openLabel is calculated before showing content
         openLabel?.let { label ->
             PlaceDetailsContent(
                 restaurantDetail = r,
                 openLabel = label,
                 priceLabel = priceLabel,
                 photoUrl = photoUrl,
+                distanceLabel = distanceLabel ?: "Calculating distance...", // Real GPS data
                 isVoted = voteState.isVoted,
                 voteResultState = voteResultState,
                 onBack = onBack,
@@ -107,11 +115,9 @@ fun PlaceDetailsPage(
                     val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
                         setPackage("com.google.android.apps.maps")
                     }
-
                     try {
                         context.startActivity(mapIntent)
                     } catch (e: Exception) {
-                        // Fallback to browser search if Google Maps app is missing
                         val webIntent = Intent(
                             Intent.ACTION_VIEW,
                             Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress")
@@ -134,6 +140,7 @@ fun PlaceDetailsContent(
     openLabel: String,
     priceLabel: String,
     photoUrl: String,
+    distanceLabel: String, // New parameter
     isVoted: Boolean,
     voteResultState: VoteResultState?,
     onBack: () -> Unit,
@@ -213,7 +220,10 @@ fun PlaceDetailsContent(
 
                         // Location/Status Section
                         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                            // Note: Distance logic depends on your specific implementation
+                            Text(
+                                text = "Distance: $distanceLabel", // Showing dynamic distance
+                                fontWeight = FontWeight.SemiBold
+                            )
                             Text(
                                 text = "Open: $openLabel",
                                 fontWeight = FontWeight.SemiBold
@@ -294,6 +304,7 @@ fun PlaceDetailsPreview() {
             openLabel = "4:00PM – 2:00AM",
             priceLabel = "€€",
             photoUrl = "",
+            distanceLabel = "1.2 km",
             isVoted = false,
             voteResultState = null,
             onBack = {},
