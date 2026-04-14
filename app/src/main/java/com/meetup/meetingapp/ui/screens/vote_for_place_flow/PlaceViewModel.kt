@@ -31,6 +31,12 @@ import kotlinx.coroutines.flow.update
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import android.annotation.SuppressLint
+import android.location.Location
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.tasks.await
 
 /**
  * ViewModel responsible for managing restaurant details, voting state,
@@ -56,11 +62,18 @@ import java.time.format.DateTimeFormatter
 class PlaceViewModel(
     private val eventRepository: EventRepository,
     private val apiKey: String,
+    private val fusedLocationClient: FusedLocationProviderClient,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     /** Currently authenticated user's UID (empty if not logged in). */
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    /** Private property that holds users current distance from the restaurant */
+    private val _restaurantDistance = MutableStateFlow<String?>(null)
+
+    /** Publicly observable read-only version of the calculated distance  as a String */
+    val restaurantDistance: StateFlow<String?> = _restaurantDistance.asStateFlow()
 
     /** Event ID passed from navigation arguments. */
     private val eventId: String =
@@ -129,6 +142,65 @@ class PlaceViewModel(
                         _restaurantState.value = RestaurantState.Empty
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Orchestrates the loading of place-specific data.
+     *
+     * @param placeId The unique identifier for the restaurant from Google Places.
+     * @param lat The latitude of the restaurant; used for distance calculation.
+     * @param lng The longitude of the restaurant; used for distance calculation.
+     */
+    fun loadPlaceData(placeId: String, lat: Double?, lng: Double?) {
+        fetchUserVote(placeId)
+        updateDistanceToRestaurant(lat, lng)
+    }
+
+    /**
+     * Performs a one-time GPS request and calculates distance between the user
+     * and the restaurant coordinates.
+     */
+    @SuppressLint("MissingPermission")
+    fun updateDistanceToRestaurant(destLat: Double?, destLng: Double?) {
+        if (destLat == null || destLng == null) {
+            _restaurantDistance.value = "Unknown distance"
+            return
+        }
+
+        // 2. Launch in a background thread so the UI doesn't freeze while waiting for GPS
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                // 3. Request current location from the hardware
+                val location: android.location.Location? = fusedLocationClient.getCurrentLocation(
+                    com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY,
+                    com.google.android.gms.tasks.CancellationTokenSource().token
+                ).await()
+
+                location?.let { userLoc ->
+                    val results = FloatArray(1)
+                    // 4. Calculate the distance in meters
+                    android.location.Location.distanceBetween(
+                        userLoc.latitude, userLoc.longitude,
+                        destLat, destLng,
+                        results
+                    )
+
+                    val distanceInMeters = results[0]
+
+                    // 5. Format the result into a human-readable string
+                    _restaurantDistance.value = if (distanceInMeters < 1000) {
+                        "${distanceInMeters.toInt()} m"
+                    } else {
+                        "%.1f km".format(distanceInMeters / 1000)
+                    }
+                } ?: run {
+                    _restaurantDistance.value = "GPS unavailable"
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("PlaceViewModel", "Distance calculation failed", e)
+                _restaurantDistance.value = "Error getting distance"
             }
         }
     }
@@ -617,4 +689,3 @@ sealed class VoteResultState {
     object VoteSuccess : VoteResultState()
     data class VoteError(val message: String) : VoteResultState()
 }
-
