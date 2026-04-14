@@ -22,6 +22,7 @@ import androidx.room.PrimaryKey
  * @property eventId ID of the event this restaurant belongs to.
  * @property name Restaurant display name.
  * @property address Full formatted address.
+ * @property searchLocation The city in which the restaurant is located.
  * @property latitude Latitude coordinate for map display.
  * @property longitude Longitude coordinate for map display.
  * @property openingHoursJson JSON-encoded list of opening hours strings.
@@ -36,18 +37,14 @@ data class RestaurantEntity(
 
     @PrimaryKey
     val placeId: String,
-
     val eventId: String,
-
     val name: String,
     val address: String,
-
+    val searchLocation: String,
     val latitude: Double,
     val longitude: Double,
-
     val openingHoursJson: String,
     val typesJson: String?,
-
     val photoReference: String?,
     val priceLevel: Int,
     val rating: Double,

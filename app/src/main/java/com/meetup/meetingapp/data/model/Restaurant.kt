@@ -17,6 +17,7 @@ package com.meetup.meetingapp.data.model
  * @property placeId Unique Google Places ID for the restaurant.
  * @property name Display name of the restaurant.
  * @property address Full formatted address (maybe null if API omits it).
+ * @property searchLocation The city in which the restaurant is located.
  * @property rating Average Google rating (0.0–5.0).
  * @property userRatingCount Number of user reviews contributing to the rating.
  * @property priceLevel Google price level (0–4), where higher means more expensive.
@@ -32,6 +33,7 @@ data class Restaurant(
     val placeId: String = "",
     val name: String = "",
     val address: String? = "",
+    val searchLocation: String? = "",
     val rating: Double? = 0.0,
     val userRatingCount: Int? = 0,
     val priceLevel: Int? = 0,
