@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -133,7 +134,29 @@ fun AreaSelectingContent(
             verticalArrangement = Arrangement.Top
         ) {
             item {
-                Spacer(modifier = Modifier.padding(36.dp))
+                Spacer(modifier = Modifier.height(36.dp))
+
+                Text(
+                    "Choose a country and",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    "select cities",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.padding(24.dp))
 
                 AppMultiSelectDropdown(
                     options = countryOptions,
@@ -146,7 +169,7 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(36.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
 
                 AppMultiSelectDropdown(
                     options = cityOptions,
@@ -159,7 +182,7 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(36.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
 
                 Button(
                     onClick = onNextClick,
