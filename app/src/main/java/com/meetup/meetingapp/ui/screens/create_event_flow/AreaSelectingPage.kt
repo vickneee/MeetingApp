@@ -101,7 +101,6 @@ fun AreaSelectingPage(
  * @param onNextClick Callback for the primary action button.
  * @param modifier Modifier applied to the root layout.
  */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AreaSelectingContent(
@@ -115,7 +114,6 @@ fun AreaSelectingContent(
     onNextClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
@@ -148,7 +146,7 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(48.dp))
+                Spacer(modifier = Modifier.padding(36.dp))
 
                 AppMultiSelectDropdown(
                     options = cityOptions,
@@ -161,7 +159,7 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(48.dp))
+                Spacer(modifier = Modifier.padding(36.dp))
 
                 Button(
                     onClick = onNextClick,

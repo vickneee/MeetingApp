@@ -182,7 +182,7 @@ fun EventCreatedContent(
                         "Copy Code",
                         color = brandBlue,
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(6.dp)
                     )
                 }
 
@@ -200,7 +200,7 @@ fun EventCreatedContent(
                         "Share",
                         color = brandBlue,
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(6.dp)
                     )
                 }
 
