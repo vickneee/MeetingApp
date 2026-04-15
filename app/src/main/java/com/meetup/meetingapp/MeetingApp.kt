@@ -1,5 +1,7 @@
 package com.meetup.meetingapp
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -31,13 +33,19 @@ fun MeetingAppTopAppBar(
     canNavigateBack: Boolean,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
+    windowInsets: WindowInsets = WindowInsets.statusBars,
     navigateUp: () -> Unit = {}
 ) {
-    CenterAlignedTopAppBar(title = { Text(text = title,
-        fontWeight = FontWeight.SemiBold
-        ) },
+    CenterAlignedTopAppBar(
+        title = { 
+            Text(
+                text = title,
+                fontWeight = FontWeight.SemiBold
+            ) 
+        },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
+        windowInsets = windowInsets,
         navigationIcon = {
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {

@@ -132,6 +132,7 @@ fun EventCreatedContent(
     val brandBlue = Color(0xFF3B82F6)
 
     Scaffold(
+
         topBar = {
             MeetingAppTopAppBar(
                 title = "Event Created",
@@ -182,7 +183,7 @@ fun EventCreatedContent(
                         "Copy Code",
                         color = brandBlue,
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(6.dp)
                     )
                 }
 
@@ -200,7 +201,7 @@ fun EventCreatedContent(
                         "Share",
                         color = brandBlue,
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(6.dp)
                     )
                 }
 

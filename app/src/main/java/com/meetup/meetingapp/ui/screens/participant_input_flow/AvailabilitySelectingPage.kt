@@ -1,51 +1,40 @@
 package com.meetup.meetingapp.ui.screens.participant_input_flow
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
+import com.meetup.meetingapp.data.model.DateTime
+import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.components.AppMultiSelectDropdown
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -83,15 +72,17 @@ fun AvailabilitySelectingPage(
     navigateToNextStep: () -> Unit,
     viewModel: ParticipantViewModel
 ) {
-    val dates by viewModel.dates.collectAsState()
+    val allDateTimes by viewModel.allAvailableDateTimes.collectAsState()
+    val participantState by viewModel.participantState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
     AvailabilitySelectingPageContent(
         onBack = onBack,
         onNext = navigateToNextStep,
-        dates = dates,
+        allDateTimes = allDateTimes,
+        selectedDateTimes = participantState.selectedDateTimes,
         isLoading = isLoading,
-        onToggleTimeSlot = { date, slotIndex -> viewModel.toggleDateTime(date, slotIndex) },
+        onToggleDateTime = { viewModel.toggleDateTime(it) },
         modifier = Modifier
     )
 }
@@ -102,14 +93,15 @@ fun AvailabilitySelectingPageContent(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     onNext: () -> Unit,
-    dates: List<DateAvailability> = emptyList(),
+    allDateTimes: List<DateTime> = emptyList(),
+    selectedDateTimes: List<DateTime> = emptyList(),
     isLoading: Boolean = false,
-    onToggleTimeSlot: (String, Int) -> Unit = { _, _ -> }
+    onToggleDateTime: (DateTime) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Select Your Availability",
+                title = stringResource(id = R.string.title_place_type_and_keyword),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -117,7 +109,9 @@ fun AvailabilitySelectingPageContent(
     ) { paddingValues ->
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
         } else {
             LazyColumn(
@@ -133,32 +127,55 @@ fun AvailabilitySelectingPageContent(
                     Spacer(modifier = Modifier.height(48.dp))
 
                     Text(
-                        text = "Choose all dates and time\nslots you can join",
+                        text = "Choose all dates and time",
                         style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
+                item {
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        "slots you can join",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(36.dp))
+
+                    AppMultiSelectDropdown(
+                        options = allDateTimes,
+                        selected = selectedDateTimes,
+                        onToggle = onToggleDateTime,
+                        label = "Availability",
+                        instruction = "Select dates and times",
+                        toText = { dateTime ->
+                            val displayDate = try {
+                                val localDate = LocalDate.parse(dateTime.date)
+                                localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+                            } catch (e: Exception) {
+                                dateTime.date
+                            }
+                            "$displayDate: ${dateTime.timeSlot.start} - ${dateTime.timeSlot.end}"
+                        }
+                    )
+                }
+
                 item {
                     Spacer(modifier = Modifier.height(48.dp))
-                }
-
-                items(dates) { dateAvailability ->
-                    DateCard(
-                        availability = dateAvailability,
-                        onToggleTimeSlot = { slotIndex -> onToggleTimeSlot(dateAvailability.date, slotIndex) }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
                         onClick = onNext,
+                        enabled = selectedDateTimes.isNotEmpty(),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
-                            .wrapContentWidth() // only as wide as text
+                            .wrapContentWidth()
                     ) {
                         Text(
                             text = "Next",
@@ -173,83 +190,17 @@ fun AvailabilitySelectingPageContent(
     }
 }
 
-@Composable
-fun DateCard(
-    availability: DateAvailability,
-    onToggleTimeSlot: (Int) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    // Format the date to EU format (dd.MM.yyyy)
-    val displayDate = remember(availability.date) {
-        try {
-            val localDate = LocalDate.parse(availability.date)
-            localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-        } catch (e: Exception) {
-            availability.date
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-            .background(Color.White, RoundedCornerShape(8.dp))
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = !expanded }
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = displayDate,
-                fontWeight = FontWeight.Bold
-            )
-            Icon(
-                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
-        if (expanded) {
-            availability.timeSlots.forEachIndexed { index, slot ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onToggleTimeSlot(index) }
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = slot.isSelected,
-                        onCheckedChange = null // Handled by Row clickable
-                    )
-                    Text(
-                        text = slot.timeRange,
-                        modifier = Modifier.padding(start = 8.dp),
-                        fontSize = 14.sp,
-                        color = Color.DarkGray
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun AvailabilitySelectingPageContentPreview() {
     MaterialTheme {
         AvailabilitySelectingPageContent(
+            isLoading = false,
             onBack = {},
             onNext = {},
-            dates = listOf(
-                DateAvailability("2025-04-13", listOf(UiTimeSlot(1, "11:00 - 14:00", false))),
-                DateAvailability("2025-04-14", listOf(UiTimeSlot(2, "09:00 - 12:00", true)))
+            allDateTimes = listOf(
+                DateTime("2025-04-13", TimeSlot("11:00", "14:00")),
+                DateTime("2025-04-14", TimeSlot("09:00", "12:00"))
             )
         )
     }

@@ -107,7 +107,7 @@ fun SmallAreaSelectingContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 40.dp),
+                .padding(horizontal = 48.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -142,7 +142,7 @@ fun SmallAreaSelectingContent(
             item {
                 val isAnySelected = selectedAreas.isNotEmpty()
 
-                Spacer(modifier = Modifier.height(80.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 Button(
                     onClick = onNext,
@@ -150,14 +150,15 @@ fun SmallAreaSelectingContent(
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                     modifier = Modifier
+                        .wrapContentWidth()
                 ) {
                     Text(
                         text = "Next",
                         fontSize = 18.sp,
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                 }
+                Spacer(modifier = Modifier.height(48.dp))
             }
         }
     }
