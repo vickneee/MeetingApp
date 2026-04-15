@@ -70,7 +70,7 @@ fun ChooseDateAndAreaPage(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val restaurantState by viewModel.restaurantState.collectAsStateWithLifecycle()
 
-    when(restaurantState){
+    when (restaurantState) {
         is RestaurantState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
 
         is RestaurantState.Available -> event?.let {
@@ -149,13 +149,17 @@ fun ChooseDateAndAreaContent(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
                 .padding(horizontal = 48.dp),
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             item {
                 Spacer(modifier = Modifier.padding(24.dp))
 
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     Text(buildAnnotatedString {
                         append("Event Code: ")
                         withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
@@ -183,32 +187,30 @@ fun ChooseDateAndAreaContent(
                             append(event.hostName)
                         }
                     }, fontSize = 20.sp)
-                }
-                Spacer(modifier = Modifier.padding(24.dp))
 
-                Text(
-                    text = "Submissions: $submissionsCount",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                    Spacer(modifier = Modifier.padding(12.dp))
+
+                    Text(
+                        text = "Submissions: $submissionsCount",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             item {
-                Spacer(modifier = Modifier.padding(32.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(modifier = Modifier.height(12.dp))
-
                     if (isLoading) {
                         CircularProgressIndicator(
                             color = Color(0xFF3B82F6),
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                     }
-
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Button(
@@ -221,7 +223,7 @@ fun ChooseDateAndAreaContent(
                         Text(
                             "Choose Date & Area",
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(6.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
                         )
                     }
                 }
@@ -246,8 +248,7 @@ fun ChooseDateAndAreaContent(
                             modifier = Modifier.padding(6.dp)
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(36.dp))
+                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
         }
