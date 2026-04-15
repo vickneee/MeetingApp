@@ -83,7 +83,7 @@ fun HomeScreen(
                     style = TextStyle(
                         fontSize = 75.sp,
                         shadow = Shadow(
-                            color = Color.LightGray, offset = Offset(0.0f, 15.0f), blurRadius = 7f
+                            color = Color.LightGray, offset = Offset(0.0f, 6.0f), blurRadius = 7f
                         )
                     )
                 )
@@ -159,5 +159,7 @@ fun HomeScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun HomeScreenPreview() {
+fun HomeScreenPreview(
+) {
+    HomeScreen(onMainClick = {}, onEventsClick = {})
 }
