@@ -74,6 +74,7 @@ fun MeetUpDetailPage(
     val participantState by viewModel.participantState.collectAsStateWithLifecycle(
         ParticipantInputState())
     val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     when (val currentFetchState = fetchState) {
         is FetchState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -86,6 +87,7 @@ fun MeetUpDetailPage(
         is FetchState.Success -> event?.let {
             MeetUpDetailContent(
                 event = it,
+                submissionsCount = uiState.submissionsCount,
                 participantState = participantState,
                 onNameChange = viewModel::updateName,
                 onBack = onBack,
@@ -111,6 +113,7 @@ fun MeetUpDetailPage(
 fun MeetUpDetailContent(
     modifier: Modifier = Modifier,
     event: Event,
+    submissionsCount: Int,
     participantState: ParticipantInputState,
     onNameChange: (String) -> Unit,
     onBack: () -> Unit,
@@ -175,7 +178,15 @@ fun MeetUpDetailContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.padding(vertical = 64.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
+
+                Text(
+                    text = "Submissions: $submissionsCount",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.padding(vertical = 24.dp))
 
                 Text(
                     text = "Your Name",
@@ -196,7 +207,7 @@ fun MeetUpDetailContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(54.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
 
                 // Center the button and make it only as wide as its content
                 Box(
@@ -234,6 +245,7 @@ fun MeetUpDetailPreview() {
 
     MeetUpDetailContent(
         event = sampleEvent,
+        submissionsCount = 0,
         participantState = ParticipantInputState(),
         onNameChange = {},
         onBack = {},
