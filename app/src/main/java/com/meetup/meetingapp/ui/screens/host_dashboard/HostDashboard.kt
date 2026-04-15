@@ -268,7 +268,7 @@ fun HostDashboardContent(
                         enabled = buttonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.8f)
+                        modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
                         Text(
                             text = buttonText,
@@ -307,7 +307,7 @@ fun HostDashboardContent(
                                 modifier = Modifier.padding(6.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.height(36.dp))
+                        Spacer(modifier = Modifier.height(48.dp))
                     }
                 }
             }
