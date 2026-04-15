@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Checkbox
@@ -23,10 +24,12 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,9 +37,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -64,17 +70,37 @@ fun <T> AppMultiSelectDropdown(
     var expanded by rememberSaveable { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }
     val scrollState = rememberScrollState()
+    val focusRequester = remember { FocusRequester() }
     
     val configuration = LocalConfiguration.current
-    val maxMenuHeight = (configuration.screenHeightDp * 0.8f).dp
-
-    val filteredOptions = remember(options, query) {
-        options.filter { toText(it).contains(query, ignoreCase = true) }
+    val maxMenuHeight = remember(configuration.screenHeightDp) {
+        (configuration.screenHeightDp * 0.8f).dp
     }
 
-    // Sort to show selected items at the top
-    val sortedOptions = remember(filteredOptions, selected) {
-        filteredOptions.sortedByDescending { it in selected }
+    // Optimization: Cache text representations to avoid expensive 'toText' calls during filtering/sorting
+    val optionsWithText = remember(options) {
+        options.map { it to toText(it) }
+    }
+
+    // Optimization: Convert selected to a set for O(1) lookup
+    val selectedSet = remember(selected) { selected.toSet() }
+
+    val filteredOptions = remember(optionsWithText, query) {
+        if (query.isEmpty()) optionsWithText
+        else optionsWithText.filter { it.second.contains(query, ignoreCase = true) }
+    }
+
+    // Sort to show selected items at the top and limit to 100 results for high performance.
+    // Rendering thousands of items in a single frame causes latency; 100 is optimal for search.
+    val sortedOptions = remember(filteredOptions, selectedSet) {
+        filteredOptions.sortedByDescending { it.first in selectedSet }.take(100)
+    }
+
+    // Automatically request focus when expanded to ensure keyboard activity
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            focusRequester.requestFocus()
+        }
     }
 
     Column {
@@ -82,7 +108,8 @@ fun <T> AppMultiSelectDropdown(
             text = label,
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
-            modifier = Modifier.padding(bottom = 4.dp)
+            modifier = Modifier.padding(bottom = 4.dp),
+            color = MaterialTheme.colorScheme.onBackground
         )
         
         // Display selected options on top in separate rows with a remove button
@@ -110,7 +137,7 @@ fun <T> AppMultiSelectDropdown(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Remove",
-                                tint = Color.Gray,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -121,9 +148,9 @@ fun <T> AppMultiSelectDropdown(
 
         ExposedDropdownMenuBox(
             expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+            onExpandedChange = { expanded = it }
         ) {
-            TextField(
+            OutlinedTextField(
                 value = query,
                 onValueChange = {
                     query = it
@@ -131,18 +158,22 @@ fun <T> AppMultiSelectDropdown(
                 },
                 readOnly = false,
                 placeholder = { Text(instruction) },
-                trailingIcon = { TrailingIcon(expanded) },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color(0xFF3B82F6),
-                    unfocusedIndicatorColor = Color.Gray,
+                trailingIcon = { TrailingIcon(expanded = expanded) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedBorderColor = Color(0xFF3B82F6),
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                     focusedTrailingIconColor = Color(0xFF3B82F6),
-                    unfocusedTrailingIconColor = Color.Gray,
+                    unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                 ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .menuAnchor(),
+                    .menuAnchor()
+                    .focusRequester(focusRequester),
                 shape = RoundedCornerShape(8.dp),
                 singleLine = true
             )
@@ -153,14 +184,16 @@ fun <T> AppMultiSelectDropdown(
                 scrollState = scrollState,
                 modifier = Modifier.heightIn(max = maxMenuHeight)
             ) {
-                sortedOptions.forEach { option ->
-                    val isSelected = option in selected
+                sortedOptions.forEach { pair ->
+                    val option = pair.first
+                    val text = pair.second
+                    val isSelected = option in selectedSet
                     DropdownMenuItem(
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 AppCheckbox(checked = isSelected)
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text(toText(option))
+                                Text(text)
                             }
                         },
                         onClick = { onToggle(option) },
@@ -185,7 +218,7 @@ fun AppCheckbox(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)? = null) 
         onCheckedChange = onCheckedChange,
         colors = CheckboxDefaults.colors(
             checkedColor = Color(0xFF3B82F6),
-            uncheckedColor = Color.Gray,
+            uncheckedColor = MaterialTheme.colorScheme.outline,
             checkmarkColor = Color.White
         )
     )

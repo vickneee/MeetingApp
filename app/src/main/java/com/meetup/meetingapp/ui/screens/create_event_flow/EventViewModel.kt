@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.CountryOption
@@ -10,10 +9,16 @@ import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -43,9 +48,37 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     val citiesFetchState = _citiesFetchState.asStateFlow()
 
-    private val _citiesState = MutableStateFlow(listOf<String>())
+    // Selected countries used to trigger city observation
+    private val _selectedCountries = MutableStateFlow(listOf(CountryOption.Finland))
 
-    val citiesState = _citiesState.asStateFlow()
+    /**
+     * Reactively observe cities based on selected countries.
+     * Uses Room as the single source of truth.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val citiesState: StateFlow<List<String>> = _selectedCountries
+        .flatMapLatest { countries ->
+            if (countries.isEmpty()) {
+                _citiesFetchState.value = CitiesFetchState.Success
+                flowOf(emptyList())
+            } else {
+                _citiesFetchState.value = CitiesFetchState.Loading
+                val flows = countries.map { eventRepository.getCitiesByCountry(it) }
+                combine(flows) { cityLists ->
+                    cityLists.flatMap { it }.distinct().sorted()
+                }
+            }
+        }
+        .flowOn(Dispatchers.Default)
+        .map {
+            _citiesFetchState.value = CitiesFetchState.Success
+            it
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     /**
      * Synchronizes events from the repository.
@@ -59,7 +92,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     init {
         syncCities()
-        observeCities(listOf(CountryOption.Finland))
     }
 
     /**
@@ -71,38 +103,12 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
         }
     }
 
+    /**
+     * Refreshes the city list based on current selection.
+     * (Retained for compatibility with UI retry logic)
+     */
     fun observeCities(countries: List<CountryOption>) {
-        viewModelScope.launch {
-            try {
-                // For now, let's just collect cities for all selected countries and merge them
-                // Or if the repository supports multiple countries, use that.
-                // Assuming it might take a while, showing loading.
-                _citiesFetchState.value = CitiesFetchState.Loading
-                
-                val allCities = mutableListOf<String>()
-                countries.forEach { country ->
-                    // This is a bit naive if we have multiple flows, but for now we take the first snapshot or use a combine.
-                    // Simplified: just get for each and add to list.
-                    // Better would be to have a repository method that takes a list.
-                    // For now, let's stick to the current API and just handle the first one if only one is expected, 
-                    // or collect all.
-                    eventRepository.getCitiesByCountry(country).collect { cities ->
-                        allCities.addAll(cities)
-                        _citiesState.value = allCities.distinct().sorted()
-                        _citiesFetchState.value = CitiesFetchState.Success
-                    }
-                }
-                
-                if (countries.isEmpty()) {
-                    _citiesState.value = emptyList()
-                    _citiesFetchState.value = CitiesFetchState.Success
-                }
-
-            } catch (e: Exception) {
-                Log.e("EventViewModel", "Error observing cities", e)
-                _citiesFetchState.value = CitiesFetchState.Error("Cities not found")
-            }
-        }
+        _selectedCountries.value = countries
     }
 
     /**
@@ -210,7 +216,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
         val selectedCountryOptions = _uiState.value.locations.countries.mapNotNull { name ->
             CountryOption.entries.find { it.name == name }
         }
-        observeCities(selectedCountryOptions)
+        _selectedCountries.value = selectedCountryOptions
     }
 
     fun toggleCity(city: String) {
@@ -222,32 +228,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
             current.copy(
                 locations = current.locations.copy(
                     cities = updated
-                )
-            )
-        }
-    }
-
-    /**
-     * Adds a city to the list of selected cities in the location options.
-     */
-    fun addCity(city: String) {
-        _uiState.update { current ->
-            current.copy(
-                locations = current.locations.copy(
-                    cities = current.locations.cities + city
-                )
-            )
-        }
-    }
-
-    /**
-     * Removes a city from the list of selected cities.
-     */
-    fun removeCity(city: String) {
-        _uiState.update { current ->
-            current.copy(
-                locations = current.locations.copy(
-                    cities = current.locations.cities - city
                 )
             )
         }
