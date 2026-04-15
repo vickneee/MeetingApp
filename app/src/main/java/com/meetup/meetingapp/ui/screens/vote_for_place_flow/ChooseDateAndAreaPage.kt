@@ -211,7 +211,7 @@ fun ChooseDateAndAreaContent(
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
                         onClick = onVoteForRestaurantClick,

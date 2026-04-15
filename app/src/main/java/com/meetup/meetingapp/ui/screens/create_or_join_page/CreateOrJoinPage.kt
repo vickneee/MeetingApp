@@ -113,6 +113,7 @@ fun CreateOrJoinContent(
     onEventsClick: () -> Unit
 ) {
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             MeetingAppTopAppBar(
                 title = "MeetUp Planner",
@@ -150,7 +151,10 @@ fun CreateOrJoinContent(
                     Text(
                         text = "Create Event",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier
+                            .padding(
+                                vertical = 6.dp,
+                            )
                     )
                 }
                 Log.d("CreateOrJoinPage", "Code: $code, Key: $key")
@@ -195,7 +199,11 @@ fun CreateOrJoinContent(
                     Text(
                         text = "Join Event",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier
+                            .padding(
+                                vertical = 6.dp,
+                                horizontal = 16.dp
+                            )
                     )
                 }
 
@@ -215,10 +223,8 @@ fun CreateOrJoinContent(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(
-                            top = 4.dp,
-                            bottom = 4.dp,
-                            start = 36.dp,
-                            end = 36.dp
+                            vertical = 6.dp,
+                            horizontal = 36.dp
                         )
                     )
                 }

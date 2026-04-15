@@ -163,7 +163,7 @@ fun PlaceListContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 Text(
                     "Places",

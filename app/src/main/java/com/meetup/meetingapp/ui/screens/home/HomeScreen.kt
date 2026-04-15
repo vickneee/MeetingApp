@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,12 +21,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -65,7 +63,9 @@ fun HomeScreen(
         Log.d("HomeScreen", "Signed in anonymously")
     }
 
-    Scaffold { paddingValues ->
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -78,31 +78,34 @@ fun HomeScreen(
                 Text(
                     text = "MeetUp",
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier,
-                    color = Color(0xFF3B82F6),
+                    color = MaterialTheme.colorScheme.primary,
                     style = TextStyle(
                         fontSize = 75.sp,
                         shadow = Shadow(
-                            color = Color.LightGray, offset = Offset(0.0f, 6.0f), blurRadius = 7f
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
+                            offset = Offset(0f, 6f),
+                            blurRadius = 7f
                         )
                     )
                 )
 
-                Spacer(modifier = Modifier.padding(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
                     text = "Make plans easy for everyone.",
-                    modifier = Modifier.padding(16.dp),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                Spacer(modifier = Modifier.padding(20.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 Button(
                     onClick = onMainClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
@@ -110,45 +113,45 @@ fun HomeScreen(
                     Text(
                         text = "Create Event",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(6.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.padding(16.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 Button(
                     onClick = onMainClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
                         text = "Join Event",
                         fontSize = 18.sp,
                         modifier = Modifier
-                            .padding(4.dp)
+                            .padding(horizontal = 16.dp, vertical = 6.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.padding(16.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 Button(
                     onClick = onEventsClick,
-                    border = BorderStroke(2.dp, Color(0xFF3B82F6)),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Color(0xFF3B82F6)
+                        contentColor = MaterialTheme.colorScheme.primary
                     ),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
                         text = "Events",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(
-                            top = 4.dp,
-                            bottom = 4.dp,
-                            start = 36.dp,
-                            end = 36.dp
+                            vertical = 6.dp,
+                            horizontal = 36.dp
                         )
                     )
                 }

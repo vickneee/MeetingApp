@@ -1,5 +1,8 @@
 package com.meetup.meetingapp.ui.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -89,7 +92,21 @@ fun MeetingAppNavHost(
     val currentUserId by homeViewModel.currentUserId.collectAsStateWithLifecycle()
 
     NavHost(
-        navController = navController, startDestination = HomeDestination.route, modifier = modifier
+        navController = navController,
+        startDestination = HomeDestination.route,
+        enterTransition = {
+            fadeIn(animationSpec = tween(500))
+        },
+        exitTransition = {
+            fadeOut(animationSpec = tween(500))
+        },
+        popEnterTransition = {
+            fadeIn(animationSpec = tween(500))
+        },
+        popExitTransition = {
+            fadeOut(animationSpec = tween(500))
+        },
+        modifier = modifier
     ) {
         /**
          * Home destination
