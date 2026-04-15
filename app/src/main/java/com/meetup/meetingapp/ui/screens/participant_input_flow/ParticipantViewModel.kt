@@ -76,6 +76,10 @@ class ParticipantViewModel(
     // User ID of the current user
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
+    // UI state for the detail page
+    private val _uiState = MutableStateFlow(SubmitState.ParticipantDashboardUiState())
+    val uiState = _uiState.asStateFlow()
+
     // True if user created the event, false if joined via link
     val isHost: StateFlow<Boolean> = _event
         .map { event ->
@@ -148,6 +152,7 @@ class ParticipantViewModel(
                                 participantName = if (it.participantName.isEmpty() && event.hostId == currentUserId) event.hostName else it.participantName
                             ) 
                         }
+                        observeSubmissions(event.id)
                         _fetchState.value = FetchState.Success
                         _isLoading.value = false
                     } else {
@@ -297,6 +302,20 @@ class ParticipantViewModel(
     fun updateName(name: String) {
         _participantState.update { it.copy(participantName = name) }
     }
+
+    /**
+     * Observes submissions for the given event ID.
+     *
+     * @param eventId The ID of the event to observe submissions for.
+     */
+    private fun observeSubmissions(eventId: String) {
+        viewModelScope.launch {
+            eventRepository.observeSubmissions(eventId).collect { submissions ->
+                _uiState.update { it.copy(submissionsCount = submissions.size) }
+            }
+        }
+    }
+
 }
 
 /**
@@ -358,4 +377,11 @@ sealed interface SubmitState {
 
     /** Submission failed due to an error. */
     data class Error(val error: Throwable) : SubmitState
+
+    /**
+     * Represents the state of the participant dashboard.
+     */
+    data class ParticipantDashboardUiState(
+        val submissionsCount: Int = 0
+    )
 }

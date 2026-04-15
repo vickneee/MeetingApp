@@ -17,6 +17,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,6 +75,7 @@ fun MeetUpDetailPage(
     val participantState by viewModel.participantState.collectAsStateWithLifecycle(
         ParticipantInputState())
     val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     when (val currentFetchState = fetchState) {
         is FetchState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -86,6 +88,7 @@ fun MeetUpDetailPage(
         is FetchState.Success -> event?.let {
             MeetUpDetailContent(
                 event = it,
+                submissionsCount = uiState.submissionsCount,
                 participantState = participantState,
                 onNameChange = viewModel::updateName,
                 onBack = onBack,
@@ -111,6 +114,7 @@ fun MeetUpDetailPage(
 fun MeetUpDetailContent(
     modifier: Modifier = Modifier,
     event: Event,
+    submissionsCount: Int,
     participantState: ParticipantInputState,
     onNameChange: (String) -> Unit,
     onBack: () -> Unit,
@@ -175,7 +179,15 @@ fun MeetUpDetailContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.padding(vertical = 64.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
+
+                Text(
+                    text = "Submissions: $submissionsCount",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.padding(vertical = 24.dp))
 
                 Text(
                     text = "Your Name",
@@ -191,12 +203,19 @@ fun MeetUpDetailContent(
                     onValueChange = onNameChange,
                     label = { Text("Enter your name") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
                 )
             }
 
             item {
-                Spacer(modifier = Modifier.padding(54.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
 
                 // Center the button and make it only as wide as its content
                 Box(
@@ -234,6 +253,7 @@ fun MeetUpDetailPreview() {
 
     MeetUpDetailContent(
         event = sampleEvent,
+        submissionsCount = 0,
         participantState = ParticipantInputState(),
         onNameChange = {},
         onBack = {},

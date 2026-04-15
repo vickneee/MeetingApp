@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
+import android.R.attr.bottom
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -73,15 +74,15 @@ fun CreateEventContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 40.dp),
+                .padding(horizontal = 48.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             item {
                 Text(
                     text = "Choose allowed place types:",
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(bottom = 24.dp)
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 36.dp)
                 )
             }
 
@@ -118,7 +119,7 @@ fun CreateEventContent(
             item {
                 val isAnySelected = placeTypes.isNotEmpty()
 
-                Spacer(modifier = Modifier.height(160.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 Button(
                     onClick = onCreatedEvent,

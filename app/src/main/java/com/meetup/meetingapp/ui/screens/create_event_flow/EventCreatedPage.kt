@@ -132,6 +132,7 @@ fun EventCreatedContent(
     val brandBlue = Color(0xFF3B82F6)
 
     Scaffold(
+
         topBar = {
             MeetingAppTopAppBar(
                 title = "Event Created",

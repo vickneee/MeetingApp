@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
+import android.R.attr.fontWeight
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
@@ -156,7 +157,7 @@ fun PlaceDetailsContent(
                 navigateUp = onBack
             )
         },
-        containerColor = Color(0xFFF8F9FA)
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = modifier
@@ -168,7 +169,9 @@ fun PlaceDetailsContent(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
                     shape = RoundedCornerShape(12.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
@@ -193,6 +196,7 @@ fun PlaceDetailsContent(
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Text(
                                 text = restaurantDetail.name,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -212,11 +216,12 @@ fun PlaceDetailsContent(
                             }
                             Text(
                                 text = "${restaurantDetail.types?.firstOrNull() ?: "Restaurant"} · $priceLabel",
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 
-                        HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 1.dp)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant,
+                            thickness = 1.dp)
 
                         // Location/Status Section
                         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -234,8 +239,6 @@ fun PlaceDetailsContent(
                                 lineHeight = 24.sp
                             )
                         }
-
-                        Spacer(modifier = Modifier.height(12.dp))
 
                         // Action Buttons
                         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -258,8 +261,7 @@ fun PlaceDetailsContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF3B82F6),
-                                    disabledContainerColor = Color.Gray
+                                    containerColor = MaterialTheme.colorScheme.primary
                                 )
                             ) {
                                 Text(

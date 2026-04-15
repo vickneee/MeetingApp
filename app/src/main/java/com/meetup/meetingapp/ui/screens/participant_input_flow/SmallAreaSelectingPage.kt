@@ -142,7 +142,7 @@ fun SmallAreaSelectingContent(
             item {
                 val isAnySelected = selectedAreas.isNotEmpty()
 
-                Spacer(modifier = Modifier.height(80.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 Button(
                     onClick = onNext,

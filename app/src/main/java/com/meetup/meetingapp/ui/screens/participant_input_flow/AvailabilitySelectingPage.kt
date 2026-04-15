@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -100,7 +101,7 @@ fun AvailabilitySelectingPageContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Select Your Availability",
+                title = stringResource(id = R.string.title_place_type_and_keyword),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -108,7 +109,9 @@ fun AvailabilitySelectingPageContent(
     ) { paddingValues ->
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
         } else {
             LazyColumn(
@@ -124,15 +127,26 @@ fun AvailabilitySelectingPageContent(
                     Spacer(modifier = Modifier.height(48.dp))
 
                     Text(
-                        text = "Choose all dates and time\nslots you can join",
+                        text = "Choose all dates and time",
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                
                 item {
-                    Spacer(modifier = Modifier.height(48.dp))
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        "slots you can join",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(36.dp))
 
                     AppMultiSelectDropdown(
                         options = allDateTimes,
@@ -181,6 +195,7 @@ fun AvailabilitySelectingPageContent(
 fun AvailabilitySelectingPageContentPreview() {
     MaterialTheme {
         AvailabilitySelectingPageContent(
+            isLoading = false,
             onBack = {},
             onNext = {},
             allDateTimes = listOf(
