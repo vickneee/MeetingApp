@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.CountryOption
@@ -10,10 +9,16 @@ import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -43,9 +48,37 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     val citiesFetchState = _citiesFetchState.asStateFlow()
 
-    private val _citiesState = MutableStateFlow(listOf<String>())
+    // Selected countries used to trigger city observation
+    private val _selectedCountries = MutableStateFlow(listOf(CountryOption.Finland))
 
-    val citiesState = _citiesState.asStateFlow()
+    /**
+     * Reactively observe cities based on selected countries.
+     * Uses Room as the single source of truth.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val citiesState: StateFlow<List<String>> = _selectedCountries
+        .flatMapLatest { countries ->
+            if (countries.isEmpty()) {
+                _citiesFetchState.value = CitiesFetchState.Success
+                flowOf(emptyList())
+            } else {
+                _citiesFetchState.value = CitiesFetchState.Loading
+                val flows = countries.map { eventRepository.getCitiesByCountry(it) }
+                combine(flows) { cityLists ->
+                    cityLists.flatMap { it }.distinct().sorted()
+                }
+            }
+        }
+        .flowOn(Dispatchers.Default)
+        .map {
+            _citiesFetchState.value = CitiesFetchState.Success
+            it
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     /**
      * Synchronizes events from the repository.
@@ -59,7 +92,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     init {
         syncCities()
-        observeCities(CountryOption.Finland)
     }
 
     /**
@@ -71,23 +103,12 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
         }
     }
 
-    fun observeCities(country: CountryOption) {
-        viewModelScope.launch {
-            try {
-                eventRepository.getCitiesByCountry(country)
-                    .collect { cities ->
-                        if (cities.isEmpty()) {
-                            // If list is empty, we might want to trigger sync again or show a specific state
-                            Log.w("EventViewModel", "No cities found in Room for ${country.name}")
-                        }
-                        _citiesState.value = cities
-                        _citiesFetchState.value = CitiesFetchState.Success
-                    }
-            } catch (e: Exception) {
-                Log.e("EventViewModel", "Error observing cities", e) // Added logging
-                _citiesFetchState.value = CitiesFetchState.Error("Cities not found")
-            }
-        }
+    /**
+     * Refreshes the city list based on current selection.
+     * (Retained for compatibility with UI retry logic)
+     */
+    fun observeCities(countries: List<CountryOption>) {
+        _selectedCountries.value = countries
     }
 
     /**
@@ -177,15 +198,25 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
         }
     }
 
-    fun selectCountry(country: CountryOption){
+    fun toggleCountry(country: CountryOption) {
         _uiState.update { current ->
+            val updatedCountries = if (current.locations.countries.contains(country.name))
+                current.locations.countries - country.name
+            else
+                current.locations.countries + country.name
+            
             current.copy(
                 locations = current.locations.copy(
-                    country = country.name
+                    countries = updatedCountries
                 )
             )
         }
-        observeCities(country)
+        
+        // Refresh cities based on all selected countries
+        val selectedCountryOptions = _uiState.value.locations.countries.mapNotNull { name ->
+            CountryOption.entries.find { it.name == name }
+        }
+        _selectedCountries.value = selectedCountryOptions
     }
 
     fun toggleCity(city: String) {
@@ -197,32 +228,6 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
             current.copy(
                 locations = current.locations.copy(
                     cities = updated
-                )
-            )
-        }
-    }
-
-    /**
-     * Adds a city to the list of selected cities in the location options.
-     */
-    fun addCity(city: String) {
-        _uiState.update { current ->
-            current.copy(
-                locations = current.locations.copy(
-                    cities = current.locations.cities + city
-                )
-            )
-        }
-    }
-
-    /**
-     * Removes a city from the list of selected cities.
-     */
-    fun removeCity(city: String) {
-        _uiState.update { current ->
-            current.copy(
-                locations = current.locations.copy(
-                    cities = current.locations.cities - city
                 )
             )
         }
@@ -254,7 +259,7 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 data class EventUiState(
     val eventTitle: String = "",
     val hostName: String = "",
-    val dateRange: DateRange = DateRange(), // Fixed: Use default constructor instead of empty strings
+    val dateRange: DateRange = DateRange(),
     val hasSelectedDateRange: Boolean = false,
     val timeSlots: List<TimeSlot> = emptyList(),
     val locations: com.meetup.meetingapp.data.model.LocationOption = com.meetup.meetingapp.data.model.LocationOption(),
