@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
-import android.R.attr.fontWeight
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
@@ -20,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,7 +36,7 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
  */
 object PlaceDetailsDestination : NavigationDestination {
     override val route = "place_detail"
-    override val titleRes = R.string.title_participant_dashboard_waiting
+    override val titleRes = R.string.title_place_details
     const val placeIdArg = "placeId"
     val routeWithArgs = "$route/{$placeIdArg}"
 }
@@ -133,6 +133,17 @@ fun PlaceDetailsPage(
 
 /**
  * UI for displaying detailed information about a selected restaurant.
+ * @param restaurantDetail The detailed information about the selected restaurant.
+ * @param openLabel The opening hours of the restaurant.
+ * @param priceLabel The price level of the restaurant.
+ * @param photoUrl The URL of the restaurant's photo.
+ * @param distanceLabel The distance from the user to the restaurant.
+ * @param isVoted Whether the user has already voted for this restaurant.
+ * @param voteResultState The state of the vote result.
+ * @param onBack Callback to navigate back.
+ * @param onVoteClick Callback to handle the vote action.
+ * @param onMapsClick Callback to open the restaurant's location on Google Maps.
+ * @param modifier Modifier for styling.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -152,7 +163,7 @@ fun PlaceDetailsContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Place Details",
+                title = stringResource(id = R.string.title_place_details),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -246,7 +257,7 @@ fun PlaceDetailsContent(
                                 onClick = onMapsClick,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(2.dp, Color(0xFF3B82F6))
+                                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
                             ) {
                                 Text(
                                     text = "View on Google Maps",
@@ -287,6 +298,9 @@ fun PlaceDetailsContent(
     }
 }
 
+/**
+ * Preview for the [PlaceDetailsContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun PlaceDetailsPreview() {
