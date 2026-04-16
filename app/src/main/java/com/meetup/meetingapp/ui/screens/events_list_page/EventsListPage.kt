@@ -141,6 +141,9 @@ fun EventItem(
     }
 }
 
+/**
+ * Preview for the [EventsListPage] composable.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
