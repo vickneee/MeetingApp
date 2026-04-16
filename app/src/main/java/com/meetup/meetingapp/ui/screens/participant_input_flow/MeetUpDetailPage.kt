@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -17,13 +16,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +40,7 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
@@ -72,8 +73,10 @@ fun MeetUpDetailPage(
     val fetchState by viewModel.fetchState.collectAsStateWithLifecycle(FetchState.Loading)
     val event by viewModel.event.collectAsStateWithLifecycle(null)
     val participantState by viewModel.participantState.collectAsStateWithLifecycle(
-        ParticipantInputState())
+        ParticipantInputState()
+    )
     val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     when (val currentFetchState = fetchState) {
         is FetchState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -86,6 +89,7 @@ fun MeetUpDetailPage(
         is FetchState.Success -> event?.let {
             MeetUpDetailContent(
                 event = it,
+                submissionsCount = uiState.submissionsCount,
                 participantState = participantState,
                 onNameChange = viewModel::updateName,
                 onBack = onBack,
@@ -100,17 +104,21 @@ fun MeetUpDetailPage(
 
 /**
  * Participant MeetUp Detail Content
+ * @param modifier Modifier.
  * @param event The event data.
+ * @param submissionsCount The number of submissions.
  * @param participantState The participant input state.
  * @param onNameChange Callback to update the participant name.
  * @param onBack Navigate back.
- * @param modifier Modifier.
+ * @param onNavigateToTimeAvailability Navigate to the availability page.
+ * @param isHost Whether the current user is the host.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MeetUpDetailContent(
     modifier: Modifier = Modifier,
     event: Event,
+    submissionsCount: Int,
     participantState: ParticipantInputState,
     onNameChange: (String) -> Unit,
     onBack: () -> Unit,
@@ -120,7 +128,7 @@ fun MeetUpDetailContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "MeetUp Details",
+                title = stringResource(id = R.string.title_meetup_details_page),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -142,6 +150,7 @@ fun MeetUpDetailContent(
                     Text(
                         "You've joined this meetup!",
                         fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
@@ -151,7 +160,8 @@ fun MeetUpDetailContent(
                                 append(event.eventCode)
                             }
                         },
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
@@ -161,7 +171,8 @@ fun MeetUpDetailContent(
                                 append(event.eventTitle)
                             }
                         },
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
@@ -171,18 +182,28 @@ fun MeetUpDetailContent(
                                 append(event.hostName)
                             }
                         },
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
-                Spacer(modifier = Modifier.padding(vertical = 64.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
+
+                Text(
+                    text = "Submissions: $submissionsCount",
+                    fontSize = 22.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.padding(vertical = 24.dp))
 
                 Text(
                     text = "Your Name",
                     modifier = Modifier.padding(vertical = 5.dp),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 // Input for participant name
@@ -191,29 +212,34 @@ fun MeetUpDetailContent(
                     onValueChange = onNameChange,
                     label = { Text("Enter your name") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
                 )
             }
 
             item {
-                Spacer(modifier = Modifier.padding(54.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
 
-                // Center the button and make it only as wide as its content
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
                     Button(
                         onClick = onNavigateToTimeAvailability,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
-                            .wrapContentWidth() // only as wide as text
                     ) {
                         Text(
                             text = "Next",
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 4.dp)
+                            modifier = Modifier.padding(vertical = 6.dp)
                         )
                     }
                 }
@@ -222,6 +248,9 @@ fun MeetUpDetailContent(
     }
 }
 
+/**
+ * Preview for the [MeetUpDetailContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun MeetUpDetailPreview() {
@@ -232,12 +261,15 @@ fun MeetUpDetailPreview() {
         hostName = "Victoria"
     )
 
-    MeetUpDetailContent(
-        event = sampleEvent,
-        participantState = ParticipantInputState(),
-        onNameChange = {},
-        onBack = {},
-        onNavigateToTimeAvailability = {},
-        modifier = Modifier
-    )
+    MeetingAppTheme {
+        MeetUpDetailContent(
+            event = sampleEvent,
+            submissionsCount = 0,
+            participantState = ParticipantInputState(),
+            onNameChange = {},
+            onBack = {},
+            onNavigateToTimeAvailability = {},
+            modifier = Modifier
+        )
+    }
 }

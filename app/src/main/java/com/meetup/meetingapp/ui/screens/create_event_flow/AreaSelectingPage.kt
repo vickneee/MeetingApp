@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -17,6 +18,7 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.components.AppMultiSelectDropdown
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the Area Selecting screen.
@@ -42,6 +44,8 @@ object AreaSelectingDestination : NavigationDestination {
  * @param onBack Callback to navigate back to the previous screen.
  * @param navigateToCreatingEventPage Callback to navigate to the CreatingEventPage after selections are complete.
  * @param viewModel The [EventViewModel] providing UI state, city data, and selection logic.
+ *
+ * @see EventViewModel
  */
 
 @Composable
@@ -56,20 +60,20 @@ fun AreaSelectingPage(
 
     val citiesFetchState by viewModel.citiesFetchState.collectAsState()
 
-    when(citiesFetchState){
+    when (citiesFetchState) {
         is CitiesFetchState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
 
         is CitiesFetchState.Success ->
-        AreaSelectingContent(
-            onCountryToggle = { viewModel.toggleCountry(it) },
-            selectedCountries = uiState.locations.countries,
-            countryOptions = CountryOption.entries,
-            cityOptions = citiesState,
-            selectedCities = uiState.locations.cities,
-            onCityChange = {viewModel.toggleCity(it)},
-            onBack = onBack,
-            onNextClick = navigateToCreatingEventPage
-        )
+            AreaSelectingContent(
+                onCountryToggle = { viewModel.toggleCountry(it) },
+                selectedCountries = uiState.locations.countries,
+                countryOptions = CountryOption.entries,
+                cityOptions = citiesState,
+                selectedCities = uiState.locations.cities,
+                onCityChange = { viewModel.toggleCity(it) },
+                onBack = onBack,
+                onNextClick = navigateToCreatingEventPage
+            )
 
         is CitiesFetchState.Error -> {
             val state = citiesFetchState as CitiesFetchState.Error
@@ -133,7 +137,29 @@ fun AreaSelectingContent(
             verticalArrangement = Arrangement.Top
         ) {
             item {
-                Spacer(modifier = Modifier.padding(36.dp))
+                Spacer(modifier = Modifier.height(36.dp))
+
+                Text(
+                    "Choose a country and",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    "select cities",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.padding(24.dp))
 
                 AppMultiSelectDropdown(
                     options = countryOptions,
@@ -146,7 +172,7 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(36.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
 
                 AppMultiSelectDropdown(
                     options = cityOptions,
@@ -159,7 +185,7 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(36.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
 
                 Button(
                     onClick = onNextClick,
@@ -186,15 +212,17 @@ fun AreaSelectingContent(
 @Preview(showBackground = true)
 @Composable
 fun AreaSelectingPagePreview() {
-    AreaSelectingContent(
-        onCountryToggle = {},
-        selectedCountries = listOf(),
-        countryOptions = listOf(),
-        cityOptions = listOf(),
-        selectedCities = listOf(),
-        onCityChange = {},
-        onBack = {},
-        onNextClick = {},
-        modifier = Modifier
-    )
+    MeetingAppTheme {
+        AreaSelectingContent(
+            onCountryToggle = {},
+            selectedCountries = listOf(),
+            countryOptions = listOf(),
+            cityOptions = listOf(),
+            selectedCities = listOf(),
+            onCityChange = {},
+            onBack = {},
+            onNextClick = {},
+            modifier = Modifier
+        )
+    }
 }
