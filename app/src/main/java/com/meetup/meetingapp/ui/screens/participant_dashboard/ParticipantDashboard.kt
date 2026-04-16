@@ -245,7 +245,6 @@ fun ParticipantDashboardContent(
 
                         Text(
                             voteButtonText,
-                            color = MaterialTheme.colorScheme.outlineVariant,
                             fontSize = 18.sp,
                             modifier = Modifier.padding(6.dp)
                         )

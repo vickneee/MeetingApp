@@ -266,7 +266,6 @@ fun HostDashboardContent(
                     ) {
                         Text(
                             voteButtonText,
-                            color = MaterialTheme.colorScheme.outlineVariant,
                             fontSize = 18.sp,
                             modifier = Modifier.padding(8.dp)
                         )
@@ -283,7 +282,6 @@ fun HostDashboardContent(
                     ) {
                         Text(
                             text = buttonText,
-                            color = MaterialTheme.colorScheme.outlineVariant,
                             fontSize = 18.sp,
                             modifier = Modifier.padding(vertical = 6.dp)
                         )
