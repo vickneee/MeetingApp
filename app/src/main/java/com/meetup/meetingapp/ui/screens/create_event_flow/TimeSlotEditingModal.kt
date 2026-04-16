@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the Edit Time Slot screen.
@@ -51,19 +52,17 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 object EditTimeSlotDestination : NavigationDestination {
     override val route = "edit_time_slot"
     override val titleRes = R.string.edit_time_slot
-    const val routeWithArgs = "edit_time_slot?index={index}"
 }
 
 /**
  * Edit Time Slot Page
  *
  * This screen allows the user to edit the start and end time of an event.
- *
+ * @param index Index of the time slot to edit.
  * @param onBack Navigate back to the previous screen.
  * @param navigateToTimeSlotsSelectingPage Navigate to the Time Slots Selecting Page after saving the time slot.
  * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTimeSlotScreen(
@@ -120,6 +119,11 @@ fun EditTimeSlotScreen(
     }
 }
 
+/**
+ * Advanced Time Picker
+ * @param onConfirm Callback to handle the selected time.
+ * @param onDismiss Callback to dismiss the dialog.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdvancedTimePicker(
@@ -139,6 +143,21 @@ fun AdvancedTimePicker(
     )
 }
 
+/**
+ * Edit Time Slot Content
+ * @param uiState Current UI state containing event title, host name, and other form values.
+ * @param startTime Start time of the event.
+ * @param endTime End time of the event.
+ * @param onStartTimeClick Callback to show the start time picker.
+ * @param onEndTimeClick Callback to show the end time picker.
+ * @param showDialog Whether to show the time picker dialog.
+ * @param selectedTime Selected time.
+ * @param showPickerType Type of the selected time (start or end).
+ * @param onBack Navigate back to the previous screen.
+ * @param onSaveTimeSlot Callback to save the time slot.
+ * @param navigateToTimeSlotsSelectingPage Callback to navigate to the Time Slots Selecting Page.
+ * @param modifier Optional [Modifier] for layout adjustments.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTimeSlotContent(
@@ -214,17 +233,23 @@ fun EditTimeSlotContent(
                               },
                     modifier = Modifier,
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(text = "Save", fontSize = 18.sp,
                         modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 4.dp))
+                            .padding(horizontal = 16.dp, vertical = 6.dp))
                 }
             }
         }
     }
 }
 
+/**
+ * Time Selector Field
+ * @param label Label for the field
+ * @param time Time to display
+ * @param onClick Callback to show the time picker
+ */
 @Composable
 fun TimeSelectorField(
     label: String,
@@ -250,6 +275,7 @@ fun TimeSelectorField(
         ) {
             Text(
                 text = time,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable(onClick = onClick)
@@ -257,7 +283,7 @@ fun TimeSelectorField(
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Edit Time Slot",
-                tint = Color.Gray,
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .size(20.dp)
@@ -269,7 +295,7 @@ fun TimeSelectorField(
 @Preview(showBackground = true, name = "Default State")
 @Composable
 fun EditTimeSlotScreenPreview() {
-    MaterialTheme {
+    MeetingAppTheme {
         Surface {
             EditTimeSlotContent(
                 uiState = EventUiState(),
