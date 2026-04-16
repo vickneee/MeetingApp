@@ -427,6 +427,9 @@ fun MeetingAppNavHost(
             HostDashboardPage(
                 onBack = { navController.popBackStack() },
                 onVoteForRestaurantClick = { navController.navigate("${ChooseDateAndAreaDestination.route}/$eventId") },
+                onFinalPlanClick = { eventId ->
+                    navController.navigate("${PlaceDetailsDestination.route}/$eventId")
+                },
                 onNavigateToHome = {
                     navController.navigate(HomeDestination.route)
                 },
