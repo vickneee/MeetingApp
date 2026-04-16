@@ -23,7 +23,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,6 +65,13 @@ object TimeAvailabilityDestination : NavigationDestination {
     override val titleRes = R.string.title_time_availability_page
 }
 
+/**
+ * Represents the content of the Availability Selecting Page.
+ *
+ * @param onBack Navigate back.
+ * @param navigateToNextStep Navigate to the next step.
+ * @param viewModel [ParticipantViewModel] to retrieve event data.
+ */
 @Composable
 fun AvailabilitySelectingPage(
     onBack: () -> Unit,
@@ -87,6 +93,16 @@ fun AvailabilitySelectingPage(
     )
 }
 
+/**
+ * Represents the content of the Availability Selecting Page.
+ * @param modifier Modifier.
+ * @param onBack Navigate back.
+ * @param onNext Navigate to the next step.
+ * @param allDateTimes List of all available date and time slots.
+ * @param selectedDateTimes List of selected date and time slots.
+ * @param isLoading Whether the content is loading.
+ * @param onToggleDateTime Callback to toggle the selection of a date and time slot.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AvailabilitySelectingPageContent(
@@ -101,7 +117,7 @@ fun AvailabilitySelectingPageContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = stringResource(id = R.string.title_place_type_and_keyword),
+                title = stringResource(id = R.string.title_time_availability_page),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -172,7 +188,7 @@ fun AvailabilitySelectingPageContent(
                     Button(
                         onClick = onNext,
                         enabled = selectedDateTimes.isNotEmpty(),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
                             .wrapContentWidth()
@@ -190,6 +206,9 @@ fun AvailabilitySelectingPageContent(
     }
 }
 
+/**
+ * Preview for the [AvailabilitySelectingPageContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun AvailabilitySelectingPageContentPreview() {
