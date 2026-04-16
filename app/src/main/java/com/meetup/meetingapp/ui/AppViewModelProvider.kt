@@ -5,6 +5,8 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.MeetingApplication
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
@@ -54,6 +56,7 @@ object AppViewModelProvider {
         initializer {
             HostDashboardViewModel(
                 meetingApplication().container.eventRepository,
+                FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 this.createSavedStateHandle()
             )
         }
@@ -75,7 +78,7 @@ object AppViewModelProvider {
             val app = meetingApplication()
 
             // Create the location client using the application context
-            val locationClient = com.google.android.gms.location.LocationServices
+            val locationClient = LocationServices
                 .getFusedLocationProviderClient(app)
 
             PlaceViewModel(
