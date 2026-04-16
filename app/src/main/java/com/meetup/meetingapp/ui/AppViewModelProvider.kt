@@ -95,6 +95,7 @@ object AppViewModelProvider {
         initializer {
             ParticipantDashboardViewModel(
                 meetingApplication().container.eventRepository,
+                FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 this.createSavedStateHandle()
             )
         }
