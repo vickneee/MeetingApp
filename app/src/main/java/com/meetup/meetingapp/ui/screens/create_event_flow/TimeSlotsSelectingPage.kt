@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
@@ -23,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +42,7 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the Time Slots Selecting screen.
@@ -58,7 +61,6 @@ object TimeSlotsSelectingPageDestination : NavigationDestination {
  * @param navigateToAreaSelectingPage Navigate to the Area Selecting Page after adding a time slot.
  * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
-
 @Composable
 fun TimeSlotsSelectingPage(
     onBack: () -> Unit,
@@ -88,7 +90,6 @@ fun TimeSlotsSelectingPage(
  * @param navigateToAreaSelectingPage Callback to navigate to the area selecting page.
  * @param navigateToTimeEditPage Callback to navigate to the time edit page.
  */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeSlotsSelectingPageContent(
@@ -148,12 +149,12 @@ fun TimeSlotsSelectingPageContent(
                             onClick = { onRemoveTimeSlot(timeSlot) },
                             modifier = Modifier
                                 .size(40.dp)
-                                .background(Color.Red, shape = RoundedCornerShape(16.dp))
+                                .background(Color.Red, shape = RoundedCornerShape(10.dp))
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Remove,
                                 contentDescription = "Remove",
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -165,17 +166,17 @@ fun TimeSlotsSelectingPageContent(
             }
             item {
                 Spacer(modifier = Modifier.padding(12.dp))
-                Button(
+                OutlinedButton(
                     onClick = { navigateToTimeEditPage(-1) }, // <- editTimeSlot()
-                    border = BorderStroke(2.dp, Color(0xFF3B82F6)),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Color(0xFF3B82F6)
+                        contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
                 ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
                     Text(
-                        text = "+ Add Time Slot",
+                        text = "Add Time Slot",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
@@ -186,7 +187,7 @@ fun TimeSlotsSelectingPageContent(
                 Spacer(modifier = Modifier.padding(32.dp))
                 Button(
                     onClick = { navigateToAreaSelectingPage() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
@@ -200,6 +201,12 @@ fun TimeSlotsSelectingPageContent(
     }
 }
 
+/**
+ * Time Slot Item
+ * @param timeSlot Time slot to display
+ * @param onEditClick Callback to edit the selected time slot
+ * @param modifier Optional [Modifier] for layout adjustments
+ */
 @Composable
 fun TimeSlotItem(
     timeSlot: String,
@@ -234,13 +241,16 @@ fun TimeSlotItem(
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Edit Time Slot",
-                tint = Color.Gray,
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(20.dp)
             )
         }
     }
 }
 
+/**
+ * Preview for the [TimeSlotsSelectingPageContent] composable.
+ */
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun TimeSlotsSelectingPagePreview() {
@@ -254,7 +264,7 @@ fun TimeSlotsSelectingPagePreview() {
         timeSlots = mockTimeSlots
     )
 
-    MaterialTheme {
+    MeetingAppTheme {
         TimeSlotsSelectingPageContent(
             uiState = mockUiState,
             onBack = {},
