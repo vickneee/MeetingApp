@@ -186,6 +186,8 @@ fun PlaceTypeAndKeywordContent(
 
                 Button(
                     onClick = onSubmit,
+                    enabled = participantState.selectedPlaceTypes.isNotEmpty() &&
+                            participantState.selectedFoodCategories.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
