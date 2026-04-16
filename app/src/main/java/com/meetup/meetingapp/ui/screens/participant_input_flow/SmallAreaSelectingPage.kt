@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -18,6 +17,7 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -44,7 +44,6 @@ object SmallAreaSelectingDestination : NavigationDestination {
  * @param viewModel The [ParticipantViewModel] providing event and participant state.
  * @param onNext Callback to navigate to the next screen after area selection.
  */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SmallAreaSelectingPage(
@@ -83,7 +82,6 @@ fun SmallAreaSelectingPage(
  * @param onBack Callback for navigating back.
  * @param onNext Callback for navigating to the next step.
  */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SmallAreaSelectingContent(
@@ -96,7 +94,7 @@ fun SmallAreaSelectingContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Choose Area",
+                title = stringResource(id = R.string.title_small_area_selection_page),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -115,6 +113,7 @@ fun SmallAreaSelectingContent(
             item {
                 Text(
                     text = "Choose the area where you",
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -122,6 +121,7 @@ fun SmallAreaSelectingContent(
                 )
                 Text(
                     text = "prefer to meet",
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -130,7 +130,7 @@ fun SmallAreaSelectingContent(
                 )
             }
 
-            items(cityOptions){ city ->
+            items(cityOptions) { city ->
                 AreaItem(
                     title = city,
                     checked = selectedAreas.contains(city),
@@ -148,7 +148,7 @@ fun SmallAreaSelectingContent(
                     onClick = onNext,
                     enabled = isAnySelected,
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier
                         .wrapContentWidth()
                 ) {
@@ -206,6 +206,9 @@ fun AreaItem(
     }
 }
 
+/**
+ * Preview for the [SmallAreaSelectingContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun SmallAreaSelectingPreview() {
