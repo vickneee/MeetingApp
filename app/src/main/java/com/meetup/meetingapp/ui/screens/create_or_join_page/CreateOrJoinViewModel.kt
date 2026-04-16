@@ -26,33 +26,64 @@ class CreateOrJoinViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
+    /**
+     * Firebase Authentication instance.
+     */
     private val auth = FirebaseAuth.getInstance()
 
+    /**
+     * The code entered by the user.
+     */
     var code by mutableStateOf("")
+
+    /**
+     * The key entered by the user.
+     */
     var key by mutableStateOf("")
 
+    /**
+     * Updates the code entered by the user.
+     */
     fun updateCode(newCode: String) {
         code = newCode
     }
 
+    /**
+     * Updates the key entered by the user.
+     */
     fun updateKey(newKey: String) {
         key = newKey
     }
 
+    /**
+     * Navigates to the events list page.
+     */
     var navigateToEventsListPage by mutableStateOf(false)
         private set
 
+    /**
+     * Navigates to the participant page.
+     */
     var navigateToParticipantPage by mutableStateOf<Pair<String, String>?>(null)
         private set
 
+    /**
+     * Joins an event with the provided code and key.
+     */
     fun onNavigatedToPastEvents() {
         navigateToEventsListPage = false
     }
 
+    /**
+     * Navigates to the participant page.
+     */
     fun onNavigatedToParticipantPage() {
         navigateToParticipantPage = null
     }
 
+    /**
+     * Joins an event with the provided code and key.
+     */
     fun joinEvent() {
         viewModelScope.launch {
             val uid = auth.currentUser?.uid ?: return@launch
