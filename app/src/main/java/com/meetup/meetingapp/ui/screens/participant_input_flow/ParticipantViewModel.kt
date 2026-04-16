@@ -47,40 +47,84 @@ class ParticipantViewModel(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    // Event code entered by participant to join
+    /**
+     * The event code to load.
+     */
     private val eventCode: String = savedStateHandle["eventCode"] ?: ""
+
+    /**
+     * The event key to load.
+     */
     private val eventKey: String = savedStateHandle["eventKey"] ?: ""
 
-    // The fetched event from Firestore
+    /**
+     * Mutable state flow containing the event data.
+     */
     private val _event = MutableStateFlow<Event?>(null)
+
+    /**
+     * State flow exposing the event data.
+     */
     val event = _event.asStateFlow()
 
-    // Participant input state
+    /**
+     * Mutable state flow containing the participant input state.
+     */
     private val _participantState = MutableStateFlow(ParticipantInputState())
+
+    /**
+     * State flow exposing the participant input state.
+     */
     val participantState = _participantState.asStateFlow()
 
-    // Fetch state
+    /**
+     * Mutable state flow containing the fetch state.
+     */
     private val _fetchState = MutableStateFlow<FetchState>(FetchState.Loading)
+
+    /**
+     * State flow exposing the fetch state.
+     */
     val fetchState = _fetchState.asStateFlow()
 
-    // State representing the submission process (sending participant responses)
+    /**
+     * Mutable state flow containing the submit state.
+     */
     private val _submitState = MutableStateFlow<SubmitState>(SubmitState.Idle)
 
-    // Expose the submit state as a read-only state flow
+    /**
+     * State flow exposing the submit state.
+     */
     val submitState = _submitState.asStateFlow()
 
-    // Loading state
+    /**
+     * Mutable state flow indicating whether data is loading.
+     */
     private val _isLoading = MutableStateFlow(true)
+
+    /**
+     * State flow exposing the loading state.
+     */
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    // User ID of the current user
+    /**
+     * User ID of the current user.
+     */
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
-    // UI state for the detail page
+    /**
+     * Mutable state flow containing the participant dashboard UI state.
+     */
     private val _uiState = MutableStateFlow(SubmitState.ParticipantDashboardUiState())
+
+    /**
+     * State flow exposing the participant dashboard UI state.
+     */
     val uiState = _uiState.asStateFlow()
 
-    // True if user created the event, false if joined via link
+    /**
+     * State flow indicating whether the current user is the host of the event.
+     */
     val isHost: StateFlow<Boolean> = _event
         .map { event ->
             event != null && event.hostId == currentUserId  // compare hostId to actual user ID
@@ -120,6 +164,9 @@ class ParticipantViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    /**
+     * Initializes the view model by syncing the event and observing it.
+     */
     init {
         syncEvent()
         observeEventByEventCode(eventCode)
