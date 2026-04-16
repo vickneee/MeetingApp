@@ -28,6 +28,7 @@ import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the Host Dashboard screen.
@@ -49,8 +50,8 @@ object HostDashboardDestination : NavigationDestination {
  * - Delegates UI rendering to [HostDashboardContent].
  *
  * @param onBack Callback invoked when the user navigates back.
- * @param onVoteForRestaurantClick Callback invoked when the user selects
- *        "Vote for Restaurant".
+ * @param onVoteForRestaurantClick Callback invoked when the user selects "Vote for Restaurant".
+ * @param onNavigateToHome Callback invoked when the user navigates to the home screen.
  * @param viewModel The ViewModel providing event and submission data.
  */
 @Composable
@@ -100,6 +101,7 @@ fun HostDashboardPage(
  * @param closeVotingState UI state for the close-voting action.
  * @param onVoteForRestaurantClick Callback for navigating to restaurant voting.
  * @param onCloseVotingClick Callback to trigger the close-voting operation.
+ * @param onNavigateToHome Callback to navigate to the home screen.
  * @param modifier Optional modifier for layout customization.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -145,7 +147,8 @@ fun HostDashboardContent(
                                 append(event.eventCode)
                             }
                         },
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
@@ -155,7 +158,8 @@ fun HostDashboardContent(
                                 append(event.status.displayName)
                             }
                         },
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
@@ -165,7 +169,8 @@ fun HostDashboardContent(
                                 append(event.eventTitle)
                             }
                         },
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
@@ -175,7 +180,8 @@ fun HostDashboardContent(
                                 append(event.hostName)
                             }
                         },
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -183,6 +189,7 @@ fun HostDashboardContent(
 
                 Text(
                     text = "Submissions: $submissionsCount",
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -191,6 +198,7 @@ fun HostDashboardContent(
 
                 Text(
                     text = "Submitted by:",
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -201,6 +209,7 @@ fun HostDashboardContent(
             items(attendees) { name ->
                 Text(
                     text = "• $name",
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 20.sp,
                     modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp)
                 )
@@ -235,6 +244,7 @@ fun HostDashboardContent(
                     EventStatus.FIRST_VOTING_CLOSED,
                     EventStatus.RESTAURANT_CANDIDATES_GENERATED,
                     EventStatus.COLLECTING_RESTAURANT_VOTES -> true
+
                     EventStatus.FINALIZED -> true
                     else -> false
                 }
@@ -250,12 +260,13 @@ fun HostDashboardContent(
                     Button(
                         onClick = onVoteForRestaurantClick,
                         enabled = voteButtonEnabled,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
                         Text(
                             voteButtonText,
+                            color = MaterialTheme.colorScheme.outlineVariant,
                             fontSize = 18.sp,
                             modifier = Modifier.padding(8.dp)
                         )
@@ -266,12 +277,13 @@ fun HostDashboardContent(
                     Button(
                         onClick = onCloseVotingClick,
                         enabled = buttonEnabled,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
                         Text(
                             text = buttonText,
+                            color = MaterialTheme.colorScheme.outlineVariant,
                             fontSize = 18.sp,
                             modifier = Modifier.padding(vertical = 6.dp)
                         )
@@ -295,7 +307,7 @@ fun HostDashboardContent(
                     ) {
                         OutlinedButton(
                             onClick = onNavigateToHome,
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier
                         ) {
@@ -315,21 +327,26 @@ fun HostDashboardContent(
     }
 }
 
+/**
+ * Preview for the [HostDashboardContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun HostDashboardPreview() {
-    HostDashboardContent(
-        event = Event(
-            eventCode = "A7F9K2",
-            eventTitle = "Meet & Chat",
-            hostName = "Julia",
-        ),
-        submissionsCount = 4,
-        attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
-        onBack = {},
-        closeVotingState = CloseVotingState.Idle,
-        onVoteForRestaurantClick = {},
-        onCloseVotingClick = {},
-        onNavigateToHome = {}
-    )
+    MeetingAppTheme {
+        HostDashboardContent(
+            event = Event(
+                eventCode = "A7F9K2",
+                eventTitle = "Meet & Chat",
+                hostName = "Julia",
+            ),
+            submissionsCount = 4,
+            attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
+            onBack = {},
+            closeVotingState = CloseVotingState.Idle,
+            onVoteForRestaurantClick = {},
+            onCloseVotingClick = {},
+            onNavigateToHome = {}
+        )
+    }
 }
