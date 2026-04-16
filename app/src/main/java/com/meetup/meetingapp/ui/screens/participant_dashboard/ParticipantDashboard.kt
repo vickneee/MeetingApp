@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -33,7 +34,7 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
  */
 object ParticipantDashboardDestination : NavigationDestination {
     override val route = "participant_dashboard_waiting"
-    override val titleRes = R.string.title_participant_dashboard_waiting
+    override val titleRes = R.string.title_participant_dashboard
     const val eventIdArg = "eventId"
     val routeWithArgs = "$route/{$eventIdArg}"
 }
@@ -102,7 +103,7 @@ fun ParticipantDashboardContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Dashboard / ${event.eventCode}",
+                title = "${stringResource(id = R.string.title_participant_dashboard)} / ${event.eventCode}",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
