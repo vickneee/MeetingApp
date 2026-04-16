@@ -52,7 +52,7 @@ object HostDashboardDestination : NavigationDestination {
  * - Delegates UI rendering to [HostDashboardContent].
  *
  * @param onBack Callback invoked when the user navigates back.
- * @param onVoteForRestaurantClick Callback invoked when the user selects "Vote for Restaurant".
+ * @param onFinalPlanClick Callback invoked when the user clicks on the "Final Plan" button.
  * @param onNavigateToHome Callback invoked when the user navigates to the home screen.
  * @param viewModel The ViewModel providing event and submission data.
  */
@@ -60,6 +60,7 @@ object HostDashboardDestination : NavigationDestination {
 fun HostDashboardPage(
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
+    onFinalPlanClick: (String) -> Unit,
     onNavigateToHome: () -> Unit,
     viewModel: HostDashboardViewModel = viewModel(
         factory = AppViewModelProvider.Factory
@@ -85,7 +86,7 @@ fun HostDashboardPage(
                 }
             },
             onVoteForRestaurantClick = onVoteForRestaurantClick,
-            onStartRestaurantVotingClick = viewModel::startRestaurantVoting,
+            onFinalPlanClick = onFinalPlanClick,
             onNavigateToHome = onNavigateToHome
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -108,7 +109,7 @@ fun HostDashboardPage(
  * @param attendees List of participant names who submitted availability.
  * @param onBack Callback to navigate back.
  * @param closeVotingState UI state for the close-voting action.
- * @param onVoteForRestaurantClick Callback for navigating to restaurant voting.
+ * @param onFinalPlanClick Callback to trigger the final plan generation.
  * @param onCloseVotingClick Callback to trigger the close-voting operation.
  * @param onNavigateToHome Callback to navigate to the home screen.
  * @param modifier Optional modifier for layout customization.
@@ -122,7 +123,7 @@ fun HostDashboardContent(
     onBack: () -> Unit,
     closeVotingState: CloseVotingState,
     onVoteForRestaurantClick: () -> Unit,
-    onStartRestaurantVotingClick: () -> Unit,
+    onFinalPlanClick: (String) -> Unit,
     onCloseVotingClick: (EventStatus) -> Unit,
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
@@ -274,14 +275,23 @@ fun HostDashboardContent(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
-                        onClick = onVoteForRestaurantClick,
-                        enabled = voteButtonEnabled,
+                        onClick = {
+                            if (event.status == EventStatus.FINALIZED) {
+                                onFinalPlanClick(event.id)
+                            } else {
+                                onVoteForRestaurantClick()
+                            }
+                        },
+                        enabled = true,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
                         Text(
-                            voteButtonText,
+                            if (event.status == EventStatus.FINALIZED)
+                                "Final Plan"
+                            else
+                                "Vote for Time & Area",
                             fontSize = 18.sp,
                             modifier = Modifier.padding(8.dp)
                         )
@@ -364,8 +374,8 @@ fun HostDashboardPreview() {
             attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
             onBack = {},
             closeVotingState = CloseVotingState.Idle,
+            onFinalPlanClick = {},
             onVoteForRestaurantClick = {},
-            onStartRestaurantVotingClick = {},
             onCloseVotingClick = {},
             onNavigateToHome = {}
         )
