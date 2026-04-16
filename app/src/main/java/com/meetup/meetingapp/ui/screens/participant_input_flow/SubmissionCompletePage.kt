@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,7 +33,7 @@ import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 /**
  * Navigation destination for the Submission Complete screen.
  */
-object SubmissionCompleteDestination: NavigationDestination {
+object SubmissionCompleteDestination : NavigationDestination {
     override val route = "submission-complete"
     override val titleRes = R.string.title_submission_complete
 }
@@ -52,6 +51,7 @@ object SubmissionCompleteDestination: NavigationDestination {
  * @param viewModel The [ParticipantViewModel] providing submission state.
  * @param onNavigateToHostDashboard Callback invoked when navigating to the host dashboard.
  * @param onNavigateToParticipantDashboard Callback invoked when navigating to the participant dashboard.
+ * @param modifier Modifier for styling.
  */
 @Composable
 fun SubmissionCompletePage(
@@ -64,7 +64,7 @@ fun SubmissionCompletePage(
     val submitState by viewModel.submitState.collectAsStateWithLifecycle()
 
     // Handle different submission states
-    when(submitState){
+    when (submitState) {
         is SubmitState.Idle -> SubmissionCompleteContent(
             onBack = onBack,
             viewModel = viewModel,
@@ -104,6 +104,7 @@ fun SubmissionCompletePage(
  * @param viewModel The [ParticipantViewModel] used to access event data.
  * @param onNavigateToHostDashboard Callback invoked when navigating to the host dashboard.
  * @param onNavigateToParticipantDashboard Callback invoked when navigating to the participant dashboard.
+ * @param modifier Modifier for styling.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,7 +114,7 @@ fun SubmissionCompleteContent(
     onNavigateToHostDashboard: (String) -> Unit,
     onNavigateToParticipantDashboard: (String) -> Unit,
     modifier: Modifier = Modifier
-){
+) {
 
     val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
     val event by viewModel.event.collectAsStateWithLifecycle(null)
@@ -121,7 +122,7 @@ fun SubmissionCompleteContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = stringResource(id= R.string.title_submission_complete),
+                title = stringResource(id = R.string.title_submission_complete),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -180,13 +181,15 @@ fun SubmissionCompleteContent(
                 Spacer(modifier = Modifier.height(100.dp))
 
                 Button(
-                    onClick = {  val eventId = event?.id ?: return@Button
+                    onClick = {
+                        val eventId = event?.id ?: return@Button
                         if (isHost) {
                             onNavigateToHostDashboard(eventId)
                         } else {
                             onNavigateToParticipantDashboard(eventId)
-                        } },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(0.7f)
                 ) {

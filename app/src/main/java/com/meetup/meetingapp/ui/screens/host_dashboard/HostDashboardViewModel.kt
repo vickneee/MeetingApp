@@ -40,19 +40,49 @@ class HostDashboardViewModel(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    // Pass eventId via navigation
+    /**
+     * The ID of the event to load.
+     */
     private val eventId: String = savedStateHandle["eventId"] ?: ""
 
+    /**
+     * Mutable state flow containing the event data.
+     */
     private val _event = MutableStateFlow<Event?>(null)
+
+    /**
+     * State flow exposing the event data.
+     */
     val event = _event.asStateFlow()
 
+    /**
+     * Mutable state flow indicating the state of the "Close Voting" action.
+     */
     private val _closeVotingState = MutableStateFlow<CloseVotingState>(CloseVotingState.Idle)
 
+    /**
+     * State flow exposing the state of the "Close Voting" action.
+     */
     val closeVotingState = _closeVotingState.asStateFlow()
 
+    /**
+     * Mutable state flow containing the UI state.
+     */
     private val _uiState = MutableStateFlow(HostDashboardUiState())
+
+    /**
+     * State flow exposing the UI state.
+     */
     val uiState = _uiState.asStateFlow()
 
+    /**
+     *
+     * Initializes the ViewModel by:
+     * 1. Observing the event from Firestore and updating the Room cache.
+     * 2. Observing submissions from Firestore and updating the Room cache.
+     * 3. Setting the initial UI state based on the event's status.
+     * 4. If the event is created, sets the status to COLLECTING_AVAILABILITY.
+     */
     init {
         viewModelScope.launch {
             // Observe event from Firestore and update Room cache
@@ -126,6 +156,13 @@ class HostDashboardViewModel(
     }
 }
 
+/**
+ * Represents the UI state of the Host Dashboard screen.
+ * Contains submission count, attendee names, and event status.
+ * @property submissionsCount Number of participant submissions.
+ * @property attendees List of participant names who submitted availability.
+ * @property status Current status of the event.
+ */
 data class HostDashboardUiState(
     val submissionsCount: Int = 0,
     val attendees: List<String> = emptyList(),
@@ -135,10 +172,11 @@ data class HostDashboardUiState(
 /**
  * Represents the UI state of the "Close Voting" action.
  *
- * - Idle: No action has been taken yet.
- * - Loading: The aggregation process is running.
- * - Success: Voting has been successfully closed and results saved.
- * - Error: An exception occurred during the process.
+ * This sealed interface defines the possible states of the "Close Voting" action:
+ * - Idle: The action is not in progress.
+ * - Loading: The action is in progress.
+ * - Success: The action completed successfully.
+ * - Error: An error occurred during the action.
  */
 sealed interface CloseVotingState {
     object Idle : CloseVotingState

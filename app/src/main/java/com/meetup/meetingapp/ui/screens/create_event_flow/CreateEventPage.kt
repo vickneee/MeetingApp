@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
-import android.R.attr.bottom
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,7 +9,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
@@ -21,13 +19,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
 import com.meetup.meetingapp.data.model.PlaceType
 
+/**
+ * Navigation destination for the place type selection screen.
+ */
 object CreateEventDestination : NavigationDestination {
     override val route = "create_event_button"
-    override val titleRes = R.string.title_create_event_button_page
+    override val titleRes = R.string.title_create_event_page
 }
 
 /**
  * Entry point composable for the place type selection page.
+ * @param onBack Navigate back to the previous screen.
+ * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
+ * @param onCreatedEvent Callback to be invoked when the event is created.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,6 +56,13 @@ fun CreateEventPage(
     )
 }
 
+/**
+ * UI content for the place type selection page.
+ * @param placeTypes List of selected place types.
+ * @param onPlaceTypeToggle Callback to toggle the selection state of a place type.
+ * @param onBack Navigate back to the previous screen.
+ * @param onCreatedEvent Callback to be invoked when the event is created.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventContent(
@@ -125,7 +136,7 @@ fun CreateEventContent(
                     onClick = onCreatedEvent,
                     enabled = isAnySelected,
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.padding(bottom = 24.dp)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
@@ -141,6 +152,12 @@ fun CreateEventContent(
     }
 }
 
+/**
+ * Composable for a single place type item.
+ * @param title The title of the place type.
+ * @param checked Whether the place type is currently selected.
+ * @param onCheckedChange Callback to be invoked when the selection state changes.
+ */
 @Composable
 fun PlaceTypeItem(
     title: String,
@@ -169,6 +186,9 @@ fun PlaceTypeItem(
     }
 }
 
+/**
+ * Preview for the [CreateEventContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun CreateEventPagePreview() {

@@ -31,14 +31,36 @@ class ParticipantDashboardViewModel(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    /**
+     * The ID of the event to load.
+     */
     private val eventId: String = savedStateHandle[ParticipantDashboardDestination.eventIdArg] ?: ""
 
+    /**
+     * Mutable state flow containing the event data.
+     */
     private val _event = MutableStateFlow<Event?>(null)
+
+    /**
+     * State flow exposing the event data.
+     */
     val event: StateFlow<Event?> = _event.asStateFlow()
 
+    /**
+     * Mutable state flow containing the UI state.
+     */
     private val _uiState = MutableStateFlow(ParticipantDashboardUiState())
+
+    /**
+     * State flow exposing the UI state.
+     */
     val uiState: StateFlow<ParticipantDashboardUiState> = _uiState.asStateFlow()
 
+    /**
+     * Initializes the ViewModel by:
+     * 1. Observing the event from Firestore and updating the Room cache.
+     * 2. Observing submissions from Firestore and updating the Room cache.
+     */
     init {
         viewModelScope.launch {
             // Observe event from Firestore and update Room cache

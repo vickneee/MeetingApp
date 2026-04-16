@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -27,18 +27,14 @@ import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the Participant Dashboard screen.
- *
- * @property route The route for navigating to this destination.
- * @property titleRes The resource ID for the title to be displayed on the screen.
- * @property eventIdArg The argument representing the event ID.
- * @property routeWithArgs The route with the eventId argument.
  */
 object ParticipantDashboardDestination : NavigationDestination {
     override val route = "participant_dashboard_waiting"
-    override val titleRes = R.string.title_participant_dashboard_waiting
+    override val titleRes = R.string.title_participant_dashboard
     const val eventIdArg = "eventId"
     val routeWithArgs = "$route/{$eventIdArg}"
 }
@@ -107,7 +103,7 @@ fun ParticipantDashboardContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Dashboard / ${event.eventCode}",
+                title = "${stringResource(id = R.string.title_participant_dashboard)} / ${event.eventCode}",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -159,6 +155,7 @@ fun ParticipantDashboardContent(
 
                 Text(
                     text = "Submissions: $submissionsCount",
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -170,28 +167,45 @@ fun ParticipantDashboardContent(
                     Spacer(modifier = Modifier.padding(36.dp))
                     when (event.status) {
                         EventStatus.COLLECTING_AVAILABILITY -> {
-                            Text("Waiting for host to close", fontSize = 22.sp, modifier = Modifier.padding(top = 4.dp))
+                            Text(
+                                "Waiting for host to close",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 22.sp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
                             Spacer(modifier = Modifier.padding(4.dp))
-                            Text("the voting...", fontSize = 22.sp)
+                            Text("the voting...",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 22.sp)
                         }
+
                         EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
                             Text(
                                 "Host has closed the voting!",
                                 fontSize = 22.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
-                            Text("You can now vote.", fontSize = 22.sp)
+                            Text("You can now vote.",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 22.sp)
                         }
+
                         EventStatus.FINALIZED -> {
                             Text(
                                 "The event has been finalized!",
                                 fontSize = 22.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
-                            Text("Check the final plan.", fontSize = 22.sp)
+                            Text("Check the final plan.",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 22.sp)
                         }
+
                         else -> Text(
                             "Please wait...",
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 22.sp
                         )
                     }
@@ -212,6 +226,7 @@ fun ParticipantDashboardContent(
                     EventStatus.FIRST_VOTING_CLOSED,
                     EventStatus.COLLECTING_RESTAURANT_VOTES,
                     EventStatus.FINALIZED -> true
+
                     else -> false
                 }
 
@@ -224,7 +239,7 @@ fun ParticipantDashboardContent(
                     Button(
                         onClick = onVoteForRestaurantClick,
                         enabled = voteButtonEnabled,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
                     ) {
@@ -240,7 +255,7 @@ fun ParticipantDashboardContent(
 
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
                     ) {
@@ -258,18 +273,23 @@ fun ParticipantDashboardContent(
     }
 }
 
+/**
+ * Preview for the [ParticipantDashboardContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun ParticipantDashboardPreview() {
-    ParticipantDashboardContent(
-        event = Event(
-            eventCode = "A7F9K2",
-            eventTitle = "Meet & Chat",
-            hostName = "Julia",
-        ),
-        submissionsCount = 4,
-        onBack = {},
-        onVoteForRestaurantClick = {},
-        onNavigateToHome = {}
-    )
+    MeetingAppTheme {
+        ParticipantDashboardContent(
+            event = Event(
+                eventCode = "A7F9K2",
+                eventTitle = "Meet & Chat",
+                hostName = "Julia",
+            ),
+            submissionsCount = 4,
+            onBack = {},
+            onVoteForRestaurantClick = {},
+            onNavigateToHome = {}
+        )
+    }
 }

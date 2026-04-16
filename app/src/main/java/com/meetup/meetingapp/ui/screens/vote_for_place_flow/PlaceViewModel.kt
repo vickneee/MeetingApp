@@ -288,10 +288,15 @@ class PlaceViewModel(
             }
         }
 
-        // Fallback to literal matches
+        /**
+         * Handle exact matches like "Monday"
+         */
         val found = daysOfWeek.filter { normalized.contains(it, ignoreCase = true) }
         if (found.isNotEmpty()) return found
 
+        /**
+         * Handle single-letter matches like "M"
+         */
         val dayRegex = Regex("([A-Za-z]+):")
         val match = dayRegex.find(hours) ?: return emptyList()
         return listOf(match.groupValues[1].take(3).lowercase().replaceFirstChar { it.uppercase() })

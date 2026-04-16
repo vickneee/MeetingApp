@@ -34,6 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * This is the NavigationDestination for the Home screen
@@ -46,9 +47,9 @@ object HomeDestination : NavigationDestination {
 /**
  * Home screen composable
  * @param onMainClick Navigate to the second screen
+ * @param onEventsClick Navigate to the past events screen
  * @param viewModel [HomeViewModel] to retrieve all items in the Room database.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onMainClick: () -> Unit,
@@ -63,7 +64,28 @@ fun HomeScreen(
         Log.d("HomeScreen", "Signed in anonymously")
     }
 
+    HomeScreenContent(
+        onMainClick = onMainClick,
+        onEventsClick = onEventsClick
+    )
+}
+
+/**
+ * Stateless version of the Home screen
+ *
+ * @param onMainClick Navigate to the second screen
+ * @param onEventsClick Navigate to the past events screen
+ * @param modifier Modifier for the content
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreenContent(
+    onMainClick: () -> Unit,
+    onEventsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Scaffold(
+        modifier = modifier,
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
@@ -77,10 +99,10 @@ fun HomeScreen(
             item {
                 Text(
                     text = "MeetUp",
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.primary,
                     style = TextStyle(
-                        fontSize = 75.sp,
+                        fontSize = 85.sp,
                         shadow = Shadow(
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
                             offset = Offset(0f, 6f),
@@ -89,7 +111,7 @@ fun HomeScreen(
                     )
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
                     text = "Make plans easy for everyone.",
@@ -160,9 +182,14 @@ fun HomeScreen(
     }
 }
 
+/**
+ * Preview for the [HomeScreen] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview(
 ) {
-    HomeScreen(onMainClick = {}, onEventsClick = {})
+    MeetingAppTheme {
+        HomeScreenContent(onMainClick = {}, onEventsClick = {})
+    }
 }
