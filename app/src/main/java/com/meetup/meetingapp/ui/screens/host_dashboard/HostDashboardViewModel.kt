@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -37,6 +37,7 @@ import kotlinx.coroutines.withContext
  */
 class HostDashboardViewModel(
     private val eventRepository: EventRepository,
+    private val userId: String,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -89,6 +90,9 @@ class HostDashboardViewModel(
             eventRepository.observeEventById(eventId).collect { event ->
                 _event.value = event
                 event?.let {
+                    Log.d("HostDashboard", "event status: ${it.status}")
+                    Log.d("HostDashboard", "restaurantCandidates: ${it.restaurantCandidates}")
+                    Log.d("HostDashboard", "dateTimeCandidates: ${it.dateTimeCandidates}")
                     _uiState.value = _uiState.value.copy(
                         status = it.status
                     )
@@ -98,6 +102,12 @@ class HostDashboardViewModel(
                             it.id,
                             EventStatus.COLLECTING_AVAILABILITY
                         )
+                    }
+                    // Only check vote when restaurants exist and voting is active
+                    if (it.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
+                        it.status == EventStatus.FINALIZED
+                    ) {
+                        fetchUserVote()
                     }
                 }
             }
@@ -183,6 +193,48 @@ class HostDashboardViewModel(
             eventRepository.syncEventById(eventId)
         }
     }
+
+    fun fetchUserVote() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val event = _event.value ?: return@launch
+            val timing = event.dateTimeCandidates.firstOrNull() ?: run {
+                Log.d("HostDashboard", "fetchUserVote: no timing")
+                return@launch
+            }
+
+            // Sync restaurants from Firestore into Room first
+            eventRepository.syncRestaurants(eventId)
+
+            // Get placeIds from Room (already synced from subcollection)
+            eventRepository.getRestaurants(eventId)
+                .first()
+                .let { restaurants ->
+                    if (restaurants.isEmpty()) {
+                        Log.d("HostDashboard", "fetchUserVote: no restaurants after sync")
+                        return@launch
+                    }
+
+                    Log.d("HostDashboard", "checking ${restaurants.size} restaurants")
+
+                    val hasVotedAny = restaurants.any { restaurant ->
+                        eventRepository.getUserVote(eventId, restaurant.placeId, userId, timing)
+                            .getOrDefault(false)
+                            .also { Log.d("HostDashboard", "placeId: ${restaurant.placeId} -> voted: $it") }
+                    }
+
+                    Log.d("HostDashboard", "hasVotedAny: $hasVotedAny")
+                    _uiState.value = _uiState.value.copy(hasVoted = hasVotedAny)
+                }
+        }
+    }
+
+    fun recheckVoteStatus() {
+        val event = _event.value ?: return
+        if (event.status == EventStatus.COLLECTING_RESTAURANT_VOTES
+        ) {
+            fetchUserVote()
+        }
+    }
 }
 
 /**
@@ -195,7 +247,8 @@ class HostDashboardViewModel(
 data class HostDashboardUiState(
     val submissionsCount: Int = 0,
     val attendees: List<String> = emptyList(),
-    val status: EventStatus = EventStatus.UNKNOWN
+    val status: EventStatus = EventStatus.UNKNOWN,
+    val hasVoted: Boolean = false
 )
 
 /**

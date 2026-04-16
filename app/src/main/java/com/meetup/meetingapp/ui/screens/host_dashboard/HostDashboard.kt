@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +21,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
@@ -69,12 +72,26 @@ fun HostDashboardPage(
     val event by viewModel.event.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val closeVotingState by viewModel.closeVotingState.collectAsStateWithLifecycle()
+    val hasVoted = uiState.hasVoted
+
+    // Re-check vote status every time screen resumes
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, lifecycleEvent ->
+            if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+                viewModel.recheckVoteStatus()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     event?.let {
         HostDashboardContent(
             event = it,
             submissionsCount = uiState.submissionsCount,
             attendees = uiState.attendees,
+            hasVoted = hasVoted,
             onBack = onBack,
 
             closeVotingState = closeVotingState,
@@ -120,6 +137,7 @@ fun HostDashboardContent(
     event: Event,
     submissionsCount: Int,
     attendees: List<String>,
+    hasVoted: Boolean,
     onBack: () -> Unit,
     closeVotingState: CloseVotingState,
     onVoteForRestaurantClick: () -> Unit,
@@ -250,22 +268,6 @@ fun HostDashboardContent(
                     else -> false
                 } && closeVotingState != CloseVotingState.Loading
 
-                // "Vote for Time & Area" button text
-                val voteButtonText = when (event.status) {
-                    EventStatus.FINALIZED -> "View Final Plan"
-                    else -> "Vote for Time & Area"
-                }
-
-                // "Vote for Time & Area" button enabled
-                val voteButtonEnabled = when (event.status) {
-                    EventStatus.FIRST_VOTING_CLOSED,
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED,
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> true
-
-                    EventStatus.FINALIZED -> true
-                    else -> false
-                }
-
                 Spacer(modifier = Modifier.padding(12.dp))
 
                 Column(
@@ -282,16 +284,18 @@ fun HostDashboardContent(
                                 onVoteForRestaurantClick()
                             }
                         },
-                        enabled = true,
+                        enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
                         Text(
-                            if (event.status == EventStatus.FINALIZED)
-                                "Final Plan"
-                            else
-                                "Vote for Time & Area",
+                            when {
+                                event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open Yet"
+                                event.status == EventStatus.FINALIZED -> "View Final Plan"
+                                hasVoted -> "Already Voted"
+                                else -> "Vote for Place"
+                            },
                             fontSize = 18.sp,
                             modifier = Modifier.padding(8.dp)
                         )
@@ -372,6 +376,7 @@ fun HostDashboardPreview() {
             ),
             submissionsCount = 4,
             attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
+            hasVoted = false,
             onBack = {},
             closeVotingState = CloseVotingState.Idle,
             onFinalPlanClick = {},
