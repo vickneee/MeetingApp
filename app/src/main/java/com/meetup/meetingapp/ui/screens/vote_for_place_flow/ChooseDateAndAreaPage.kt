@@ -23,7 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -39,13 +39,14 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the choose date and area button screen.
  */
 object ChooseDateAndAreaDestination : NavigationDestination {
     override val route = "choose_date_and_area"
-    override val titleRes = R.string.title_participant_dashboard_waiting
+    override val titleRes = R.string.title_participant_dashboard
     const val eventIdArg = "eventId"
     val routeWithArgs = "$route/{$eventIdArg}"
 }
@@ -54,6 +55,7 @@ object ChooseDateAndAreaDestination : NavigationDestination {
  * Participant MeetUp Detail Page
  * @param onBack Navigate back.
  * @param onNavigateToChooseDatePage Navigate to the availability page.
+ * @param onNavigateToHome Navigate to the home page.
  * @param viewModel [PlaceViewModel] to retrieve event data.
  * @see PlaceViewModel for retrieving event data.
  */
@@ -137,7 +139,7 @@ fun ChooseDateAndAreaContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Dashboard / ${event.eventCode}",
+                title = "${stringResource(id = R.string.title_participant_dashboard)} / ${event.eventCode}",
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -207,7 +209,7 @@ fun ChooseDateAndAreaContent(
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(
-                            color = Color(0xFF3B82F6),
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                     }
@@ -216,7 +218,7 @@ fun ChooseDateAndAreaContent(
                     Button(
                         onClick = onVoteForRestaurantClick,
                         enabled = buttonEnabled,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
                     ) {
@@ -236,7 +238,7 @@ fun ChooseDateAndAreaContent(
                 ) {
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
                     ) {
@@ -255,20 +257,25 @@ fun ChooseDateAndAreaContent(
     }
 }
 
+/**
+ * Preview for thr [ChooseDateAndAreaPage].
+ */
 @Preview(showBackground = true)
 @Composable
 fun ChooseDateAndAreaPagePreview() {
-    ChooseDateAndAreaContent(
-        event = Event(
-            eventCode = "A7F9K2",
-            eventTitle = "Meet & Chat",
-            hostName = "Julia",
-        ),
-        onBack = {},
-        submissionsCount = 0,
-        isLoading = true,
-        onVoteForRestaurantClick = {},
-        onNavigateToHome = {},
-        buttonEnabled = true
-    )
+    MeetingAppTheme {
+        ChooseDateAndAreaContent(
+            event = Event(
+                eventCode = "A7F9K2",
+                eventTitle = "Meet & Chat",
+                hostName = "Julia",
+            ),
+            onBack = {},
+            submissionsCount = 0,
+            isLoading = true,
+            onVoteForRestaurantClick = {},
+            onNavigateToHome = {},
+            buttonEnabled = true
+        )
+    }
 }
