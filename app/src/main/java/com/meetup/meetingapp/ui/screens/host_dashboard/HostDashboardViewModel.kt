@@ -154,6 +154,18 @@ class HostDashboardViewModel(
             }
         }
     }
+
+    /**
+     * Starts the restaurant voting process for the current event.
+     */
+    fun startRestaurantVoting() {
+        viewModelScope.launch {
+            eventRepository.updateEventStatus(
+                eventId,
+                EventStatus.COLLECTING_RESTAURANT_VOTES
+            )
+        }
+    }
 }
 
 /**

@@ -78,6 +78,7 @@ fun HostDashboardPage(
             closeVotingState = closeVotingState,
             onCloseVotingClick = viewModel::closeVoting,
             onVoteForRestaurantClick = onVoteForRestaurantClick,
+            onStartRestaurantVotingClick = viewModel::startRestaurantVoting,
             onNavigateToHome = onNavigateToHome
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -114,6 +115,7 @@ fun HostDashboardContent(
     onBack: () -> Unit,
     closeVotingState: CloseVotingState,
     onVoteForRestaurantClick: () -> Unit,
+    onStartRestaurantVotingClick: () -> Unit,
     onCloseVotingClick: () -> Unit,
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
@@ -219,12 +221,12 @@ fun HostDashboardContent(
             item {
                 // Close Voting button text
                 val buttonText = when (event.status) {
-                    EventStatus.COLLECTING_AVAILABILITY -> "Close Voting" // active
+                    EventStatus.COLLECTING_AVAILABILITY -> "Close Voting"
                     EventStatus.FIRST_VOTING_CLOSED -> "Voting Closed" // inactive
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Restaurant Voting" // inactive
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Restaurant Voting" // trigger
                     EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Place Voting" // active again
                     EventStatus.FINALIZED -> "Event Finalized" // inactive
-                    else -> "Close Voting"
+                    else -> "Unknown"
                 }
 
                 // Close Voting button enabled
@@ -275,7 +277,21 @@ fun HostDashboardContent(
                     Spacer(modifier = Modifier.height(32.dp))
 
                     Button(
-                        onClick = onCloseVotingClick,
+                        onClick = {
+                            when (event.status) {
+                                EventStatus.RESTAURANT_CANDIDATES_GENERATED -> {
+                                    // Start restaurant voting
+                                    onStartRestaurantVotingClick()
+                                }
+
+                                EventStatus.COLLECTING_AVAILABILITY,
+                                EventStatus.COLLECTING_RESTAURANT_VOTES -> {
+                                    onCloseVotingClick()
+                                }
+
+                                else -> {}
+                            }
+                        },
                         enabled = buttonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
@@ -344,6 +360,7 @@ fun HostDashboardPreview() {
             onBack = {},
             closeVotingState = CloseVotingState.Idle,
             onVoteForRestaurantClick = {},
+            onStartRestaurantVotingClick = {},
             onCloseVotingClick = {},
             onNavigateToHome = {}
         )
