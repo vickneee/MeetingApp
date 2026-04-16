@@ -128,25 +128,29 @@ class HostDashboardViewModel(
      */
     fun closeVoting() {
         _closeVotingState.value = CloseVotingState.Loading
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 eventRepository.aggregateParticipantResponses(eventId).getOrThrow()
 
-                // Re-sync event to get updated candidates
                 eventRepository.syncEventById(eventId)
 
-                // Now read the fresh event from Room
                 val updatedEvent = eventRepository.getEventById(eventId)
-                    .take(1)
-                    .first() // import kotlinx.coroutines.flow.first
+                    .first()
 
-                updatedEvent?.let { event ->
-                    eventRepository.fetchAndSaveRestaurants(event)
+                updatedEvent?.let {
+                    eventRepository.fetchAndSaveRestaurants(it)
                 }
+
+                eventRepository.updateEventStatus(
+                    eventId,
+                    EventStatus.FIRST_VOTING_CLOSED
+                )
 
                 withContext(Dispatchers.Main) {
                     _closeVotingState.value = CloseVotingState.Success
                 }
+
             } catch (e: Throwable) {
                 withContext(Dispatchers.Main) {
                     _closeVotingState.value = CloseVotingState.Error(e)
@@ -164,6 +168,19 @@ class HostDashboardViewModel(
                 eventId,
                 EventStatus.COLLECTING_RESTAURANT_VOTES
             )
+            // Force local refresh
+            eventRepository.syncEventById(eventId)
+        }
+    }
+
+    /**
+     * Updates the status of the event.
+     * @param status The new status to set.
+     */
+    fun updateEventStatus(status: EventStatus) {
+        viewModelScope.launch {
+            eventRepository.updateEventStatus(eventId, status)
+            eventRepository.syncEventById(eventId)
         }
     }
 }

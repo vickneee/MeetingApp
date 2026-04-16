@@ -30,6 +30,7 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
+import kotlin.let
 
 /**
  * Navigation destination for the Host Dashboard screen.
@@ -76,7 +77,13 @@ fun HostDashboardPage(
             onBack = onBack,
 
             closeVotingState = closeVotingState,
-            onCloseVotingClick = viewModel::closeVoting,
+            onCloseVotingClick = { status ->
+                if (status == EventStatus.FIRST_VOTING_CLOSED) {
+                    viewModel.closeVoting()
+                } else {
+                    viewModel.updateEventStatus(status)
+                }
+            },
             onVoteForRestaurantClick = onVoteForRestaurantClick,
             onStartRestaurantVotingClick = viewModel::startRestaurantVoting,
             onNavigateToHome = onNavigateToHome
@@ -116,7 +123,7 @@ fun HostDashboardContent(
     closeVotingState: CloseVotingState,
     onVoteForRestaurantClick: () -> Unit,
     onStartRestaurantVotingClick: () -> Unit,
-    onCloseVotingClick: () -> Unit,
+    onCloseVotingClick: (EventStatus) -> Unit,
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -219,14 +226,20 @@ fun HostDashboardContent(
             }
 
             item {
-                // Close Voting button text
                 val buttonText = when (event.status) {
                     EventStatus.COLLECTING_AVAILABILITY -> "Close Voting"
-                    EventStatus.FIRST_VOTING_CLOSED -> "Voting Closed" // inactive
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Restaurant Voting" // trigger
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Place Voting" // active again
-                    EventStatus.FINALIZED -> "Event Finalized" // inactive
-                    else -> "Unknown"
+                    EventStatus.FIRST_VOTING_CLOSED -> "Voting Closed"
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Restaurant Voting"
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Place Voting"
+                    EventStatus.FINALIZED -> "Event Finalized"
+                    else -> null
+                }
+
+                val nextStatus = when (event.status) {
+                    EventStatus.COLLECTING_AVAILABILITY -> EventStatus.FIRST_VOTING_CLOSED
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> EventStatus.COLLECTING_RESTAURANT_VOTES
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> EventStatus.FINALIZED
+                    else -> null
                 }
 
                 // Close Voting button enabled
@@ -276,32 +289,24 @@ fun HostDashboardContent(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    Button(
-                        onClick = {
-                            when (event.status) {
-                                EventStatus.RESTAURANT_CANDIDATES_GENERATED -> {
-                                    // Start restaurant voting
-                                    onStartRestaurantVotingClick()
+                    if (buttonText != null) {
+                        Button(
+                            onClick = {
+                                nextStatus?.let {
+                                    onCloseVotingClick(it)
                                 }
-
-                                EventStatus.COLLECTING_AVAILABILITY,
-                                EventStatus.COLLECTING_RESTAURANT_VOTES -> {
-                                    onCloseVotingClick()
-                                }
-
-                                else -> {}
-                            }
-                        },
-                        enabled = buttonEnabled,
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.9f)
-                    ) {
-                        Text(
-                            text = buttonText,
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 6.dp)
-                        )
+                            },
+                            enabled = buttonEnabled && nextStatus != null,
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth(0.9f)
+                        ) {
+                            Text(
+                                text = buttonText,
+                                fontSize = 18.sp,
+                                modifier = Modifier.padding(vertical = 6.dp)
+                            )
+                        }
                     }
 
                     if (closeVotingState is CloseVotingState.Error) {
