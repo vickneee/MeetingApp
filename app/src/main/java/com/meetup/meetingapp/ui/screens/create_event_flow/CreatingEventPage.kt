@@ -12,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.select_date_range.CustomDateRangePickerModal
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -58,17 +60,17 @@ fun formatDisplayDate(start: String, end: String): String {
  * Navigation destination for the Create Creating Event Page.
  */
 object CreatingEventPageDestination : NavigationDestination {
-    override val route = "create_creating_event_page"
-    override val titleRes = R.string.title_create_creating_event_page
+    override val route = "creating_event_page"
+    override val titleRes = R.string.title_creating_event_page
 }
 
 /**
  * Entry point composable for the event creation page.
  *
  * @param onBack Navigate back to the previous screen.
+ * @param navigateToCreatingEventPage Navigate to the date range selection page.
  * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
-
 @Composable
 fun CreatingEventPage(
     onBack: () -> Unit,
@@ -105,10 +107,10 @@ fun CreatingEventPage(
  * @param onEventTitleChange Callback when the event title is updated.
  * @param onHostNameChange Callback when the host name is updated.
  * @param onBack Navigate back to the previous screen.
+ * @param onOpenDatePicker Callback to open the date range picker.
  * @param navigateToCreatingEventPage Navigate to the date range selection page.
  * @param modifier Optional [Modifier] for layout adjustments.
  */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatingEventContent(
@@ -190,16 +192,16 @@ fun CreatingEventContent(
                         uiState.dateRange.end
                     ),
                     fontSize = 16.sp,
-                    color = if (uiState.hasSelectedDateRange) Color.Unspecified else Color.Gray,
+                    color = if (uiState.hasSelectedDateRange) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                Button(
+                OutlinedButton(
                     onClick = { onOpenDatePicker() },
-                    border = BorderStroke(2.dp, Color(0xFF3B82F6)),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
-                        contentColor = Color(0xFF3B82F6)
+                        contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
                 ) {
@@ -215,7 +217,7 @@ fun CreatingEventContent(
 
                 Button(
                     onClick = { navigateToCreatingEventPage() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
@@ -229,15 +231,20 @@ fun CreatingEventContent(
     }
 }
 
+/**
+ * Preview for the [CreatingEventContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun CreatingEventPagePreview() {
-    CreatingEventContent(
-        uiState = EventUiState(eventTitle = "Sample Event", hostName = "host"),
-        onEventTitleChange = {},
-        onHostNameChange = {},
-        onBack = {},
-        onOpenDatePicker = {},
-        navigateToCreatingEventPage = {}
-    )
+    MeetingAppTheme {
+        CreatingEventContent(
+            uiState = EventUiState(eventTitle = "Sample Event", hostName = "host"),
+            onEventTitleChange = {},
+            onHostNameChange = {},
+            onBack = {},
+            onOpenDatePicker = {},
+            navigateToCreatingEventPage = {}
+        )
+    }
 }

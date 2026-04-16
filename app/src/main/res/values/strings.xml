@@ -1,10 +1,9 @@
 <resources>
+    <string name="back_button">Back</string>
     <string name="app_name">Meeting App</string>
     <string name="title_create_or_join_page">MeetUp Planner</string>
-    <string name="title_create_event_button_page">Choose Place Type</string>
-    <string name="back_button">Back</string>
-    <string name="title_create_creating_event_page">Create Event</string>
-    <string name="title_host_dashboard">Host Dashboard</string>
+    <string name="title_create_event_page">Choose Place Type</string>
+    <string name="title_creating_event_page">Create Event</string>
     <string name="title_event_created">Event Created</string>
     <string name="title_meetup_details_page">MeetUp Details</string>
 　  <string name="title_place_type_and_keyword">Place Type &amp; Keywords</string>
@@ -14,9 +13,10 @@
     <string name="title_time_slots_selecting_page">Select Time Slots</string>
     <string name="edit_time_slot">Edit Time Slot</string>
     <string name="title_time_availability_page">Select Your Availability</string>
-    <string name="title_participant_dashboard_waiting">"Dashboard / "</string>
+    <string name="title_host_dashboard">Dashboard </string>
+    <string name="title_participant_dashboard">Dashboard </string>
     <string name="title_date_and_area">Date &amp; Area</string>
     <string name="title_events_list_page">Event List</string>
     <string name="title_place_list">Place List</string>
-    <string name="title_restaurant_list">Restaurant List</string>
+    <string name="title_place_details">Place Details</string>
 </resources>

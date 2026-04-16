@@ -2,42 +2,25 @@ package com.meetup.meetingapp.ui.screens.participant_input_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,8 +38,10 @@ import com.meetup.meetingapp.data.model.LocationOption
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.components.AppMultiSelectDropdown
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
-object PlaceTypeAndKeywordDestination: NavigationDestination {
+object PlaceTypeAndKeywordDestination : NavigationDestination {
     override val route = "participant_placeType_and_keyword"
     override val titleRes = R.string.title_place_type_and_keyword
 }
@@ -69,6 +54,7 @@ object PlaceTypeAndKeywordDestination: NavigationDestination {
  * is loaded, and triggers navigation to the submission completion page after
  * the participant submits their choices.
  *
+ * @param modifier Modifier for styling and layout.
  * @param onBack Callback invoked when the user navigates back.
  * @param viewModel The [ParticipantViewModel] providing UI state and actions.
  * @param onNavigateToSubmissionCompletePage Callback invoked after successful submission.
@@ -95,7 +81,7 @@ fun PlaceTypeAndKeywordPage(
             onSubmit = {
                 viewModel.submitParticipantInput()
                 onNavigateToSubmissionCompletePage()
-                       },
+            },
             modifier = modifier
         )
     }
@@ -125,7 +111,7 @@ fun PlaceTypeAndKeywordContent(
     onToggleFoodCategory: (FoodCategory) -> Unit,
     onSubmit: () -> Unit,
     modifier: Modifier
-){
+) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
@@ -141,26 +127,16 @@ fun PlaceTypeAndKeywordContent(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
                 .padding(horizontal = 48.dp),
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(48.dp))
 
                 Text(
                     "Choose a place type and",
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            item{
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    "a food category",
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -168,144 +144,73 @@ fun PlaceTypeAndKeywordContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                MultiSelectDropdown(
+                Text(
+                    "a food category",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(36.dp))
+
+                AppMultiSelectDropdown(
                     options = event.placeTypeOptions,
                     selected = participantState.selectedPlaceTypes,
                     onToggle = { onTogglePlaceType(it) },
                     label = "Place type",
                     instruction = "Select place type",
-                    toText = { it.toString() }
+                    toText = { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } }
                 )
             }
 
-            item{
-                Spacer(modifier = Modifier.height(108.dp))
+            item {
+                Spacer(modifier = Modifier.height(48.dp))
 
-                MultiSelectDropdown(
+                AppMultiSelectDropdown(
                     options = FoodCategory.entries,
                     selected = participantState.selectedFoodCategories,
                     onToggle = { onToggleFoodCategory(it) },
                     label = "Food category",
                     instruction = "Select food category",
-                    toText = { it.name }
+                    toText = { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } }
                 )
             }
 
             item {
-                Spacer(modifier = Modifier.padding(88.dp))
+                Spacer(modifier = Modifier.padding(24.dp))
 
-                // Center the button and make it only as wide as its content
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
+                Button(
+                    onClick = onSubmit,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .wrapContentWidth()
                 ) {
-                    Button(
-                        onClick = onSubmit,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .wrapContentWidth()
-                    ) {
-                        Text(
-                            text = "Submit",
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                        )
-                    }
+                    Text(
+                        text = "Submit",
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
                 }
+                Spacer(modifier = Modifier.padding(48.dp))
             }
         }
     }
 }
 
 /**
- * A reusable multi-select dropdown component.
- *
- * Displays a read-only text field that expands into a dropdown menu containing
- * checkboxes for each option. Selecting an item toggles its presence in the
- * selected list.
- *
- * @param options The full list of selectable items.
- * @param selected The currently selected items.
- * @param onToggle Callback invoked when an item is selected or deselected.
- * @param label A label displayed above the dropdown.
- * @param instruction Placeholder text shown inside the collapsed field.
- * @param toText Converts an option into a displayable string.
+ * Preview for the [PlaceTypeAndKeywordContent] composable.
  */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun <T> MultiSelectDropdown(
-    options: List<T>,
-    selected: List<T>,
-    onToggle: (T) -> Unit,
-    label: String,
-    instruction: String,
-    toText: (T) -> String
-){
-    var expanded by rememberSaveable() { mutableStateOf(false) }
-    val scrollState = rememberScrollState()
-
-    Column {
-        Text(text = label,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
-            TextField(
-                value = "",
-                onValueChange = {},
-                readOnly = true,
-                placeholder = { Text(instruction) },
-                trailingIcon = {
-                    TrailingIcon(expanded)
-                },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor()
-            )
-
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                scrollState = scrollState,
-                modifier = Modifier
-                    .verticalScroll(scrollState)
-            ) {
-                options.forEach { option ->
-                    val isSelected = option in selected
-
-                    DropdownMenuItem(
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically){
-                                Checkbox(
-                                    checked = isSelected,
-                                    onCheckedChange = null
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(toText(option))
-                            }
-                        },
-                        onClick = {
-                            onToggle(option)
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun PlaceTypeAndKeywordContentPreview() {
-    MaterialTheme {
+    MeetingAppTheme {
         PlaceTypeAndKeywordContent(
             event = Event(
                 id = "1",

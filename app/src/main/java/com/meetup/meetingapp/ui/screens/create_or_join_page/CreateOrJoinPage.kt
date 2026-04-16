@@ -33,6 +33,7 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the Create or Join screen.
@@ -113,6 +114,7 @@ fun CreateOrJoinContent(
     onEventsClick: () -> Unit
 ) {
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             MeetingAppTopAppBar(
                 title = "MeetUp Planner",
@@ -142,7 +144,7 @@ fun CreateOrJoinContent(
 
                 Button(
                     onClick = onCreateEventClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
@@ -150,7 +152,10 @@ fun CreateOrJoinContent(
                     Text(
                         text = "Create Event",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier
+                            .padding(
+                                vertical = 6.dp,
+                            )
                     )
                 }
                 Log.d("CreateOrJoinPage", "Code: $code, Key: $key")
@@ -189,13 +194,17 @@ fun CreateOrJoinContent(
 
                 Button(
                     onClick = { onJoinEventClick() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
                         text = "Join Event",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier
+                            .padding(
+                                vertical = 6.dp,
+                                horizontal = 16.dp
+                            )
                     )
                 }
 
@@ -203,10 +212,10 @@ fun CreateOrJoinContent(
 
                 Button(
                     onClick = { onEventsClick() },
-                    border = BorderStroke(2.dp, Color(0xFF3B82F6)),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
-                        contentColor = Color(0xFF3B82F6)
+                        contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
                 ) {
@@ -215,10 +224,8 @@ fun CreateOrJoinContent(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(
-                            top = 4.dp,
-                            bottom = 4.dp,
-                            start = 36.dp,
-                            end = 36.dp
+                            vertical = 6.dp,
+                            horizontal = 36.dp
                         )
                     )
                 }
@@ -227,17 +234,22 @@ fun CreateOrJoinContent(
     }
 }
 
+/**
+ * Preview for the [CreateOrJoinContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun CreateOrJoinPagePreview() {
-    CreateOrJoinContent(
-        code = "",
-        onCodeChange = {},
-        key = "",
-        onKeyChange = {},
-        onBack = {},
-        onCreateEventClick = {},
-        onJoinEventClick = {},
-        onEventsClick = {}
-    )
+    MeetingAppTheme {
+        CreateOrJoinContent(
+            code = "",
+            onCodeChange = {},
+            key = "",
+            onKeyChange = {},
+            onBack = {},
+            onCreateEventClick = {},
+            onJoinEventClick = {},
+            onEventsClick = {}
+        )
+    }
 }

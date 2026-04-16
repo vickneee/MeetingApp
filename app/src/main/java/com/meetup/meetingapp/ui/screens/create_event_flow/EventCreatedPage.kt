@@ -16,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
@@ -30,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import kotlinx.coroutines.launch
 
 /**
@@ -54,7 +54,6 @@ fun EventCreatedPage(
     onNavigateToAvailability: (String, String) -> Unit,
     viewModel: EventViewModel
 ) {
-
     val eventState by viewModel.eventState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
@@ -129,9 +128,8 @@ fun EventCreatedContent(
     onNavigateToDashboard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val brandBlue = Color(0xFF3B82F6)
-
     Scaffold(
+
         topBar = {
             MeetingAppTopAppBar(
                 title = "Event Created",
@@ -149,17 +147,23 @@ fun EventCreatedContent(
             verticalArrangement = Arrangement.Center
         ) {
             item {
-                Text("Your Event Code", fontSize = 22.sp)
+                Text("Your Event Code",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 22.sp)
                 Text(
                     text = eventCode,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
 
-                Text("Key", fontSize = 20.sp)
+                Text("Key",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 20.sp)
                 Text(
                     text = eventKey,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -167,6 +171,7 @@ fun EventCreatedContent(
 
                 Text(
                     text = "Share this code and key\nwith participants.",
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 20.sp,
                     modifier = Modifier.padding(vertical = 24.dp),
                     textAlign = TextAlign.Center
@@ -174,15 +179,15 @@ fun EventCreatedContent(
 
                 OutlinedButton(
                     onClick = onCopyCode,
-                    border = BorderStroke(1.dp, brandBlue),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.width(180.dp)
                 ) {
                     Text(
                         "Copy Code",
-                        color = brandBlue,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(6.dp)
                     )
                 }
 
@@ -190,17 +195,17 @@ fun EventCreatedContent(
 
                 OutlinedButton(
                     onClick = onShare,
-                    border = BorderStroke(1.dp, brandBlue),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.width(180.dp)
                 ) {
-                    Icon(Icons.Default.Share, contentDescription = null, tint = brandBlue)
+                    Icon(Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         "Share",
-                        color = brandBlue,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(6.dp)
                     )
                 }
 
@@ -208,12 +213,13 @@ fun EventCreatedContent(
 
                 Button(
                     onClick = onFillAvailability,
-                    colors = ButtonDefaults.buttonColors(containerColor = brandBlue),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(0.7f)
                 ) {
                     Text(
                         "Fill in my availability",
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(8.dp)
                     )
@@ -223,13 +229,13 @@ fun EventCreatedContent(
 
                 OutlinedButton(
                     onClick = onNavigateToDashboard,
-                    border = BorderStroke(1.dp, brandBlue),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(0.7f)
                 ) {
                     Text(
                         "Go to Dashboard",
-                        color = brandBlue,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(8.dp)
                     )
@@ -241,6 +247,8 @@ fun EventCreatedContent(
 
 /**
  * The screen displaying the loading message.
+ *
+ * @param modifier Optional modifier for layout adjustments.
  */
 @Composable
 fun LoadingScreen(modifier: Modifier = Modifier) {
@@ -253,6 +261,10 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
 
 /**
  * The screen displaying error message with re-attempt button.
+ *
+ * @param message The error message to display.
+ * @param onRetry Callback to retry the operation.
+ * @param modifier Optional modifier for layout adjustments.
  */
 @Composable
 fun ErrorScreen(message: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
@@ -271,17 +283,21 @@ fun ErrorScreen(message: String, onRetry: () -> Unit, modifier: Modifier = Modif
     }
 }
 
-
+/**
+ * Preview for the [EventCreatedContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun EventCreatedPagePreview() {
-    EventCreatedContent(
-        eventCode = "A7F9K2",
-        eventKey = "83947",
-        onBack = {},
-        onNavigateToDashboard = {},
-        onCopyCode = {},
-        onShare = {},
-        onFillAvailability = {}
-    )
+    MeetingAppTheme {
+        EventCreatedContent(
+            eventCode = "A7F9K2",
+            eventKey = "83947",
+            onBack = {},
+            onNavigateToDashboard = {},
+            onCopyCode = {},
+            onShare = {},
+            onFillAvailability = {}
+        )
+    }
 }

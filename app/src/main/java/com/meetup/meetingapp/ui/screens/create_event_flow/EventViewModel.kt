@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meetup.meetingapp.data.model.CountryOption
@@ -10,10 +9,16 @@ import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -23,29 +28,87 @@ import java.time.ZoneId
 
 /**
  * ViewModel responsible for managing the event creation flow.
+ *
+ * @param eventRepository Repository for event-related operations.
+ * @property _uiState Mutable state flow containing the current UI state.
+ * @property uiState State flow exposing the current UI state.
+ * @property _eventState Mutable state flow representing the event creation state.
+ * @property eventState State flow exposing the event creation state.
+ * @property _citiesFetchState Mutable state flow representing the state of fetching cities.
+ * @property citiesFetchState State flow exposing the state of fetching cities.
+ * @property _selectedCountries Mutable state flow containing the selected countries.
+ * @property citiesState State flow exposing the list of cities based on selected countries.
+ * @property events State flow exposing the list of events.
  */
 class EventViewModel(private val eventRepository: EventRepository):  ViewModel(){
 
+    /**
+     * Mutable state flow representing the current UI state.
+     */
     private val _uiState = MutableStateFlow(
         EventUiState(
             timeSlots = mutableListOf(TimeSlot("11:00", "13:00"))
         )
     )
 
+    /**
+     * State flow exposing the current UI state.
+     */
     val uiState = _uiState.asStateFlow()
 
+    /**
+     * Mutable state flow representing the event creation state.
+     */
     private val _eventState = MutableStateFlow<EventState>(EventState.Loading)
 
+    /**
+     * State flow exposing the event creation state.
+     */
     val eventState = _eventState.asStateFlow()
 
-    // Cities fetch state
+    /**
+     * Mutable state flow representing the state of fetching cities.
+     */
     private val _citiesFetchState = MutableStateFlow<CitiesFetchState>(CitiesFetchState.Loading)
 
+    /**
+     * State flow exposing the state of fetching cities.
+     */
     val citiesFetchState = _citiesFetchState.asStateFlow()
 
-    private val _citiesState = MutableStateFlow(listOf<String>())
+    /**
+     * Mutable state flow containing the selected countries.
+     */
+    private val _selectedCountries = MutableStateFlow(listOf(CountryOption.Finland))
 
-    val citiesState = _citiesState.asStateFlow()
+    /**
+     * Reactively observe cities based on selected countries.
+     * Uses Room as the single source of truth.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val citiesState: StateFlow<List<String>> = _selectedCountries
+        .flatMapLatest { countries ->
+            if (countries.isEmpty()) {
+                _citiesFetchState.value = CitiesFetchState.Success
+                flowOf(emptyList())
+            } else {
+                _citiesFetchState.value = CitiesFetchState.Loading
+                val flows = countries.map { eventRepository.getCitiesByCountry(it) }
+                combine(flows) { cityLists ->
+                    cityLists.flatMap { it }.distinct().sorted()
+                }
+            }
+        }
+        .flowOn(Dispatchers.Default)
+        .map {
+            _citiesFetchState.value = CitiesFetchState.Success
+            it
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     /**
      * Synchronizes events from the repository.
@@ -57,9 +120,11 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
             initialValue = emptyList()
         )
 
+    /**
+     * Initializes the ViewModel by synchronizing cities.
+     */
     init {
         syncCities()
-        observeCities(CountryOption.Finland)
     }
 
     /**
@@ -71,29 +136,18 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
         }
     }
 
-    fun observeCities(country: CountryOption) {
-        viewModelScope.launch {
-            try {
-                eventRepository.getCitiesByCountry(country)
-                    .collect { cities ->
-                        if (cities.isEmpty()) {
-                            // If list is empty, we might want to trigger sync again or show a specific state
-                            Log.w("EventViewModel", "No cities found in Room for ${country.name}")
-                        }
-                        _citiesState.value = cities
-                        _citiesFetchState.value = CitiesFetchState.Success
-                    }
-            } catch (e: Exception) {
-                Log.e("EventViewModel", "Error observing cities", e) // Added logging
-                _citiesFetchState.value = CitiesFetchState.Error("Cities not found")
-            }
-        }
+    /**
+     * Refreshes the city list based on current selection.
+     * (Retained for compatibility with UI retry logic)
+     */
+    fun observeCities(countries: List<CountryOption>) {
+        _selectedCountries.value = countries
     }
 
     /**
      * Attempts to create a new event using the current UI state.
      */
-    fun createEvent(){
+    fun createEvent() {
         _eventState.value = EventState.Loading
         viewModelScope.launch(Dispatchers.IO)  {
             try {
@@ -112,6 +166,8 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Updates the event title field in the UI state.
+     *
+     * @param title New event title.
      */
     fun updateTitle(title: String){
         _uiState.update {current ->
@@ -123,6 +179,8 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Updates the host name field in the UI state.
+     *
+     * @param name New host name.
      */
     fun updateHostName(name: String){
         _uiState.update {current ->
@@ -134,6 +192,9 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Updates the selected date range for the event.
+     *
+     * @param dateRange1 Start date of the range.
+     * @param dateRange2 End date of the range.
      */
     fun updateDateRange(dateRange1: Long?, dateRange2: Long?){
         if (dateRange1 != null && dateRange2 != null) {
@@ -150,6 +211,9 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Adds a new time slot to the event.
+     *
+     * @param start Start time of the time slot.
+     * @param end End time of the time slot.
      */
     fun addTimeSlot(start: String, end: String) {
         val current = _uiState.value.timeSlots.toMutableList()
@@ -159,6 +223,10 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Updates an existing time slot in the event.
+     *
+     * @param index Index of the time slot to update.
+     * @param start New start time of the time slot.
+     * @param end New end time of the time slot.
      */
     fun updateTimeSlot(index: Int, start: String, end: String) {
         val current = _uiState.value.timeSlots.toMutableList()
@@ -168,6 +236,8 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Removes a time slot from the event.
+     *
+     * @param slot Time slot to remove.
      */
     fun removeTimeSlot(slot: TimeSlot){
         _uiState.update {current ->
@@ -177,17 +247,37 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
         }
     }
 
-    fun selectCountry(country: CountryOption){
+    /**
+     * Toggles the selection of a country in the UI state.
+     *
+     * @param country Country to toggle the selection for.
+     */
+    fun toggleCountry(country: CountryOption) {
         _uiState.update { current ->
+            val updatedCountries = if (current.locations.countries.contains(country.name))
+                current.locations.countries - country.name
+            else
+                current.locations.countries + country.name
+            
             current.copy(
                 locations = current.locations.copy(
-                    country = country.name
+                    countries = updatedCountries
                 )
             )
         }
-        observeCities(country)
+        
+        // Refresh cities based on all selected countries
+        val selectedCountryOptions = _uiState.value.locations.countries.mapNotNull { name ->
+            CountryOption.entries.find { it.name == name }
+        }
+        _selectedCountries.value = selectedCountryOptions
     }
 
+    /**
+     * Toggles the selection of a city in the UI state.
+     *
+     * @param city City to toggle the selection for.
+     */
     fun toggleCity(city: String) {
         _uiState.update { current ->
             val updated = if (current.locations.cities.contains(city))
@@ -203,33 +293,9 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     }
 
     /**
-     * Adds a city to the list of selected cities in the location options.
-     */
-    fun addCity(city: String) {
-        _uiState.update { current ->
-            current.copy(
-                locations = current.locations.copy(
-                    cities = current.locations.cities + city
-                )
-            )
-        }
-    }
-
-    /**
-     * Removes a city from the list of selected cities.
-     */
-    fun removeCity(city: String) {
-        _uiState.update { current ->
-            current.copy(
-                locations = current.locations.copy(
-                    cities = current.locations.cities - city
-                )
-            )
-        }
-    }
-
-    /**
      * Adds a place type (e.g., RESTAURANT, CAFE) to the selected list.
+     *
+     * @param placeType Place type to add.
      */
     fun addPlaceType(placeType: PlaceType){
         _uiState.update {current ->
@@ -241,6 +307,8 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
 
     /**
      * Removes a place type from the selected list.
+     *
+     * @param placeType Place type to remove.
      */
     fun removePlaceType(placeType: PlaceType){
         _uiState.update {current ->
@@ -251,22 +319,47 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     }
 }
 
+/**
+ * Data class representing the current UI state of the event creation flow.
+ *
+ * @property eventTitle Title of the event.
+ * @property hostName Name of the event host.
+ * @property dateRange Date range of the event.
+ * @property hasSelectedDateRange Whether a date range has been selected.
+ * @property timeSlots List of time slots for the event.
+ * @property locations Location options for the event.
+ * @property placeTypes List of selected place types.
+ */
 data class EventUiState(
     val eventTitle: String = "",
     val hostName: String = "",
-    val dateRange: DateRange = DateRange(), // Fixed: Use default constructor instead of empty strings
+    val dateRange: DateRange = DateRange(),
     val hasSelectedDateRange: Boolean = false,
     val timeSlots: List<TimeSlot> = emptyList(),
     val locations: com.meetup.meetingapp.data.model.LocationOption = com.meetup.meetingapp.data.model.LocationOption(),
     val placeTypes: List<PlaceType> = emptyList()
 )
 
+/**
+ * Sealed interface representing the state of the event creation process.
+ *
+ * @property Loading Indicates that the event creation process is in progress.
+ * @property Success Indicates that the event creation process was successful.
+ * @property Error Indicates that an error occurred during the event creation process.
+ */
 sealed interface EventState {
     object Loading : EventState
     data class Success(val eventCode: String, val eventKey: String, val eventId: String) : EventState
     data class Error(val error: Throwable) : EventState
 }
 
+/**
+ * Sealed interface representing the state of fetching cities.
+ *
+ * @property Loading Indicates that the city fetching process is in progress.
+ * @property Success Indicates that the city fetching process was successful.
+ * @property Error Indicates that an error occurred during the city fetching process.
+ */
 sealed interface CitiesFetchState {
     object Loading : CitiesFetchState
     object Success : CitiesFetchState

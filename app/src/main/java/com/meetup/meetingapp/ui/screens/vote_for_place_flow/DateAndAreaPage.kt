@@ -31,17 +31,22 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the Date & Area selection page.
  */
-object DateAndAreaPageDestination: NavigationDestination {
+object DateAndAreaPageDestination : NavigationDestination {
     override val route = "date-and-area"
     override val titleRes = R.string.title_date_and_area
 }
 
 /**
  * Top-level composable for the Date & Area selection screen.
+ * @param onBack Callback to navigate back.
+ * @param viewModel ViewModel for managing state and data.
+ * @param onNavigateToRestaurantListPage Callback to navigate to the restaurant list page.
+ * @param modifier Modifier for styling.
  */
 @Composable
 fun DateAndAreaPage(
@@ -65,6 +70,10 @@ fun DateAndAreaPage(
 
 /**
  * Displays the list of selectable date–time–area combinations.
+ * @param onBack Callback to navigate back.
+ * @param dateLocationOptions List of available date–time–area combinations.
+ * @param navigateToRestaurantListPage Callback to navigate to the restaurant list page.
+ * @param modifier Modifier for styling.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,7 +82,7 @@ fun DateAndAreaContent(
     dateLocationOptions: List<DateLocationOption>,
     navigateToRestaurantListPage: (String, String) -> Unit,
     modifier: Modifier = Modifier
-){
+) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
@@ -103,9 +112,9 @@ fun DateAndAreaContent(
                         .padding(bottom = 14.dp)
                 )
             }
-            items(dateLocationOptions){option ->
+            items(dateLocationOptions) { option ->
                 Card(
-                    onClick = {navigateToRestaurantListPage(option.timingArg, option.location)},
+                    onClick = { navigateToRestaurantListPage(option.timingArg, option.location) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
@@ -131,6 +140,9 @@ fun DateAndAreaContent(
     }
 }
 
+/**
+ * Preview for the [DateAndAreaContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun DateAndAreaContentPreview() {
@@ -144,9 +156,11 @@ fun DateAndAreaContentPreview() {
         )
     )
 
-    DateAndAreaContent(
-        onBack = {},
-        dateLocationOptions = sampleOptions,
-        navigateToRestaurantListPage = { _, _ -> }
-    )
+    MeetingAppTheme {
+        DateAndAreaContent(
+            onBack = {},
+            dateLocationOptions = sampleOptions,
+            navigateToRestaurantListPage = { _, _ -> }
+        )
+    }
 }

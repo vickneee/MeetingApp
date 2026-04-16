@@ -47,36 +47,84 @@ class ParticipantViewModel(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    // Event code entered by participant to join
+    /**
+     * The event code to load.
+     */
     private val eventCode: String = savedStateHandle["eventCode"] ?: ""
+
+    /**
+     * The event key to load.
+     */
     private val eventKey: String = savedStateHandle["eventKey"] ?: ""
 
-    // The fetched event from Firestore
+    /**
+     * Mutable state flow containing the event data.
+     */
     private val _event = MutableStateFlow<Event?>(null)
+
+    /**
+     * State flow exposing the event data.
+     */
     val event = _event.asStateFlow()
 
-    // Participant input state
+    /**
+     * Mutable state flow containing the participant input state.
+     */
     private val _participantState = MutableStateFlow(ParticipantInputState())
+
+    /**
+     * State flow exposing the participant input state.
+     */
     val participantState = _participantState.asStateFlow()
 
-    // Fetch state
+    /**
+     * Mutable state flow containing the fetch state.
+     */
     private val _fetchState = MutableStateFlow<FetchState>(FetchState.Loading)
+
+    /**
+     * State flow exposing the fetch state.
+     */
     val fetchState = _fetchState.asStateFlow()
 
-    // State representing the submission process (sending participant responses)
+    /**
+     * Mutable state flow containing the submit state.
+     */
     private val _submitState = MutableStateFlow<SubmitState>(SubmitState.Idle)
 
-    // Expose the submit state as a read-only state flow
+    /**
+     * State flow exposing the submit state.
+     */
     val submitState = _submitState.asStateFlow()
 
-    // Loading state
+    /**
+     * Mutable state flow indicating whether data is loading.
+     */
     private val _isLoading = MutableStateFlow(true)
+
+    /**
+     * State flow exposing the loading state.
+     */
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    // User ID of the current user
+    /**
+     * User ID of the current user.
+     */
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
-    // True if user created the event, false if joined via link
+    /**
+     * Mutable state flow containing the participant dashboard UI state.
+     */
+    private val _uiState = MutableStateFlow(SubmitState.ParticipantDashboardUiState())
+
+    /**
+     * State flow exposing the participant dashboard UI state.
+     */
+    val uiState = _uiState.asStateFlow()
+
+    /**
+     * State flow indicating whether the current user is the host of the event.
+     */
     val isHost: StateFlow<Boolean> = _event
         .map { event ->
             event != null && event.hostId == currentUserId  // compare hostId to actual user ID
@@ -96,6 +144,29 @@ class ParticipantViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    /**
+     * Flattened list of all available date and time slot combinations for the event.
+     */
+    val allAvailableDateTimes: StateFlow<List<DateTime>> = _event.map { event ->
+        if (event == null) emptyList()
+        else {
+            val start = event.dateRange.startDate()
+            val end = event.dateRange.endDate()
+            val allDates = generateSequence(start) { it.plusDays(1) }
+                .takeWhile { !it.isAfter(end) }
+                .toList()
+            
+            allDates.flatMap { date ->
+                event.timeSlots.map { slot ->
+                    DateTime(date.toString(), slot)
+                }
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /**
+     * Initializes the view model by syncing the event and observing it.
+     */
     init {
         syncEvent()
         observeEventByEventCode(eventCode)
@@ -128,6 +199,7 @@ class ParticipantViewModel(
                                 participantName = if (it.participantName.isEmpty() && event.hostId == currentUserId) event.hostName else it.participantName
                             ) 
                         }
+                        observeSubmissions(event.id)
                         _fetchState.value = FetchState.Success
                         _isLoading.value = false
                     } else {
@@ -194,6 +266,21 @@ class ParticipantViewModel(
     /**
      * Toggles the selection of a date and time slot.
      *
+     * @param dateTime The date and time slot to toggle.
+     */
+    fun toggleDateTime(dateTime: DateTime) {
+        _participantState.update { current ->
+            val updated = if (current.selectedDateTimes.contains(dateTime))
+                current.selectedDateTimes - dateTime
+            else
+                current.selectedDateTimes + dateTime
+            current.copy(selectedDateTimes = updated)
+        }
+    }
+
+    /**
+     * Toggles the selection of a date and time slot.
+     *
      * @param date The date of the slot.
      * @param slotIndex The index of the slot in the list.
      * @see UiTimeSlot for more information about time slots.
@@ -204,14 +291,7 @@ class ParticipantViewModel(
         
         val slot = currentEvent.timeSlots[slotIndex]
         val dateTime = DateTime(date = date, timeSlot = slot)
-
-        _participantState.update { current ->
-            val updated = if (current.selectedDateTimes.contains(dateTime))
-                current.selectedDateTimes - dateTime
-            else
-                current.selectedDateTimes + dateTime
-            current.copy(selectedDateTimes = updated)
-        }
+        toggleDateTime(dateTime)
     }
 
     /**
@@ -269,6 +349,20 @@ class ParticipantViewModel(
     fun updateName(name: String) {
         _participantState.update { it.copy(participantName = name) }
     }
+
+    /**
+     * Observes submissions for the given event ID.
+     *
+     * @param eventId The ID of the event to observe submissions for.
+     */
+    private fun observeSubmissions(eventId: String) {
+        viewModelScope.launch {
+            eventRepository.observeSubmissions(eventId).collect { submissions ->
+                _uiState.update { it.copy(submissionsCount = submissions.size) }
+            }
+        }
+    }
+
 }
 
 /**
@@ -330,4 +424,11 @@ sealed interface SubmitState {
 
     /** Submission failed due to an error. */
     data class Error(val error: Throwable) : SubmitState
+
+    /**
+     * Represents the state of the participant dashboard.
+     */
+    data class ParticipantDashboardUiState(
+        val submissionsCount: Int = 0
+    )
 }
