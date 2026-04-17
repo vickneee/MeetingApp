@@ -200,4 +200,18 @@ interface EventRepository {
      * @return Result.success(Unit) on success, or Result.failure(e) on error.
      */
     suspend fun fetchAndSaveRestaurants(event: Event): Result<Unit>
+
+    /**
+     * Checks if restaurants exist for the given event.
+     * @param eventId The ID of the event to check.
+     * @param userId The ID of the user to check.
+     * @param timings The list of date-times to check.
+     * @return `true` if restaurants exist, `false` otherwise.
+     * @throws Exception if the synchronization operation fails.
+     */
+    suspend fun hasUserVotedInEvent(
+        eventId: String,
+        userId: String,
+        timings: List<DateTime>
+    ): Boolean
 }

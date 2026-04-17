@@ -29,8 +29,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.meetup.meetingapp.utils.filterRestaurants
+import com.meetup.meetingapp.data.model.EventStatus
 import kotlinx.coroutines.tasks.await
-import com.meetup.meetingapp.utils.isRestaurantOpenForTiming
 
 
 /**
@@ -128,17 +128,28 @@ class PlaceViewModel(
             // Observe event from Firestore and update Room cache
             eventRepository.observeEventById(eventId).collect { event ->
                 _event.value = event
-                if (event != null) {
-                    buildDateLocationOptions(event.dateTimeCandidates, event.locationCandidates)
+                if (event == null) {
+                    _restaurantState.value = RestaurantState.Loading
+                    return@collect
+                }
+                buildDateLocationOptions(event.dateTimeCandidates, event.locationCandidates)
 
-                    // HasCandidates block
-                    if (!restaurantsLoaded && eventRepository.hasRestaurantCandidates(event.id)) {
-                        restaurantsLoaded = true
-                        getAllRestaurant(event.id)
-                        _restaurantState.value = RestaurantState.Available
-                    } else if (!restaurantsLoaded) {
-                        _restaurantState.value = RestaurantState.Empty
+                // HasCandidates block
+                if (!restaurantsLoaded && eventRepository.hasRestaurantCandidates(event.id)) {
+                    restaurantsLoaded = true
+                    getAllRestaurant(event.id)
+                    _restaurantState.value = RestaurantState.Available
+
+                    // Update event status to COLLECTING_RESTAURANT_VOTES
+                    viewModelScope.launch {
+                        eventRepository.updateEventStatus(
+                            event.id,
+                            EventStatus.COLLECTING_RESTAURANT_VOTES
+                        )
                     }
+
+                } else if (!restaurantsLoaded) {
+                    _restaurantState.value = RestaurantState.Empty
                 }
             }
         }

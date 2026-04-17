@@ -2,6 +2,7 @@ package com.meetup.meetingapp.data.repositories
 
 import android.content.ContentValues.TAG
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -28,6 +29,9 @@ class UserRepositoryImp(
     private val db: FirebaseFirestore,
     private val userDao: UserDao
 ) : UserRepository {
+
+    override val currentUserId: String
+        get() = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     /**
      * Creates a new user document in Firestore.

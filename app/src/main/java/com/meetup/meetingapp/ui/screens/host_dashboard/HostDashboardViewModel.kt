@@ -3,6 +3,7 @@ package com.meetup.meetingapp.ui.screens.host_dashboard
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
@@ -10,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -76,6 +76,11 @@ class HostDashboardViewModel(
     val uiState = _uiState.asStateFlow()
 
     /**
+     * The ID of the current user.
+     */
+    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    /**
      *
      * Initializes the ViewModel by:
      * 1. Observing the event from Firestore and updating the Room cache.
@@ -98,6 +103,12 @@ class HostDashboardViewModel(
                             it.id,
                             EventStatus.COLLECTING_AVAILABILITY
                         )
+                    }
+                    // Only check vote when restaurants exist and voting is active
+                    if (it.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
+                        it.status == EventStatus.FINALIZED
+                    ) {
+                        fetchUserVote()
                     }
                 }
             }
@@ -128,30 +139,76 @@ class HostDashboardViewModel(
      */
     fun closeVoting() {
         _closeVotingState.value = CloseVotingState.Loading
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 eventRepository.aggregateParticipantResponses(eventId).getOrThrow()
 
-                // Re-sync event to get updated candidates
                 eventRepository.syncEventById(eventId)
 
-                // Now read the fresh event from Room
                 val updatedEvent = eventRepository.getEventById(eventId)
-                    .take(1)
-                    .first() // import kotlinx.coroutines.flow.first
+                    .first()
 
-                updatedEvent?.let { event ->
-                    eventRepository.fetchAndSaveRestaurants(event)
+                updatedEvent?.let {
+                    eventRepository.fetchAndSaveRestaurants(it)
                 }
+
+                eventRepository.updateEventStatus(
+                    eventId,
+                    EventStatus.FIRST_VOTING_CLOSED
+                )
 
                 withContext(Dispatchers.Main) {
                     _closeVotingState.value = CloseVotingState.Success
                 }
+
             } catch (e: Throwable) {
                 withContext(Dispatchers.Main) {
                     _closeVotingState.value = CloseVotingState.Error(e)
                 }
             }
+        }
+    }
+
+    /**
+     * Starts the restaurant voting process for the current event.
+     */
+    fun startRestaurantVoting() {
+        viewModelScope.launch {
+            eventRepository.updateEventStatus(
+                eventId,
+                EventStatus.COLLECTING_RESTAURANT_VOTES
+            )
+            // Force local refresh
+            eventRepository.syncEventById(eventId)
+        }
+    }
+
+    /**
+     * Updates the status of the event.
+     * @param status The new status to set.
+     */
+    fun updateEventStatus(status: EventStatus) {
+        viewModelScope.launch {
+            eventRepository.updateEventStatus(eventId, status)
+            eventRepository.syncEventById(eventId)
+        }
+    }
+
+    /**
+     * Fetches the user's vote status for the current event.
+     */
+    fun fetchUserVote() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val event = _event.value ?: return@launch
+
+            val hasVoted = eventRepository.hasUserVotedInEvent(
+                eventId = eventId,
+                userId = userId,
+                timings = event.dateTimeCandidates
+            )
+
+            _uiState.value = _uiState.value.copy(hasVoted = hasVoted)
         }
     }
 }
@@ -166,7 +223,8 @@ class HostDashboardViewModel(
 data class HostDashboardUiState(
     val submissionsCount: Int = 0,
     val attendees: List<String> = emptyList(),
-    val status: EventStatus = EventStatus.UNKNOWN
+    val status: EventStatus = EventStatus.UNKNOWN,
+    val hasVoted: Boolean = false
 )
 
 /**

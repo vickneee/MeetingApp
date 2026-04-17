@@ -3,8 +3,12 @@ package com.meetup.meetingapp.ui.screens.participant_dashboard
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.Event
+import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -57,6 +61,21 @@ class ParticipantDashboardViewModel(
     val uiState: StateFlow<ParticipantDashboardUiState> = _uiState.asStateFlow()
 
     /**
+     * The ID of the current user.
+     */
+    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    /**
+     * Set of place IDs that have already started listening for votes.
+     */
+    private val startedPlaces = mutableSetOf<String>()
+
+    /**
+     * Map of vote jobs, indexed by place ID.
+     */
+    private val voteJobs = mutableMapOf<String, Job>()
+
+    /**
      * Initializes the ViewModel by:
      * 1. Observing the event from Firestore and updating the Room cache.
      * 2. Observing submissions from Firestore and updating the Room cache.
@@ -66,6 +85,25 @@ class ParticipantDashboardViewModel(
             // Observe event from Firestore and update Room cache
             eventRepository.observeEventById(eventId).collect { event ->
                 _event.value = event
+                event?.let {
+                    _uiState.value = _uiState.value.copy(
+                        status = it.status
+                    )
+
+                    // If event is created, set status to COLLECTING_AVAILABILITY
+                    if (it.status == EventStatus.CREATED) {
+                        eventRepository.updateEventStatus(
+                            it.id,
+                            EventStatus.COLLECTING_AVAILABILITY
+                        )
+                    }
+                    // Only check vote when restaurants exist and voting is active
+                    if (it.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
+                        it.status == EventStatus.FINALIZED
+                    ) {
+                        fetchUserVote()
+                    }
+                }
             }
         }
         viewModelScope.launch {
@@ -78,6 +116,23 @@ class ParticipantDashboardViewModel(
             }
         }
     }
+
+    /**
+     * Fetches the user's vote status for the current event.
+     */
+    fun fetchUserVote() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val event = _event.value ?: return@launch
+
+            val hasVoted = eventRepository.hasUserVotedInEvent(
+                eventId = eventId,
+                userId = userId,
+                timings = event.dateTimeCandidates
+            )
+
+            _uiState.value = _uiState.value.copy(hasVoted = hasVoted)
+        }
+    }
 }
 
 /**
@@ -88,5 +143,7 @@ class ParticipantDashboardViewModel(
  */
 data class ParticipantDashboardUiState(
     val submissionsCount: Int = 0,
-    val attendees: List<String> = emptyList()
+    val attendees: List<String> = emptyList(),
+    val status: EventStatus = EventStatus.UNKNOWN,
+    val hasVoted: Boolean = false
 )
