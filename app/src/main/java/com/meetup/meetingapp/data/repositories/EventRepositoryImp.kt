@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -455,7 +456,10 @@ class EventRepositoryImp(
                 val event = snapshot?.toObject(Event::class.java)
                 if (event != null) {
                     val entity = with(EventMapper) { event.toEntity() }
-                    CoroutineScope(Dispatchers.IO).launch { eventDao.upsertEvent(entity) }
+                    // Use this coroutine scope (safe)
+                    launch(Dispatchers.IO) {
+                        eventDao.upsertEvent(entity)
+                    }
                 }
                 trySend(event)
             }
@@ -754,6 +758,31 @@ class EventRepositoryImp(
             }
         } else {
             Result.failure(Exception("No restaurants found"))
+        }
+    }
+
+    /**
+     * Retrieves a list of restaurants for a given location.
+     * @param eventId The event for which to retrieve restaurants.
+     * @param userId The user for which to retrieve restaurants.
+     * @param timings The list of date-times for which to retrieve restaurants.
+     */
+    override suspend fun hasUserVotedInEvent(
+        eventId: String,
+        userId: String,
+        timings: List<DateTime>
+    ): Boolean {
+        syncRestaurants(eventId)
+
+        val restaurants = getRestaurants(eventId).first()
+
+        if (restaurants.isEmpty()) return false
+
+        return restaurants.any { restaurant ->
+            timings.any { timing ->
+                getUserVote(eventId, restaurant.placeId, userId, timing)
+                    .getOrDefault(false)
+            }
         }
     }
 }

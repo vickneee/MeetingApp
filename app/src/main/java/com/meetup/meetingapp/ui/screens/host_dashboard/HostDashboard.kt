@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +21,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
@@ -30,6 +33,7 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
+import kotlin.let
 
 /**
  * Navigation destination for the Host Dashboard screen.
@@ -51,7 +55,7 @@ object HostDashboardDestination : NavigationDestination {
  * - Delegates UI rendering to [HostDashboardContent].
  *
  * @param onBack Callback invoked when the user navigates back.
- * @param onVoteForRestaurantClick Callback invoked when the user selects "Vote for Restaurant".
+ * @param onFinalPlanClick Callback invoked when the user clicks on the "Final Plan" button.
  * @param onNavigateToHome Callback invoked when the user navigates to the home screen.
  * @param viewModel The ViewModel providing event and submission data.
  */
@@ -59,6 +63,7 @@ object HostDashboardDestination : NavigationDestination {
 fun HostDashboardPage(
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
+    onFinalPlanClick: (String) -> Unit,
     onNavigateToHome: () -> Unit,
     viewModel: HostDashboardViewModel = viewModel(
         factory = AppViewModelProvider.Factory
@@ -67,17 +72,38 @@ fun HostDashboardPage(
     val event by viewModel.event.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val closeVotingState by viewModel.closeVotingState.collectAsStateWithLifecycle()
+    val hasVoted = uiState.hasVoted
+
+    // Re-check vote status every time screen resumes
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, lifecycleEvent ->
+            if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+                viewModel.fetchUserVote()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     event?.let {
         HostDashboardContent(
             event = it,
             submissionsCount = uiState.submissionsCount,
             attendees = uiState.attendees,
+            hasVoted = hasVoted,
             onBack = onBack,
 
             closeVotingState = closeVotingState,
-            onCloseVotingClick = viewModel::closeVoting,
+            onCloseVotingClick = { status ->
+                if (status == EventStatus.FIRST_VOTING_CLOSED) {
+                    viewModel.closeVoting()
+                } else {
+                    viewModel.updateEventStatus(status)
+                }
+            },
             onVoteForRestaurantClick = onVoteForRestaurantClick,
+            onFinalPlanClick = onFinalPlanClick,
             onNavigateToHome = onNavigateToHome
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -100,7 +126,7 @@ fun HostDashboardPage(
  * @param attendees List of participant names who submitted availability.
  * @param onBack Callback to navigate back.
  * @param closeVotingState UI state for the close-voting action.
- * @param onVoteForRestaurantClick Callback for navigating to restaurant voting.
+ * @param onFinalPlanClick Callback to trigger the final plan generation.
  * @param onCloseVotingClick Callback to trigger the close-voting operation.
  * @param onNavigateToHome Callback to navigate to the home screen.
  * @param modifier Optional modifier for layout customization.
@@ -111,10 +137,12 @@ fun HostDashboardContent(
     event: Event,
     submissionsCount: Int,
     attendees: List<String>,
+    hasVoted: Boolean,
     onBack: () -> Unit,
     closeVotingState: CloseVotingState,
     onVoteForRestaurantClick: () -> Unit,
-    onCloseVotingClick: () -> Unit,
+    onFinalPlanClick: (String) -> Unit,
+    onCloseVotingClick: (EventStatus) -> Unit,
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -217,14 +245,20 @@ fun HostDashboardContent(
             }
 
             item {
-                // Close Voting button text
                 val buttonText = when (event.status) {
-                    EventStatus.COLLECTING_AVAILABILITY -> "Close Voting" // active
-                    EventStatus.FIRST_VOTING_CLOSED -> "Voting Closed" // inactive
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Restaurant Voting" // inactive
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Place Voting" // active again
-                    EventStatus.FINALIZED -> "Event Finalized" // inactive
-                    else -> "Close Voting"
+                    EventStatus.COLLECTING_AVAILABILITY -> "Close Voting"
+                    EventStatus.FIRST_VOTING_CLOSED -> "Voting Closed"
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Restaurant Voting"
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Place Voting"
+                    EventStatus.FINALIZED -> "Event Finalized"
+                    else -> null
+                }
+
+                val nextStatus = when (event.status) {
+                    EventStatus.COLLECTING_AVAILABILITY -> EventStatus.FIRST_VOTING_CLOSED
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> EventStatus.COLLECTING_RESTAURANT_VOTES
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> EventStatus.FINALIZED
+                    else -> null
                 }
 
                 // Close Voting button enabled
@@ -233,22 +267,6 @@ fun HostDashboardContent(
                     EventStatus.COLLECTING_RESTAURANT_VOTES -> true
                     else -> false
                 } && closeVotingState != CloseVotingState.Loading
-
-                // "Vote for Time & Area" button text
-                val voteButtonText = when (event.status) {
-                    EventStatus.FINALIZED -> "View Final Plan"
-                    else -> "Vote for Time & Area"
-                }
-
-                // "Vote for Time & Area" button enabled
-                val voteButtonEnabled = when (event.status) {
-                    EventStatus.FIRST_VOTING_CLOSED,
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED,
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> true
-
-                    EventStatus.FINALIZED -> true
-                    else -> false
-                }
 
                 Spacer(modifier = Modifier.padding(12.dp))
 
@@ -259,33 +277,50 @@ fun HostDashboardContent(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
-                        onClick = onVoteForRestaurantClick,
-                        enabled = voteButtonEnabled,
+                        onClick = {
+                            if (event.status == EventStatus.FINALIZED) {
+                                onFinalPlanClick(event.id)
+                            } else {
+                                onVoteForRestaurantClick()
+                            }
+                        },
+                        enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
                         Text(
-                            voteButtonText,
+                            when {
+                                event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open Yet"
+                                event.status == EventStatus.FINALIZED -> "View Final Plan"
+                                hasVoted -> "Already Voted"
+                                else -> "Vote for a Time & Place"
+                            },
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(8.dp)
+                            modifier = Modifier.padding(6.dp)
                         )
                     }
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    Button(
-                        onClick = onCloseVotingClick,
-                        enabled = buttonEnabled,
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.9f)
-                    ) {
-                        Text(
-                            text = buttonText,
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 6.dp)
-                        )
+                    if (buttonText != null) {
+                        Button(
+                            onClick = {
+                                nextStatus?.let {
+                                    onCloseVotingClick(it)
+                                }
+                            },
+                            enabled = buttonEnabled && nextStatus != null,
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth(0.9f)
+                        ) {
+                            Text(
+                                text = buttonText,
+                                fontSize = 18.sp,
+                                modifier = Modifier.padding(vertical = 6.dp)
+                            )
+                        }
                     }
 
                     if (closeVotingState is CloseVotingState.Error) {
@@ -341,8 +376,10 @@ fun HostDashboardPreview() {
             ),
             submissionsCount = 4,
             attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
+            hasVoted = false,
             onBack = {},
             closeVotingState = CloseVotingState.Idle,
+            onFinalPlanClick = {},
             onVoteForRestaurantClick = {},
             onCloseVotingClick = {},
             onNavigateToHome = {}

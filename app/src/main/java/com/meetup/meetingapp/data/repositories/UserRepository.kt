@@ -10,6 +10,11 @@ package com.meetup.meetingapp.data.repositories
 interface UserRepository {
 
     /**
+     * The unique identifier of the currently authenticated user.
+     */
+    val currentUserId: String
+
+    /**
      * Creates a new user document in the database.
      *
      * This method is typically called when a user signs in for the first time.

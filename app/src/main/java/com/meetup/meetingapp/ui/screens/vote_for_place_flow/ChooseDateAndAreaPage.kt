@@ -220,7 +220,7 @@ fun ChooseDateAndAreaContent(
                         enabled = buttonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
+                        modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
                         Text(
                             "Choose Date & Area",
