@@ -22,17 +22,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
+import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import com.meetup.meetingapp.utils.getOpenLabel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
@@ -114,6 +118,7 @@ fun PlaceDetailsPage(
             distanceLabel = distanceLabel ?: "Calculating distance...", // Real GPS data
             isVoted = voteState.isVoted,
             isFinalized = isFinalized,
+            finalTime = event?.finalTime,
             voteResultState = voteResultState,
             onBack = if (isFinalized) onNavigateToHome else onBack,
             onHomeClick = onNavigateToHome,
@@ -147,6 +152,7 @@ fun PlaceDetailsPage(
  * @param distanceLabel The distance from the user to the restaurant.
  * @param isVoted Whether the user has already voted for this restaurant.
  * @param isFinalized Whether the event has been finalized.
+ * @param finalTime The final selected date and time.
  * @param voteResultState The state of the vote result.
  * @param onBack Callback to navigate back (or Home if finalized).
  * @param onHomeClick Callback to navigate to the home screen.
@@ -161,9 +167,10 @@ fun PlaceDetailsContent(
     openLabel: String,
     priceLabel: String,
     photoUrl: String,
-    distanceLabel: String, // New parameter
+    distanceLabel: String,
     isVoted: Boolean,
     isFinalized: Boolean,
+    finalTime: DateTime?,
     voteResultState: VoteResultState?,
     onBack: () -> Unit,
     onHomeClick: () -> Unit,
@@ -286,6 +293,18 @@ fun PlaceDetailsContent(
                             )
                         }
 
+                        // Final Plan Date Section
+                        if (isFinalized && finalTime != null) {
+                            Text(
+                                text = "Date: ${finalTime.date.toEuroDate()} ${finalTime.timeSlot.start} - ${finalTime.timeSlot.end}",
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 17.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+
                         // Action Buttons
                         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             OutlinedButton(
@@ -351,6 +370,19 @@ fun PlaceDetailsContent(
 }
 
 /**
+ * Extension function to convert a date string (yyyy-MM-dd) to European format (dd.MM.yyyy).
+ */
+private fun String.toEuroDate(): String {
+    return try {
+        val date = LocalDate.parse(this)
+        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+        date.format(formatter)
+    } catch (e: Exception) {
+        this
+    }
+}
+
+/**
  * Preview for the [PlaceDetailsContent] composable.
  */
 @Preview(showBackground = true)
@@ -375,6 +407,13 @@ fun PlaceDetailsPreview() {
             distanceLabel = "1.2 km",
             isVoted = false,
             isFinalized = false,
+            finalTime = DateTime(
+                date = "2023-11-01",
+                timeSlot = com.meetup.meetingapp.data.model.TimeSlot(
+                    start = "12:00",
+                    end = "13:00"
+                )
+            ),
             voteResultState = null,
             onBack = {},
             onHomeClick = {},

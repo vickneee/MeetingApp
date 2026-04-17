@@ -71,7 +71,7 @@ fun EventsListPage(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Event List",
+                title = stringResource(id = R.string.title_events_list_page),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
