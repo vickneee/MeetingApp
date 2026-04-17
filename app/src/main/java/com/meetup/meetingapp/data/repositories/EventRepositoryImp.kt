@@ -785,4 +785,80 @@ class EventRepositoryImp(
             }
         }
     }
+
+    /**
+     * Aggregates all participant responses for the given event and updates the event document
+     * with the majority-voted candidates (date/time, location, place type, and food category).
+     * @param eventId The ID of the event whose participant responses should be aggregated.
+     * @return [Result.success] if aggregation and update succeed, or [Result.failure]
+     *         if no responses are found or any Firestore/processing error occurs.
+     */
+    override suspend fun aggregateRestaurantVotes(eventId: String): Result<Unit> {
+        return try {
+            val restaurantsSnapshot = db.collection("events")
+                .document(eventId)
+                .collection("restaurants")
+                .get()
+                .await()
+
+            // Count votes per placeId
+            val voteCounts = mutableMapOf<String, Int>()
+            val votesByPlace = mutableMapOf<String, List<Vote>>()
+
+            restaurantsSnapshot.documents.forEach { restaurantDoc ->
+                val placeId = restaurantDoc.id
+                val votesSnapshot = db.collection("events")
+                    .document(eventId)
+                    .collection("restaurants")
+                    .document(placeId)
+                    .collection("votes")
+                    .get()
+                    .await()
+
+                val votes = votesSnapshot.documents.mapNotNull {
+                    it.toObject(Vote::class.java)
+                }
+                voteCounts[placeId] = votes.size
+                votesByPlace[placeId] = votes
+            }
+
+            if (voteCounts.isEmpty()) return Result.failure(Exception("No votes found"))
+
+            // Find winning placeId — random tiebreaker if tied
+            val maxVotes = voteCounts.maxOfOrNull { it.value }
+                ?: return Result.failure(Exception("No votes found"))
+            val winnerPlaceId = voteCounts
+                .filter { it.value == maxVotes }
+                .keys.random()
+
+            // Find most common DateTime from winner's votes — random tiebreaker if tied
+            val winnerVotes = votesByPlace[winnerPlaceId] ?: emptyList()
+            val groupedTimings = winnerVotes
+                .mapNotNull { it.dateTime }
+                .groupBy { it }
+            val maxTimingVotes = groupedTimings.maxOfOrNull { it.value.size }
+                ?: return Result.failure(Exception("No timings found in winner votes"))
+            val winnerTime = groupedTimings
+                .filter { it.value.size == maxTimingVotes }
+                .keys.random()
+
+            // Save to events document
+            db.collection("events")
+                .document(eventId)
+                .update(
+                    mapOf(
+                        "finalPlace" to winnerPlaceId,
+                        "finalTime" to winnerTime,
+                        "status" to EventStatus.FINALIZED.name
+                    )
+                )
+                .await()
+
+            syncEventById(eventId)
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

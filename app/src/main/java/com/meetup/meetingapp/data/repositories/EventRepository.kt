@@ -214,4 +214,11 @@ interface EventRepository {
         userId: String,
         timings: List<DateTime>
     ): Boolean
+
+    /**
+     * Aggregates restaurant votes for the given event.
+     * @param eventId The ID of the event to aggregate votes for.
+     * @return Result.success(Unit) on success, or Result.failure(e) on error.
+     */
+    suspend fun aggregateRestaurantVotes(eventId: String): Result<Unit>
 }
