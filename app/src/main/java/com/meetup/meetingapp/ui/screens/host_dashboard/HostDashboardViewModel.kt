@@ -76,6 +76,9 @@ class HostDashboardViewModel(
      */
     val uiState = _uiState.asStateFlow()
 
+    /**
+     * The ID of the current user.
+     */
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     /**

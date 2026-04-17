@@ -58,7 +58,8 @@ object ParticipantDashboardDestination : NavigationDestination {
 @Composable
 fun ParticipantDashboardPage(
     onBack: () -> Unit,
-    onNavigateToChooseDatePage: () -> Unit,
+    onVoteForRestaurantClick: () -> Unit,
+    onFinalPlanClick: (String) -> Unit,
     onNavigateToHome: () -> Unit,
     viewModel: ParticipantDashboardViewModel = viewModel(
         factory = AppViewModelProvider.Factory
@@ -66,13 +67,16 @@ fun ParticipantDashboardPage(
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val hasVoted = uiState.hasVoted
 
     event?.let {
         ParticipantDashboardContent(
             event = it,
             submissionsCount = uiState.submissionsCount,
+            hasVoted = hasVoted,
             onBack = onBack,
-            onVoteForRestaurantClick = onNavigateToChooseDatePage,
+            onVoteForRestaurantClick = onVoteForRestaurantClick,
+            onFinalPlanClick = onFinalPlanClick,
             onNavigateToHome = onNavigateToHome
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -95,8 +99,10 @@ fun ParticipantDashboardPage(
 fun ParticipantDashboardContent(
     event: Event,
     submissionsCount: Int,
+    hasVoted: Boolean,
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
+    onFinalPlanClick: (String) -> Unit,
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -215,17 +221,10 @@ fun ParticipantDashboardContent(
             item {
                 Spacer(modifier = Modifier.padding(16.dp))
 
-                // Button text and enabled
-                val voteButtonText = when (event.status) {
-                    EventStatus.FINALIZED -> "View Final Plan"
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Vote for a Time & Place"
-                    else -> "Vote for Time & Area"
-                }
-
                 val voteButtonEnabled = when (event.status) {
                     EventStatus.FIRST_VOTING_CLOSED,
                     EventStatus.COLLECTING_RESTAURANT_VOTES,
-                    EventStatus.FINALIZED -> true
+                    EventStatus.FINALIZED -> !hasVoted
 
                     else -> false
                 }
@@ -237,15 +236,26 @@ fun ParticipantDashboardContent(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Button(
-                        onClick = onVoteForRestaurantClick,
-                        enabled = voteButtonEnabled,
+                        onClick = {
+                            if (event.status == EventStatus.FINALIZED) {
+                                onFinalPlanClick(event.id)
+                            } else {
+                                onVoteForRestaurantClick()
+                            }
+                        },
+                        enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
+                        modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
 
                         Text(
-                            voteButtonText,
+                            when {
+                                event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open Yet"
+                                event.status == EventStatus.FINALIZED -> "View Final Plan"
+                                hasVoted -> "Already Voted"
+                                else -> "Vote for a Time & Place"
+                            },
                             fontSize = 18.sp,
                             modifier = Modifier.padding(6.dp)
                         )
@@ -287,7 +297,9 @@ fun ParticipantDashboardPreview() {
                 hostName = "Julia",
             ),
             submissionsCount = 4,
+            hasVoted = false,
             onBack = {},
+            onFinalPlanClick = {},
             onVoteForRestaurantClick = {},
             onNavigateToHome = {}
         )
