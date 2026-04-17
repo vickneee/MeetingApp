@@ -52,7 +52,8 @@ object ParticipantDashboardDestination : NavigationDestination {
  * - Delegates UI rendering to [ParticipantDashboardContent].
  *
  * @param onBack Callback invoked when the user navigates back.
- * @param onNavigateToChooseDatePage Callback invoked when the user navigates to the choose date page.
+ * @param onVoteForRestaurantClick Callback invoked when the user clicks on the "Vote for a Time & Place" button.
+ * @param onFinalPlanClick Callback invoked when the user clicks on the "View Final Plan" button.
  * @param onNavigateToHome Callback invoked when the user navigates to the home screen.
  * @param viewModel The ViewModel providing event and submission data.
  *
@@ -235,14 +236,6 @@ fun ParticipantDashboardContent(
 
             item {
                 Spacer(modifier = Modifier.padding(16.dp))
-
-                val voteButtonEnabled = when (event.status) {
-                    EventStatus.FIRST_VOTING_CLOSED,
-                    EventStatus.COLLECTING_RESTAURANT_VOTES,
-                    EventStatus.FINALIZED -> !hasVoted
-
-                    else -> false
-                }
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),

@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
