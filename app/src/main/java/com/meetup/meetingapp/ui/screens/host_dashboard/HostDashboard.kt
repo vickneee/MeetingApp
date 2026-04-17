@@ -261,9 +261,10 @@ fun HostDashboardContent(
                     else -> null
                 }
 
-                // Close Voting button enabled
+                // Close Voting button enabled logic
                 val buttonEnabled = when (event.status) {
                     EventStatus.COLLECTING_AVAILABILITY -> true
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> true
                     EventStatus.COLLECTING_RESTAURANT_VOTES -> true
                     else -> false
                 } && closeVotingState != CloseVotingState.Loading
