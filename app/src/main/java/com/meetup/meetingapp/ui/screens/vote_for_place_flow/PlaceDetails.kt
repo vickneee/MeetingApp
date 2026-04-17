@@ -30,6 +30,7 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
+import com.meetup.meetingapp.utils.getOpenLabel
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
@@ -87,7 +88,7 @@ fun PlaceDetailsPage(
     }
 
     val openLabel = if (restaurant != null && timing != null) {
-        viewModel.getOpenLabel(restaurant!!, timing!!)
+        getOpenLabel(restaurant!!, timing!!)
     } else null
 
     val priceLabel = restaurant?.priceLevel
