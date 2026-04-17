@@ -552,6 +552,9 @@ fun MeetingAppNavHost(
                     onNavigateToParticipantDashboard = { eventId ->
                         navController.navigate("${ParticipantDashboardDestination.route}/$eventId")
                     },
+                    onNavigateToHome = {
+                        navController.navigate(HomeDestination.route)
+                    },
                     viewModel = viewModel,
                     placeId = placeId
                 )

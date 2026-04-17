@@ -11,7 +11,6 @@ import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,7 +31,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.meetup.meetingapp.data.model.EventStatus
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.tasks.await
+
 /**
  * ViewModel responsible for managing restaurant details, voting state,
  * and Google Places–related data for the Place Details screen.
@@ -141,12 +142,15 @@ class PlaceViewModel(
                     getAllRestaurant(event.id)
                     _restaurantState.value = RestaurantState.Available
 
-                    // Update event status to COLLECTING_RESTAURANT_VOTES
-                    viewModelScope.launch {
-                        eventRepository.updateEventStatus(
-                            event.id,
-                            EventStatus.COLLECTING_RESTAURANT_VOTES
-                        )
+                    // Update event status to COLLECTING_RESTAURANT_VOTES ONLY if it's currently generated
+                    // This prevents finalized events from reverting to "Collecting" status.
+                    if (event.status == EventStatus.RESTAURANT_CANDIDATES_GENERATED) {
+                        viewModelScope.launch {
+                            eventRepository.updateEventStatus(
+                                event.id,
+                                EventStatus.COLLECTING_RESTAURANT_VOTES
+                            )
+                        }
                     }
 
                 } else if (!restaurantsLoaded) {
