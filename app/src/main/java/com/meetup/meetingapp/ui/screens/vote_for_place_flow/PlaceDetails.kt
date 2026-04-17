@@ -38,8 +38,9 @@ import com.meetup.meetingapp.utils.getOpenLabel
 object PlaceDetailsDestination : NavigationDestination {
     override val route = "place_detail"
     override val titleRes = R.string.title_place_details
+    const val eventIdArg = "eventId"
     const val placeIdArg = "placeId"
-    val routeWithArgs = "$route/{$placeIdArg}"
+    val routeWithArgs = "$route/{$eventIdArg}/{$placeIdArg}"
 }
 
 /**

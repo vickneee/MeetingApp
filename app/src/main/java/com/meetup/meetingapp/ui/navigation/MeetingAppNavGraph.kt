@@ -427,8 +427,8 @@ fun MeetingAppNavHost(
             HostDashboardPage(
                 onBack = { navController.popBackStack() },
                 onVoteForRestaurantClick = { navController.navigate("${ChooseDateAndAreaDestination.route}/$eventId") },
-                onFinalPlanClick = { eventId ->
-                    navController.navigate("${PlaceDetailsDestination.route}/$eventId")
+                onFinalPlanClick = { placeId ->
+                    navController.navigate("${PlaceDetailsDestination.route}/$eventId/$placeId")
                 },
                 onNavigateToHome = {
                     navController.navigate(HomeDestination.route)
@@ -446,8 +446,8 @@ fun MeetingAppNavHost(
             ParticipantDashboardPage(
                 onBack = { navController.popBackStack() },
                 onVoteForRestaurantClick = { navController.navigate("${ChooseDateAndAreaDestination.route}/$eventId") },
-                onFinalPlanClick = { eventId ->
-                    navController.navigate("${PlaceDetailsDestination.route}/$eventId")
+                onFinalPlanClick = { placeId ->
+                    navController.navigate("${PlaceDetailsDestination.route}/$eventId/$placeId")
                 },
                 onNavigateToHome = {
                     navController.navigate(HomeDestination.route)
@@ -521,7 +521,8 @@ fun MeetingAppNavHost(
                 PlaceListPage(
                     onBack = { navController.popBackStack() },
                     onNavigateToPlaceDetails = { placeId ->
-                        navController.navigate("${PlaceDetailsDestination.route}/$placeId")
+                        val eventId = parentEntry.arguments?.getString(ChooseDateAndAreaDestination.eventIdArg) ?: ""
+                        navController.navigate("${PlaceDetailsDestination.route}/$eventId/$placeId")
                     },
                     viewModel = viewModel
                 )

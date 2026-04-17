@@ -263,7 +263,7 @@ fun ParticipantDashboardContent(
                     Button(
                         onClick = {
                             if (event.status == EventStatus.FINALIZED) {
-                                onFinalPlanClick(event.id)
+                                event.finalPlace?.let { onFinalPlanClick(it) }
                             } else {
                                 onVoteForRestaurantClick()
                             }

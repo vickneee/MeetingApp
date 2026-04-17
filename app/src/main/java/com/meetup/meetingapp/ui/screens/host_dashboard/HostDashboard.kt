@@ -279,7 +279,7 @@ fun HostDashboardContent(
                     Button(
                         onClick = {
                             if (event.status == EventStatus.FINALIZED) {
-                                onFinalPlanClick(event.id)
+                                event.finalPlace?.let { onFinalPlanClick(it) }
                             } else {
                                 onVoteForRestaurantClick()
                             }
@@ -343,7 +343,7 @@ fun HostDashboardContent(
                             onClick = onNavigateToHome,
                             border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier
+                            modifier = Modifier.fillMaxWidth(0.9f)
                         ) {
                             Text(
                                 "Home",

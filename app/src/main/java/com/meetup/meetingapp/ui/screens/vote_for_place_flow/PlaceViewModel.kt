@@ -11,6 +11,7 @@ import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,16 +24,15 @@ import java.util.Locale
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import android.annotation.SuppressLint
 import android.location.Location
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
-import com.meetup.meetingapp.utils.filterRestaurants
 import com.meetup.meetingapp.data.model.EventStatus
 import kotlinx.coroutines.tasks.await
-
-
 /**
  * ViewModel responsible for managing restaurant details, voting state,
  * and Google Places–related data for the Place Details screen.
@@ -72,6 +72,7 @@ class PlaceViewModel(
 
     /** Event ID passed from navigation arguments. */
     private val eventId: String =
+        savedStateHandle[PlaceDetailsDestination.eventIdArg] ?:
         savedStateHandle[ChooseDateAndAreaDestination.eventIdArg] ?: ""
 
     /** The event data observed from Firestore. */
@@ -156,8 +157,10 @@ class PlaceViewModel(
 
         // Separate launch — runs concurrently, not blocked by the collect above
         viewModelScope.launch {
-            eventRepository.observeSubmissions(eventId).collect { submissions ->
-                _uiState.update { it.copy(submissionsCount = submissions.size) }
+            if (eventId.isNotEmpty()) {
+                eventRepository.observeSubmissions(eventId).collect { submissions ->
+                    _uiState.update { it.copy(submissionsCount = submissions.size) }
+                }
             }
         }
     }
@@ -256,21 +259,145 @@ class PlaceViewModel(
      * - selectedTiming changes
      * - selectedLocation changes
      *
-     * Internally uses [filterRestaurants] to apply the filtering logic.
+     * In summary, this StateFlow provides a dynamic list of restaurants
      */
-
+    @OptIn(FlowPreview::class)
     val filteredRestaurants: StateFlow<List<Restaurant>> =
         combine(
             allRestaurants,
             selectedTiming,
             selectedLocation
         ) { allState, timing, location ->
-            filterRestaurants(allState.allRestaurants, timing, location)
+            val all = allState.allRestaurants
+            all.filter { restaurant ->
+                val query = location?.trim() ?: ""
+                val locationMatch = query.isEmpty() ||
+                        (restaurant.address?.contains(query, ignoreCase = true) == true) ||
+                        (restaurant.name.contains(query, ignoreCase = true))
+
+                val timingMatch = timing == null || isRestaurantOpenForTiming(restaurant, timing)
+                locationMatch && timingMatch
+            }
         }.stateIn(
             viewModelScope,
-            SharingStarted.Eagerly,
+            SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
+
+    /**
+     * Converts a DateTime into a 3-letter weekday abbreviation (Mon, Tue…)
+     */
+    fun DateTime.toDayAbbrev(): String {
+        val localDate = this.toLocalDate()
+        return localDate.dayOfWeek.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+    }
+
+    /**
+     * Extracts weekday from openingHours string, handling ranges like "Mon-Fri".
+     */
+    fun parseDays(hours: String): List<String> {
+        val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+        val normalized = hours.takeWhile { it != ':' }
+
+        // Handle ranges like "Monday-Friday"
+        if (normalized.contains("-") || normalized.contains("–")) {
+            val parts = normalized.split(Regex("[-–]")).map {
+                it.trim().take(3).lowercase().replaceFirstChar { c -> c.uppercase() }
+            }
+            if (parts.size == 2) {
+                val startIdx = daysOfWeek.indexOf(parts[0])
+                val endIdx = daysOfWeek.indexOf(parts[1])
+                if (startIdx != -1 && endIdx != -1) {
+                    return if (startIdx <= endIdx) {
+                        daysOfWeek.subList(startIdx, endIdx + 1)
+                    } else {
+                        // Wraps around weekend
+                        daysOfWeek.subList(startIdx, 7) + daysOfWeek.subList(0, endIdx + 1)
+                    }
+                }
+            }
+        }
+
+        /**
+         * Handle exact matches like "Monday"
+         */
+        val found = daysOfWeek.filter { normalized.contains(it, ignoreCase = true) }
+        if (found.isNotEmpty()) return found
+
+        /**
+         * Handle single-letter matches like "M"
+         */
+        val dayRegex = Regex("([A-Za-z]+):")
+        val match = dayRegex.find(hours) ?: return emptyList()
+        return listOf(match.groupValues[1].take(3).lowercase().replaceFirstChar { it.uppercase() })
+    }
+
+    /**
+     * Normalizes Google Places openingHours strings.
+     */
+    fun normalizeHours(raw: String): String {
+        return raw.replace("–", "-")
+            .replace(Regex("[\\u202F\\u2009\\u200A\\u200B\\uFEFF\\u00A0]"), "")
+            .replace("AM", " AM").replace("PM", " PM").trim()
+    }
+
+    /**
+     * Extracts start/end time from openingHours string.
+     */
+    fun extractTimeRange(hours: String): Pair<String, String>? {
+        val normalized = normalizeHours(hours)
+        val regex = Regex("(\\d{1,2}:\\d{2}\\s?[AP]M)\\s?-\\s?(\\d{1,2}:\\d{2}\\s?[AP]M)")
+        val match = regex.find(normalized) ?: return null
+        val (start, end) = match.destructured
+        return convertTo24(start) to convertTo24(end)
+    }
+
+    /**
+     * Converts "9:00 AM" → "09:00" (24-hour format)
+     */
+    fun convertTo24(time: String): String {
+        val formatter12 = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
+        val formatter24 = DateTimeFormatter.ofPattern("HH:mm")
+        return LocalTime.parse(time.uppercase(), formatter12).format(formatter24)
+    }
+
+    /**
+     * Checks if restaurant is open during the target time slot (lenient overlap).
+     */
+    fun hasOverlap(
+        oStartStr: String,
+        oEndStr: String,
+        tStartStr: String,
+        tEndStr: String
+    ): Boolean {
+        fun toMin(t: String): Int {
+            val p = t.split(":")
+            return (p[0].toIntOrNull() ?: 0) * 60 + (p[1].toIntOrNull() ?: 0)
+        }
+
+        val oStart = toMin(oStartStr)
+        val oEnd = toMin(oEndStr)
+        val tStart = toMin(tStartStr)
+        val tEnd = toMin(tEndStr)
+
+        // Handle cross-midnight (e.g., 18:00 - 02:00)
+        val actualOEnd = if (oEnd <= oStart) oEnd + 1440 else oEnd
+        return minOf(actualOEnd, tEnd) > maxOf(oStart, tStart)
+    }
+
+    /**
+     * Determines whether a restaurant is open during the selected timing.
+     */
+    fun isRestaurantOpenForTiming(restaurant: Restaurant, timing: DateTime): Boolean {
+        val targetDay = timing.toDayAbbrev()
+        val hoursList = restaurant.openingHours ?: return true
+        return hoursList.any { hours ->
+            val days = parseDays(hours)
+            if (!days.contains(targetDay)) return@any false
+            val range = extractTimeRange(hours) ?: return@any false
+            hasOverlap(range.first, range.second, timing.timeSlot.start, timing.timeSlot.end)
+        }
+    }
 
     /**
      * Updates user-selected filters.
@@ -328,6 +455,34 @@ class PlaceViewModel(
         return allRestaurants.map { state -> state.allRestaurants.find { it.placeId == placeId } }
     }
 
+    /**
+     * Builds a human‑readable opening hours label for the given restaurant
+     * based on the selected timing.
+     *
+     * Example output: `"10:00 AM – 8:00 PM"`
+     *
+     * @param restaurant The restaurant whose opening hours should be evaluated.
+     * @param timing The selected date/time used to determine the correct weekday.
+     * @return A formatted label or null if opening hours are unavailable.
+     */
+    fun getOpenLabel(restaurant: Restaurant, timing: DateTime): String? {
+        val day = timing.toLocalDate().dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+        val hours = restaurant.openingHours?.firstOrNull { it.startsWith(day) } ?: return null
+        val range = extractTimeRange(hours) ?: return null
+        return "${format24ToAmPm(range.first)} – ${format24ToAmPm(range.second)}"
+    }
+
+    /**
+     * Converts a 24‑hour time string (e.g., `"18:30"`) into a 12‑hour AM/PM format.
+     *
+     * @param time A time string in `"HH:mm"` format.
+     * @return A formatted time string in `"h:mm a"` format.
+     */
+    fun format24ToAmPm(time: String): String {
+        val f24 = DateTimeFormatter.ofPattern("HH:mm")
+        val f12 = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
+        return LocalTime.parse(time, f24).format(f12)
+    }
 
     /**
      * Converts a Google Places price level (0–4) into a Euro‑sign representation.

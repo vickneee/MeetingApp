@@ -190,8 +190,25 @@ class HostDashboardViewModel(
      */
     fun updateEventStatus(status: EventStatus) {
         viewModelScope.launch {
-            eventRepository.updateEventStatus(eventId, status)
-            eventRepository.syncEventById(eventId)
+            if (status == EventStatus.FINALIZED) {
+                _closeVotingState.value = CloseVotingState.Loading
+                viewModelScope.launch(Dispatchers.IO) {
+                    eventRepository.aggregateRestaurantVotes(eventId)
+                        .onSuccess {
+                            withContext(Dispatchers.Main) {
+                                _closeVotingState.value = CloseVotingState.Success
+                            }
+                        }
+                        .onFailure { e ->
+                            withContext(Dispatchers.Main) {
+                                _closeVotingState.value = CloseVotingState.Error(e)
+                            }
+                        }
+                }
+            } else {
+                eventRepository.updateEventStatus(eventId, status)
+                eventRepository.syncEventById(eventId)
+            }
         }
     }
 
