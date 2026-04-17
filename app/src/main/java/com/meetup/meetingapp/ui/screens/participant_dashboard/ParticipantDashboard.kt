@@ -202,15 +202,32 @@ fun ParticipantDashboardContent(
                         }
 
                         EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
-                            Text(
-                                "Host has closed the voting!",
-                                fontSize = 22.sp,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                            Text("You can now vote.",
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 22.sp)
+                            if (hasVoted) {
+                                Text(
+                                    "You already voted.",
+                                    fontSize = 22.sp,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                                Text("Please wait until",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 22.sp,
+                                    modifier = Modifier.padding(bottom = 4.dp))
+                                Text("the host closes the voting.",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 22.sp,
+                                    modifier = Modifier.padding(bottom = 4.dp))
+                            } else {
+                                Text(
+                                    "Host has closed the voting!",
+                                    fontSize = 22.sp,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                                Text("You can now vote.",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 22.sp)
+                            }
                         }
 
                         EventStatus.FINALIZED -> {
