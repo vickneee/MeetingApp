@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -21,16 +22,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
+import com.meetup.meetingapp.data.model.DateTime
+import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import com.meetup.meetingapp.utils.getOpenLabel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
@@ -49,6 +55,7 @@ object PlaceDetailsDestination : NavigationDestination {
 @Composable
 fun PlaceDetailsPage(
     onBack: () -> Unit,
+    onNavigateToHome: () -> Unit,
     onNavigateToHostDashboard: (String) -> Unit,
     onNavigateToParticipantDashboard: (String) -> Unit,
     viewModel: PlaceViewModel,
@@ -63,6 +70,8 @@ fun PlaceDetailsPage(
     val voteResultState by viewModel.voteResultState.collectAsState()
     val timing by viewModel.selectedTiming.collectAsState()
     val event by viewModel.event.collectAsState()
+
+    val isFinalized = event?.status == EventStatus.FINALIZED
 
     // Handle navigation after successful vote
     LaunchedEffect(voteResultState) {
@@ -101,35 +110,36 @@ fun PlaceDetailsPage(
         ?: ""
 
     restaurant?.let { r ->
-        openLabel?.let { label ->
-            PlaceDetailsContent(
-                restaurantDetail = r,
-                openLabel = label,
-                priceLabel = priceLabel,
-                photoUrl = photoUrl,
-                distanceLabel = distanceLabel ?: "Calculating distance...", // Real GPS data
-                isVoted = voteState.isVoted,
-                voteResultState = voteResultState,
-                onBack = onBack,
-                onVoteClick = { viewModel.submitVote(placeId) },
-                onMapsClick = {
-                    val encodedAddress = Uri.encode(r.address)
-                    val gmmIntentUri = Uri.parse("geo:0,0?q=$encodedAddress")
-                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
-                        setPackage("com.google.android.apps.maps")
-                    }
-                    try {
-                        context.startActivity(mapIntent)
-                    } catch (e: Exception) {
-                        val webIntent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress")
-                        )
-                        context.startActivity(webIntent)
-                    }
+        PlaceDetailsContent(
+            restaurantDetail = r,
+            openLabel = openLabel ?: "Hours unavailable",
+            priceLabel = priceLabel,
+            photoUrl = photoUrl,
+            distanceLabel = distanceLabel ?: "Calculating distance...", // Real GPS data
+            isVoted = voteState.isVoted,
+            isFinalized = isFinalized,
+            finalTime = event?.finalTime,
+            voteResultState = voteResultState,
+            onBack = if (isFinalized) onNavigateToHome else onBack,
+            onHomeClick = onNavigateToHome,
+            onVoteClick = { viewModel.submitVote(placeId) },
+            onMapsClick = {
+                val encodedAddress = Uri.encode(r.address)
+                val gmmIntentUri = Uri.parse("geo:0,0?q=$encodedAddress")
+                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                    setPackage("com.google.android.apps.maps")
                 }
-            )
-        }
+                try {
+                    context.startActivity(mapIntent)
+                } catch (e: Exception) {
+                    val webIntent = Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress")
+                    )
+                    context.startActivity(webIntent)
+                }
+            }
+        )
     }
 }
 
@@ -141,8 +151,11 @@ fun PlaceDetailsPage(
  * @param photoUrl The URL of the restaurant's photo.
  * @param distanceLabel The distance from the user to the restaurant.
  * @param isVoted Whether the user has already voted for this restaurant.
+ * @param isFinalized Whether the event has been finalized.
+ * @param finalTime The final selected date and time.
  * @param voteResultState The state of the vote result.
- * @param onBack Callback to navigate back.
+ * @param onBack Callback to navigate back (or Home if finalized).
+ * @param onHomeClick Callback to navigate to the home screen.
  * @param onVoteClick Callback to handle the vote action.
  * @param onMapsClick Callback to open the restaurant's location on Google Maps.
  * @param modifier Modifier for styling.
@@ -154,21 +167,48 @@ fun PlaceDetailsContent(
     openLabel: String,
     priceLabel: String,
     photoUrl: String,
-    distanceLabel: String, // New parameter
+    distanceLabel: String,
     isVoted: Boolean,
+    isFinalized: Boolean,
+    finalTime: DateTime?,
     voteResultState: VoteResultState?,
     onBack: () -> Unit,
+    onHomeClick: () -> Unit,
     onVoteClick: () -> Unit,
     onMapsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
-            MeetingAppTopAppBar(
-                title = stringResource(id = R.string.title_place_details),
-                canNavigateBack = true,
-                navigateUp = onBack
-            )
+            if (isFinalized) {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(id = R.string.title_place_details),
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onHomeClick) {
+                            Icon(
+                                imageVector = Icons.Default.Home,
+                                contentDescription = "Home"
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+            } else {
+                MeetingAppTopAppBar(
+                    title = stringResource(id = R.string.title_place_details),
+                    canNavigateBack = true,
+                    navigateUp = onBack
+                )
+            }
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -253,6 +293,18 @@ fun PlaceDetailsContent(
                             )
                         }
 
+                        // Final Plan Date Section
+                        if (isFinalized && finalTime != null) {
+                            Text(
+                                text = "Date: ${finalTime.date.toEuroDate()} ${finalTime.timeSlot.start} - ${finalTime.timeSlot.end}",
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 17.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+
                         // Action Buttons
                         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             OutlinedButton(
@@ -268,20 +320,37 @@ fun PlaceDetailsContent(
                                 )
                             }
 
-                            Button(
-                                onClick = onVoteClick,
-                                enabled = !isVoted,
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary
-                                )
-                            ) {
-                                Text(
-                                    text = if (isVoted) "Voted" else "Vote for this restaurant",
-                                    fontSize = 18.sp,
-                                    modifier = Modifier.padding(6.dp)
-                                )
+                            if (isFinalized) {
+                                Button(
+                                    onClick = onHomeClick,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary
+                                    )
+                                ) {
+                                    Text(
+                                        text = "Home",
+                                        fontSize = 18.sp,
+                                        modifier = Modifier.padding(6.dp)
+                                    )
+                                }
+                            } else {
+                                Button(
+                                    onClick = onVoteClick,
+                                    enabled = !isVoted,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary
+                                    )
+                                ) {
+                                    Text(
+                                        text = if (isVoted) "Voted" else "Vote for this restaurant",
+                                        fontSize = 18.sp,
+                                        modifier = Modifier.padding(6.dp)
+                                    )
+                                }
                             }
 
                             if (voteResultState is VoteResultState.VoteError) {
@@ -297,6 +366,19 @@ fun PlaceDetailsContent(
                 }
             }
         }
+    }
+}
+
+/**
+ * Extension function to convert a date string (yyyy-MM-dd) to European format (dd.MM.yyyy).
+ */
+private fun String.toEuroDate(): String {
+    return try {
+        val date = LocalDate.parse(this)
+        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+        date.format(formatter)
+    } catch (e: Exception) {
+        this
     }
 }
 
@@ -324,8 +406,17 @@ fun PlaceDetailsPreview() {
             photoUrl = "",
             distanceLabel = "1.2 km",
             isVoted = false,
+            isFinalized = false,
+            finalTime = DateTime(
+                date = "2023-11-01",
+                timeSlot = com.meetup.meetingapp.data.model.TimeSlot(
+                    start = "12:00",
+                    end = "13:00"
+                )
+            ),
             voteResultState = null,
             onBack = {},
+            onHomeClick = {},
             onVoteClick = {},
             onMapsClick = {}
         )

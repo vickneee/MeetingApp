@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,6 +36,7 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 /**
  * Navigation destination for the Past Events screen.
@@ -69,7 +71,7 @@ fun EventsListPage(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Event List",
+                title = stringResource(id = R.string.title_events_list_page),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -112,11 +114,12 @@ fun EventItem(
     event: Event,
     onItemClick: (Event) -> Unit = {}
 ) {
-    val statusLabel = if (event.status == EventStatus.FINALIZED) {
-        event.finalTime ?: "Finalized" // show the date if available
+    val labelText = if (event.status == EventStatus.FINALIZED && event.finalTime != null) {
+        "${event.eventCode} / ${event.finalTime.date.toEuroDate()}"
     } else {
-        "Ongoing"
+        "${event.eventCode} / Ongoing"
     }
+
     Card(
         onClick = { onItemClick(event) },
         modifier = Modifier
@@ -129,7 +132,7 @@ fun EventItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Text(
-            text = "${event.eventCode} / $statusLabel",
+            text = labelText,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 20.dp, horizontal = 16.dp),
@@ -138,6 +141,19 @@ fun EventItem(
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+/**
+ * Extension function to convert a date string (yyyy-MM-dd) to European format (dd.MM.yyyy).
+ */
+private fun String.toEuroDate(): String {
+    return try {
+        val date = LocalDate.parse(this)
+        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+        date.format(formatter)
+    } catch (e: Exception) {
+        this
     }
 }
 
