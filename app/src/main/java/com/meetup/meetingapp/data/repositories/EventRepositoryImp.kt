@@ -456,7 +456,10 @@ class EventRepositoryImp(
                 val event = snapshot?.toObject(Event::class.java)
                 if (event != null) {
                     val entity = with(EventMapper) { event.toEntity() }
-                    CoroutineScope(Dispatchers.IO).launch { eventDao.upsertEvent(entity) }
+                    // Use this coroutine scope (safe)
+                    launch(Dispatchers.IO) {
+                        eventDao.upsertEvent(entity)
+                    }
                 }
                 trySend(event)
             }

@@ -8,6 +8,7 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,6 +66,16 @@ class ParticipantDashboardViewModel(
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     /**
+     * Set of place IDs that have already started listening for votes.
+     */
+    private val startedPlaces = mutableSetOf<String>()
+
+    /**
+     * Map of vote jobs, indexed by place ID.
+     */
+    private val voteJobs = mutableMapOf<String, Job>()
+
+    /**
      * Initializes the ViewModel by:
      * 1. Observing the event from Firestore and updating the Room cache.
      * 2. Observing submissions from Firestore and updating the Room cache.
@@ -78,6 +89,7 @@ class ParticipantDashboardViewModel(
                     _uiState.value = _uiState.value.copy(
                         status = it.status
                     )
+
                     // If event is created, set status to COLLECTING_AVAILABILITY
                     if (it.status == EventStatus.CREATED) {
                         eventRepository.updateEventStatus(
