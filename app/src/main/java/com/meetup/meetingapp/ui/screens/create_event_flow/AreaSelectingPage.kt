@@ -189,7 +189,7 @@ fun AreaSelectingContent(
 
                 Button(
                     onClick = onNextClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier,
                     enabled = selectedCities.isNotEmpty() // Only enable if a valid city is selected

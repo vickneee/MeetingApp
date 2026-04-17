@@ -126,7 +126,7 @@ fun <T> AppMultiSelectDropdown(
                         Text(
                             text = "• ${toText(item)}",
                             fontSize = 14.sp,
-                            color = Color(0xFF3B82F6),
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.weight(1f)
                         )
@@ -162,9 +162,9 @@ fun <T> AppMultiSelectDropdown(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedBorderColor = Color(0xFF3B82F6),
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    focusedTrailingIconColor = Color(0xFF3B82F6),
+                    focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
                     unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     focusedTextColor = MaterialTheme.colorScheme.onSurface,
                     unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -217,7 +217,7 @@ fun AppCheckbox(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)? = null) 
         checked = checked,
         onCheckedChange = onCheckedChange,
         colors = CheckboxDefaults.colors(
-            checkedColor = Color(0xFF3B82F6),
+            checkedColor = MaterialTheme.colorScheme.primary,
             uncheckedColor = MaterialTheme.colorScheme.outline,
             checkmarkColor = Color.White
         )

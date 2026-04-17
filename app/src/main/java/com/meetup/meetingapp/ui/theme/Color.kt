@@ -6,7 +6,7 @@ val Blue = Color(0xFF3B82F6)
 
 val BlueLight = Color(0xFF93C5FD)
 val GrayLight = Color(0xFF6B7280)
-val Green = Color(0xFF10B981)
+val Green = Color(0xFF00B100)
 
 val BackgroundLight = Color(0xFFF8F9FA)
 val SurfaceLight = Color.White
