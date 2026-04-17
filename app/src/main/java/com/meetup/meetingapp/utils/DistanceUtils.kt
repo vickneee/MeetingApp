@@ -1,6 +1,7 @@
 package com.meetup.meetingapp.utils
 
 import android.location.Location
+import java.util.Locale
 
 /**
  * Calculates the straight-line distance (in meters) between two geographic coordinates.
@@ -34,7 +35,7 @@ fun calculateDistanceMeters(
  * - Distances of 1000 meters or more are shown in kilometers with one decimal place
  *   (e.g., "1.2 km")
  *
- * This function is pure and fully unit-testable.
+ * This function uses Locale.US to ensure a consistent decimal separator (dot) in tests.
  *
  * @param distanceMeters The distance in meters.
  * @return A formatted string such as `"850 m"` or `"1.2 km"`.
@@ -43,6 +44,6 @@ fun formatDistance(distanceMeters: Float): String {
     return if (distanceMeters < 1000) {
         "${distanceMeters.toInt()} m"
     } else {
-        "%.1f km".format(distanceMeters / 1000)
+        String.format(Locale.US, "%.1f km", distanceMeters / 1000)
     }
 }
