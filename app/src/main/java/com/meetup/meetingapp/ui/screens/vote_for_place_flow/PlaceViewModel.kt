@@ -28,6 +28,7 @@ import android.location.Location
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.meetup.meetingapp.utils.filterRestaurants
 import kotlinx.coroutines.tasks.await
 import com.meetup.meetingapp.utils.isRestaurantOpenForTiming
 
@@ -228,33 +229,37 @@ class PlaceViewModel(
     }
 
     /**
-     * Filtered list of restaurants based on:
-     * - Selected location
-     * - Selected timing (opening hours overlap)
+     * A reactive list of restaurants filtered by:
+     *
+     * 1. Selected location:
+     *    - Matches restaurant name or address (case‑insensitive)
+     *    - Empty query returns all restaurants
+     *
+     * 2. Selected timing:
+     *    - If timing is null, no time filtering is applied
+     *    - Otherwise only restaurants whose opening hours overlap
+     *      with the selected time slot are included
+     *
+     * This StateFlow updates automatically whenever:
+     * - allRestaurants changes (Firestore updates)
+     * - selectedTiming changes
+     * - selectedLocation changes
+     *
+     * Internally uses [filterRestaurants] to apply the filtering logic.
      */
+
     val filteredRestaurants: StateFlow<List<Restaurant>> =
         combine(
             allRestaurants,
             selectedTiming,
             selectedLocation
         ) { allState, timing, location ->
-            val all = allState.allRestaurants
-            all.filter { restaurant ->
-                val query = location?.trim() ?: ""
-                val locationMatch = query.isEmpty() ||
-                        (restaurant.address?.contains(query, ignoreCase = true) == true) ||
-                        (restaurant.name.contains(query, ignoreCase = true))
-
-                val timingMatch = timing == null || isRestaurantOpenForTiming(restaurant, timing)
-                locationMatch && timingMatch
-            }
+            filterRestaurants(allState.allRestaurants, timing, location)
         }.stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
+            SharingStarted.Eagerly,
             emptyList()
         )
-
-
 
     /**
      * Updates user-selected filters.
