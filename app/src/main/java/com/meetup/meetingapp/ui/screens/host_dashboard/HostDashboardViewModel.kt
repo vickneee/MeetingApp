@@ -142,6 +142,7 @@ class HostDashboardViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                // aggregateParticipantResponses sets status to FIRST_VOTING_CLOSED
                 eventRepository.aggregateParticipantResponses(eventId).getOrThrow()
 
                 eventRepository.syncEventById(eventId)
@@ -150,13 +151,9 @@ class HostDashboardViewModel(
                     .first()
 
                 updatedEvent?.let {
+                    // fetchAndSaveRestaurants sets status to RESTAURANT_CANDIDATES_GENERATED
                     eventRepository.fetchAndSaveRestaurants(it)
                 }
-
-                eventRepository.updateEventStatus(
-                    eventId,
-                    EventStatus.FIRST_VOTING_CLOSED
-                )
 
                 withContext(Dispatchers.Main) {
                     _closeVotingState.value = CloseVotingState.Success
