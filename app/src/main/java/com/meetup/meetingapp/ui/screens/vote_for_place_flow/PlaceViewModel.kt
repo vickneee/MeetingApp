@@ -32,6 +32,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.meetup.meetingapp.data.model.EventStatus
+import com.meetup.meetingapp.utils.calculateDistanceMeters
+import com.meetup.meetingapp.utils.formatDistance
 import kotlinx.coroutines.tasks.await
 /**
  * ViewModel responsible for managing restaurant details, voting state,
@@ -197,22 +199,15 @@ class PlaceViewModel(
                 ).await()
 
                 location?.let { userLoc ->
-                    val results = FloatArray(1)
-                    // 4. Calculate the distance in meters
-                    Location.distanceBetween(
-                        userLoc.latitude, userLoc.longitude,
-                        destLat, destLng,
-                        results
+                    // 4. Calculate distance and format it for display
+                    val distance = calculateDistanceMeters(
+                        userLoc.latitude,
+                        userLoc.longitude,
+                        destLat,
+                        destLng
                     )
 
-                    val distanceInMeters = results[0]
-
-                    // 5. Format the result into a human-readable string
-                    _restaurantDistance.value = if (distanceInMeters < 1000) {
-                        "${distanceInMeters.toInt()} m"
-                    } else {
-                        "%.1f km".format(distanceInMeters / 1000)
-                    }
+                    _restaurantDistance.value = formatDistance(distance)
                 } ?: run {
                     _restaurantDistance.value = "GPS unavailable"
                 }
