@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.common.math.LinearTransformation.horizontal
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
@@ -245,12 +246,13 @@ fun EditTimeSlotContent(
                         shape = RoundedCornerShape(8.dp),
                         tonalElevation = 2.dp,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .fillMaxWidth().padding(horizontal = 48.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Warning,
@@ -259,9 +261,9 @@ fun EditTimeSlotContent(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "Start and end time must be at least 1 hour apart.",
+                                text = "Start and end time must be \nat least 1 hour apart.",
                                 color = MaterialTheme.colorScheme.error,
-                                fontSize = 14.sp
+                                fontSize = 14.sp,
                             )
                         }
                     }
