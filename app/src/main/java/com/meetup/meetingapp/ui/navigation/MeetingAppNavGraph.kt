@@ -448,12 +448,6 @@ fun MeetingAppNavHost(
                 onNavigateToChooseDatePage = {
                     navController.navigate("${ChooseDateAndAreaDestination.route}/$eventId")
                 },
-                onVoteForRestaurantClick = {
-                    navController.navigate("${ChooseDateAndAreaDestination.route}/$eventId")
-                },
-                onFinalPlanClick = { eventId ->
-                    navController.navigate("${PlaceDetailsDestination.route}/$eventId")
-                },
                 onNavigateToHome = {
                     navController.navigate(HomeDestination.route)
                 }

@@ -55,7 +55,7 @@ object AppViewModelProvider {
         initializer {
             HostDashboardViewModel(
                 meetingApplication().container.eventRepository,
-                meetingApplication().container.userRepository,
+                meetingApplication().container.userRepository.currentUserId,
                 this.createSavedStateHandle()
             )
         }
@@ -94,7 +94,6 @@ object AppViewModelProvider {
         initializer {
             ParticipantDashboardViewModel(
                 meetingApplication().container.eventRepository,
-                meetingApplication().container.userRepository,
                 this.createSavedStateHandle()
             )
         }
