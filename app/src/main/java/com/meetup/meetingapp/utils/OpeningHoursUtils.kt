@@ -74,14 +74,22 @@ fun extractTimeRange(hours: String): Pair<String, String>? {
     // Normalize weird Unicode spaces to regular spaces
     val cleaned = hours.replace(Regex("[\\u202F\\u2009\\u200A\\u200B\\uFEFF\\u00A0]"), " ")
 
-    // Match any dash-like character: -, –, —, ‑, −
-    val regex = Regex(
-        "(\\d{1,2}:\\d{2}\\s*[AP]M)\\s*[\\-–—‑−]\\s*(\\d{1,2}:\\d{2}\\s*[AP]M)"
-    )
+    // 1) Try 24-hour format first: "10:00-20:00"
+    val regex24 = Regex("(\\d{1,2}:\\d{2})\\s*[\\-–—‑−]\\s*(\\d{1,2}:\\d{2})")
+    regex24.find(cleaned)?.let {
+        val (start, end) = it.destructured
+        return start to end
+    }
 
-    val match = regex.find(cleaned) ?: return null
-    val (start, end) = match.destructured
-    return convertTo24(start) to convertTo24(end)
+    // 2) Try 12-hour AM/PM format: "10:00 AM - 8:00 PM"
+    val regex12 = Regex("(\\d{1,2}:\\d{2}\\s*[AP]M)\\s*[\\-–—‑−]\\s*(\\d{1,2}:\\d{2}\\s*[AP]M)")
+    regex12.find(cleaned)?.let {
+        val (start, end) = it.destructured
+        return convertTo24(start) to convertTo24(end)
+    }
+
+    // No valid time range found
+    return null
 }
 
 
@@ -185,7 +193,7 @@ fun getOpenLabel(restaurant: Restaurant, timing: DateTime): String? {
  * @return A formatted time string in `"h:mm a"` format.
  */
 fun format24ToAmPm(time: String): String {
-    val f24 = DateTimeFormatter.ofPattern("HH:mm")
+    val f24 = DateTimeFormatter.ofPattern("H:mm")
     val f12 = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
     return LocalTime.parse(time, f24).format(f12)
 }

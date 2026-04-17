@@ -85,12 +85,12 @@ fun EditTimeSlotScreen(
 
     var startTime by remember {
         mutableStateOf(
-            if (index >= 0) uiState.timeSlots[index].start else "00:00"
+            if (index >= 0) uiState.timeSlots[index].start else "12:00"
         )
     }
     var endTime by remember {
         mutableStateOf(
-            if (index >= 0) uiState.timeSlots[index].end else "00:00"
+            if (index >= 0) uiState.timeSlots[index].end else "13:00"
         )
     }
     var showPickerType by remember { mutableStateOf<String?>(null) }
