@@ -6,7 +6,6 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.MeetingApplication
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
@@ -56,7 +55,7 @@ object AppViewModelProvider {
         initializer {
             HostDashboardViewModel(
                 meetingApplication().container.eventRepository,
-                FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                meetingApplication().container.userRepository,
                 this.createSavedStateHandle()
             )
         }
@@ -95,7 +94,7 @@ object AppViewModelProvider {
         initializer {
             ParticipantDashboardViewModel(
                 meetingApplication().container.eventRepository,
-                FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                meetingApplication().container.userRepository,
                 this.createSavedStateHandle()
             )
         }
