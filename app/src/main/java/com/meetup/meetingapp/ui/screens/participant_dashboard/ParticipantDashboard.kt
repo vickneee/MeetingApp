@@ -174,7 +174,7 @@ fun ParticipantDashboardContent(
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                             Spacer(modifier = Modifier.padding(4.dp))
-                            Text("the voting...",
+                            Text("the first voting...",
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 22.sp)
                         }
@@ -218,7 +218,7 @@ fun ParticipantDashboardContent(
                 // Button text and enabled
                 val voteButtonText = when (event.status) {
                     EventStatus.FINALIZED -> "View Final Plan"
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Vote for a Place"
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Vote for a Time & Place"
                     else -> "Vote for Time & Area"
                 }
 
@@ -257,7 +257,7 @@ fun ParticipantDashboardContent(
                         onClick = onNavigateToHome,
                         border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
+                        modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
                         Text(
                             "Home",
