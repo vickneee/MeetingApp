@@ -294,10 +294,10 @@ fun HostDashboardContent(
                                 event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open Yet"
                                 event.status == EventStatus.FINALIZED -> "View Final Plan"
                                 hasVoted -> "Already Voted"
-                                else -> "Vote for Place"
+                                else -> "Vote for a Time & Place"
                             },
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(8.dp)
+                            modifier = Modifier.padding(6.dp)
                         )
                     }
 

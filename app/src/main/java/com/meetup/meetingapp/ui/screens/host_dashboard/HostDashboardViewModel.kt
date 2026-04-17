@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
@@ -37,7 +38,6 @@ import kotlinx.coroutines.withContext
  */
 class HostDashboardViewModel(
     private val eventRepository: EventRepository,
-    private val userId: String,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -75,6 +75,8 @@ class HostDashboardViewModel(
      * State flow exposing the UI state.
      */
     val uiState = _uiState.asStateFlow()
+
+    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     /**
      *
@@ -194,11 +196,22 @@ class HostDashboardViewModel(
         }
     }
 
+    /**
+     * Fetches the user's vote for the current event.
+     *
+     * This function:
+     * 1. Retrieves the event data.
+     * 2. Retrieves the list of restaurant candidates.
+     * 3. Retrieves the list of date/time candidates.
+     * 4. Checks if the user has voted for any of the restaurant candidates.
+     * 5. Updates the UI state with the result.
+     */
     fun fetchUserVote() {
         viewModelScope.launch(Dispatchers.IO) {
             val event = _event.value ?: return@launch
-            val timing = event.dateTimeCandidates.firstOrNull() ?: run {
-                Log.d("HostDashboard", "fetchUserVote: no timing")
+            val timings = event.dateTimeCandidates
+            if (timings.isEmpty()) {
+                Log.d("HostDashboard", "no timings")
                 return@launch
             }
 
@@ -217,9 +230,10 @@ class HostDashboardViewModel(
                     Log.d("HostDashboard", "checking ${restaurants.size} restaurants")
 
                     val hasVotedAny = restaurants.any { restaurant ->
-                        eventRepository.getUserVote(eventId, restaurant.placeId, userId, timing)
-                            .getOrDefault(false)
-                            .also { Log.d("HostDashboard", "placeId: ${restaurant.placeId} -> voted: $it") }
+                        timings.any { timing ->
+                            eventRepository.getUserVote(eventId, restaurant.placeId, userId, timing)
+                                .getOrDefault(false)
+                        }
                     }
 
                     Log.d("HostDashboard", "hasVotedAny: $hasVotedAny")
@@ -228,6 +242,9 @@ class HostDashboardViewModel(
         }
     }
 
+    /**
+     * Re-checks the user's vote status for the current event.
+     */
     fun recheckVoteStatus() {
         val event = _event.value ?: return
         if (event.status == EventStatus.COLLECTING_RESTAURANT_VOTES
