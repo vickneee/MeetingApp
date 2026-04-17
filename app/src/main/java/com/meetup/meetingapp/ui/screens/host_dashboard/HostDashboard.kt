@@ -79,7 +79,7 @@ fun HostDashboardPage(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, lifecycleEvent ->
             if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-                viewModel.recheckVoteStatus()
+                viewModel.fetchUserVote()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

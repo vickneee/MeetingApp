@@ -95,9 +95,6 @@ class HostDashboardViewModel(
             eventRepository.observeEventById(eventId).collect { event ->
                 _event.value = event
                 event?.let {
-                    Log.d("HostDashboard", "event status: ${it.status}")
-                    Log.d("HostDashboard", "restaurantCandidates: ${it.restaurantCandidates}")
-                    Log.d("HostDashboard", "dateTimeCandidates: ${it.dateTimeCandidates}")
                     _uiState.value = _uiState.value.copy(
                         status = it.status
                     )
@@ -200,59 +197,19 @@ class HostDashboardViewModel(
     }
 
     /**
-     * Fetches the user's vote for the current event.
-     *
-     * This function:
-     * 1. Retrieves the event data.
-     * 2. Retrieves the list of restaurant candidates.
-     * 3. Retrieves the list of date/time candidates.
-     * 4. Checks if the user has voted for any of the restaurant candidates.
-     * 5. Updates the UI state with the result.
+     * Fetches the user's vote status for the current event.
      */
     fun fetchUserVote() {
         viewModelScope.launch(Dispatchers.IO) {
             val event = _event.value ?: return@launch
-            val timings = event.dateTimeCandidates
-            if (timings.isEmpty()) {
-                Log.d("HostDashboard", "no timings")
-                return@launch
-            }
 
-            // Sync restaurants from Firestore into Room first
-            eventRepository.syncRestaurants(eventId)
+            val hasVoted = eventRepository.hasUserVotedInEvent(
+                eventId = eventId,
+                userId = userId,
+                timings = event.dateTimeCandidates
+            )
 
-            // Get placeIds from Room (already synced from subcollection)
-            eventRepository.getRestaurants(eventId)
-                .first()
-                .let { restaurants ->
-                    if (restaurants.isEmpty()) {
-                        Log.d("HostDashboard", "fetchUserVote: no restaurants after sync")
-                        return@launch
-                    }
-
-                    Log.d("HostDashboard", "checking ${restaurants.size} restaurants")
-
-                    val hasVotedAny = restaurants.any { restaurant ->
-                        timings.any { timing ->
-                            eventRepository.getUserVote(eventId, restaurant.placeId, userId, timing)
-                                .getOrDefault(false)
-                        }
-                    }
-
-                    Log.d("HostDashboard", "hasVotedAny: $hasVotedAny")
-                    _uiState.value = _uiState.value.copy(hasVoted = hasVotedAny)
-                }
-        }
-    }
-
-    /**
-     * Re-checks the user's vote status for the current event.
-     */
-    fun recheckVoteStatus() {
-        val event = _event.value ?: return
-        if (event.status == EventStatus.COLLECTING_RESTAURANT_VOTES
-        ) {
-            fetchUserVote()
+            _uiState.value = _uiState.value.copy(hasVoted = hasVoted)
         }
     }
 }
