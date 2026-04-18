@@ -118,7 +118,8 @@ fun DateAndAreaContent(
                 Card(
                     onClick = { navigateToRestaurantListPage(option.timingArg, option.location) },
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface
@@ -154,6 +155,13 @@ fun DateAndAreaContentPreview() {
                 timeSlot = com.meetup.meetingapp.data.model.TimeSlot("09:00", "12:00")
             ),
             location = "Helsinki"
+        ),
+        DateLocationOption(
+            timing = DateTime(
+                date = "2024-04-12",
+                timeSlot = com.meetup.meetingapp.data.model.TimeSlot("13:00,", "16:00")
+            ),
+            location = "Tampere"
         )
     )
 
