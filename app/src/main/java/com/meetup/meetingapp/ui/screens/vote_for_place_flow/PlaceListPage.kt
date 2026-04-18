@@ -145,7 +145,7 @@ fun PlaceListContent(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            text = selectedLocation ?: "",
+                            text = selectedLocation,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
