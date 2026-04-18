@@ -3,6 +3,7 @@ package com.meetup.meetingapp.ui.screens.participant_dashboard
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -141,10 +142,15 @@ fun ParticipantDashboardContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 32.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 56.dp,
+                bottom = 56.dp
+            ),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -300,7 +306,7 @@ fun ParticipantDashboardContent(
                         enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.75f)
+                        modifier = Modifier.fillMaxWidth(0.85f)
                     ) {
 
                         Text(
@@ -321,7 +327,7 @@ fun ParticipantDashboardContent(
                         onClick = onNavigateToHome,
                         border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.75f)
+                        modifier = Modifier.fillMaxWidth(0.85f)
                     ) {
                         Text(
                             "Home",

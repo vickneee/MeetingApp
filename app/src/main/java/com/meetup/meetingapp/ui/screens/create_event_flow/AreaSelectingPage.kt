@@ -2,6 +2,7 @@ package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -142,10 +143,15 @@ fun AreaSelectingContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 32.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 56.dp,
+                bottom = 56.dp
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
             item {
                 Text(

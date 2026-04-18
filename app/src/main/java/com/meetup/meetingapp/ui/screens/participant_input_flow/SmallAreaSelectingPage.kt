@@ -104,10 +104,15 @@ fun SmallAreaSelectingContent(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 32.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 56.dp,
+                bottom = 56.dp
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
             // Header Section
             item {
@@ -119,6 +124,7 @@ fun SmallAreaSelectingContent(
                     modifier = Modifier
                         .fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "prefer to meet",
                     color = MaterialTheme.colorScheme.onSurface,

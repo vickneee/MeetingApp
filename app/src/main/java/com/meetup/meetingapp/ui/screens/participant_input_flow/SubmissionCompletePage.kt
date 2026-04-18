@@ -178,7 +178,7 @@ fun SubmissionCompleteContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(100.dp))
+                Spacer(modifier = Modifier.height(72.dp))
 
                 Button(
                     onClick = {
@@ -191,9 +191,11 @@ fun SubmissionCompleteContent(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.75f)
+                    modifier = Modifier
+                        .fillMaxWidth(0.75f)
                 ) {
-                    Text("Go to Dashboard", fontSize = 18.sp,
+                    Text(
+                        "Go to Dashboard", fontSize = 18.sp,
                         modifier = Modifier.padding(vertical = 6.dp)
                     )
                 }

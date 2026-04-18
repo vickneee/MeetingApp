@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -115,8 +116,13 @@ fun TimeSlotsSelectingPageContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 32.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 56.dp,
+                bottom = 56.dp
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -135,7 +141,7 @@ fun TimeSlotsSelectingPageContent(
 
                 Row(
                     modifier = Modifier
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -168,7 +174,7 @@ fun TimeSlotsSelectingPageContent(
                 }
             }
             item {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(36.dp))
                 OutlinedButton(
                     onClick = { navigateToTimeEditPage(-1) }, // <- editTimeSlot()
                     border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
@@ -179,16 +185,17 @@ fun TimeSlotsSelectingPageContent(
                     modifier = Modifier.fillMaxWidth(0.75f)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Add Time Slot",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(vertical = 6.dp)
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
             }
             item {
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(36.dp))
                 Button(
                     onClick = { navigateToAreaSelectingPage() },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),

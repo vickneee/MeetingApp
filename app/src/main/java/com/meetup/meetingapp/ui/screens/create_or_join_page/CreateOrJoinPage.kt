@@ -3,8 +3,10 @@ package com.meetup.meetingapp.ui.screens.create_or_join_page
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -127,10 +131,15 @@ fun CreateOrJoinContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 32.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 56.dp,
+                bottom = 56.dp
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
             item {
                 Text(
@@ -139,9 +148,8 @@ fun CreateOrJoinContent(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
+                Spacer(modifier = Modifier.height(36.dp))
+                
                 Button(
                     onClick = onCreateEventClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
@@ -156,38 +164,82 @@ fun CreateOrJoinContent(
                         modifier = Modifier.padding(vertical = 6.dp,)
                     )
                 }
-
-                Spacer(modifier = Modifier.padding(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = "Join an Event",
                     modifier = Modifier.padding(16.dp),
-                    fontSize = 20.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
+                Spacer(modifier = Modifier.height(8.dp))
 
+                Text(
+                    text = "Event Code",
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .padding(vertical = 5.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Start
+                )
                 OutlinedTextField(
                     value = code,
                     onValueChange = onCodeChange,
-                    placeholder = { Text(text = "Enter code") },
+                    label = { Text("Enter code") },
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 16.dp),
+                        .fillMaxWidth(0.85f)
+                        .padding(bottom = 24.dp),
                     shape = RoundedCornerShape(8.dp),
-                    singleLine = true
+                    singleLine = true,
+                    // enabled = !isAlreadySubmitted, // Disable if already submitted
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
                 )
 
+                Text(
+                    text = "Event Key",
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .padding(vertical = 5.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Start
+                )
                 OutlinedTextField(
                     value = key,
                     onValueChange = onKeyChange,
-                    placeholder = { Text("Enter key") },
+                    label = { Text("Enter key") },
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(0.85f)
                         .padding(bottom = 24.dp),
                     shape = RoundedCornerShape(8.dp),
-                    singleLine = true
+                    singleLine = true,
+                    // enabled = !isAlreadySubmitted, // Disable if already submitted
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     onClick = { onJoinEventClick() },
@@ -205,8 +257,7 @@ fun CreateOrJoinContent(
                             )
                     )
                 }
-
-                Spacer(modifier = Modifier.padding(16.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 Button(
                     onClick = { onEventsClick() },

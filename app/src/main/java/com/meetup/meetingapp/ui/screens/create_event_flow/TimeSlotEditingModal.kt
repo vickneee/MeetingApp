@@ -3,6 +3,7 @@ package com.meetup.meetingapp.ui.screens.create_event_flow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -84,12 +85,12 @@ fun EditTimeSlotScreen(
 
     var startTime by remember {
         mutableStateOf(
-            if (index >= 0) uiState.timeSlots[index].start else "12:00"
+            if (index >= 0) uiState.timeSlots[index].start else "13:00"
         )
     }
     var endTime by remember {
         mutableStateOf(
-            if (index >= 0) uiState.timeSlots[index].end else "13:00"
+            if (index >= 0) uiState.timeSlots[index].end else "16:00"
         )
     }
     var showPickerType by remember { mutableStateOf<String?>(null) }
@@ -194,8 +195,13 @@ fun EditTimeSlotContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 32.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 56.dp,
+                bottom = 56.dp
+            ),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

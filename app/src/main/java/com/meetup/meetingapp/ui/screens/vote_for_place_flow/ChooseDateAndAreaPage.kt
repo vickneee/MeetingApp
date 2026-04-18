@@ -4,23 +4,19 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -29,8 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -162,68 +156,78 @@ fun ChooseDateAndAreaContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 56.dp,
+                bottom = 56.dp
+            ),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
         ) {
             item {
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(buildAnnotatedString {
-                        append("Event Code: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.eventCode)
-                        }
-                    }, fontSize = 20.sp)
+                    Text(
+                        buildAnnotatedString {
+                            append("Event Code: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.eventCode)
+                            }
+                        },
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
-                    Text(buildAnnotatedString {
-                        append("State: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.status.displayName)
-                        }
-                    }, fontSize = 20.sp)
+                    Text(
+                        buildAnnotatedString {
+                            append("State: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.status.displayName)
+                            }
+                        },
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
                     Text(buildAnnotatedString {
                         append("Event Title: ")
                         withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
                             append(event.eventTitle)
                         }
-                    }, fontSize = 20.sp)
-
-                    Text(buildAnnotatedString {
-                        append("Host: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.hostName)
-                        }
-                    }, fontSize = 20.sp)
-
-                    Spacer(modifier = Modifier.padding(12.dp))
-
-                    Text(
-                        text = "Submissions: $submissionsCount",
-                        fontSize = 20.sp
+                    }, fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    // List of attendees
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        attendees.forEach { name ->
-                            ParticipantItemRow(name = name)
-                        }
-                    }
+                    Text(
+                        buildAnnotatedString {
+                            append("Host: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.hostName)
+                            }
+                        },
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = "Submissions: $submissionsCount",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 20.sp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // List of attendees
+            items(attendees) { name ->
+                ParticipantItemRow(name = name, modifier = Modifier.padding(start = 16.dp))
             }
 
             item {
-                Spacer(modifier = Modifier.height(8.dp))
-
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -234,14 +238,14 @@ fun ChooseDateAndAreaContent(
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
                         onClick = onVoteForRestaurantClick,
                         enabled = buttonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.75f)
+                        modifier = Modifier.fillMaxWidth(0.85f)
                     ) {
                         Text(
                             "Choose Date & Area",
@@ -261,7 +265,7 @@ fun ChooseDateAndAreaContent(
                         onClick = onNavigateToHome,
                         border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.75f)
+                        modifier = Modifier.fillMaxWidth(0.85f)
                     ) {
                         Text(
                             "Home",
@@ -271,7 +275,6 @@ fun ChooseDateAndAreaContent(
                             modifier = Modifier.padding(vertical = 6.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
         }

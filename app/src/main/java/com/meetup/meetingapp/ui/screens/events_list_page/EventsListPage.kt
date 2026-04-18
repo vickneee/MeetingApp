@@ -83,11 +83,13 @@ fun EventsListPage(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
             contentPadding = PaddingValues(
-                top = 26.dp,
-                bottom = 26.dp
+                start = 32.dp,
+                end = 32.dp,
+                top = 32.dp,
+                bottom = 32.dp
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(sortedEvents) { event ->
                 EventItem(event = event,
@@ -123,8 +125,7 @@ fun EventItem(
     Card(
         onClick = { onItemClick(event) },
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 40.dp),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -199,9 +200,13 @@ fun EventsListPagePreview() {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp)
-                .padding(top = 26.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 32.dp,
+                bottom = 32.dp
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {

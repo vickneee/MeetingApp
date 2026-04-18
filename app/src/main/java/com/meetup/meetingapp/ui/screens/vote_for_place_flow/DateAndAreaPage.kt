@@ -1,7 +1,11 @@
 package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
+import android.R.attr.bottom
+import android.R.attr.end
+import android.R.attr.top
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -94,16 +98,21 @@ fun DateAndAreaContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 32.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 56.dp,
+                bottom = 56.dp
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
 
             item {
                 Text(
                     "Choose a date, time & area",
-                    style = MaterialTheme.typography.titleLarge,
+                    fontSize = 20.sp,
                     modifier = Modifier
                         .padding(bottom = 14.dp)
                 )
@@ -112,8 +121,7 @@ fun DateAndAreaContent(
                 Card(
                     onClick = { navigateToRestaurantListPage(option.timingArg, option.location) },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                        .fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface

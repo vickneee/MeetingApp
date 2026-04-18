@@ -142,8 +142,13 @@ fun EventCreatedContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 32.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 56.dp,
+                bottom = 56.dp
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -216,7 +221,7 @@ fun EventCreatedContent(
                     onClick = onFillAvailability,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.80f)
+                    modifier = Modifier.fillMaxWidth(0.85f)
                 ) {
                     Text(
                         "Fill in my availability",
@@ -232,7 +237,7 @@ fun EventCreatedContent(
                     onClick = onNavigateToDashboard,
                     border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.80f)
+                    modifier = Modifier.fillMaxWidth(0.85f)
                 ) {
                     Text(
                         "Go to Dashboard",

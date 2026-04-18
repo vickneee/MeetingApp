@@ -3,6 +3,7 @@ package com.meetup.meetingapp.ui.screens.participant_input_flow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -134,10 +135,15 @@ fun AvailabilitySelectingPageContent(
                 modifier = modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(paddingValues)
-                    .padding(horizontal = 32.dp),
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(
+                    start = 32.dp,
+                    end = 32.dp,
+                    top = 56.dp,
+                    bottom = 56.dp
+                ),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Top
             ) {
                 item {
                     Text(
@@ -180,14 +186,14 @@ fun AvailabilitySelectingPageContent(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(48.dp))
+                    Spacer(modifier = Modifier.height(36.dp))
 
                     Button(
                         onClick = onNext,
                         enabled = selectedDateTimes.isNotEmpty(),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.55f),
+                        modifier = Modifier.fillMaxWidth(0.65f),
                     ) {
                         Text(
                             text = "Next",

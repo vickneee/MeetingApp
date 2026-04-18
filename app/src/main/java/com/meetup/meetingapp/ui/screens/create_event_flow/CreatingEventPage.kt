@@ -1,11 +1,14 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
+import android.R.attr.singleLine
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -136,46 +141,88 @@ fun CreatingEventContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 32.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 56.dp,
+                bottom = 56.dp
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
             item {
                 Text(
-                    text = "Event Title",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 20.sp,
+                    text = "Create an Event",
+                    modifier = Modifier.padding(bottom = 36.dp),
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
+                Spacer(modifier = Modifier.height(8.dp))
 
+                Text(
+                    text = "Event Title",
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .padding(vertical = 5.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Start
+                )
                 OutlinedTextField(
                     value = uiState.eventTitle,
                     onValueChange = onEventTitleChange,
-                    placeholder = { Text("Enter title") },
+                    label = { Text("Enter title") },
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(0.85f)
                         .padding(bottom = 16.dp),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    singleLine = true,
+                    // enabled = !isAlreadySubmitted, // Disable if already submitted
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
                 )
-
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Host Name",
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .padding(vertical = 5.dp),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Start
                 )
-
                 OutlinedTextField(
                     value = uiState.hostName,
                     onValueChange = onHostNameChange,
-                    placeholder = { Text("Enter host name") },
+                    label = { Text("Enter host name") },
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(0.85f)
                         .padding(bottom = 16.dp),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    singleLine = true,
+                    // enabled = !isAlreadySubmitted, // Disable if already submitted
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
                 )
 
                 Text(
@@ -206,27 +253,28 @@ fun CreatingEventContent(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth(0.85f)
                 ) {
                     Text(
                         text = "Select New Date Range",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.padding(28.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 Button(
                     onClick = { navigateToCreatingEventPage() },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.55f)
+                    modifier = Modifier.fillMaxWidth(0.65f)
                 ) {
                     Text(
                         text = "Next",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(6.dp)
+                        modifier = Modifier.padding(vertical = 6.dp)
                     )
                 }
             }
