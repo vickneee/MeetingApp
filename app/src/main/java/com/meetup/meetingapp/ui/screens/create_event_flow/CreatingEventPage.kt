@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
-import android.R.attr.singleLine
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

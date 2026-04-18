@@ -1,8 +1,5 @@
 package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
-import android.R.attr.bottom
-import android.R.attr.end
-import android.R.attr.top
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
