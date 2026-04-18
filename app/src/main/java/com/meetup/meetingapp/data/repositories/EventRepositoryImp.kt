@@ -3,6 +3,7 @@ package com.meetup.meetingapp.data.repositories
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
 import com.meetup.meetingapp.data.db.daos.ParticipantResponseDao
@@ -456,10 +457,7 @@ class EventRepositoryImp(
                 val event = snapshot?.toObject(Event::class.java)
                 if (event != null) {
                     val entity = with(EventMapper) { event.toEntity() }
-                    // Use this coroutine scope (safe)
-                    launch(Dispatchers.IO) {
-                        eventDao.upsertEvent(entity)
-                    }
+                    CoroutineScope(Dispatchers.IO).launch { eventDao.upsertEvent(entity) }
                 }
                 trySend(event)
             }
@@ -656,7 +654,30 @@ class EventRepositoryImp(
         userId: String,
         dateTime: DateTime
     ): Result<Unit> {
-        val vote = Vote(dateTime = dateTime)
+        val userName = try {
+            val response = db.collection("events")
+                .document(eventId)
+                .collection("participantResponses")
+                .document(userId)
+                .get()
+                .await()
+                .toObject(ParticipantResponse::class.java)
+            
+            if (response != null) {
+                response.name
+            } else {
+                val eventDoc = db.collection("events").document(eventId).get().await().toObject(Event::class.java)
+                if (eventDoc?.hostId == userId) {
+                    eventDoc.hostName
+                } else {
+                    auth.currentUser?.displayName ?: "Unknown"
+                }
+            }
+        } catch (e: Exception) {
+            "Unknown"
+        }
+
+        val vote = Vote(dateTime = dateTime, userId = userId, userName = userName)
         return try {
             db.collection("events")
                 .document(eventId)
@@ -753,7 +774,7 @@ class EventRepositoryImp(
         return if (allRestaurants.isNotEmpty()) {
             saveAllRestaurants(event.id, allRestaurants).also {
                 if (it.isSuccess) {
-                    updateEventStatus(event.id, EventStatus.RESTAURANT_CANDIDATES_GENERATED)
+                    updateEventStatus(event.id, EventStatus.COLLECTING_RESTAURANT_VOTES)
                 }
             }
         } else {
@@ -783,6 +804,39 @@ class EventRepositoryImp(
                 getUserVote(eventId, restaurant.placeId, userId, timing)
                     .getOrDefault(false)
             }
+        }
+    }
+
+    /**
+     * Checks if there are any restaurant votes for the given event.
+     * @param eventId The ID of the event to check.
+     * @return `true` if any votes exist, `false` otherwise.
+     */
+    override suspend fun hasAnyRestaurantVotes(eventId: String): Boolean {
+        return try {
+            val restaurantsSnapshot = db.collection("events")
+                .document(eventId)
+                .collection("restaurants")
+                .get()
+                .await()
+
+            for (restaurantDoc in restaurantsSnapshot.documents) {
+                val votesSnapshot = db.collection("events")
+                    .document(eventId)
+                    .collection("restaurants")
+                    .document(restaurantDoc.id)
+                    .collection("votes")
+                    .limit(1)
+                    .get()
+                    .await()
+
+                if (!votesSnapshot.isEmpty) {
+                    return true
+                }
+            }
+            false
+        } catch (e: Exception) {
+            false
         }
     }
 
@@ -860,5 +914,101 @@ class EventRepositoryImp(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    /**
+     * Observes restaurant votes for the given event and returns a list of [Vote] objects.
+     * @param eventId The ID of the event to observe votes for.
+     * @return A [Flow] emitting a list of [Vote] objects.
+     */
+    override fun observeRestaurantVotes(eventId: String): Flow<List<Vote>> = callbackFlow {
+        val listeners = mutableListOf<ListenerRegistration>()
+
+        val mainListener = db.collection("events")
+            .document(eventId)
+            .collection("restaurants")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                // Remove old listeners for votes
+                listeners.forEach { it.remove() }
+                listeners.clear()
+
+                val restaurantDocs = snapshot?.documents ?: emptyList()
+                if (restaurantDocs.isEmpty()) {
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+
+                val allVotesMap = mutableMapOf<String, List<Vote>>()
+
+                restaurantDocs.forEach { restaurantDoc ->
+                    val listener = restaurantDoc.reference.collection("votes")
+                        .addSnapshotListener { voteSnapshot, voteError ->
+                            if (voteError != null) return@addSnapshotListener
+
+                            val votes = voteSnapshot?.documents?.mapNotNull {
+                                it.toObject(Vote::class.java)
+                            } ?: emptyList()
+
+                            allVotesMap[restaurantDoc.id] = votes
+
+                            // Emit the union of all votes collected so far
+                            trySend(allVotesMap.values.flatten())
+                        }
+                    listeners.add(listener)
+                }
+            }
+
+        awaitClose {
+            mainListener.remove()
+            listeners.forEach { it.remove() }
+        }
+    }
+
+    override suspend fun getParticipantResponse(eventId: String, userId: String): ParticipantResponse? {
+        return try {
+            db.collection("events")
+                .document(eventId)
+                .collection("participantResponses")
+                .document(userId)
+                .get()
+                .await()
+                .toObject(ParticipantResponse::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Observes the participant response for a specific user and event in real-time.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @return A [Flow] emitting the [ParticipantResponse] object for the user.
+     */
+    override fun observeParticipantResponse(eventId: String, userId: String): Flow<ParticipantResponse?> = callbackFlow {
+        val listener = db.collection("events")
+            .document(eventId)
+            .collection("participantResponses")
+            .document(userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                val response = snapshot?.toObject(ParticipantResponse::class.java)
+                if (response != null) {
+                    // Also update Room cache
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val entity = with(ParticipantResponseMapper) { response.toEntity(eventId) }
+                        participantResponseDao.upsertResponses(listOf(entity))
+                    }
+                }
+                trySend(response)
+            }
+        awaitClose { listener.remove() }
     }
 }

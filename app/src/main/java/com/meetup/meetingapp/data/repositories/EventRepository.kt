@@ -6,6 +6,7 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.Restaurant
+import com.meetup.meetingapp.data.model.Vote
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
@@ -99,7 +100,7 @@ interface EventRepository {
      * Updates the status of an event in the database.
      *
      * @param eventId The ID of the event to update.
-     * @param newStatus The new status to set for the event.
+     * @param newStatus The newStatus to set for the event.
      * @throws Exception if the update operation fails.
      */
     suspend fun updateEventStatus(eventId: String, newStatus: EventStatus)
@@ -216,9 +217,39 @@ interface EventRepository {
     ): Boolean
 
     /**
+     * Checks if there are any restaurant votes for the given event.
+     * @param eventId The ID of the event to check.
+     * @return `true` if any votes exist, `false` otherwise.
+     */
+    suspend fun hasAnyRestaurantVotes(eventId: String): Boolean
+
+    /**
      * Aggregates restaurant votes for the given event.
      * @param eventId The ID of the event to aggregate votes for.
      * @return Result.success(Unit) on success, or Result.failure(e) on error.
      */
     suspend fun aggregateRestaurantVotes(eventId: String): Result<Unit>
+
+    /**
+     * Observes restaurant votes for the given event and returns a list of [Vote] objects.
+     * @param eventId The ID of the event to observe votes for.
+     * @return A [Flow] emitting a list of [Vote] objects.
+     */
+    fun observeRestaurantVotes(eventId: String): Flow<List<Vote>>
+
+    /**
+     * Retrieves the participant response for a specific user and event.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @return The [ParticipantResponse] if found, null otherwise.
+     */
+    suspend fun getParticipantResponse(eventId: String, userId: String): ParticipantResponse?
+
+    /**
+     * Observes the participant response for a specific user and event in real-time.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @return A [Flow] emitting the [ParticipantResponse] object for the user.
+     */
+    fun observeParticipantResponse(eventId: String, userId: String): Flow<ParticipantResponse?>
 }

@@ -112,7 +112,7 @@ fun CustomDateRangePickerModal(
                                 Text(
                                     text = rangeDisplayText,
                                     color = MaterialTheme.colorScheme.onPrimary,
-                                    fontSize = 32.sp,
+                                    fontSize = 28.sp,
                                     modifier = Modifier.weight(1f)
                                 )
 

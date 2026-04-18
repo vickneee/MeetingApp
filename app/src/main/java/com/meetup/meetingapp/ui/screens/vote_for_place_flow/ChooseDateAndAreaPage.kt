@@ -4,17 +4,23 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -23,6 +29,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -79,6 +87,7 @@ fun ChooseDateAndAreaPage(
             ChooseDateAndAreaContent(
                 event = it,
                 submissionsCount = uiState.submissionsCount,
+                attendees = uiState.attendees,
                 isLoading = false,
                 onBack = onBack,
                 onVoteForRestaurantClick = onNavigateToChooseDatePage,
@@ -91,6 +100,7 @@ fun ChooseDateAndAreaPage(
             ChooseDateAndAreaContent(
                 event = it,
                 submissionsCount = uiState.submissionsCount,
+                attendees = uiState.attendees,
                 isLoading = false,
                 onBack = onBack,
                 onVoteForRestaurantClick = {},
@@ -103,6 +113,7 @@ fun ChooseDateAndAreaPage(
             ChooseDateAndAreaContent(
                 event = it,
                 submissionsCount = uiState.submissionsCount,
+                attendees = uiState.attendees,
                 isLoading = true, // Show loading indicator
                 onBack = onBack,
                 onVoteForRestaurantClick = {},
@@ -118,11 +129,11 @@ fun ChooseDateAndAreaPage(
  * @param modifier Modifier.
  * @param event Event data.
  * @param submissionsCount Number of submissions.
+ * @param attendees List of participant names.
  * @param isLoading Whether the content is loading.
  * @param onBack Navigate back.
  * @param onVoteForRestaurantClick Navigate to the availability page.
  * @param buttonEnabled Whether the button should be enabled.
- * @param modifier Modifier.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -130,6 +141,7 @@ fun ChooseDateAndAreaContent(
     modifier: Modifier = Modifier,
     event: Event,
     submissionsCount: Int,
+    attendees: List<String> = emptyList(),
     isLoading: Boolean = false,
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
@@ -194,9 +206,20 @@ fun ChooseDateAndAreaContent(
 
                     Text(
                         text = "Submissions: $submissionsCount",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 20.sp
                     )
+
+                    // List of attendees
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        attendees.forEach { name ->
+                            ParticipantItem(name = name)
+                        }
+                    }
                 }
             }
 
@@ -258,7 +281,35 @@ fun ChooseDateAndAreaContent(
 }
 
 /**
- * Preview for thr [ChooseDateAndAreaPage].
+ * Composable that displays a participant's name and an icon.
+ */
+@Composable
+fun ParticipantItem(name: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(
+            imageVector = Icons.Default.Person,
+            contentDescription = null,
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray.copy(alpha = 0.3f))
+                .padding(4.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = name,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+/**
+ * Preview for the [ChooseDateAndAreaPage].
  */
 @Preview(showBackground = true)
 @Composable
@@ -271,8 +322,9 @@ fun ChooseDateAndAreaPagePreview() {
                 hostName = "Julia",
             ),
             onBack = {},
-            submissionsCount = 0,
-            isLoading = true,
+            submissionsCount = 2,
+            attendees = listOf("Alice", "Bob"),
+            isLoading = false,
             onVoteForRestaurantClick = {},
             onNavigateToHome = {},
             buttonEnabled = true

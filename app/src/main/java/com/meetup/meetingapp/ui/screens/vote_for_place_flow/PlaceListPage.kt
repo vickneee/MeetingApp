@@ -207,7 +207,7 @@ fun PlaceListContent(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 20.dp, horizontal = 16.dp),
+                                .padding(vertical = 20.dp, horizontal = 24.dp),
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -217,7 +217,7 @@ fun PlaceListContent(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 2,
+                                maxLines = 3,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.weight(1f, fill = false)
                             )
@@ -265,7 +265,7 @@ fun PLaceListContentPreview() {
     val sampleOptions = listOf(
         Restaurant(
             placeId = "1",
-            name = "Restaurant A",
+            name = "Woolshed Helsinki - Australian Gastropub",
             rating = 4.5,
             userRatingCount = 120
         ),

@@ -5,13 +5,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -33,7 +37,6 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
-import kotlin.let
 
 /**
  * Navigation destination for the Host Dashboard screen.
@@ -92,6 +95,7 @@ fun HostDashboardPage(
             submissionsCount = uiState.submissionsCount,
             attendees = uiState.attendees,
             hasVoted = hasVoted,
+            hasAnyRestaurantVotes = uiState.hasAnyRestaurantVotes,
             onBack = onBack,
 
             closeVotingState = closeVotingState,
@@ -124,6 +128,8 @@ fun HostDashboardPage(
  * @param event The event being displayed.
  * @param submissionsCount Number of participant submissions.
  * @param attendees List of participant names who submitted availability.
+ * @param hasVoted Whether the user has voted in the current phase.
+ * @param hasAnyRestaurantVotes Whether any restaurant votes have been cast.
  * @param onBack Callback to navigate back.
  * @param closeVotingState UI state for the close-voting action.
  * @param onFinalPlanClick Callback to trigger the final plan generation.
@@ -138,6 +144,7 @@ fun HostDashboardContent(
     submissionsCount: Int,
     attendees: List<String>,
     hasVoted: Boolean,
+    hasAnyRestaurantVotes: Boolean,
     onBack: () -> Unit,
     closeVotingState: CloseVotingState,
     onVoteForRestaurantClick: () -> Unit,
@@ -219,36 +226,30 @@ fun HostDashboardContent(
                 Text(
                     text = "Submissions: $submissionsCount",
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 20.sp
                 )
 
-                Spacer(modifier = Modifier.padding(20.dp))
+                Spacer(modifier = Modifier.padding(8.dp))
 
-                Text(
-                    text = "Submitted by:",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
+//                Text(
+//                    text = "Submitted by:",
+//                    color = MaterialTheme.colorScheme.onSurface,
+//                    fontSize = 20.sp,
+//                    fontWeight = FontWeight.Medium
+//                )
 
-                Spacer(modifier = Modifier.padding(4.dp))
+//                Spacer(modifier = Modifier.padding(4.dp))
             }
 
             items(attendees) { name ->
-                Text(
-                    text = "• $name",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp)
-                )
+                ParticipantDashboardItemRow(name = name)
             }
 
             item {
                 val buttonText = when (event.status) {
-                    EventStatus.COLLECTING_AVAILABILITY -> "Close Voting"
-                    EventStatus.FIRST_VOTING_CLOSED -> "Voting Closed"
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Restaurant Voting"
+                    EventStatus.COLLECTING_AVAILABILITY -> "Close First Voting"
+                    EventStatus.FIRST_VOTING_CLOSED -> "First Voting Closed"
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "First Voting Closed"
                     EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Place Voting"
                     EventStatus.FINALIZED -> "Event Finalized"
                     else -> null
@@ -264,18 +265,16 @@ fun HostDashboardContent(
                 // Close Voting button enabled logic
                 val buttonEnabled = when (event.status) {
                     EventStatus.COLLECTING_AVAILABILITY -> true
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> true
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> true
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> false
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> hasAnyRestaurantVotes
                     else -> false
                 } && closeVotingState != CloseVotingState.Loading
-
-                Spacer(modifier = Modifier.padding(12.dp))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
                         onClick = {
@@ -363,6 +362,34 @@ fun HostDashboardContent(
 }
 
 /**
+ * Composable that displays a participant's name and an icon.
+ */
+@Composable
+fun ParticipantDashboardItemRow(name: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Person,
+            contentDescription = null,
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray.copy(alpha = 0.3f))
+                .padding(4.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = name,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+/**
  * Preview for the [HostDashboardContent] composable.
  */
 @Preview(showBackground = true)
@@ -378,6 +405,7 @@ fun HostDashboardPreview() {
             submissionsCount = 4,
             attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
             hasVoted = false,
+            hasAnyRestaurantVotes = false,
             onBack = {},
             closeVotingState = CloseVotingState.Idle,
             onFinalPlanClick = {},

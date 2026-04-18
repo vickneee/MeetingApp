@@ -199,6 +199,7 @@ class ParticipantViewModel(
                                 participantName = if (it.participantName.isEmpty() && event.hostId == currentUserId) event.hostName else it.participantName
                             ) 
                         }
+                        checkIfUserAlreadySubmitted(event.id)
                         observeSubmissions(event.id)
                         _fetchState.value = FetchState.Success
                         _isLoading.value = false
@@ -207,6 +208,26 @@ class ParticipantViewModel(
                         _isLoading.value = false
                     }
                 }
+        }
+    }
+
+    /**
+     * Checks if the current user has already submitted a response for the event.
+     */
+    private fun checkIfUserAlreadySubmitted(eventId: String) {
+        val uid = currentUserId ?: return
+        viewModelScope.launch {
+            val response = eventRepository.getParticipantResponse(eventId, uid)
+            if (response != null) {
+                _uiState.update { it.copy(
+                    isAlreadySubmitted = true,
+                    submittedName = response.name
+                ) }
+                // Also update the input state name if it's empty
+                if (_participantState.value.participantName.isEmpty()) {
+                    _participantState.update { it.copy(participantName = response.name) }
+                }
+            }
         }
     }
 
@@ -429,6 +450,8 @@ sealed interface SubmitState {
      * Represents the state of the participant dashboard.
      */
     data class ParticipantDashboardUiState(
-        val submissionsCount: Int = 0
+        val submissionsCount: Int = 0,
+        val isAlreadySubmitted: Boolean = false,
+        val submittedName: String = ""
     )
 }

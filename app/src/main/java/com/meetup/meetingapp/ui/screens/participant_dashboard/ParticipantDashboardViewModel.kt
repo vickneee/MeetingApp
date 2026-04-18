@@ -8,10 +8,12 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -20,6 +22,8 @@ import kotlinx.coroutines.launch
  * This ViewModel is responsible for:
  * - Loading the event data for the given eventId.
  * - Observing real-time updates to the event from Firestore (via the repository).
+ * - Syncing participant submissions from Firestore into the local Room database.
+ * - Exposing UI state such as submission count, attendee names, and event status.
  *
  * @param eventRepository Repository providing access to event and submission data.
  * @param savedStateHandle Used to retrieve the navigation argument `eventId`.
@@ -66,53 +70,86 @@ class ParticipantDashboardViewModel(
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     /**
-     * Set of place IDs that have already started listening for votes.
-     */
-    private val startedPlaces = mutableSetOf<String>()
-
-    /**
-     * Map of vote jobs, indexed by place ID.
-     */
-    private val voteJobs = mutableMapOf<String, Job>()
-
-    /**
      * Initializes the ViewModel by:
      * 1. Observing the event from Firestore and updating the Room cache.
      * 2. Observing submissions from Firestore and updating the Room cache.
+     * 3. Observing restaurant votes for the second round.
      */
     init {
         viewModelScope.launch {
-            // Observe event from Firestore and update Room cache
-            eventRepository.observeEventById(eventId).collect { event ->
-                _event.value = event
-                event?.let {
-                    _uiState.value = _uiState.value.copy(
-                        status = it.status
-                    )
+            val eventFlow = eventRepository.observeEventById(eventId)
+            val submissionsFlow = eventRepository.observeSubmissions(eventId)
+            val votesFlow = eventRepository.observeRestaurantVotes(eventId)
 
-                    // If event is created, set status to COLLECTING_AVAILABILITY
-                    if (it.status == EventStatus.CREATED) {
-                        eventRepository.updateEventStatus(
-                            it.id,
-                            EventStatus.COLLECTING_AVAILABILITY
-                        )
+            combine(eventFlow, submissionsFlow, votesFlow) { eventData, submissions, votes ->
+                _event.value = eventData
+                
+                eventData?.let { e ->
+                    // 1. Identify current user's name reactively from either the event (if host)
+                    // or from the list of participant submissions.
+                    val currentName = if (e.hostId == userId) {
+                        e.hostName
+                    } else {
+                        // In Firestore, the participant response document ID is the userId.
+                        // However, observeSubmissions returns a list of ParticipantResponse objects.
+                        // We need to fetch the specific response for the user to be certain,
+                        // but we can also try to find it in the current list if names are unique.
+                        // For now, we'll trigger a side fetch to be safe if it's missing.
+                        "" 
                     }
-                    // Only check vote when restaurants exist and voting is active
-                    if (it.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
-                        it.status == EventStatus.FINALIZED
-                    ) {
+
+                    val isSecondRound = e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
+                            e.status == EventStatus.FINALIZED
+
+                    val count = if (isSecondRound) {
+                        votes.distinctBy { it.userId }.size
+                    } else {
+                        submissions.size
+                    }
+
+                    val names = if (isSecondRound) {
+                        votes.distinctBy { it.userId }.map { it.userName }
+                    } else {
+                        submissions.map { it.name }
+                    }
+
+                    _uiState.update { it.copy(
+                        status = e.status,
+                        submissionsCount = count,
+                        attendees = names,
+                        currentUserName = if (currentName.isNotEmpty()) currentName else it.currentUserName
+                    ) }
+
+                    // Side effects
+                    if (e.status == EventStatus.CREATED) {
+                        viewModelScope.launch {
+                            eventRepository.updateEventStatus(e.id, EventStatus.COLLECTING_AVAILABILITY)
+                        }
+                    }
+                    if (isSecondRound) {
                         fetchUserVote()
                     }
                 }
-            }
+            }.collect {}
         }
+        
+        // Background fetch for user name to ensure it's available for "You can now vote"
+        fetchCurrentUserName()
+    }
+
+    /**
+     * Fetches the current user's name from their initial submission or event host data.
+     */
+    private fun fetchCurrentUserName() {
         viewModelScope.launch {
-            // Observe submissions from Firestore and update Room cache
-            eventRepository.observeSubmissions(eventId).collect { submissions ->
-                _uiState.value = _uiState.value.copy(
-                    submissionsCount = submissions.size,
-                    attendees = submissions.map { it.name }
-                )
+            val response = eventRepository.getParticipantResponse(eventId, userId)
+            if (response != null) {
+                _uiState.update { it.copy(currentUserName = response.name) }
+            } else {
+                val eventDoc = eventRepository.getEventById(eventId).first()
+                if (eventDoc?.hostId == userId) {
+                    _uiState.update { it.copy(currentUserName = eventDoc.hostName) }
+                }
             }
         }
     }
@@ -123,14 +160,12 @@ class ParticipantDashboardViewModel(
     fun fetchUserVote() {
         viewModelScope.launch(Dispatchers.IO) {
             val event = _event.value ?: return@launch
-
             val hasVoted = eventRepository.hasUserVotedInEvent(
                 eventId = eventId,
                 userId = userId,
                 timings = event.dateTimeCandidates
             )
-
-            _uiState.value = _uiState.value.copy(hasVoted = hasVoted)
+            _uiState.update { it.copy(hasVoted = hasVoted) }
         }
     }
 }
@@ -139,11 +174,15 @@ class ParticipantDashboardViewModel(
  * Represents the UI state of the Participant Dashboard screen.
  *
  * @property submissionsCount The number of submissions made by participants.
- * @property attendees A list of participant names.
+ * @property attendees a list of participant names.
+ * @property status Current status of the event.
+ * @property hasVoted Whether the current user has voted in the event.
+ * @property currentUserName The name of the current user.
  */
 data class ParticipantDashboardUiState(
     val submissionsCount: Int = 0,
     val attendees: List<String> = emptyList(),
     val status: EventStatus = EventStatus.UNKNOWN,
-    val hasVoted: Boolean = false
+    val hasVoted: Boolean = false,
+    val currentUserName: String = ""
 )
