@@ -6,6 +6,7 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.Restaurant
+import com.meetup.meetingapp.data.model.Vote
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
@@ -99,7 +100,7 @@ interface EventRepository {
      * Updates the status of an event in the database.
      *
      * @param eventId The ID of the event to update.
-     * @param newStatus The new status to set for the event.
+     * @param newStatus The newStatus to set for the event.
      * @throws Exception if the update operation fails.
      */
     suspend fun updateEventStatus(eventId: String, newStatus: EventStatus)
@@ -228,4 +229,11 @@ interface EventRepository {
      * @return Result.success(Unit) on success, or Result.failure(e) on error.
      */
     suspend fun aggregateRestaurantVotes(eventId: String): Result<Unit>
+
+    /**
+     * Observes restaurant votes for the given event and returns a list of [Vote] objects.
+     * @param eventId The ID of the event to observe votes for.
+     * @return A [Flow] emitting a list of [Vote] objects.
+     */
+    fun observeRestaurantVotes(eventId: String): Flow<List<Vote>>
 }

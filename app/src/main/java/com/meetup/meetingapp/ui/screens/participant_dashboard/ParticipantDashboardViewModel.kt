@@ -8,10 +8,10 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 /**
@@ -66,54 +66,51 @@ class ParticipantDashboardViewModel(
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     /**
-     * Set of place IDs that have already started listening for votes.
-     */
-    private val startedPlaces = mutableSetOf<String>()
-
-    /**
-     * Map of vote jobs, indexed by place ID.
-     */
-    private val voteJobs = mutableMapOf<String, Job>()
-
-    /**
      * Initializes the ViewModel by:
      * 1. Observing the event from Firestore and updating the Room cache.
      * 2. Observing submissions from Firestore and updating the Room cache.
      */
     init {
         viewModelScope.launch {
-            // Observe event from Firestore and update Room cache
-            eventRepository.observeEventById(eventId).collect { event ->
-                _event.value = event
-                event?.let {
+            val eventFlow = eventRepository.observeEventById(eventId)
+            val submissionsFlow = eventRepository.observeSubmissions(eventId)
+            val votesFlow = eventRepository.observeRestaurantVotes(eventId)
+
+            combine(eventFlow, submissionsFlow, votesFlow) { eventData, submissions, votes ->
+                _event.value = eventData
+                eventData?.let { e ->
+                    val isSecondRound = e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
+                            e.status == EventStatus.FINALIZED
+
+                    val count = if (isSecondRound) {
+                        votes.distinctBy { it.userId }.size
+                    } else {
+                        submissions.size
+                    }
+
+                    val names = if (isSecondRound) {
+                        votes.distinctBy { it.userId }.map { it.userName }
+                    } else {
+                        submissions.map { it.name }
+                    }
+
                     _uiState.value = _uiState.value.copy(
-                        status = it.status
+                        status = e.status,
+                        submissionsCount = count,
+                        attendees = names
                     )
 
-                    // If event is created, set status to COLLECTING_AVAILABILITY
-                    if (it.status == EventStatus.CREATED) {
-                        eventRepository.updateEventStatus(
-                            it.id,
-                            EventStatus.COLLECTING_AVAILABILITY
-                        )
+                    // Side effects
+                    if (e.status == EventStatus.CREATED) {
+                        viewModelScope.launch {
+                            eventRepository.updateEventStatus(e.id, EventStatus.COLLECTING_AVAILABILITY)
+                        }
                     }
-                    // Only check vote when restaurants exist and voting is active
-                    if (it.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
-                        it.status == EventStatus.FINALIZED
-                    ) {
+                    if (isSecondRound) {
                         fetchUserVote()
                     }
                 }
-            }
-        }
-        viewModelScope.launch {
-            // Observe submissions from Firestore and update Room cache
-            eventRepository.observeSubmissions(eventId).collect { submissions ->
-                _uiState.value = _uiState.value.copy(
-                    submissionsCount = submissions.size,
-                    attendees = submissions.map { it.name }
-                )
-            }
+            }.collect {}
         }
     }
 
@@ -139,7 +136,9 @@ class ParticipantDashboardViewModel(
  * Represents the UI state of the Participant Dashboard screen.
  *
  * @property submissionsCount The number of submissions made by participants.
- * @property attendees A list of participant names.
+ * @property attendees a list of participant names.
+ * @property status Current status of the event.
+ * @property hasVoted Whether the current user has voted in the event.
  */
 data class ParticipantDashboardUiState(
     val submissionsCount: Int = 0,

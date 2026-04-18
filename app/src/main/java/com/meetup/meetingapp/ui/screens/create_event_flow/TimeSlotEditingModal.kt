@@ -202,8 +202,7 @@ fun EditTimeSlotContent(
             item {
                 Text(
                     text = "Start Time",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 20.sp
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 TimeSelectorField(

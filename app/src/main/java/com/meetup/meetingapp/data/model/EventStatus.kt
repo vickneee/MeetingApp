@@ -14,7 +14,7 @@ enum class EventStatus(val displayName: String) {
     COLLECTING_AVAILABILITY("Collecting Availability"),
     FIRST_VOTING_CLOSED("First Voting Closed"),
     RESTAURANT_CANDIDATES_GENERATED("First Voting Closed"),
-    COLLECTING_RESTAURANT_VOTES("Collecting Restaurant Votes"),
+    COLLECTING_RESTAURANT_VOTES("Collecting Place Votes"),
     FINALIZED("Finalized"),
     UNKNOWN("Unknown")
 }

@@ -3,6 +3,7 @@ package com.meetup.meetingapp.data.repositories
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.meetup.meetingapp.data.db.daos.CityDao
 import com.meetup.meetingapp.data.db.daos.EventDao
 import com.meetup.meetingapp.data.db.daos.ParticipantResponseDao
@@ -653,7 +654,30 @@ class EventRepositoryImp(
         userId: String,
         dateTime: DateTime
     ): Result<Unit> {
-        val vote = Vote(dateTime = dateTime)
+        val userName = try {
+            val response = db.collection("events")
+                .document(eventId)
+                .collection("participantResponses")
+                .document(userId)
+                .get()
+                .await()
+                .toObject(ParticipantResponse::class.java)
+            
+            if (response != null) {
+                response.name
+            } else {
+                val eventDoc = db.collection("events").document(eventId).get().await().toObject(Event::class.java)
+                if (eventDoc?.hostId == userId) {
+                    eventDoc.hostName
+                } else {
+                    auth.currentUser?.displayName ?: "Unknown"
+                }
+            }
+        } catch (e: Exception) {
+            "Unknown"
+        }
+
+        val vote = Vote(dateTime = dateTime, userId = userId, userName = userName)
         return try {
             db.collection("events")
                 .document(eventId)
@@ -889,6 +913,55 @@ class EventRepositoryImp(
 
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    /**
+     * Observes restaurant votes for the given event and returns a list of [Vote] objects.
+     * @param eventId The ID of the event to observe votes for.
+     * @return A [Flow] emitting a list of [Vote] objects.
+     */
+    override fun observeRestaurantVotes(eventId: String): Flow<List<Vote>> = callbackFlow {
+        val listeners = mutableListOf<ListenerRegistration>()
+
+        val mainListener = db.collection("events")
+            .document(eventId)
+            .collection("restaurants")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val restaurantDocs = snapshot?.documents ?: emptyList()
+                if (restaurantDocs.isEmpty()) {
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+
+                val allVotesMap = mutableMapOf<String, List<Vote>>()
+
+                restaurantDocs.forEach { restaurantDoc ->
+                    val listener = restaurantDoc.reference.collection("votes")
+                        .addSnapshotListener { voteSnapshot, voteError ->
+                            if (voteError != null) return@addSnapshotListener
+
+                            val votes = voteSnapshot?.documents?.mapNotNull {
+                                it.toObject(Vote::class.java)
+                            } ?: emptyList()
+
+                            allVotesMap[restaurantDoc.id] = votes
+
+                            // Emit the union of all votes collected so far
+                            trySend(allVotesMap.values.flatten())
+                        }
+                    listeners.add(listener)
+                }
+            }
+
+        awaitClose {
+            mainListener.remove()
+            listeners.forEach { it.remove() }
         }
     }
 }

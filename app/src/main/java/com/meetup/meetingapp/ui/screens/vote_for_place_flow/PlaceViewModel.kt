@@ -31,9 +31,10 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.meetup.meetingapp.data.model.EventStatus
-import kotlinx.coroutines.FlowPreview
+import com.meetup.meetingapp.data.model.Vote
 import com.meetup.meetingapp.utils.calculateDistanceMeters
 import com.meetup.meetingapp.utils.formatDistance
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.tasks.await
 
 /**
@@ -164,8 +165,36 @@ class PlaceViewModel(
         // Separate launch — runs concurrently, not blocked by the collect above
         viewModelScope.launch {
             if (eventId.isNotEmpty()) {
+                // Observe availability submissions
                 eventRepository.observeSubmissions(eventId).collect { submissions ->
-                    _uiState.update { it.copy(submissionsCount = submissions.size) }
+                    val currentStatus = _event.value?.status ?: EventStatus.UNKNOWN
+                    val isSecondRound = currentStatus == EventStatus.COLLECTING_RESTAURANT_VOTES ||
+                            currentStatus == EventStatus.FINALIZED
+
+                    if (!isSecondRound) {
+                        _uiState.update { it.copy(
+                            submissionsCount = submissions.size,
+                            attendees = submissions.map { it.name }
+                        ) }
+                    }
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            if (eventId.isNotEmpty()) {
+                // Observe restaurant votes
+                eventRepository.observeRestaurantVotes(eventId).collect { votes ->
+                    val currentStatus = _event.value?.status ?: EventStatus.UNKNOWN
+                    val isSecondRound = currentStatus == EventStatus.COLLECTING_RESTAURANT_VOTES ||
+                            currentStatus == EventStatus.FINALIZED
+
+                    if (isSecondRound) {
+                        _uiState.update { it.copy(
+                            submissionsCount = votes.distinctBy { it.userId }.size,
+                            attendees = votes.distinctBy { it.userId }.map { it.userName }
+                        ) }
+                    }
                 }
             }
         }
@@ -609,7 +638,9 @@ sealed class VoteResultState {
  * UI state for the Place Details screen.
  *
  * @property submissionsCount The number of submissions for this event.
+ * @property attendees A list of participant names.
  */
 data class PlaceUiState(
-    val submissionsCount: Int = 0
+    val submissionsCount: Int = 0,
+    val attendees: List<String> = emptyList()
 )
