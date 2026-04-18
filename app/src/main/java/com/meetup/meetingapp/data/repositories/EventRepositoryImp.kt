@@ -982,4 +982,33 @@ class EventRepositoryImp(
             null
         }
     }
+
+    /**
+     * Observes the participant response for a specific user and event in real-time.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @return A [Flow] emitting the [ParticipantResponse] object for the user.
+     */
+    override fun observeParticipantResponse(eventId: String, userId: String): Flow<ParticipantResponse?> = callbackFlow {
+        val listener = db.collection("events")
+            .document(eventId)
+            .collection("participantResponses")
+            .document(userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                val response = snapshot?.toObject(ParticipantResponse::class.java)
+                if (response != null) {
+                    // Also update Room cache
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val entity = with(ParticipantResponseMapper) { response.toEntity(eventId) }
+                        participantResponseDao.upsertResponses(listOf(entity))
+                    }
+                }
+                trySend(response)
+            }
+        awaitClose { listener.remove() }
+    }
 }

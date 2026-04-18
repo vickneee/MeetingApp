@@ -244,4 +244,12 @@ interface EventRepository {
      * @return The [ParticipantResponse] if found, null otherwise.
      */
     suspend fun getParticipantResponse(eventId: String, userId: String): ParticipantResponse?
+
+    /**
+     * Observes the participant response for a specific user and event in real-time.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @return A [Flow] emitting the [ParticipantResponse] object for the user.
+     */
+    fun observeParticipantResponse(eventId: String, userId: String): Flow<ParticipantResponse?>
 }
