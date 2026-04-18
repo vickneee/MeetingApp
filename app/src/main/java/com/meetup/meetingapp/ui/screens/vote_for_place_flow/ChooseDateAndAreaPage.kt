@@ -206,8 +206,7 @@ fun ChooseDateAndAreaContent(
 
                     Text(
                         text = "Submissions: $submissionsCount",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 20.sp
                     )
 
                     // List of attendees

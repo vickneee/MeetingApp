@@ -90,6 +90,8 @@ fun MeetUpDetailPage(
             MeetUpDetailContent(
                 event = it,
                 submissionsCount = uiState.submissionsCount,
+                isAlreadySubmitted = uiState.isAlreadySubmitted,
+                submittedName = uiState.submittedName,
                 participantState = participantState,
                 onNameChange = viewModel::updateName,
                 onBack = onBack,
@@ -107,6 +109,8 @@ fun MeetUpDetailPage(
  * @param modifier Modifier.
  * @param event The event data.
  * @param submissionsCount The number of submissions.
+ * @param isAlreadySubmitted Whether the user has already submitted.
+ * @param submittedName The name the user submitted with.
  * @param participantState The participant input state.
  * @param onNameChange Callback to update the participant name.
  * @param onBack Navigate back.
@@ -119,6 +123,8 @@ fun MeetUpDetailContent(
     modifier: Modifier = Modifier,
     event: Event,
     submissionsCount: Int,
+    isAlreadySubmitted: Boolean = false,
+    submittedName: String = "",
     participantState: ParticipantInputState,
     onNameChange: (String) -> Unit,
     onBack: () -> Unit,
@@ -147,17 +153,46 @@ fun MeetUpDetailContent(
                 Spacer(modifier = Modifier.padding(24.dp))
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        "You've joined this meetup!",
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold
-                    )
+                    if (isAlreadySubmitted) {
+                        Text(
+                            text = buildAnnotatedString {
+                                if (submittedName.isNotEmpty()) {
+                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(submittedName)
+                                    }
+                                    append(", You already voted!")
+                                } else {
+                                    append("You already voted!")
+                                }
+                            },
+                            fontSize = 22.sp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        Text(
+                            "You've joined this meetup!",
+                            fontSize = 22.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    
                     Text(
                         buildAnnotatedString {
                             append("Event Code: ")
                             withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
                                 append(event.eventCode)
+                            }
+                        },
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    Text(
+                        buildAnnotatedString {
+                            append("State: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.status.displayName)
                             }
                         },
                         fontSize = 20.sp,
@@ -191,9 +226,8 @@ fun MeetUpDetailContent(
 
                 Text(
                     text = "Submissions: $submissionsCount",
-                    fontSize = 22.sp,
+                    fontSize = 20.sp,
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.padding(vertical = 24.dp))
@@ -208,17 +242,21 @@ fun MeetUpDetailContent(
 
                 // Input for participant name
                 OutlinedTextField(
-                    value = if (isHost) event.hostName else participantState.participantName,
+                    value = participantState.participantName,
                     onValueChange = onNameChange,
                     label = { Text("Enter your name") },
                     singleLine = true,
+                    enabled = !isAlreadySubmitted, // Disable if already submitted
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        cursorColor = MaterialTheme.colorScheme.primary
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 )
             }
@@ -237,7 +275,7 @@ fun MeetUpDetailContent(
                         modifier = Modifier
                     ) {
                         Text(
-                            text = "Next",
+                            text = if (isAlreadySubmitted) "Edit Your Vote" else "Next",
                             fontSize = 18.sp,
                             modifier = Modifier.padding(vertical = 6.dp)
                         )
@@ -265,7 +303,7 @@ fun MeetUpDetailPreview() {
         MeetUpDetailContent(
             event = sampleEvent,
             submissionsCount = 0,
-            participantState = ParticipantInputState(),
+            participantState = ParticipantInputState(participantName = "Julia"),
             onNameChange = {},
             onBack = {},
             onNavigateToTimeAvailability = {},

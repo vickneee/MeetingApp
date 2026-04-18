@@ -236,4 +236,12 @@ interface EventRepository {
      * @return A [Flow] emitting a list of [Vote] objects.
      */
     fun observeRestaurantVotes(eventId: String): Flow<List<Vote>>
+
+    /**
+     * Retrieves the participant response for a specific user and event.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @return The [ParticipantResponse] if found, null otherwise.
+     */
+    suspend fun getParticipantResponse(eventId: String, userId: String): ParticipantResponse?
 }

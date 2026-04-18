@@ -202,7 +202,8 @@ fun EditTimeSlotContent(
             item {
                 Text(
                     text = "Start Time",
-                    fontSize = 20.sp
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 TimeSelectorField(
@@ -210,7 +211,7 @@ fun EditTimeSlotContent(
                     time = startTime,
                     onClick = { onStartTimeClick() } // showPickerType = "start"
                 )
-                Spacer(modifier = Modifier.height(110.dp))
+                Spacer(modifier = Modifier.height(60.dp))
             }
 
             // End Time Section
@@ -226,7 +227,7 @@ fun EditTimeSlotContent(
                     time = endTime,
                     onClick = { onEndTimeClick() } // showPickerType = "end"
                 )
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(35.dp))
             }
             // Calculate minutes
             val startTotal = toMinutes(startTime)
@@ -266,7 +267,6 @@ fun EditTimeSlotContent(
                     }
                 }
             }
-
 
             // Save Button
             item {
@@ -323,7 +323,6 @@ fun TimeSelectorField(
                 text = time,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable(onClick = onClick)
             )
             Icon(

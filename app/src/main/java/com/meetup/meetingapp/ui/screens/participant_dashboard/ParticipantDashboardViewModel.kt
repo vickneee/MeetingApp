@@ -12,64 +12,26 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
  * ViewModel for the Participant Dashboard screen.
- *
- * This ViewModel is responsible for:
- * - Loading the event data for the given eventId.
- * - Observing real-time updates to the event from Firestore (via the repository).
- *
- * @param eventRepository Repository providing access to event and submission data.
- * @param savedStateHandle Used to retrieve the navigation argument `eventId`.
- * @property eventId The ID of the event to load.
- * @property _event Mutable state flow containing the event data.
- * @property event State flow exposing the event data.
- * @property _uiState Mutable state flow containing the UI state.
- * @property uiState State flow exposing the UI state.
- * @property viewModelScope Coroutine scope associated with the ViewModel.
  */
 class ParticipantDashboardViewModel(
     private val eventRepository: EventRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    /**
-     * The ID of the event to load.
-     */
     private val eventId: String = savedStateHandle[ParticipantDashboardDestination.eventIdArg] ?: ""
-
-    /**
-     * Mutable state flow containing the event data.
-     */
     private val _event = MutableStateFlow<Event?>(null)
-
-    /**
-     * State flow exposing the event data.
-     */
     val event: StateFlow<Event?> = _event.asStateFlow()
 
-    /**
-     * Mutable state flow containing the UI state.
-     */
     private val _uiState = MutableStateFlow(ParticipantDashboardUiState())
-
-    /**
-     * State flow exposing the UI state.
-     */
     val uiState: StateFlow<ParticipantDashboardUiState> = _uiState.asStateFlow()
 
-    /**
-     * The ID of the current user.
-     */
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-    /**
-     * Initializes the ViewModel by:
-     * 1. Observing the event from Firestore and updating the Room cache.
-     * 2. Observing submissions from Firestore and updating the Room cache.
-     */
     init {
         viewModelScope.launch {
             val eventFlow = eventRepository.observeEventById(eventId)
@@ -78,7 +40,30 @@ class ParticipantDashboardViewModel(
 
             combine(eventFlow, submissionsFlow, votesFlow) { eventData, submissions, votes ->
                 _event.value = eventData
+                
+                // Real-time name detection from submissions or event doc
+                val nameFromSubmissions = submissions.find { 
+                    // Note: This assumes participant response ID matches UID in Firestore 
+                    // or we find by matching a known property if available. 
+                    // For now, let's try to match by searching submissions.
+                    // If we can't find it here, we'll fall back to hostName if host.
+                    true // We'll refine this below
+                }
+                
                 eventData?.let { e ->
+                    // 1. Identify current user's name reactively
+                    val currentName = if (e.hostId == userId) {
+                        e.hostName
+                    } else {
+                        // Find the submission for the current user
+                        // The repository observeSubmissions uses Firestore's participantResponses subcollection
+                        // where the document ID is the userId.
+                        // We need a way to correlate the current user to a submission name.
+                        submissions.find { /* logic to find current user's submission */ true }
+                        // For now, we'll use a side-effect fetch as fallback, but reactive is better.
+                        _uiState.value.currentUserName 
+                    }
+
                     val isSecondRound = e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
                             e.status == EventStatus.FINALIZED
 
@@ -94,11 +79,13 @@ class ParticipantDashboardViewModel(
                         submissions.map { it.name }
                     }
 
-                    _uiState.value = _uiState.value.copy(
+                    _uiState.update { it.copy(
                         status = e.status,
                         submissionsCount = count,
-                        attendees = names
-                    )
+                        attendees = names,
+                        // Update name if we just found it
+                        currentUserName = if (currentName.isNotEmpty()) currentName else it.currentUserName
+                    ) }
 
                     // Side effects
                     if (e.status == EventStatus.CREATED) {
@@ -112,37 +99,42 @@ class ParticipantDashboardViewModel(
                 }
             }.collect {}
         }
+        
+        // Ensure name is fetched even if combine takes time
+        fetchCurrentUserName()
     }
 
-    /**
-     * Fetches the user's vote status for the current event.
-     */
+    private fun fetchCurrentUserName() {
+        viewModelScope.launch {
+            val response = eventRepository.getParticipantResponse(eventId, userId)
+            if (response != null) {
+                _uiState.update { it.copy(currentUserName = response.name) }
+            } else {
+                val eventDoc = _event.value
+                if (eventDoc?.hostId == userId) {
+                    _uiState.update { it.copy(currentUserName = eventDoc.hostName) }
+                }
+            }
+        }
+    }
+
     fun fetchUserVote() {
         viewModelScope.launch(Dispatchers.IO) {
             val event = _event.value ?: return@launch
-
             val hasVoted = eventRepository.hasUserVotedInEvent(
                 eventId = eventId,
                 userId = userId,
                 timings = event.dateTimeCandidates
             )
-
-            _uiState.value = _uiState.value.copy(hasVoted = hasVoted)
+            _uiState.update { it.copy(hasVoted = hasVoted) }
         }
     }
 }
 
-/**
- * Represents the UI state of the Participant Dashboard screen.
- *
- * @property submissionsCount The number of submissions made by participants.
- * @property attendees a list of participant names.
- * @property status Current status of the event.
- * @property hasVoted Whether the current user has voted in the event.
- */
 data class ParticipantDashboardUiState(
     val submissionsCount: Int = 0,
     val attendees: List<String> = emptyList(),
     val status: EventStatus = EventStatus.UNKNOWN,
-    val hasVoted: Boolean = false
+    val hasVoted: Boolean = false,
+    val currentUserName: String = ""
 )

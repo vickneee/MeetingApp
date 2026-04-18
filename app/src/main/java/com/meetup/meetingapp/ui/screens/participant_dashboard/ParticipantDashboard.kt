@@ -96,6 +96,7 @@ fun ParticipantDashboardPage(
             event = it,
             submissionsCount = uiState.submissionsCount,
             attendees = uiState.attendees,
+            currentUserName = uiState.currentUserName,
             hasVoted = hasVoted,
             onBack = onBack,
             onVoteForRestaurantClick = onVoteForRestaurantClick,
@@ -123,6 +124,7 @@ fun ParticipantDashboardContent(
     event: Event,
     submissionsCount: Int,
     attendees: List<String>,
+    currentUserName: String,
     hasVoted: Boolean,
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
@@ -190,15 +192,6 @@ fun ParticipantDashboardContent(
                 )
 
                 Spacer(modifier = Modifier.padding(8.dp))
-//
-//                Text(
-//                    text = "Submitted by:",
-//                    color = MaterialTheme.colorScheme.onSurface,
-//                    fontSize = 20.sp,
-//                    fontWeight = FontWeight.Medium
-//                )
-
-//                Spacer(modifier = Modifier.padding(4.dp))
             }
 
             items(attendees) { name ->
@@ -216,67 +209,87 @@ fun ParticipantDashboardContent(
                             Text(
                                 "Waiting for host to close",
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 22.sp,
+                                fontSize = 20.sp,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                             Spacer(modifier = Modifier.padding(4.dp))
                             Text("the first voting...",
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 22.sp)
+                                fontSize = 20.sp)
                         }
 
                         EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
                             if (hasVoted) {
                                 Text(
-                                    "You already voted.",
-                                    fontSize = 22.sp,
+                                    text = buildAnnotatedString {
+                                        if (currentUserName.isNotEmpty()) {
+                                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                                append(currentUserName)
+                                            }
+                                            append(", You already voted.")
+                                        } else {
+                                            append("You already voted.")
+                                        }
+                                    },
+                                    fontSize = 20.sp,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.padding(bottom = 4.dp)
                                 )
                                 Text("Please wait until",
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 22.sp,
+                                    fontSize = 20.sp,
                                     modifier = Modifier.padding(bottom = 4.dp))
                                 Text("the host closes the voting.",
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 22.sp,
+                                    fontSize = 20.sp,
                                     modifier = Modifier.padding(bottom = 4.dp))
                             } else {
                                 Text(
                                     "Host has closed the voting!",
-                                    fontSize = 22.sp,
+                                    fontSize = 20.sp,
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.padding(top = 4.dp)
+                                    modifier = Modifier.padding(bottom = 4.dp)
                                 )
-                                Text("You can now vote.",
+                                Text(
+                                    text = buildAnnotatedString {
+                                        if (currentUserName.isNotEmpty()) {
+                                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                                append(currentUserName)
+                                            }
+                                            append(", You can now vote.")
+                                        } else {
+                                            append("You can now vote.")
+                                        }
+                                    },
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 22.sp)
+                                    fontSize = 20.sp
+                                )
                             }
                         }
 
                         EventStatus.FINALIZED -> {
                             Text(
                                 "The event has been finalized!",
-                                fontSize = 22.sp,
+                                fontSize = 20.sp,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(top = 4.dp)
+                                modifier = Modifier.padding(bottom = 4.dp)
                             )
                             Text("Check the final plan.",
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 22.sp)
+                                fontSize = 20.sp)
                         }
 
                         else -> Text(
                             "Please wait...",
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 22.sp
+                            fontSize = 20.sp
                         )
                     }
                 }
             }
 
             item {
-                Spacer(modifier = Modifier.padding(16.dp))
+                Spacer(modifier = Modifier.padding(8.dp))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -375,6 +388,7 @@ fun ParticipantDashboardPreview() {
             ),
             submissionsCount = 4,
             attendees = listOf("Alice", "Bob"),
+            currentUserName = "Julia",
             hasVoted = false,
             onBack = {},
             onFinalPlanClick = {},

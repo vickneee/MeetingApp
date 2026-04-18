@@ -933,6 +933,10 @@ class EventRepositoryImp(
                     return@addSnapshotListener
                 }
 
+                // Remove old listeners for votes
+                listeners.forEach { it.remove() }
+                listeners.clear()
+
                 val restaurantDocs = snapshot?.documents ?: emptyList()
                 if (restaurantDocs.isEmpty()) {
                     trySend(emptyList())
@@ -962,6 +966,20 @@ class EventRepositoryImp(
         awaitClose {
             mainListener.remove()
             listeners.forEach { it.remove() }
+        }
+    }
+
+    override suspend fun getParticipantResponse(eventId: String, userId: String): ParticipantResponse? {
+        return try {
+            db.collection("events")
+                .document(eventId)
+                .collection("participantResponses")
+                .document(userId)
+                .get()
+                .await()
+                .toObject(ParticipantResponse::class.java)
+        } catch (e: Exception) {
+            null
         }
     }
 }
