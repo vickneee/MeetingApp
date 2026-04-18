@@ -162,7 +162,7 @@ fun ChooseDateAndAreaContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -243,12 +243,12 @@ fun ChooseDateAndAreaContent(
                         enabled = buttonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                        modifier = Modifier.fillMaxWidth(0.75f)
                     ) {
                         Text(
                             "Choose Date & Area",
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                            modifier = Modifier.padding(vertical = 6.dp)
                         )
                     }
                 }
@@ -263,14 +263,14 @@ fun ChooseDateAndAreaContent(
                         onClick = onNavigateToHome,
                         border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
+                        modifier = Modifier.fillMaxWidth(0.75f)
                     ) {
                         Text(
                             "Home",
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(6.dp)
+                            modifier = Modifier.padding(vertical = 6.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(48.dp))

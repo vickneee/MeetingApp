@@ -181,7 +181,7 @@ fun EventCreatedContent(
                     onClick = onCopyCode,
                     border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.width(180.dp)
+                    modifier = Modifier.fillMaxWidth(0.55f)
                 ) {
                     Text(
                         "Copy Code",
@@ -197,7 +197,7 @@ fun EventCreatedContent(
                     onClick = onShare,
                     border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.width(180.dp)
+                    modifier = Modifier.fillMaxWidth(0.55f)
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(8.dp))

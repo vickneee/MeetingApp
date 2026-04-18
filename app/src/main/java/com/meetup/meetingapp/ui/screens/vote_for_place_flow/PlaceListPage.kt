@@ -121,7 +121,7 @@ fun PlaceListContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -259,6 +259,9 @@ fun PlaceListContent(
     }
 }
 
+/**
+ * Preview for the [PlaceListContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun PLaceListContentPreview() {

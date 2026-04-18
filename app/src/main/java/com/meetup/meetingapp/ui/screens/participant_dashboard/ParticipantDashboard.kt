@@ -146,7 +146,7 @@ fun ParticipantDashboardContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
@@ -308,18 +308,18 @@ fun ParticipantDashboardContent(
                         enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                        modifier = Modifier.fillMaxWidth(0.75f)
                     ) {
 
                         Text(
                             when {
-                                event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open Yet"
+                                event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open"
                                 event.status == EventStatus.FINALIZED -> "View Final Plan"
                                 hasVoted -> "Already Voted"
-                                else -> "Vote for a Time & Place"
+                                else -> "Vote Time & Place"
                             },
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(6.dp)
+                            modifier = Modifier.padding(vertical = 6.dp)
                         )
                     }
 
@@ -329,17 +329,18 @@ fun ParticipantDashboardContent(
                         onClick = onNavigateToHome,
                         border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                        modifier = Modifier.fillMaxWidth(0.75f)
                     ) {
                         Text(
                             "Home",
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(6.dp)
+                            modifier = Modifier.padding(vertical = 6.dp)
                         )
                     }
                 }
+                Spacer(modifier = Modifier.height(48.dp))
             }
         }
     }

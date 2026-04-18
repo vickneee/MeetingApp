@@ -167,7 +167,7 @@ fun HostDashboardContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
@@ -230,15 +230,6 @@ fun HostDashboardContent(
                 )
 
                 Spacer(modifier = Modifier.padding(8.dp))
-
-//                Text(
-//                    text = "Submitted by:",
-//                    color = MaterialTheme.colorScheme.onSurface,
-//                    fontSize = 20.sp,
-//                    fontWeight = FontWeight.Medium
-//                )
-
-//                Spacer(modifier = Modifier.padding(4.dp))
             }
 
             items(attendees) { name ->
@@ -287,14 +278,14 @@ fun HostDashboardContent(
                         enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                        modifier = Modifier.fillMaxWidth(0.75f)
                     ) {
                         Text(
                             when {
-                                event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open Yet"
+                                event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open"
                                 event.status == EventStatus.FINALIZED -> "View Final Plan"
                                 hasVoted -> "Already Voted"
-                                else -> "Vote for a Time & Place"
+                                else -> "Vote Time & Place"
                             },
                             fontSize = 18.sp,
                             modifier = Modifier.padding(6.dp)
@@ -313,7 +304,7 @@ fun HostDashboardContent(
                             enabled = buttonEnabled && nextStatus != null,
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.fillMaxWidth(0.9f)
+                            modifier = Modifier.fillMaxWidth(0.75f)
                         ) {
                             Text(
                                 text = buttonText,
@@ -343,7 +334,7 @@ fun HostDashboardContent(
                             onClick = onNavigateToHome,
                             border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.fillMaxWidth(0.9f)
+                            modifier = Modifier.fillMaxWidth(0.75f)
                         ) {
                             Text(
                                 "Home",
