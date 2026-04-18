@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -147,12 +148,13 @@ fun MeetUpDetailContent(
                 .padding(paddingValues)
                 .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
-
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     if (isAlreadySubmitted) {
                         Text(
                             text = buildAnnotatedString {
@@ -165,7 +167,7 @@ fun MeetUpDetailContent(
                                     append("You already voted!")
                                 }
                             },
-                            fontSize = 22.sp,
+                            fontSize = 20.sp,
                             color = MaterialTheme.colorScheme.primary
                         )
                     } else {
@@ -176,7 +178,7 @@ fun MeetUpDetailContent(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    
+
                     Text(
                         buildAnnotatedString {
                             append("Event Code: ")
@@ -187,7 +189,7 @@ fun MeetUpDetailContent(
                         fontSize = 20.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    
+
                     Text(
                         buildAnnotatedString {
                             append("State: ")
@@ -220,59 +222,57 @@ fun MeetUpDetailContent(
                         fontSize = 20.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                }
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.padding(24.dp))
-
-                Text(
-                    text = "Submissions: $submissionsCount",
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-
-                Spacer(modifier = Modifier.padding(vertical = 24.dp))
-
-                Text(
-                    text = "Your Name",
-                    modifier = Modifier.padding(vertical = 5.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                // Input for participant name
-                OutlinedTextField(
-                    value = participantState.participantName,
-                    onValueChange = onNameChange,
-                    label = { Text("Enter your name") },
-                    singleLine = true,
-                    enabled = !isAlreadySubmitted, // Disable if already submitted
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    Text(
+                        text = "Submissions: $submissionsCount",
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
-                )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Your Name",
+                        modifier = Modifier.padding(vertical = 5.dp),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    // Input for participant name
+                    OutlinedTextField(
+                        value = participantState.participantName,
+                        onValueChange = onNameChange,
+                        label = { Text("Enter your name") },
+                        singleLine = true,
+                        enabled = !isAlreadySubmitted, // Disable if already submitted
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    )
+                }
             }
 
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.padding(36.dp))
 
-                Box(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
                         onClick = onNavigateToTimeAvailability,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
+                        modifier = Modifier.fillMaxWidth(0.55f),
                     ) {
                         Text(
                             text = if (isAlreadySubmitted) "Edit Your Vote" else "Next",

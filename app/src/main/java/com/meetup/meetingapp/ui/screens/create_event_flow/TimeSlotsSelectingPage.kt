@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -113,7 +115,8 @@ fun TimeSlotsSelectingPageContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -165,7 +168,7 @@ fun TimeSlotsSelectingPageContent(
                 }
             }
             item {
-                Spacer(modifier = Modifier.padding(12.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 OutlinedButton(
                     onClick = { navigateToTimeEditPage(-1) }, // <- editTimeSlot()
                     border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
@@ -173,27 +176,29 @@ fun TimeSlotsSelectingPageContent(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth(0.75f)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                     Text(
                         text = "Add Time Slot",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        modifier = Modifier.padding(vertical = 6.dp)
                     )
                 }
             }
             item {
-                Spacer(modifier = Modifier.padding(32.dp))
+                Spacer(modifier = Modifier.height(32.dp))
                 Button(
                     onClick = { navigateToAreaSelectingPage() },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth(0.55f),
                 ) {
                     Text(
                         text = "Next",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(vertical = 6.dp)
                     )
                 }
             }

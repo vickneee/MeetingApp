@@ -3,6 +3,7 @@ package com.meetup.meetingapp.ui.screens.participant_dashboard
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -148,11 +149,9 @@ fun ParticipantDashboardContent(
                 .padding(paddingValues)
                 .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
-
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(buildAnnotatedString {
                         append("Event Code: ")
@@ -182,16 +181,14 @@ fun ParticipantDashboardContent(
                         }
                     }, fontSize = 20.sp)
                 }
-
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
                     text = "Submissions: $submissionsCount",
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 20.sp
                 )
-
-                Spacer(modifier = Modifier.padding(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             items(attendees) { name ->

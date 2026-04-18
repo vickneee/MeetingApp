@@ -2,6 +2,7 @@ package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -132,13 +133,11 @@ fun AreaSelectingContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
-                Spacer(modifier = Modifier.height(36.dp))
-
                 Text(
                     "Choose a country and",
                     style = MaterialTheme.typography.titleLarge,
@@ -159,7 +158,7 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 AppMultiSelectDropdown(
                     options = countryOptions,
@@ -172,7 +171,7 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 AppMultiSelectDropdown(
                     options = cityOptions,
@@ -185,22 +184,21 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 Button(
                     onClick = onNextClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier,
+                    modifier = Modifier.fillMaxWidth(0.55f),
                     enabled = selectedCities.isNotEmpty() // Only enable if a valid city is selected
                 ) {
                     Text(
                         text = "Next",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(vertical = 6.dp)
                     )
                 }
-                Spacer(modifier = Modifier.padding(48.dp))
             }
         }
     }

@@ -169,11 +169,9 @@ fun HostDashboardContent(
                 .padding(paddingValues)
                 .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
-
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
                     Text(
@@ -220,16 +218,14 @@ fun HostDashboardContent(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
                     text = "Submissions: $submissionsCount",
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 20.sp
                 )
-
-                Spacer(modifier = Modifier.padding(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             items(attendees) { name ->
@@ -288,7 +284,7 @@ fun HostDashboardContent(
                                 else -> "Vote Time & Place"
                             },
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(6.dp)
+                            modifier = Modifier.padding(vertical = 6.dp)
                         )
                     }
 
@@ -323,28 +319,26 @@ fun HostDashboardContent(
                             modifier = Modifier.padding(top = 12.dp)
                         )
                     }
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
 
-                    Spacer(modifier = Modifier.height(36.dp))
-
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OutlinedButton(
+                        onClick = onNavigateToHome,
+                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth(0.75f)
                     ) {
-                        OutlinedButton(
-                            onClick = onNavigateToHome,
-                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.fillMaxWidth(0.75f)
-                        ) {
-                            Text(
-                                "Home",
-                                color = MaterialTheme.colorScheme.primary,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(6.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(48.dp))
+                        Text(
+                            "Home",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(vertical = 6.dp)
+                        )
                     }
                 }
             }
@@ -360,7 +354,9 @@ fun ParticipantDashboardItemRow(name: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
     ) {
         Icon(
             imageVector = Icons.Default.Person,
@@ -394,7 +390,7 @@ fun HostDashboardPreview() {
                 hostName = "Julia",
             ),
             submissionsCount = 4,
-            attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
+            attendees = listOf("Alice", "Bob", "Diana"),
             hasVoted = false,
             hasAnyRestaurantVotes = false,
             onBack = {},

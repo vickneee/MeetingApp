@@ -97,14 +97,12 @@ fun DateAndAreaContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 32.dp),
+                .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
 
             item {
-                Spacer(modifier = Modifier.height(48.dp))
-
                 Text(
                     "Choose a date, time & area",
                     style = MaterialTheme.typography.titleLarge,

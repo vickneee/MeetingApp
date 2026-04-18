@@ -162,13 +162,11 @@ fun ChooseDateAndAreaContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 32.dp),
+                .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
-
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.Start,
@@ -212,8 +210,7 @@ fun ChooseDateAndAreaContent(
                     // List of attendees
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp),
+                            .fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         attendees.forEach { name ->
@@ -224,7 +221,7 @@ fun ChooseDateAndAreaContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),

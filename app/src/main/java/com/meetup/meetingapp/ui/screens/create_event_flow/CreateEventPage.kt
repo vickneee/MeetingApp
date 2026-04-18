@@ -85,7 +85,7 @@ fun CreateEventContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -137,14 +137,14 @@ fun CreateEventContent(
                     enabled = isAnySelected,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    modifier = Modifier.padding(bottom = 24.dp)
+                    modifier = Modifier.fillMaxWidth(0.65f)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         "Create Event",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(vertical = 6.dp)
                     )
                 }
             }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -124,7 +123,8 @@ fun AvailabilitySelectingPageContent(
         }
     ) { paddingValues ->
         if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -135,13 +135,11 @@ fun AvailabilitySelectingPageContent(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues)
-                    .padding(horizontal = 48.dp),
+                    .padding(horizontal = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
+                verticalArrangement = Arrangement.Center
             ) {
                 item {
-                    Spacer(modifier = Modifier.height(48.dp))
-
                     Text(
                         text = "Choose all dates and time",
                         style = MaterialTheme.typography.titleLarge,
@@ -150,7 +148,6 @@ fun AvailabilitySelectingPageContent(
                     )
                 }
                 item {
-
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
@@ -190,16 +187,14 @@ fun AvailabilitySelectingPageContent(
                         enabled = selectedDateTimes.isNotEmpty(),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .wrapContentWidth()
+                        modifier = Modifier.fillMaxWidth(0.55f),
                     ) {
                         Text(
                             text = "Next",
                             fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 4.dp)
+                            modifier = Modifier.padding(vertical = 6.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
         }

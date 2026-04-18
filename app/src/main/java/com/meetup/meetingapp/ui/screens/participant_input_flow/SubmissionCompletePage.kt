@@ -132,12 +132,12 @@ fun SubmissionCompleteContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .padding(horizontal = 30.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
-                Spacer(modifier = Modifier.height(48.dp))
                 Text(
                     "Thank you!",
                     style = MaterialTheme.typography.titleLarge,
@@ -149,22 +149,6 @@ fun SubmissionCompleteContent(
                 Spacer(modifier = Modifier.height(48.dp))
                 Text(
                     "Your availability and preferences",
-                    style = MaterialTheme.typography.titleLarge,
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "have been submitted.",
-                    style = MaterialTheme.typography.titleLarge,
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(28.dp))
-                Text(
-                    "Please wait for the host to close",
                     fontSize = 20.sp,
                 )
             }
@@ -172,7 +156,23 @@ fun SubmissionCompleteContent(
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "the voting.",
+                    "have been submitted.",
+                    fontSize = 20.sp,
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    "Please wait for the host",
+                    fontSize = 20.sp,
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "to close the voting.",
                     fontSize = 20.sp,
                 )
             }
@@ -191,9 +191,11 @@ fun SubmissionCompleteContent(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.7f)
+                    modifier = Modifier.fillMaxWidth(0.75f)
                 ) {
-                    Text("Go to Dashboard", fontSize = 18.sp, modifier = Modifier.padding(8.dp))
+                    Text("Go to Dashboard", fontSize = 18.sp,
+                        modifier = Modifier.padding(vertical = 6.dp)
+                    )
                 }
             }
         }

@@ -239,7 +239,7 @@ fun PlaceDetailsContent(
                                 contentDescription = "Visual of ${restaurantDetail.name}",
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(240.dp)
+                                    .height(220.dp)
                                     .clip(RoundedCornerShape(8.dp)),
                                 contentScale = ContentScale.Crop
                             )

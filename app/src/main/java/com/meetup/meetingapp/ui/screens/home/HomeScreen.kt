@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.common.math.LinearTransformation.horizontal
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
@@ -92,7 +93,8 @@ fun HomeScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -102,7 +104,7 @@ fun HomeScreenContent(
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.primary,
                     style = TextStyle(
-                        fontSize = 85.sp,
+                        fontSize = 80.sp,
                         shadow = Shadow(
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
                             offset = Offset(0f, 6f),
@@ -129,14 +131,14 @@ fun HomeScreenContent(
                     ),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(0.55f)
+                    modifier = Modifier.fillMaxSize(0.65f)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                     Spacer(modifier = Modifier.padding(4.dp))
                     Text(
                         text = "Create Event",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(6.dp)
+                        modifier = Modifier.padding(vertical = 6.dp)
                     )
                 }
 
@@ -149,7 +151,7 @@ fun HomeScreenContent(
                     ),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(0.55f)
+                    modifier = Modifier.fillMaxSize(0.65f)
                 ) {
                     Text(
                         text = "Join Event",
@@ -168,7 +170,7 @@ fun HomeScreenContent(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(0.55f)
+                    modifier = Modifier.fillMaxSize(0.65f)
                 ) {
                     Text(
                         text = "Events",

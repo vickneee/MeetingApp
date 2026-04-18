@@ -105,7 +105,7 @@ fun SmallAreaSelectingContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -126,7 +126,7 @@ fun SmallAreaSelectingContent(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 32.dp)
+                        .padding(bottom = 36.dp)
                 )
             }
 
@@ -149,16 +149,14 @@ fun SmallAreaSelectingContent(
                     enabled = isAnySelected,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    modifier = Modifier
-                        .wrapContentWidth()
+                    modifier = Modifier.fillMaxWidth(0.55f),
                 ) {
                     Text(
                         text = "Next",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        modifier = Modifier.padding(vertical = 6.dp)
                     )
                 }
-                Spacer(modifier = Modifier.height(48.dp))
             }
         }
     }

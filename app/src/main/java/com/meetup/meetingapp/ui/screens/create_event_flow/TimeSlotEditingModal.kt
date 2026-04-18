@@ -194,7 +194,8 @@ fun EditTimeSlotContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .padding(horizontal = 32.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -244,7 +245,8 @@ fun EditTimeSlotContent(
                         shape = RoundedCornerShape(8.dp),
                         tonalElevation = 2.dp,
                         modifier = Modifier
-                            .fillMaxWidth().padding(horizontal = 48.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                     ) {
                         Row(
@@ -268,22 +270,26 @@ fun EditTimeSlotContent(
                 }
             }
 
-            // Save Button
             item {
                 Spacer(modifier = Modifier.height(40.dp))
                 Button(
                     onClick = {
                         onSaveTimeSlot(startTime, endTime)
                         navigateToTimeSlotsSelectingPage()
-                              },
+                    },
                     enabled = isValid,
-                    modifier = Modifier,
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme
+                            .colorScheme.primary
+                    ),
+                    modifier = Modifier.fillMaxWidth(0.55f)
                 ) {
-                    Text(text = "Save", fontSize = 18.sp,
+                    Text(
+                        text = "Save", fontSize = 18.sp,
                         modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 6.dp))
+                            .padding(vertical = 6.dp)
+                    )
                 }
             }
         }
@@ -304,8 +310,8 @@ fun TimeSelectorField(
 ) {
     Card(
         modifier = Modifier
-        .padding(horizontal = 16.dp)
-        .clickable { onClick() },
+            .padding(horizontal = 16.dp)
+            .clickable { onClick() },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -315,7 +321,7 @@ fun TimeSelectorField(
 
         Row(
             modifier = Modifier
-            .padding(vertical = 12.dp, horizontal = 16.dp),
+                .padding(vertical = 12.dp, horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -357,7 +363,7 @@ fun EditTimeSlotScreenPreview() {
                 },
                 navigateToTimeSlotsSelectingPage = {},
                 modifier = Modifier
-                )
+            )
         }
     }
 }

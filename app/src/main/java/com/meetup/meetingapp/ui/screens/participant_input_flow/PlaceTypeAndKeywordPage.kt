@@ -126,14 +126,12 @@ fun PlaceTypeAndKeywordContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
 
             item {
-                Spacer(modifier = Modifier.height(48.dp))
-
                 Text(
                     "Choose a place type and",
                     color = MaterialTheme.colorScheme.onSurface,
@@ -169,7 +167,7 @@ fun PlaceTypeAndKeywordContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 AppMultiSelectDropdown(
                     options = FoodCategory.entries,
@@ -182,7 +180,7 @@ fun PlaceTypeAndKeywordContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
                 Button(
                     onClick = onSubmit,
@@ -191,16 +189,15 @@ fun PlaceTypeAndKeywordContent(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
-                        .wrapContentWidth()
+                        .fillMaxWidth(0.55f)
                 ) {
                     Text(
                         text = "Submit",
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(vertical = 6.dp)
                     )
                 }
-                Spacer(modifier = Modifier.padding(48.dp))
             }
         }
     }

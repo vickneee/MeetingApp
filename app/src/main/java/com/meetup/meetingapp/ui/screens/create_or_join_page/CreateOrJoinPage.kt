@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -127,39 +128,35 @@ fun CreateOrJoinContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             item {
                 Text(
                     text = "Make plans easy for everyone.",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.titleLarge,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                Spacer(modifier = Modifier.padding(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
                     onClick = onCreateEventClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(0.55f)
+                    modifier = Modifier.fillMaxSize(0.65f)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                     Spacer(modifier = Modifier.padding(4.dp))
                     Text(
                         text = "Create Event",
                         fontSize = 18.sp,
-                        modifier = Modifier
-                            .padding(
-                                vertical = 6.dp,
-                            )
+                        modifier = Modifier.padding(vertical = 6.dp,)
                     )
                 }
-                Log.d("CreateOrJoinPage", "Code: $code, Key: $key")
 
                 Spacer(modifier = Modifier.padding(16.dp))
 
@@ -197,7 +194,7 @@ fun CreateOrJoinContent(
                     onClick = { onJoinEventClick() },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(0.55f)
+                    modifier = Modifier.fillMaxSize(0.65f)
                 ) {
                     Text(
                         text = "Join Event",
@@ -210,7 +207,7 @@ fun CreateOrJoinContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.padding(28.dp))
+                Spacer(modifier = Modifier.padding(16.dp))
 
                 Button(
                     onClick = { onEventsClick() },
@@ -220,7 +217,7 @@ fun CreateOrJoinContent(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(0.55f)
+                    modifier = Modifier.fillMaxSize(0.65f)
                 ) {
                     Text(
                         text = "Events",
