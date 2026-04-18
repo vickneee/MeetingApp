@@ -128,7 +128,8 @@ fun HomeScreenContent(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxSize(0.55f)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                     Spacer(modifier = Modifier.padding(4.dp))
@@ -147,7 +148,8 @@ fun HomeScreenContent(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxSize(0.55f)
                 ) {
                     Text(
                         text = "Join Event",
@@ -165,7 +167,8 @@ fun HomeScreenContent(
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxSize(0.55f)
                 ) {
                     Text(
                         text = "Events",
