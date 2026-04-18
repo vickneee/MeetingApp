@@ -74,7 +74,7 @@ fun <T> AppMultiSelectDropdown(
     
     val configuration = LocalConfiguration.current
     val maxMenuHeight = remember(configuration.screenHeightDp) {
-        (configuration.screenHeightDp * 0.8f).dp
+        (configuration.screenHeightDp * 0.7f).dp
     }
 
     // Optimization: Cache text representations to avoid expensive 'toText' calls during filtering/sorting

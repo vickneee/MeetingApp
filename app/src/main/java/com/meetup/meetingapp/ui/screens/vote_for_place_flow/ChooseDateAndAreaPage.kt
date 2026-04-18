@@ -46,6 +46,7 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.components.ParticipantItemRow
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
@@ -214,14 +215,14 @@ fun ChooseDateAndAreaContent(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         attendees.forEach { name ->
-                            ParticipantItem(name = name)
+                            ParticipantItemRow(name = name)
                         }
                     }
                 }
             }
 
             item {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -233,7 +234,7 @@ fun ChooseDateAndAreaContent(
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
                         onClick = onVoteForRestaurantClick,
@@ -274,34 +275,6 @@ fun ChooseDateAndAreaContent(
                 }
             }
         }
-    }
-}
-
-/**
- * Composable that displays a participant's name and an icon.
- */
-@Composable
-fun ParticipantItem(name: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            modifier = Modifier
-                .size(32.dp)
-                .clip(CircleShape)
-                .background(Color.LightGray.copy(alpha = 0.3f))
-                .padding(4.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = name,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium
-        )
     }
 }
 

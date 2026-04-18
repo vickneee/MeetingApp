@@ -3,21 +3,15 @@ package com.meetup.meetingapp.ui.screens.participant_dashboard
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -36,6 +30,7 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.components.ParticipantItemRow
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
@@ -192,7 +187,7 @@ fun ParticipantDashboardContent(
             }
 
             items(attendees) { name ->
-                ParticipantItemRow(name = name)
+                ParticipantItemRow(name = name, modifier = Modifier.padding(start = 16.dp))
             }
 
             item {
@@ -337,37 +332,8 @@ fun ParticipantDashboardContent(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(48.dp))
             }
         }
-    }
-}
-
-/**
- * Composable that displays a participant's name and an icon.
- */
-@Composable
-fun ParticipantItemRow(name: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
-    ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            modifier = Modifier
-                .size(32.dp)
-                .clip(CircleShape)
-                .background(Color.LightGray.copy(alpha = 0.3f))
-                .padding(4.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = name,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium
-        )
     }
 }
 
