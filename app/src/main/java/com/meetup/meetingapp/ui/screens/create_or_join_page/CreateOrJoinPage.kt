@@ -145,7 +145,8 @@ fun CreateOrJoinContent(
                 Button(
                     onClick = onCreateEventClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxSize(0.55f)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                     Spacer(modifier = Modifier.padding(4.dp))
@@ -196,6 +197,7 @@ fun CreateOrJoinContent(
                     onClick = { onJoinEventClick() },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxSize(0.55f)
                 ) {
                     Text(
                         text = "Join Event",
@@ -218,6 +220,7 @@ fun CreateOrJoinContent(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxSize(0.55f)
                 ) {
                     Text(
                         text = "Events",
