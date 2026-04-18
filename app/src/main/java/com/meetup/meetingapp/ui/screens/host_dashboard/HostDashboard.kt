@@ -92,6 +92,7 @@ fun HostDashboardPage(
             submissionsCount = uiState.submissionsCount,
             attendees = uiState.attendees,
             hasVoted = hasVoted,
+            hasAnyRestaurantVotes = uiState.hasAnyRestaurantVotes,
             onBack = onBack,
 
             closeVotingState = closeVotingState,
@@ -124,6 +125,8 @@ fun HostDashboardPage(
  * @param event The event being displayed.
  * @param submissionsCount Number of participant submissions.
  * @param attendees List of participant names who submitted availability.
+ * @param hasVoted Whether the user has voted in the current phase.
+ * @param hasAnyRestaurantVotes Whether any restaurant votes have been cast.
  * @param onBack Callback to navigate back.
  * @param closeVotingState UI state for the close-voting action.
  * @param onFinalPlanClick Callback to trigger the final plan generation.
@@ -138,6 +141,7 @@ fun HostDashboardContent(
     submissionsCount: Int,
     attendees: List<String>,
     hasVoted: Boolean,
+    hasAnyRestaurantVotes: Boolean,
     onBack: () -> Unit,
     closeVotingState: CloseVotingState,
     onVoteForRestaurantClick: () -> Unit,
@@ -247,8 +251,8 @@ fun HostDashboardContent(
             item {
                 val buttonText = when (event.status) {
                     EventStatus.COLLECTING_AVAILABILITY -> "Close Voting"
-                    EventStatus.FIRST_VOTING_CLOSED -> "Voting Closed"
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Restaurant Voting"
+                    EventStatus.FIRST_VOTING_CLOSED -> "First Voting Closed"
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "First Voting Closed"
                     EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Place Voting"
                     EventStatus.FINALIZED -> "Event Finalized"
                     else -> null
@@ -264,8 +268,8 @@ fun HostDashboardContent(
                 // Close Voting button enabled logic
                 val buttonEnabled = when (event.status) {
                     EventStatus.COLLECTING_AVAILABILITY -> true
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> true
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> true
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> false
+                    EventStatus.COLLECTING_RESTAURANT_VOTES -> hasAnyRestaurantVotes // Logic updated here
                     else -> false
                 } && closeVotingState != CloseVotingState.Loading
 
@@ -378,6 +382,7 @@ fun HostDashboardPreview() {
             submissionsCount = 4,
             attendees = listOf("Alice", "Bob", "Charlie", "Diana"),
             hasVoted = false,
+            hasAnyRestaurantVotes = false,
             onBack = {},
             closeVotingState = CloseVotingState.Idle,
             onFinalPlanClick = {},

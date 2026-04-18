@@ -456,10 +456,7 @@ class EventRepositoryImp(
                 val event = snapshot?.toObject(Event::class.java)
                 if (event != null) {
                     val entity = with(EventMapper) { event.toEntity() }
-                    // Use this coroutine scope (safe)
-                    launch(Dispatchers.IO) {
-                        eventDao.upsertEvent(entity)
-                    }
+                    CoroutineScope(Dispatchers.IO).launch { eventDao.upsertEvent(entity) }
                 }
                 trySend(event)
             }
@@ -753,7 +750,7 @@ class EventRepositoryImp(
         return if (allRestaurants.isNotEmpty()) {
             saveAllRestaurants(event.id, allRestaurants).also {
                 if (it.isSuccess) {
-                    updateEventStatus(event.id, EventStatus.RESTAURANT_CANDIDATES_GENERATED)
+                    updateEventStatus(event.id, EventStatus.COLLECTING_RESTAURANT_VOTES)
                 }
             }
         } else {
@@ -783,6 +780,39 @@ class EventRepositoryImp(
                 getUserVote(eventId, restaurant.placeId, userId, timing)
                     .getOrDefault(false)
             }
+        }
+    }
+
+    /**
+     * Checks if there are any restaurant votes for the given event.
+     * @param eventId The ID of the event to check.
+     * @return `true` if any votes exist, `false` otherwise.
+     */
+    override suspend fun hasAnyRestaurantVotes(eventId: String): Boolean {
+        return try {
+            val restaurantsSnapshot = db.collection("events")
+                .document(eventId)
+                .collection("restaurants")
+                .get()
+                .await()
+
+            for (restaurantDoc in restaurantsSnapshot.documents) {
+                val votesSnapshot = db.collection("events")
+                    .document(eventId)
+                    .collection("restaurants")
+                    .document(restaurantDoc.id)
+                    .collection("votes")
+                    .limit(1)
+                    .get()
+                    .await()
+
+                if (!votesSnapshot.isEmpty) {
+                    return true
+                }
+            }
+            false
+        } catch (e: Exception) {
+            false
         }
     }
 

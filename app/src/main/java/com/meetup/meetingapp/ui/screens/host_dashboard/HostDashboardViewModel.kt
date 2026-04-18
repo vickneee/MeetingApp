@@ -109,6 +109,7 @@ class HostDashboardViewModel(
                         it.status == EventStatus.FINALIZED
                     ) {
                         fetchUserVote()
+                        fetchRestaurantVotesStatus()
                     }
                 }
             }
@@ -225,6 +226,16 @@ class HostDashboardViewModel(
             _uiState.value = _uiState.value.copy(hasVoted = hasVoted)
         }
     }
+
+    /**
+     * Fetches the restaurant votes status for the current event.
+     */
+    fun fetchRestaurantVotesStatus() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val hasVotes = eventRepository.hasAnyRestaurantVotes(eventId)
+            _uiState.value = _uiState.value.copy(hasAnyRestaurantVotes = hasVotes)
+        }
+    }
 }
 
 /**
@@ -233,12 +244,15 @@ class HostDashboardViewModel(
  * @property submissionsCount Number of participant submissions.
  * @property attendees List of participant names who submitted availability.
  * @property status Current status of the event.
+ * @property hasVoted Whether the current user has voted in the event.
+ * @property hasAnyRestaurantVotes Whether any user has voted for a restaurant in the event.
  */
 data class HostDashboardUiState(
     val submissionsCount: Int = 0,
     val attendees: List<String> = emptyList(),
     val status: EventStatus = EventStatus.UNKNOWN,
-    val hasVoted: Boolean = false
+    val hasVoted: Boolean = false,
+    val hasAnyRestaurantVotes: Boolean = false
 )
 
 /**

@@ -216,6 +216,13 @@ interface EventRepository {
     ): Boolean
 
     /**
+     * Checks if there are any restaurant votes for the given event.
+     * @param eventId The ID of the event to check.
+     * @return `true` if any votes exist, `false` otherwise.
+     */
+    suspend fun hasAnyRestaurantVotes(eventId: String): Boolean
+
+    /**
      * Aggregates restaurant votes for the given event.
      * @param eventId The ID of the event to aggregate votes for.
      * @return Result.success(Unit) on success, or Result.failure(e) on error.
