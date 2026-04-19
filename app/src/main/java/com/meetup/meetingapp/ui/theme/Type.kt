@@ -5,15 +5,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
-/*
-* displayLarge → app name
-* titleLarge → screen title
-* titleMedium → section title
-* bodyLarge → normal text
-* labelLarge → buttons
- */
-
 val Typography = Typography(
 
     // BIG APP TITLE (Home screen "MeetUp")

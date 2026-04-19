@@ -1,13 +1,6 @@
 package com.meetup.meetingapp.ui.theme
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.dp
-
-/*
-* 4dp → tiny internal space
-* 8dp → small gap
-* 16dp → normal default
-* 24dp → section break
-* 32dp → big section break
-*/
 
 object AppSpacing {
 
@@ -32,4 +25,21 @@ object AppSpacing {
     // big section gap
     // use: screen sections separation
     val xl = 32.dp
+
+    // huge section gap
+    val xxl = 48.dp
+
+    // huge section gap
+    val xxxl = 56.dp
+
+    val xxxxl = 72.dp
+}
+
+object AppPadding {
+    val pagePadding = PaddingValues(
+        start = AppSpacing.xl,    // 32dp
+        end = AppSpacing.xl,      // 32dp
+        top = AppSpacing.xxxl,     // 56dp
+        bottom = AppSpacing.xxxl   // 56dp
+    )
 }
