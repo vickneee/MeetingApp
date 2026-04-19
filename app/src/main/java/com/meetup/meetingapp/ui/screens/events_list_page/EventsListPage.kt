@@ -1,5 +1,7 @@
 package com.meetup.meetingapp.ui.screens.events_list_page
 
+import android.util.Log
+import android.util.Log.e
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -153,7 +155,7 @@ private fun String.toEuroDate(): String {
         val date = LocalDate.parse(this)
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
         date.format(formatter)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         this
     }
 }
@@ -208,7 +210,7 @@ fun EventsListPagePreview() {
                 bottom = 32.dp
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(events) { event ->
                 EventItem(event = event)

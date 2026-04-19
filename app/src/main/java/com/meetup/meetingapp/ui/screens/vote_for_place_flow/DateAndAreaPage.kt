@@ -119,7 +119,7 @@ fun DateAndAreaContent(
                     onClick = { navigateToRestaurantListPage(option.timingArg, option.location) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 12.dp),
+                        .padding(bottom = 10.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface
