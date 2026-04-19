@@ -1,7 +1,5 @@
 package com.meetup.meetingapp.ui.screens.events_list_page
 
-import android.util.Log
-import android.util.Log.e
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
