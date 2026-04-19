@@ -62,6 +62,29 @@ class UserRepositoryImp(
     }
 
     /**
+     * Updates the user's document with their determined country of origin.
+     *
+     * This method updates the "defaultCountry" field in the user's document.
+     * @param country The name of the country determined by GPS/Geocoding.
+     */
+    override suspend fun saveDefaultCountry(country: String) {
+        val uid = currentUserId
+        if (uid.isEmpty()) return
+
+        try {
+            // Update Firestore
+            db.collection("users")
+                .document(uid)
+                .update("defaultCountry", country)
+                .await()
+
+            Log.d(TAG, "Default country saved: $country for uid: $uid")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to save default country for uid: $uid", e)
+        }
+    }
+
+    /**
      * Adds an event ID to the user's list of created events.
      *
      * Uses Firestore's arrayUnion() to ensure the event ID is added only once

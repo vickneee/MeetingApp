@@ -6,11 +6,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import com.meetup.meetingapp.ui.AppViewModelProvider
+import com.meetup.meetingapp.ui.screens.home.HomeViewModel
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 class MainActivity : ComponentActivity() {
 
-    // Define the launcher to handle the user's response to the permission popup
+    private val homeViewModel: HomeViewModel by viewModels { AppViewModelProvider.Factory }
+
     private val requestLocationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -18,9 +22,8 @@ class MainActivity : ComponentActivity() {
         val coarseLocationGranted = permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)
 
         if (fineLocationGranted || coarseLocationGranted) {
-            // Permission granted
+            homeViewModel.initDefaultCountry()
         } else {
-            // Permission denied
         }
     }
 
@@ -28,7 +31,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Trigger the popup as soon as the Activity starts
         requestLocationPermissionLauncher.launch(
             arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,

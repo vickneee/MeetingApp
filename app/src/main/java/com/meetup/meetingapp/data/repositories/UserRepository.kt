@@ -25,6 +25,18 @@ interface UserRepository {
     suspend fun createUser(uid: String)
 
     /**
+     * Updates the user's document with their determined country of origin.
+     *
+     * This method performs a network operation to update the "defaultCountry" field
+     * in the user's Firestore document. This is used to localize the user experience,
+     * such as setting default dialing codes or filtering nearby events.
+     *
+     * @param country The name of the country (e.g., "United States" or "Germany").
+     * @throws Exception if the network is unavailable or the user document does not exist.
+     */
+    suspend fun saveDefaultCountry(country: String)
+
+    /**
      * Adds an event ID to the list of events created by the user.
      *
      * This method updates the user's document by appending the event ID
