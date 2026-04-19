@@ -89,7 +89,7 @@ fun EventsListPage(
                 bottom = 32.dp
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(sortedEvents) { event ->
                 EventItem(event = event,
@@ -208,7 +208,7 @@ fun EventsListPagePreview() {
                 bottom = 32.dp
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(events) { event ->
                 EventItem(event = event)

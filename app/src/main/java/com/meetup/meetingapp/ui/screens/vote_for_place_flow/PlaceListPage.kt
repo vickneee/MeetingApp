@@ -145,8 +145,7 @@ fun PlaceListContent(
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
                         )
-
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
                             text = selectedLocation,
@@ -167,14 +166,14 @@ fun PlaceListContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
                     "Places",
                     fontSize = 20.sp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 14.dp),
+                        .padding(bottom = 16.dp),
                     textAlign = TextAlign.Start,
                     fontWeight = FontWeight.Bold
                 )
@@ -185,7 +184,7 @@ fun PlaceListContent(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 32.dp),
+                            .padding(top = 160.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -201,7 +200,7 @@ fun PlaceListContent(
                         onClick = { onNavigateToPlaceDetails(option.placeId) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .padding(bottom = 16.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surface
