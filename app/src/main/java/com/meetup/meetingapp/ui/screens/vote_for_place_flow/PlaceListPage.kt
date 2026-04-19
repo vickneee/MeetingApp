@@ -200,7 +200,7 @@ fun PlaceListContent(
                         onClick = { onNavigateToPlaceDetails(option.placeId) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 16.dp),
+                            .padding(bottom = 12.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surface
