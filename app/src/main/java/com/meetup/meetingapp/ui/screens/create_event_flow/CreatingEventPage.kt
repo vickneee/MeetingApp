@@ -56,7 +56,7 @@ fun formatDisplayDate(start: String, end: String): String {
         val endDate = LocalDate.parse(end)
 
         "${startDate.format(formatter)} - ${endDate.format(formatter)}"
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         "Invalid date"
     }
 }
@@ -148,7 +148,7 @@ fun CreatingEventContent(
                 bottom = 56.dp
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
                 Text(

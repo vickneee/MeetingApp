@@ -12,10 +12,14 @@ import androidx.compose.ui.unit.dp
 object AppSpacing {
 
     // very small space (inside components)
-    val xs = 4.dp
+    val xxs = 4.dp
 
     // small spacing (between related items)
-    val sm = 8.dp
+    val xs = 8.dp
+
+    // default spacing (MOST USED)
+    // use: between fields, inputs, texts
+    val sm = 14.dp
 
     // default spacing (MOST USED)
     // use: between fields, inputs, texts

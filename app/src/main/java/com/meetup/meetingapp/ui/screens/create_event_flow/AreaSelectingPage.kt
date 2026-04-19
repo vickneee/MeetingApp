@@ -151,7 +151,7 @@ fun AreaSelectingContent(
                 bottom = 56.dp
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
                 Text(

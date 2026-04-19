@@ -19,7 +19,7 @@ val Typography = Typography(
     // BIG APP TITLE (Home screen "MeetUp")
     // use: app logo / main screen header
     displayLarge = TextStyle(
-        fontSize = 40.sp,
+        fontSize = 70.sp,
         fontWeight = FontWeight.ExtraBold
     ),
 

@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,12 +33,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
@@ -139,37 +142,41 @@ fun CreateOrJoinContent(
                 bottom = 56.dp
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
                 Text(
                     text = "Make plans easy for everyone.",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                Spacer(modifier = Modifier.height(36.dp))
-                
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
+
                 Button(
                     onClick = onCreateEventClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(0.65f)
+                    modifier = Modifier.fillMaxSize(AppSize.sm),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.padding(4.dp))
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Create Event",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(vertical = 6.dp,)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
 
                 Text(
                     text = "Join an Event",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 22.sp,
+                    modifier = Modifier.padding(AppSpacing.md),
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -177,11 +184,9 @@ fun CreateOrJoinContent(
 
                 Text(
                     text = "Event Code",
-                    modifier = Modifier
-                        .fillMaxWidth(0.85f)
-                        .padding(vertical = 5.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth(AppSize.xl),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Start
                 )
@@ -190,8 +195,7 @@ fun CreateOrJoinContent(
                     onValueChange = onCodeChange,
                     label = { Text("Enter code") },
                     modifier = Modifier
-                        .fillMaxWidth(0.85f)
-                        .padding(bottom = 24.dp),
+                        .fillMaxWidth(AppSize.xl),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     // enabled = !isAlreadySubmitted, // Disable if already submitted
@@ -206,27 +210,25 @@ fun CreateOrJoinContent(
                         disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 )
-
+                Spacer(modifier = Modifier.height(AppSpacing.md))
                 Text(
                     text = "Event Key",
-                    modifier = Modifier
-                        .fillMaxWidth(0.85f)
-                        .padding(vertical = 5.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth(AppSize.xl),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Start
                 )
+                Spacer(modifier = Modifier.height(AppSpacing.xxs))
                 OutlinedTextField(
                     value = key,
                     onValueChange = onKeyChange,
                     label = { Text("Enter key") },
                     modifier = Modifier
-                        .fillMaxWidth(0.85f)
-                        .padding(bottom = 24.dp),
+                        .fillMaxWidth(AppSize.xl),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
-                    // enabled = !isAlreadySubmitted, // Disable if already submitted
+                    textStyle = MaterialTheme.typography.bodyMedium,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -238,27 +240,20 @@ fun CreateOrJoinContent(
                         disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Button(
                     onClick = { onJoinEventClick() },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(0.65f)
+                    modifier = Modifier.fillMaxWidth(AppSize.sm),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
                     Text(
                         text = "Join Event",
-                        fontSize = 18.sp,
-                        modifier = Modifier
-                            .padding(
-                                vertical = 6.dp,
-                                horizontal = 16.dp
-                            )
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
-                Spacer(modifier = Modifier.height(36.dp))
-
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Button(
                     onClick = { onEventsClick() },
                     border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
@@ -267,16 +262,13 @@ fun CreateOrJoinContent(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(0.65f)
+                    modifier = Modifier.fillMaxWidth(AppSize.sm),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
                     Text(
                         text = "Events",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(
-                            vertical = 6.dp,
-                            horizontal = 36.dp
-                        )
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
