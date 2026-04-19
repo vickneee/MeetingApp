@@ -38,6 +38,7 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
@@ -85,8 +86,10 @@ fun CreateOrJoinPage(
 
     CreateOrJoinContent(
         code = viewModel.code,
+        codeError = viewModel.codeError,
         onCodeChange = viewModel::updateCode,
         key = viewModel.key,
+        keyError = viewModel.keyError,
         onKeyChange = viewModel::updateKey,
         onBack = onBack,
         onCreateEventClick = navigateToCreatingEventPage,
@@ -98,8 +101,10 @@ fun CreateOrJoinPage(
 /**
  * Create or Join Page Content
  * @param code Code
+ * @param codeError Code Error
  * @param onCodeChange Code Change
  * @param key Key
+ * @param keyError Key Error
  * @param onKeyChange Key Change
  * @param onBack Navigate back
  * @param onCreateEventClick Navigate to the next page
@@ -111,8 +116,10 @@ fun CreateOrJoinPage(
 @Composable
 fun CreateOrJoinContent(
     code: String,
+    codeError: String?,
     onCodeChange: (String) -> Unit,
     key: String,
+    keyError: String?,
     onKeyChange: (String) -> Unit,
     onBack: () -> Unit,
     onCreateEventClick: () -> Unit,
@@ -135,12 +142,7 @@ fun CreateOrJoinContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 56.dp,
-                bottom = 56.dp
-            ),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -184,21 +186,27 @@ fun CreateOrJoinContent(
 
                 Text(
                     text = "Event Code",
-                    modifier = Modifier.fillMaxWidth(AppSize.xl),
-                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier
+                        .fillMaxWidth(AppSize.xl)
+                        .padding(bottom = AppSpacing.xxs),
+                    style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Start
                 )
                 OutlinedTextField(
                     value = code,
-                    onValueChange = onCodeChange,
+                    onValueChange = {
+                        onCodeChange(it)
+                        // Clear error on type
+                    },
                     label = { Text("Enter code") },
                     modifier = Modifier
                         .fillMaxWidth(AppSize.xl),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     // enabled = !isAlreadySubmitted, // Disable if already submitted
+                    isError = codeError != null,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -210,25 +218,40 @@ fun CreateOrJoinContent(
                         disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 )
+                if (codeError != null) {
+                    Text(
+                        text = codeError,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .fillMaxWidth(AppSize.xl)
+                            .padding(start = 16.dp, top = 4.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.height(AppSpacing.md))
                 Text(
                     text = "Event Key",
-                    modifier = Modifier.fillMaxWidth(AppSize.xl),
-                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier
+                        .fillMaxWidth(AppSize.xl)
+                        .padding(bottom = AppSpacing.xxs),
+                    style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Start
                 )
-                Spacer(modifier = Modifier.height(AppSpacing.xxs))
                 OutlinedTextField(
                     value = key,
-                    onValueChange = onKeyChange,
+                    onValueChange = {
+                        onKeyChange(it)
+                        // Clear error on type
+                    },
                     label = { Text("Enter key") },
                     modifier = Modifier
                         .fillMaxWidth(AppSize.xl),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyMedium,
+                    isError = keyError != null,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -240,6 +263,16 @@ fun CreateOrJoinContent(
                         disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 )
+                if (keyError != null) {
+                    Text(
+                        text = keyError,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .fillMaxWidth(AppSize.xl)
+                            .padding(start = 16.dp, top = 4.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Button(
                     onClick = { onJoinEventClick() },
@@ -256,7 +289,7 @@ fun CreateOrJoinContent(
                 Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Button(
                     onClick = { onEventsClick() },
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
                         contentColor = MaterialTheme.colorScheme.primary
@@ -285,8 +318,10 @@ fun CreateOrJoinPagePreview() {
     MeetingAppTheme {
         CreateOrJoinContent(
             code = "",
+            codeError = null,
             onCodeChange = {},
             key = "",
+            keyError = null,
             onKeyChange = {},
             onBack = {},
             onCreateEventClick = {},

@@ -17,7 +17,9 @@ import kotlinx.coroutines.tasks.await
  * @param db Firebase Firestore database instance.
  * @param userRepository Repository for user-related operations.
  * @property code The code entered by the user.
+ * @property codeError The error message for the code field.
  * @property key The key entered by the user.
+ * @property keyError The error message for the key field.
  * @property navigateToEventsListPage Whether to navigate to the past events list page.
  * @property navigateToParticipantPage Whether to navigate to the participant page.
  */
@@ -46,6 +48,7 @@ class CreateOrJoinViewModel(
      */
     fun updateCode(newCode: String) {
         code = newCode
+        codeError = null   // clear error on type
     }
 
     /**
@@ -53,6 +56,7 @@ class CreateOrJoinViewModel(
      */
     fun updateKey(newKey: String) {
         key = newKey
+        keyError = null    // clear error on type
     }
 
     /**
@@ -82,9 +86,34 @@ class CreateOrJoinViewModel(
     }
 
     /**
+     * Error messages for the code and key fields.
+     */
+    var codeError by mutableStateOf<String?>(null)
+
+    /**
+     * Error messages for the code and key fields.
+     */
+    var keyError by mutableStateOf<String?>(null)
+
+    /**
      * Joins an event with the provided code and key.
      */
     fun joinEvent() {
+
+        // Reset errors
+        codeError = null
+        keyError = null
+
+        // Validate empty fields
+        if (code.isBlank()) {
+            codeError = "Code cannot be empty"
+            return
+        }
+        if (key.isBlank()) {
+            keyError = "Key cannot be empty"
+            return
+        }
+
         viewModelScope.launch {
             val uid = auth.currentUser?.uid ?: return@launch
             // Find event by code + key
@@ -95,14 +124,13 @@ class CreateOrJoinViewModel(
                 .await()
 
             if (snapshot.isEmpty) {
-                // TODO: show error to user — wrong code/key
-                Log.w("Join", "No event found for code=$code key=$key")
+                keyError = "Wrong key or code"
                 return@launch
             }
+            Log.w("Join", "No event found for code=$code key=$key")
 
             val eventId = snapshot.documents.first().id
             userRepository.addJoinedEvent(eventId = eventId, uid = uid)
-
             navigateToParticipantPage = code to key
             Log.d("Join", "Joined event: $eventId")
         }
