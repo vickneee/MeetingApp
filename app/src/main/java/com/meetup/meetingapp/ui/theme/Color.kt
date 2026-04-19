@@ -14,7 +14,8 @@ val GreenDark = Color(0xFF006D00)
 
 val BackgroundLight = Color(0xFFF8F9FA)
 val BackgroundLightGreen = Color(0xFFF1FFF1)
-val SurfaceLight = Color.White
+
+val SurfaceLight = Color(0xFFE6F6E6)
 
 val BackgroundDark = Color(0xFF121212)
 val SurfaceDark = Color(0xFF1E1E1E)

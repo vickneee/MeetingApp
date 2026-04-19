@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.common.math.LinearTransformation.horizontal
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
@@ -109,7 +110,7 @@ fun HomeScreenContent(
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.primary,
                     style = TextStyle(
-                        fontSize = 80.sp,
+                        fontSize = 74.sp,
                         shadow = Shadow(
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
                             offset = Offset(0f, 6f),
@@ -122,12 +123,12 @@ fun HomeScreenContent(
 
                 Text(
                     text = "Make plans easy for everyone.",
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
                     onClick = onMainClick,
@@ -142,12 +143,12 @@ fun HomeScreenContent(
                     Spacer(modifier = Modifier.padding(4.dp))
                     Text(
                         text = "Create Event",
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.padding(vertical = 6.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
                     onClick = onMainClick,
@@ -160,12 +161,12 @@ fun HomeScreenContent(
                 ) {
                     Text(
                         text = "Join Event",
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 6.dp)
                     )
                 }
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
                     onClick = onEventsClick,
@@ -178,7 +179,7 @@ fun HomeScreenContent(
                 ) {
                     Text(
                         text = "Events",
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(
                             vertical = 6.dp,

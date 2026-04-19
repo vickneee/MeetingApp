@@ -41,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -327,15 +328,18 @@ fun TimeSelectorField(
 
         Row(
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(vertical = 12.dp, horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = time,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 20.sp,
-                modifier = Modifier.clickable(onClick = onClick)
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .clickable(onClick = onClick)
+                    .weight(1f),
+                textAlign = TextAlign.Center
             )
             Icon(
                 imageVector = Icons.Default.ChevronRight,

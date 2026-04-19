@@ -154,9 +154,9 @@ fun CreatingEventContent(
                 Text(
                     text = "Create an Event",
                     modifier = Modifier.padding(bottom = 36.dp),
-                    fontSize = 22.sp,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -165,7 +165,7 @@ fun CreatingEventContent(
                     modifier = Modifier
                         .fillMaxWidth(0.85f)
                         .padding(vertical = 5.dp),
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Start
@@ -197,7 +197,7 @@ fun CreatingEventContent(
                     modifier = Modifier
                         .fillMaxWidth(0.85f)
                         .padding(vertical = 5.dp),
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Start
