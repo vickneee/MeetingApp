@@ -45,6 +45,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 
 /**
  * Composable function for displaying a multi-select dropdown menu.
@@ -106,9 +108,11 @@ fun <T> AppMultiSelectDropdown(
     Column {
         Text(
             text = label,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp,
-            modifier = Modifier.padding(bottom = 4.dp),
+            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier
+                .fillMaxWidth(AppSize.xl)
+                .padding(bottom = AppSpacing.xxs),
             color = MaterialTheme.colorScheme.onBackground
         )
         
@@ -118,7 +122,7 @@ fun <T> AppMultiSelectDropdown(
                 selected.forEach { item ->
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth(AppSize.xl)
                             .padding(vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -171,7 +175,7 @@ fun <T> AppMultiSelectDropdown(
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(AppSize.xl)
                     .menuAnchor()
                     .focusRequester(focusRequester),
                 shape = RoundedCornerShape(8.dp),
@@ -194,7 +198,8 @@ fun <T> AppMultiSelectDropdown(
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 AppCheckbox(checked = isSelected)
-                                Spacer(modifier = Modifier.width(4.dp))
+                                Spacer(modifier = Modifier
+                                    .width(AppSpacing.xxs))
                                 Text(text)
                             }
                         },
