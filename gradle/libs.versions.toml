@@ -22,6 +22,7 @@ playServicesLocation = "21.3.0"
 firebaseBom = "34.11.0"
 foundation = "1.10.6"
 material3 = "1.4.0"
+uiTestJunit4 = "1.10.6"
 
 [libraries]
 androidx-compose-animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
@@ -60,6 +61,7 @@ androidx-compose-material-icons-core = { group = "androidx.compose.material", na
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "uiTestJunit4" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
