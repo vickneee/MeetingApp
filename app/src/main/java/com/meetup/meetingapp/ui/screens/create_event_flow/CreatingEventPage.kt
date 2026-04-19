@@ -38,6 +38,9 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.select_date_range.CustomDateRangePickerModal
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -82,7 +85,14 @@ fun CreatingEventPage(
     navigateToCreatingEventPage: () -> Unit,
     viewModel: EventViewModel
 ) {
+    /**
+     * Collects the current UI state from the [EventViewModel].
+     */
     val uiState by viewModel.uiState.collectAsState()
+
+    /**
+     * Controls the visibility of the date range picker modal.
+     */
     var showModal by remember { mutableStateOf(false) }
 
     CreatingEventContent(
@@ -91,9 +101,13 @@ fun CreatingEventPage(
         onHostNameChange = viewModel::updateHostName,
         onBack = onBack,
         onOpenDatePicker = { showModal = true },
+        canProceed = viewModel.canProceed,
         navigateToCreatingEventPage = navigateToCreatingEventPage // real navigation
     )
 
+    /**
+     * Modal for selecting a date range.
+     */
     if (showModal) {
         CustomDateRangePickerModal(
             onDismiss = { showModal = false },
@@ -114,6 +128,7 @@ fun CreatingEventPage(
  * @param onBack Navigate back to the previous screen.
  * @param onOpenDatePicker Callback to open the date range picker.
  * @param navigateToCreatingEventPage Navigate to the date range selection page.
+ * @param canProceed Whether the "Next" button should be enabled or not.
  * @param modifier Optional [Modifier] for layout adjustments.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -125,6 +140,7 @@ fun CreatingEventContent(
     onBack: () -> Unit,
     onOpenDatePicker: () -> Unit,
     navigateToCreatingEventPage: () -> Unit,
+    canProceed: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -141,32 +157,27 @@ fun CreatingEventContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 56.dp,
-                bottom = 56.dp
-            ),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             item {
                 Text(
                     text = "Create an Event",
-                    modifier = Modifier.padding(bottom = 36.dp),
-                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = AppSpacing.xl),
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
 
                 Text(
                     text = "Event Title",
                     modifier = Modifier
-                        .fillMaxWidth(0.85f)
-                        .padding(vertical = 5.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                        .fillMaxWidth(AppSize.xl)
+                        .padding(bottom = AppSpacing.xxs),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Start
                 )
@@ -175,8 +186,8 @@ fun CreatingEventContent(
                     onValueChange = onEventTitleChange,
                     label = { Text("Enter title") },
                     modifier = Modifier
-                        .fillMaxWidth(0.85f)
-                        .padding(bottom = 16.dp),
+                        .fillMaxWidth(AppSize.xl)
+                        .padding(bottom = AppSpacing.sm),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     // enabled = !isAlreadySubmitted, // Disable if already submitted
@@ -191,14 +202,14 @@ fun CreatingEventContent(
                         disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
                 Text(
                     text = "Host Name",
                     modifier = Modifier
-                        .fillMaxWidth(0.85f)
-                        .padding(vertical = 5.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                        .fillMaxWidth(AppSize.xl)
+                        .padding(bottom = AppSpacing.xxs),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Start
                 )
@@ -207,8 +218,8 @@ fun CreatingEventContent(
                     onValueChange = onHostNameChange,
                     label = { Text("Enter host name") },
                     modifier = Modifier
-                        .fillMaxWidth(0.85f)
-                        .padding(bottom = 16.dp),
+                        .fillMaxWidth(AppSize.xl)
+                        .padding(bottom = AppSpacing.sm),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     // enabled = !isAlreadySubmitted, // Disable if already submitted
@@ -226,54 +237,52 @@ fun CreatingEventContent(
 
                 Text(
                     text = "Date Range",
-                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
-                    fontSize = 20.sp,
+                    modifier = Modifier.padding(top = AppSpacing.md, bottom = AppSpacing.xs),
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                Spacer(modifier = Modifier.padding(4.dp))
+                Spacer(modifier = Modifier.padding(bottom = AppSpacing.xs))
 
                 Text(
                     text = formatDisplayDate(
                         uiState.dateRange.start,
                         uiState.dateRange.end
                     ),
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = if (uiState.hasSelectedDateRange) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = AppSpacing.md)
                 )
 
                 OutlinedButton(
                     onClick = { onOpenDatePicker() },
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.85f)
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
                     Text(
                         text = "Select New Date Range",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(vertical = 8.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
-
-                Spacer(modifier = Modifier.height(36.dp))
-
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Button(
                     onClick = { navigateToCreatingEventPage() },
+                    enabled = canProceed,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.65f)
+                    modifier = Modifier.fillMaxWidth(AppSize.sm),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
                     Text(
                         text = "Next",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(vertical = 6.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
@@ -294,7 +303,8 @@ fun CreatingEventPagePreview() {
             onHostNameChange = {},
             onBack = {},
             onOpenDatePicker = {},
-            navigateToCreatingEventPage = {}
+            navigateToCreatingEventPage = {},
+            canProceed = true
         )
     }
 }

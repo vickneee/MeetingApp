@@ -82,6 +82,12 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     private val _selectedCountries = MutableStateFlow(listOf(CountryOption.Finland))
 
     /**
+     * Whether the "Next" button should be enabled or not.
+     */
+    val canProceed: Boolean
+        get() = uiState.value.eventTitle.isNotBlank() && uiState.value.hostName.isNotBlank()
+
+    /**
      * Reactively observe cities based on selected countries.
      * Uses Room as the single source of truth.
      */
