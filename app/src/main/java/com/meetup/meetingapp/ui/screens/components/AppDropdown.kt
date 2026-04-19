@@ -74,7 +74,7 @@ fun <T> AppMultiSelectDropdown(
     
     val configuration = LocalConfiguration.current
     val maxMenuHeight = remember(configuration.screenHeightDp) {
-        (configuration.screenHeightDp * 0.7f).dp
+        (configuration.screenHeightDp * 0.6f).dp
     }
 
     // Optimization: Cache text representations to avoid expensive 'toText' calls during filtering/sorting
@@ -182,7 +182,9 @@ fun <T> AppMultiSelectDropdown(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 scrollState = scrollState,
-                modifier = Modifier.heightIn(max = maxMenuHeight)
+                modifier = Modifier.heightIn(max = maxMenuHeight),
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 3.dp
             ) {
                 sortedOptions.forEach { pair ->
                     val option = pair.first
