@@ -33,6 +33,7 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import com.meetup.meetingapp.utils.getOpenLabel
 import java.time.LocalDate
@@ -298,7 +299,7 @@ fun PlaceDetailsContent(
                             Text(
                                 text = "Date: ${finalTime.date.toEuroDate()} ${finalTime.timeSlot.start} - ${finalTime.timeSlot.end}",
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 17.sp,
+                                style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.Center
@@ -311,12 +312,12 @@ fun PlaceDetailsContent(
                                 onClick = onMapsClick,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                                contentPadding = PaddingValues(AppSpacing.sm)
                             ) {
                                 Text(
                                     text = "View on Google Maps",
-                                    fontSize = 18.sp,
-                                    modifier = Modifier.padding(6.dp)
+                                    style = MaterialTheme.typography.labelLarge,
                                 )
                             }
 
@@ -327,12 +328,12 @@ fun PlaceDetailsContent(
                                     shape = RoundedCornerShape(8.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.primary
-                                    )
+                                    ),
+                                    contentPadding = PaddingValues(AppSpacing.sm)
                                 ) {
                                     Text(
                                         text = "Home",
-                                        fontSize = 18.sp,
-                                        modifier = Modifier.padding(6.dp)
+                                        style = MaterialTheme.typography.labelLarge,
                                     )
                                 }
                             } else {
@@ -343,12 +344,12 @@ fun PlaceDetailsContent(
                                     shape = RoundedCornerShape(8.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.primary
-                                    )
+                                    ),
+                                    contentPadding = PaddingValues(AppSpacing.sm)
                                 ) {
                                     Text(
                                         text = if (isVoted) "Voted" else "Vote for this restaurant",
-                                        fontSize = 18.sp,
-                                        modifier = Modifier.padding(6.dp)
+                                        style = MaterialTheme.typography.labelLarge,
                                     )
                                 }
                             }
