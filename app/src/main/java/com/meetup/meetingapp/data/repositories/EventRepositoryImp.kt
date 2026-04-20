@@ -1011,4 +1011,24 @@ class EventRepositoryImp(
             }
         awaitClose { listener.remove() }
     }
+
+    /**
+     * Checks if the user has submitted availability for the given event.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @return `true` if the user has submitted availability, `false` otherwise.
+     */
+    override suspend fun hasUserSubmittedAvailability(
+        eventId: String,
+        userId: String
+    ): Boolean {
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection("participantResponses")
+            .whereEqualTo("eventId", eventId)
+            .whereEqualTo("userId", userId)
+            .limit(1)
+            .get()
+            .await()
+        return !snapshot.isEmpty
+    }
 }
