@@ -36,15 +36,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.common.math.LinearTransformation.vertical
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
@@ -106,7 +111,7 @@ fun TimeSlotsSelectingPageContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Select Time Slots",
+                title = stringResource(R.string.title_time_slots_selecting_page),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -117,12 +122,7 @@ fun TimeSlotsSelectingPageContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 56.dp,
-                bottom = 56.dp
-            ),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -130,7 +130,7 @@ fun TimeSlotsSelectingPageContent(
                 Text(
                     text = "Time Slots",
                     modifier = Modifier.padding(16.dp),
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -141,7 +141,7 @@ fun TimeSlotsSelectingPageContent(
 
                 Row(
                     modifier = Modifier
-                        .padding(vertical = 10.dp),
+                        .padding(vertical = AppSpacing.xsm),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -149,22 +149,25 @@ fun TimeSlotsSelectingPageContent(
                         timeSlot = "${timeSlot.start} - ${timeSlot.end}",
                         onEditClick = { navigateToTimeEditPage(index) },
                         modifier = Modifier
-                            .width(220.dp) // Fixed width so delete button fits
+                            .width(220.dp) // Fixed width so delete button fits.
                     )
 
                     if (index != 0) {
-                        Spacer(modifier = Modifier.padding(8.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                         IconButton(
                             onClick = { onRemoveTimeSlot(timeSlot) },
                             modifier = Modifier
                                 .size(40.dp)
-                                .background(Color.Red, shape = RoundedCornerShape(10.dp))
+                                .background(
+                                    color = MaterialTheme.colorScheme.error,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Remove,
                                 contentDescription = "Remove",
                                 tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(16.dp)
                             )
                         }
                     } else {
@@ -174,38 +177,42 @@ fun TimeSlotsSelectingPageContent(
                 }
             }
             item {
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 OutlinedButton(
                     onClick = { navigateToTimeEditPage(-1) }, // <- editTimeSlot()
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.75f)
+                    modifier = Modifier.fillMaxWidth(AppSize.md),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Add Time Slot",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(vertical = 8.dp)
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
             item {
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Button(
                     onClick = { navigateToAreaSelectingPage() },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.55f),
+                    modifier = Modifier.fillMaxWidth(AppSize.md),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
                     Text(
                         text = "Next",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(vertical = 6.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
@@ -233,7 +240,7 @@ fun TimeSlotItem(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -244,9 +251,9 @@ fun TimeSlotItem(
             Text(
                 text = timeSlot,
                 modifier = Modifier
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp, vertical = 2.dp),
                 textAlign = TextAlign.Center,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
             )

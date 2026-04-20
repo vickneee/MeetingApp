@@ -48,6 +48,9 @@ import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
@@ -197,12 +200,7 @@ fun EditTimeSlotContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 56.dp,
-                bottom = 56.dp
-            ),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -210,23 +208,25 @@ fun EditTimeSlotContent(
             item {
                 Text(
                     text = "Start Time",
-                    fontSize = 20.sp,
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xsm))
                 TimeSelectorField(
                     label = "Start Time",
                     time = startTime,
                     onClick = { onStartTimeClick() } // showPickerType = "start"
                 )
-                Spacer(modifier = Modifier.height(60.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
             }
 
             // End Time Section
             item {
                 Text(
                     text = "End Time",
-                    fontSize = 20.sp,
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(10.dp))
@@ -235,7 +235,7 @@ fun EditTimeSlotContent(
                     time = endTime,
                     onClick = { onEndTimeClick() } // showPickerType = "end"
                 )
-                Spacer(modifier = Modifier.height(35.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
             }
             // Calculate minutes
             val startTotal = toMinutes(startTime)
@@ -278,7 +278,7 @@ fun EditTimeSlotContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Button(
                     onClick = {
                         onSaveTimeSlot(startTime, endTime)
@@ -290,12 +290,12 @@ fun EditTimeSlotContent(
                         containerColor = MaterialTheme
                             .colorScheme.primary
                     ),
-                    modifier = Modifier.fillMaxWidth(0.55f)
+                    modifier = Modifier.fillMaxWidth(AppSize.md),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
                     Text(
-                        text = "Save", fontSize = 18.sp,
-                        modifier = Modifier
-                            .padding(vertical = 6.dp)
+                        text = "Save",
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
@@ -323,19 +323,19 @@ fun TimeSelectorField(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(AppSize.xs)
                 .padding(vertical = 12.dp, horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = time,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .clickable(onClick = onClick)
                     .weight(1f),
