@@ -312,7 +312,7 @@ class EventRepositoryImp(
                 eventDao.upsertEvent(entity)
             }
 
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // sync failure won't crash the app, Room still serves cached data
         }
     }
@@ -335,7 +335,7 @@ class EventRepositoryImp(
                 val entity = with(EventMapper) { event.toEntity() }
                 eventDao.upsertEvent(entity)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // sync failure won't crash the app
         }
     }
@@ -388,7 +388,7 @@ class EventRepositoryImp(
 
             // Also update local Room cache
             eventDao.updateEventStatus(eventId, newStatus.name)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // sync failure won't crash the app
         }
     }
@@ -673,7 +673,7 @@ class EventRepositoryImp(
                     auth.currentUser?.displayName ?: "Unknown"
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             "Unknown"
         }
 
@@ -835,7 +835,7 @@ class EventRepositoryImp(
                 }
             }
             false
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -978,7 +978,7 @@ class EventRepositoryImp(
                 .get()
                 .await()
                 .toObject(ParticipantResponse::class.java)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

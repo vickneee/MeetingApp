@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
-import android.R.attr.onClick
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

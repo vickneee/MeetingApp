@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,7 +34,6 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import com.meetup.meetingapp.utils.getOpenLabel
@@ -133,7 +133,7 @@ fun PlaceDetailsPage(
                 }
                 try {
                     context.startActivity(mapIntent)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     val webIntent = Intent(
                         Intent.ACTION_VIEW,
                         Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress")
@@ -198,7 +198,7 @@ fun PlaceDetailsContent(
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface,
                         titleContentColor = MaterialTheme.colorScheme.onSurface,
                         navigationIconContentColor = MaterialTheme.colorScheme.primary
@@ -382,7 +382,7 @@ private fun String.toEuroDate(): String {
         val date = LocalDate.parse(this)
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
         date.format(formatter)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         this
     }
 }
