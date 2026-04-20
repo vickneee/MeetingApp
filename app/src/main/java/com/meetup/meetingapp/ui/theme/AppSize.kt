@@ -16,7 +16,10 @@ object AppSize {
     // use: between groups (form sections)
     val lg = 0.75f
 
+    // huge width (MOST USED)
+    val xll = 0.8f
+
     // big width
     // use: screen sections separation
-    val xl = 0.8f
+    val xl = 0.9f
 }

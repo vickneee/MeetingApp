@@ -253,8 +253,7 @@ fun EditTimeSlotContent(
                         tonalElevation = 2.dp,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp)
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(vertical = 8.dp, horizontal = 16.dp),
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
@@ -328,7 +327,7 @@ fun TimeSelectorField(
 
         Row(
             modifier = Modifier
-                .fillMaxWidth(AppSize.xs)
+                .fillMaxWidth(0.45f)
                 .padding(vertical = 12.dp, horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
