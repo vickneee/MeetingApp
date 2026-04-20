@@ -112,7 +112,7 @@ fun <T> AppMultiSelectDropdown(
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier
                 .fillMaxWidth(AppSize.xl)
-                .padding(bottom = AppSpacing.xxs),
+                .padding(bottom = AppSpacing.xs),
             color = MaterialTheme.colorScheme.onBackground
         )
         
