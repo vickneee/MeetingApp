@@ -139,7 +139,7 @@ fun PlaceTypeAndKeywordContent(
                 Text(
                     "Choose a place type and",
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -151,7 +151,7 @@ fun PlaceTypeAndKeywordContent(
                 Text(
                     "a food category",
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -184,7 +184,7 @@ fun PlaceTypeAndKeywordContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 Button(
                     onClick = onSubmit,
@@ -193,8 +193,8 @@ fun PlaceTypeAndKeywordContent(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
-                        .fillMaxWidth(AppSize.md),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                        .fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         text = "Submit",

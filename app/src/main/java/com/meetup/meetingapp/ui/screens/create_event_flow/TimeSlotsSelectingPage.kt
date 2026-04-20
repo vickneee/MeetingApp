@@ -121,7 +121,7 @@ fun TimeSlotsSelectingPageContent(
                 .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
                 Text(
@@ -183,7 +183,7 @@ fun TimeSlotsSelectingPageContent(
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -199,13 +199,13 @@ fun TimeSlotsSelectingPageContent(
                 }
             }
             item {
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Button(
                     onClick = { navigateToAreaSelectingPage() },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(AppSize.md),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         text = "Next",

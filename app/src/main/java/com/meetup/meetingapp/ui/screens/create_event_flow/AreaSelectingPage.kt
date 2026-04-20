@@ -194,14 +194,14 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 Button(
                     onClick = onNextClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(AppSize.sm),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm),
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                     enabled = selectedCities.isNotEmpty() // Only enable if a valid city is selected
                 ) {
                     Text(

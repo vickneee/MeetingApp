@@ -2,6 +2,7 @@ package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
@@ -16,9 +17,12 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 
 /**
  * Navigation destination for the place type selection screen.
@@ -88,44 +92,45 @@ fun CreateEventContent(
                 .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
                 Text(
                     text = "Choose allowed place types:",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 36.dp)
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = AppSpacing.md)
                 )
             }
-
             item {
-                PlaceTypeItem(
-                    title = "Restaurant",
-                    checked = placeTypes.contains(PlaceType.RESTAURANT),
-                    onCheckedChange = { selected ->
-                        onPlaceTypeToggle(PlaceType.RESTAURANT, selected)
-                    }
-                )
-            }
+                Column(
+                    modifier = Modifier.fillMaxWidth(AppSize.lg)
+                ) {
+                    PlaceTypeItem(
+                        title = "Restaurant",
+                        checked = placeTypes.contains(PlaceType.RESTAURANT),
+                        onCheckedChange = { selected ->
+                            onPlaceTypeToggle(PlaceType.RESTAURANT, selected)
+                        }
+                    )
+                    PlaceTypeItem(
+                        title = "Cafe",
+                        checked = placeTypes.contains(PlaceType.CAFE),
+                        onCheckedChange = { selected ->
+                            onPlaceTypeToggle(PlaceType.CAFE, selected)
+                        }
+                    )
 
-            item {
-                PlaceTypeItem(
-                    title = "Cafe",
-                    checked = placeTypes.contains(PlaceType.CAFE),
-                    onCheckedChange = { selected ->
-                        onPlaceTypeToggle(PlaceType.CAFE, selected)
-                    }
-                )
-            }
-
-            item {
-                PlaceTypeItem(
-                    title = "Bar",
-                    checked = placeTypes.contains(PlaceType.BAR),
-                    onCheckedChange = { selected ->
-                        onPlaceTypeToggle(PlaceType.BAR, selected)
-                    }
-                )
+                    PlaceTypeItem(
+                        title = "Bar",
+                        checked = placeTypes.contains(PlaceType.BAR),
+                        onCheckedChange = { selected ->
+                            onPlaceTypeToggle(PlaceType.BAR, selected)
+                        }
+                    )
+                }
             }
 
             item {
@@ -138,14 +143,14 @@ fun CreateEventContent(
                     enabled = isAnySelected,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    modifier = Modifier.fillMaxWidth(0.65f)
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         "Create Event",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(vertical = 6.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
@@ -182,7 +187,7 @@ fun PlaceTypeItem(
         Text(
             text = title,
             modifier = Modifier.padding(start = 18.dp),
-            fontSize = 16.sp
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }

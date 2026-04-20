@@ -13,6 +13,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -84,9 +85,13 @@ fun EventsListPage(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 32.dp,
+                bottom = 32.dp
+            ),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(sortedEvents) { event ->
                 EventItem(event = event,
@@ -122,7 +127,8 @@ fun EventItem(
     Card(
         onClick = { onItemClick(event) },
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -205,7 +211,6 @@ fun EventsListPagePreview() {
                 bottom = 32.dp
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(events) { event ->
                 EventItem(event = event)

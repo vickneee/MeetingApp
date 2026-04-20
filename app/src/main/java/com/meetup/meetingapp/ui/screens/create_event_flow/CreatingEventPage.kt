@@ -172,7 +172,7 @@ fun CreatingEventContent(
                 Text(
                     text = "Event Title",
                     modifier = Modifier
-                        .fillMaxWidth(AppSize.xl)
+                        .fillMaxWidth(AppSize.lg)
                         .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
@@ -184,7 +184,7 @@ fun CreatingEventContent(
                     onValueChange = onEventTitleChange,
                     label = { Text("Enter title") },
                     modifier = Modifier
-                        .fillMaxWidth(AppSize.xl)
+                        .fillMaxWidth(AppSize.lg)
                         .padding(bottom = AppSpacing.sm),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
@@ -204,7 +204,7 @@ fun CreatingEventContent(
                 Text(
                     text = "Host Name",
                     modifier = Modifier
-                        .fillMaxWidth(AppSize.xl)
+                        .fillMaxWidth(AppSize.lg)
                         .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
@@ -216,7 +216,7 @@ fun CreatingEventContent(
                     onValueChange = onHostNameChange,
                     label = { Text("Enter host name") },
                     modifier = Modifier
-                        .fillMaxWidth(AppSize.xl)
+                        .fillMaxWidth(AppSize.lg)
                         .padding(bottom = AppSpacing.sm),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
@@ -262,20 +262,20 @@ fun CreatingEventContent(
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         text = "Select New Date Range",
                         style = MaterialTheme.typography.labelLarge
                     )
                 }
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Button(
                     onClick = { navigateToCreatingEventPage() },
                     enabled = canProceed,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(AppSize.sm),
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
                     contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
                     Text(

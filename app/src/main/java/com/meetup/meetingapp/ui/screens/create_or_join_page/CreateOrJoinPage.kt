@@ -147,20 +147,12 @@ fun CreateOrJoinContent(
             verticalArrangement = Arrangement.Center
         ) {
             item {
-                Text(
-                    text = "Make plans easy for everyone.",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
-
                 Button(
                     onClick = onCreateEventClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(AppSize.sm),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    modifier = Modifier.fillMaxSize(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -187,7 +179,7 @@ fun CreateOrJoinContent(
                 Text(
                     text = "Event Code",
                     modifier = Modifier
-                        .fillMaxWidth(AppSize.xl)
+                        .fillMaxWidth(AppSize.lg)
                         .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
@@ -202,7 +194,7 @@ fun CreateOrJoinContent(
                     },
                     label = { Text("Enter code") },
                     modifier = Modifier
-                        .fillMaxWidth(AppSize.xl),
+                        .fillMaxWidth(AppSize.lg),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     // enabled = !isAlreadySubmitted, // Disable if already submitted
@@ -224,7 +216,7 @@ fun CreateOrJoinContent(
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier
-                            .fillMaxWidth(AppSize.xl)
+                            .fillMaxWidth(AppSize.lg)
                             .padding(start = 16.dp, top = 4.dp)
                     )
                 }
@@ -232,7 +224,7 @@ fun CreateOrJoinContent(
                 Text(
                     text = "Event Key",
                     modifier = Modifier
-                        .fillMaxWidth(AppSize.xl)
+                        .fillMaxWidth(AppSize.lg)
                         .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
@@ -247,7 +239,7 @@ fun CreateOrJoinContent(
                     },
                     label = { Text("Enter key") },
                     modifier = Modifier
-                        .fillMaxWidth(AppSize.xl),
+                        .fillMaxWidth(AppSize.lg),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyMedium,
@@ -269,7 +261,7 @@ fun CreateOrJoinContent(
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier
-                            .fillMaxWidth(AppSize.xl)
+                            .fillMaxWidth(AppSize.lg)
                             .padding(start = 16.dp, top = 4.dp)
                     )
                 }
@@ -278,15 +270,15 @@ fun CreateOrJoinContent(
                     onClick = { onJoinEventClick() },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(AppSize.sm),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         text = "Join Event",
                         style = MaterialTheme.typography.labelLarge
                     )
                 }
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Button(
                     onClick = { onEventsClick() },
                     border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
@@ -295,8 +287,8 @@ fun CreateOrJoinContent(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(AppSize.sm),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         text = "Events",

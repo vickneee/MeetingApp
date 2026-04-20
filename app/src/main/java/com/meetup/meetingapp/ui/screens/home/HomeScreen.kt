@@ -120,7 +120,7 @@ fun HomeScreenContent(
 
                 Text(
                     text = "Make plans easy for everyone.",
-                    fontSize = 18.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -133,8 +133,8 @@ fun HomeScreenContent(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(AppSize.sm),
-                    contentPadding = PaddingValues(AppSpacing.sm)
+                    modifier = Modifier.fillMaxSize(AppSize.lg),
+                    contentPadding = PaddingValues(AppSpacing.md)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -148,7 +148,7 @@ fun HomeScreenContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 Button(
                     onClick = onMainClick,
@@ -156,15 +156,15 @@ fun HomeScreenContent(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(AppSize.sm),
-                    contentPadding = PaddingValues(AppSpacing.sm)
+                    modifier = Modifier.fillMaxSize(AppSize.lg),
+                    contentPadding = PaddingValues(AppSpacing.md)
                 ) {
                     Text(
                         text = "Join Event",
                         style = MaterialTheme.typography.labelLarge
                     )
                 }
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 Button(
                     onClick = onEventsClick,
@@ -173,8 +173,8 @@ fun HomeScreenContent(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(AppSize.sm),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    modifier = Modifier.fillMaxSize(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         text = "Events",

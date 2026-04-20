@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
+import android.R.attr.onClick
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -67,6 +68,7 @@ fun HostDashboardPage(
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
     onFinalPlanClick: (String) -> Unit,
+    onFillAvailability: () -> Unit,
     onNavigateToHome: () -> Unit,
     viewModel: HostDashboardViewModel = viewModel(
         factory = AppViewModelProvider.Factory
@@ -76,6 +78,7 @@ fun HostDashboardPage(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val closeVotingState by viewModel.closeVotingState.collectAsStateWithLifecycle()
     val hasVoted = uiState.hasVoted
+    val hasHostSubmittedAvailability = uiState.hasHostSubmittedAvailability
 
     // Re-check vote status every time screen resumes
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -83,6 +86,7 @@ fun HostDashboardPage(
         val observer = LifecycleEventObserver { _, lifecycleEvent ->
             if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
                 viewModel.fetchUserVote()
+                viewModel.checkHostAvailability()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -108,6 +112,8 @@ fun HostDashboardPage(
             },
             onVoteForRestaurantClick = onVoteForRestaurantClick,
             onFinalPlanClick = onFinalPlanClick,
+            hasHostSubmittedAvailability = hasHostSubmittedAvailability as Boolean,
+            onFillAvailabilityClick = onFillAvailability,
             onNavigateToHome = onNavigateToHome
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -151,6 +157,8 @@ fun HostDashboardContent(
     onFinalPlanClick: (String) -> Unit,
     onCloseVotingClick: (EventStatus) -> Unit,
     onNavigateToHome: () -> Unit,
+    hasHostSubmittedAvailability: Boolean,
+    onFillAvailabilityClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -168,11 +176,12 @@ fun HostDashboardContent(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             item {
                 Column(
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -219,14 +228,14 @@ fun HostDashboardContent(
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
+                    Spacer(modifier = Modifier.height(AppSpacing.sm))
+                    Text(
+                        text = "Submissions: $submissionsCount",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
                 }
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
-                Text(
-                    text = "Submissions: $submissionsCount",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.height(AppSpacing.md))
             }
 
             // List of attendees
@@ -276,8 +285,9 @@ fun HostDashboardContent(
                         enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(AppSize.xll),
-                        contentPadding = PaddingValues(vertical = AppSpacing.sm)) {
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    ) {
                         Text(
                             when {
                                 event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open"
@@ -301,7 +311,7 @@ fun HostDashboardContent(
                             enabled = buttonEnabled && nextStatus != null,
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.fillMaxWidth(AppSize.xll),
+                            modifier = Modifier.fillMaxWidth(AppSize.lg),
                             contentPadding = PaddingValues(vertical = AppSpacing.sm),
                         ) {
                             Text(
@@ -320,19 +330,29 @@ fun HostDashboardContent(
                             modifier = Modifier.padding(top = 12.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.height(AppSpacing.lg))
-                }
 
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                    if (!hasHostSubmittedAvailability && event.status == EventStatus.COLLECTING_AVAILABILITY) {
+                        Spacer(modifier = Modifier.height(AppSpacing.lg))
+                        Button(
+                            onClick = onFillAvailabilityClick,
+                            modifier = Modifier.fillMaxWidth(AppSize.lg),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(vertical = AppSpacing.md)
+                        ) {
+                            Text(
+                                "Fill My Availability",
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
                     OutlinedButton(
                         onClick = onNavigateToHome,
                         border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(AppSize.xll),
-                        contentPadding = PaddingValues(vertical = AppSpacing.sm)) {
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    ) {
                         Text(
                             "Home",
                             color = MaterialTheme.colorScheme.primary,
@@ -355,6 +375,7 @@ fun HostDashboardPreview() {
         HostDashboardContent(
             event = Event(
                 eventCode = "A7F9K2",
+                status = EventStatus.COLLECTING_AVAILABILITY,
                 eventTitle = "Meet & Chat",
                 hostName = "Julia",
             ),
@@ -363,10 +384,12 @@ fun HostDashboardPreview() {
             hasVoted = false,
             hasAnyRestaurantVotes = false,
             onBack = {},
-            closeVotingState = CloseVotingState.Idle,
+            closeVotingState = CloseVotingState.Success,
             onFinalPlanClick = {},
             onVoteForRestaurantClick = {},
             onCloseVotingClick = {},
+            hasHostSubmittedAvailability = false,
+            onFillAvailabilityClick = {},
             onNavigateToHome = {}
         )
     }

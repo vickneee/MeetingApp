@@ -3,6 +3,7 @@ package com.meetup.meetingapp.ui.screens.participant_input_flow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -127,7 +128,9 @@ fun AvailabilitySelectingPageContent(
     ) { paddingValues ->
         if (isLoading) {
             Box(
-                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -145,58 +148,56 @@ fun AvailabilitySelectingPageContent(
                 item {
                     Text(
                         text = "Choose all dates and time",
-                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
-                }
-                item {
                     Spacer(modifier = Modifier.height(AppSpacing.xs))
 
                     Text(
                         "slots you can join",
-                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
-                }
-
-                item {
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
-
-                    AppMultiSelectDropdown(
-                        options = allDateTimes,
-                        selected = selectedDateTimes,
-                        onToggle = onToggleDateTime,
-                        label = "Availability",
-                        instruction = "Select dates and times",
-                        toText = { dateTime ->
-                            val displayDate = try {
-                                val localDate = LocalDate.parse(dateTime.date)
-                                localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-                            } catch (_: Exception) {
-                                dateTime.date
-                            }
-                            "$displayDate: ${dateTime.timeSlot.start} - ${dateTime.timeSlot.end}"
-                        }
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(AppSpacing.lg))
-
-                    Button(
-                        onClick = onNext,
-                        enabled = selectedDateTimes.isNotEmpty(),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(AppSize.md),
-                        contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    Column(
+                        horizontalAlignment = Alignment.Start
                     ) {
-                        Text(
-                            text = "Next",
-                            style = MaterialTheme.typography.labelLarge
+                        AppMultiSelectDropdown(
+                            options = allDateTimes,
+                            selected = selectedDateTimes,
+                            onToggle = onToggleDateTime,
+                            label = "Availability",
+                            instruction = "Select availability",
+                            toText = { dateTime ->
+                                val displayDate = try {
+                                    val localDate = LocalDate.parse(dateTime.date)
+                                    localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+                                } catch (_: Exception) {
+                                    dateTime.date
+                                }
+                                "$displayDate: ${dateTime.timeSlot.start} - ${dateTime.timeSlot.end}"
+                            }
                         )
+                        Spacer(modifier = Modifier.height(AppSpacing.xl))
+
+                        Button(
+                            onClick = onNext,
+                            enabled = selectedDateTimes.isNotEmpty(),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth(AppSize.lg),
+                            contentPadding = PaddingValues(vertical = AppSpacing.md)
+                        ) {
+                            Text(
+                                text = "Next",
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
                     }
                 }
             }

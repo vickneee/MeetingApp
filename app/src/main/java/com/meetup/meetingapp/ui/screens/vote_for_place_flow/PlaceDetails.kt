@@ -33,6 +33,7 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import com.meetup.meetingapp.utils.getOpenLabel
@@ -326,11 +327,11 @@ fun PlaceDetailsContent(
                             if (isFinalized) {
                                 Button(
                                     onClick = onHomeClick,
-                                    modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(8.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.primary
                                     ),
+                                    modifier = Modifier.fillMaxWidth(),
                                     contentPadding = PaddingValues(AppSpacing.sm)
                                 ) {
                                     Text(
@@ -342,11 +343,12 @@ fun PlaceDetailsContent(
                                 Button(
                                     onClick = onVoteClick,
                                     enabled = !isVoted,
-                                    modifier = Modifier.fillMaxWidth(),
+
                                     shape = RoundedCornerShape(8.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.primary
                                     ),
+                                    modifier = Modifier.fillMaxWidth(),
                                     contentPadding = PaddingValues(AppSpacing.sm)
                                 ) {
                                     Text(
@@ -359,8 +361,8 @@ fun PlaceDetailsContent(
                             if (voteResultState is VoteResultState.VoteError) {
                                 Text(
                                     text = voteResultState.message,
-                                    color = Color.Red,
-                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.labelSmall,
                                     modifier = Modifier.align(Alignment.CenterHorizontally)
                                 )
                             }

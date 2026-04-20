@@ -161,11 +161,12 @@ fun ChooseDateAndAreaContent(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             item {
                 Column(
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -212,14 +213,15 @@ fun ChooseDateAndAreaContent(
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
+
+                    Spacer(modifier = Modifier.height(AppSpacing.sm))
+                    Text(
+                        text = "Submissions: $submissionsCount",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = "Submissions: $submissionsCount",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.height(16.dp))
             }
 
             // List of attendees
@@ -245,8 +247,8 @@ fun ChooseDateAndAreaContent(
                         enabled = buttonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(AppSize.xll),
-                        contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md)
                     ) {
                         Text(
                             "Choose Date & Area",
@@ -263,10 +265,10 @@ fun ChooseDateAndAreaContent(
                 ) {
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(AppSize.xll),
-                        contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md)
                     ) {
                         Text(
                             "Home",

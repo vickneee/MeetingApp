@@ -111,7 +111,7 @@ fun <T> AppMultiSelectDropdown(
             fontWeight = FontWeight.Medium,
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier
-                .fillMaxWidth(AppSize.xl)
+                .fillMaxWidth(AppSize.lg)
                 .padding(bottom = AppSpacing.xs),
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -122,7 +122,7 @@ fun <T> AppMultiSelectDropdown(
                 selected.forEach { item ->
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth(AppSize.xl)
+                            .fillMaxWidth(AppSize.lg)
                             .padding(vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -175,7 +175,7 @@ fun <T> AppMultiSelectDropdown(
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 modifier = Modifier
-                    .fillMaxWidth(AppSize.xl)
+                    .fillMaxWidth(AppSize.lg)
                     .menuAnchor()
                     .focusRequester(focusRequester),
                 shape = RoundedCornerShape(8.dp),

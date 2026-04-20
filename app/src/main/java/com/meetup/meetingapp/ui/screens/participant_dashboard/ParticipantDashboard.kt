@@ -325,7 +325,7 @@ fun ParticipantDashboardContent(
                         enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(AppSize.xll),
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
                         contentPadding = PaddingValues(vertical = AppSpacing.sm)
                     ) {
 
@@ -346,7 +346,7 @@ fun ParticipantDashboardContent(
                         onClick = onNavigateToHome,
                         border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(AppSize.xll),
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
                         contentPadding = PaddingValues(vertical = AppSpacing.sm)
                     ) {
                         Text(

@@ -30,6 +30,8 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
@@ -96,12 +98,7 @@ fun DateAndAreaContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 56.dp,
-                bottom = 56.dp
-            ),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -109,9 +106,9 @@ fun DateAndAreaContent(
             item {
                 Text(
                     "Choose a date, time & area",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
-                        .padding(bottom = 14.dp)
+                        .padding(bottom = AppSpacing.lg)
                 )
             }
             items(dateLocationOptions) { option ->
@@ -119,7 +116,7 @@ fun DateAndAreaContent(
                     onClick = { navigateToRestaurantListPage(option.timingArg, option.location) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 10.dp),
+                        .padding(bottom = 12.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface

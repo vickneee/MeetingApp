@@ -289,8 +289,8 @@ fun EditTimeSlotContent(
                         containerColor = MaterialTheme
                             .colorScheme.primary
                     ),
-                    modifier = Modifier.fillMaxWidth(AppSize.md),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         text = "Save",

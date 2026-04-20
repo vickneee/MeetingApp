@@ -2,6 +2,7 @@ package com.meetup.meetingapp.ui.screens.participant_input_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
@@ -20,6 +21,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 
 /**
  * Navigation destination for the Small Area Selection screen.
@@ -60,7 +64,7 @@ fun SmallAreaSelectingPage(
         SmallAreaSelectingContent(
             cityOptions = it.locationOptions.cities,
             selectedAreas = participantState.selectedLocations,
-            onAreaToggle = { viewModel.toggleLocation(it)},
+            onAreaToggle = { viewModel.toggleLocation(it) },
             onBack = onBack,
             onNext = onNext
         )
@@ -105,68 +109,61 @@ fun SmallAreaSelectingContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 56.dp,
-                bottom = 56.dp
-            ),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
-            // Header Section
             item {
                 Text(
                     text = "Choose the area where you",
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "prefer to meet",
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 36.dp)
+                        .padding(bottom = AppSpacing.md)
                 )
             }
-
             items(cityOptions) { city ->
                 AreaItem(
                     title = city,
                     checked = selectedAreas.contains(city),
-                    onCheckedChange = { onAreaToggle(city)}
-                    )
+                    onCheckedChange = { onAreaToggle(city) }
+                )
             }
 
-            // Footer Section (Button)
             item {
                 val isAnySelected = selectedAreas.isNotEmpty()
 
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 Button(
                     onClick = onNext,
                     enabled = isAnySelected,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    modifier = Modifier.fillMaxWidth(0.55f),
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         text = "Next",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(vertical = 6.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
         }
     }
 }
+
 
 /**
  * A reusable row component representing a selectable area.
@@ -190,8 +187,8 @@ fun AreaItem(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(64.dp)
+            .fillMaxWidth(AppSize.lg)
+            .height(56.dp)
             .toggleable(
                 value = checked,
                 onValueChange = { onCheckedChange(it) }
@@ -204,8 +201,8 @@ fun AreaItem(
         )
         Text(
             text = title,
-            modifier = Modifier.padding(start = 16.dp),
-            fontSize = 18.sp
+            modifier = Modifier.padding(start = 18.dp),
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -217,7 +214,11 @@ fun AreaItem(
 @Composable
 fun SmallAreaSelectingPreview() {
     SmallAreaSelectingContent(
-        cityOptions = listOf(),
+        cityOptions = listOf(
+            "City A",
+            "City B",
+            "City C"
+        ),
         selectedAreas = listOf(),
         onAreaToggle = {},
         onBack = {},

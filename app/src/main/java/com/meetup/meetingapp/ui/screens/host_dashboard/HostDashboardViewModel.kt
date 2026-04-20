@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -30,7 +31,10 @@ class HostDashboardViewModel(
     private val _closeVotingState = MutableStateFlow<CloseVotingState>(CloseVotingState.Idle)
     val closeVotingState = _closeVotingState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(HostDashboardUiState())
+    private val _uiState = MutableStateFlow(HostDashboardUiState(
+        status = EventStatus.UNKNOWN,
+        hasHostSubmittedAvailability = false
+    ))
     val uiState = _uiState.asStateFlow()
 
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
@@ -101,13 +105,6 @@ class HostDashboardViewModel(
         }
     }
 
-    fun startRestaurantVoting() {
-        viewModelScope.launch {
-            eventRepository.updateEventStatus(eventId, EventStatus.COLLECTING_RESTAURANT_VOTES)
-            eventRepository.syncEventById(eventId)
-        }
-    }
-
     fun updateEventStatus(status: EventStatus) {
         viewModelScope.launch {
             if (status == EventStatus.FINALIZED) {
@@ -150,6 +147,19 @@ class HostDashboardViewModel(
             _uiState.value = _uiState.value.copy(hasAnyRestaurantVotes = hasVotes)
         }
     }
+
+    fun checkHostAvailability() {
+        viewModelScope.launch {
+            val event = event.value ?: return@launch
+            val result = eventRepository.hasUserSubmittedAvailability(
+                eventId = event.id,
+                userId = event.hostId
+            )
+            _uiState.update {
+                it.copy(hasHostSubmittedAvailability = result)
+            }
+        }
+    }
 }
 
 data class HostDashboardUiState(
@@ -157,7 +167,8 @@ data class HostDashboardUiState(
     val attendees: List<String> = emptyList(),
     val status: EventStatus = EventStatus.UNKNOWN,
     val hasVoted: Boolean = false,
-    val hasAnyRestaurantVotes: Boolean = false
+    val hasAnyRestaurantVotes: Boolean = false,
+    val hasHostSubmittedAvailability: Any
 )
 
 sealed interface CloseVotingState {

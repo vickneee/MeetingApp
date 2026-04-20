@@ -44,6 +44,8 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSpacing
 
 /**
  * Navigation destination for the Place List screen.
@@ -122,12 +124,7 @@ fun PlaceListContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 56.dp,
-                bottom = 56.dp
-            ),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -163,20 +160,7 @@ fun PlaceListContent(
                         textAlign = TextAlign.Center
                     )
                 }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    "Places",
-                    fontSize = 20.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    textAlign = TextAlign.Start,
-                    fontWeight = FontWeight.Bold
-                )
+                Spacer(modifier = Modifier.height(AppSpacing.md))
             }
 
             if (placeListState.isEmpty()) {
@@ -200,7 +184,7 @@ fun PlaceListContent(
                         onClick = { onNavigateToPlaceDetails(option.placeId) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 10.dp),
+                            .padding(bottom = 12.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surface

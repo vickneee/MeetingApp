@@ -150,11 +150,12 @@ fun MeetUpDetailContent(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             item {
                 Column(
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -190,7 +191,7 @@ fun MeetUpDetailContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Text(
@@ -225,20 +226,23 @@ fun MeetUpDetailContent(
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
+
+                    Spacer(modifier = Modifier.height(AppSpacing.sm))
+                    Text(
+                        text = "Submissions: $submissionsCount",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(AppSpacing.md))
                 }
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
-                Text(
-                    text = "Submissions: $submissionsCount",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(modifier = Modifier.height(AppSpacing.md))
             }
 
             item {
                 Text(
                     text = "Your Name",
-                    modifier = Modifier.padding(vertical = AppSpacing.xxs),
+                    modifier = Modifier
+                        .padding(vertical = AppSpacing.xxs)
+                        .fillMaxWidth(AppSize.lg),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
@@ -251,7 +255,7 @@ fun MeetUpDetailContent(
                     label = { Text("Enter your name") },
                     singleLine = true,
                     enabled = !isAlreadySubmitted, // Disable if already submitted
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -267,7 +271,7 @@ fun MeetUpDetailContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(AppSpacing.lg))
+                Spacer(modifier = Modifier.padding(AppSpacing.md))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -277,8 +281,8 @@ fun MeetUpDetailContent(
                         onClick = onNavigateToTimeAvailability,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(AppSize.sm),
-                        contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md)
                     ) {
                         Text(
                             text = if (isAlreadySubmitted) "Edit Your Vote" else "Next",
@@ -308,7 +312,9 @@ fun MeetUpDetailPreview() {
     MeetingAppTheme {
         MeetUpDetailContent(
             event = sampleEvent,
-            submissionsCount = 0,
+            isAlreadySubmitted = false,
+            submittedName = "",
+            submissionsCount = 3,
             participantState = ParticipantInputState(participantName = "Julia"),
             onNameChange = {},
             onBack = {},
