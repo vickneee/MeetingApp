@@ -17,7 +17,7 @@ object AppSize {
     val lg = 0.75f
 
     // huge width (MOST USED)
-    val xll = 0.8f
+    val xll = 0.85f
 
     // big width
     // use: screen sections separation

@@ -41,6 +41,9 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
@@ -146,12 +149,7 @@ fun MeetUpDetailContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 48.dp,
-                bottom = 48.dp
-            ),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
@@ -172,13 +170,13 @@ fun MeetUpDetailContent(
                                     append("You already voted!")
                                 }
                             },
-                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
                     } else {
                         Text(
                             "You've joined this meetup!",
-                            fontSize = 22.sp,
+                            style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold
                         )
@@ -191,7 +189,7 @@ fun MeetUpDetailContent(
                                 append(event.eventCode)
                             }
                         },
-                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
@@ -202,7 +200,7 @@ fun MeetUpDetailContent(
                                 append(event.status.displayName)
                             }
                         },
-                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
@@ -213,7 +211,7 @@ fun MeetUpDetailContent(
                                 append(event.eventTitle)
                             }
                         },
-                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
@@ -224,25 +222,25 @@ fun MeetUpDetailContent(
                                 append(event.hostName)
                             }
                         },
-                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Text(
                     text = "Submissions: $submissionsCount",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.md))
             }
 
             item {
                 Text(
                     text = "Your Name",
-                    modifier = Modifier.padding(vertical = 5.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = AppSpacing.xxs),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
@@ -254,6 +252,7 @@ fun MeetUpDetailContent(
                     singleLine = true,
                     enabled = !isAlreadySubmitted, // Disable if already submitted
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -268,7 +267,7 @@ fun MeetUpDetailContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(36.dp))
+                Spacer(modifier = Modifier.padding(AppSpacing.lg))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -278,12 +277,13 @@ fun MeetUpDetailContent(
                         onClick = onNavigateToTimeAvailability,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.55f),
+                        modifier = Modifier.fillMaxWidth(AppSize.sm),
+                        contentPadding = PaddingValues(vertical = AppSpacing.sm)
                     ) {
                         Text(
                             text = if (isAlreadySubmitted) "Edit Your Vote" else "Next",
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 6.dp)
+                            style = MaterialTheme.typography.labelLarge
+
                         )
                     }
                 }
