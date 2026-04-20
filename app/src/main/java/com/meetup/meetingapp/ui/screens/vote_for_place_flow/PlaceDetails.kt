@@ -251,7 +251,7 @@ fun PlaceDetailsContent(
                             Text(
                                 text = restaurantDetail.name,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 24.sp,
+                                style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
 
@@ -278,13 +278,15 @@ fun PlaceDetailsContent(
                             thickness = 1.dp)
 
                         // Location/Status Section
-                        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Text(
                                 text = "Distance: $distanceLabel", // Showing dynamic distance
+                                style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
                                 text = "Open: $openLabel",
+                                style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
@@ -299,7 +301,7 @@ fun PlaceDetailsContent(
                             Text(
                                 text = "Date: ${finalTime.date.toEuroDate()} ${finalTime.timeSlot.start} - ${finalTime.timeSlot.end}",
                                 fontWeight = FontWeight.SemiBold,
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.Center
