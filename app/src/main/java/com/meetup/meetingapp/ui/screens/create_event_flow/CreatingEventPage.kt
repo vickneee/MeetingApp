@@ -168,7 +168,6 @@ fun CreatingEventContent(
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
                 )
-                Spacer(modifier = Modifier.height(AppSpacing.xs))
 
                 Text(
                     text = "Event Title",
