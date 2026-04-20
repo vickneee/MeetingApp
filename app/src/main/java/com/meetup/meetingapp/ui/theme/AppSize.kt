@@ -5,21 +5,15 @@ object AppSize {
     // very small width (inside components)
     val xs = 0.4f
 
-    // small spacing (between related items)
+    // small spacing
     val sm = 0.60f
 
-    // default width (MOST USED)
-    // use: between fields, inputs, texts
+    // default width
     val md = 0.65f
 
-    // large width (MOST USED)
-    // use: between groups (form sections)
-    val lg = 0.75f
+    // large width
+    val lg = 0.90f
 
-    // huge width (MOST USED)
-    val xll = 0.85f
-
-    // big width
-    // use: screen sections separation
-    val xl = 0.9f
+    // huge width
+    val xl = 0.95f
 }
