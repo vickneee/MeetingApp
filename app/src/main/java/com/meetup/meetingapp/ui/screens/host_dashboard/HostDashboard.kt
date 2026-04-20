@@ -33,6 +33,9 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.components.ParticipantItemRow
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
@@ -164,12 +167,7 @@ fun HostDashboardContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 56.dp,
-                bottom = 56.dp
-            ),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
@@ -185,7 +183,7 @@ fun HostDashboardContent(
                                 append(event.eventCode)
                             }
                         },
-                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
@@ -196,7 +194,7 @@ fun HostDashboardContent(
                                 append(event.status.displayName)
                             }
                         },
-                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
@@ -207,7 +205,7 @@ fun HostDashboardContent(
                                 append(event.eventTitle)
                             }
                         },
-                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
@@ -218,17 +216,17 @@ fun HostDashboardContent(
                                 append(event.hostName)
                             }
                         },
-                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Text(
                     text = "Submissions: $submissionsCount",
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 20.sp
+                    style = MaterialTheme.typography.bodyLarge
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.md))
             }
 
             // List of attendees
@@ -265,7 +263,7 @@ fun HostDashboardContent(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                     Button(
                         onClick = {
@@ -278,8 +276,8 @@ fun HostDashboardContent(
                         enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.85f)
-                    ) {
+                        modifier = Modifier.fillMaxWidth(AppSize.xll),
+                        contentPadding = PaddingValues(vertical = AppSpacing.sm)) {
                         Text(
                             when {
                                 event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open"
@@ -287,12 +285,11 @@ fun HostDashboardContent(
                                 hasVoted -> "Already Voted"
                                 else -> "Vote Time & Place"
                             },
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 6.dp)
+                            style = MaterialTheme.typography.labelLarge
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(36.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                     if (buttonText != null) {
                         Button(
@@ -304,12 +301,12 @@ fun HostDashboardContent(
                             enabled = buttonEnabled && nextStatus != null,
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.fillMaxWidth(0.85f)
+                            modifier = Modifier.fillMaxWidth(AppSize.xll),
+                            contentPadding = PaddingValues(vertical = AppSpacing.sm),
                         ) {
                             Text(
                                 text = buttonText,
-                                fontSize = 18.sp,
-                                modifier = Modifier.padding(vertical = 6.dp)
+                                style = MaterialTheme.typography.labelLarge
                             )
                         }
                     }
@@ -323,7 +320,7 @@ fun HostDashboardContent(
                             modifier = Modifier.padding(top = 12.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.height(36.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
                 }
 
                 Column(
@@ -332,16 +329,14 @@ fun HostDashboardContent(
                 ) {
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.85f)
-                    ) {
+                        modifier = Modifier.fillMaxWidth(AppSize.xll),
+                        contentPadding = PaddingValues(vertical = AppSpacing.sm)) {
                         Text(
                             "Home",
                             color = MaterialTheme.colorScheme.primary,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(vertical = 6.dp)
+                            style = MaterialTheme.typography.labelLarge
                         )
                     }
                 }
