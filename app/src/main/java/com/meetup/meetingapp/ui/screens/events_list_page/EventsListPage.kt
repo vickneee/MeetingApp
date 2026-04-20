@@ -35,6 +35,8 @@ import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -82,14 +84,9 @@ fun EventsListPage(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 32.dp,
-                bottom = 32.dp
-            ),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
         ) {
             items(sortedEvents) { event ->
                 EventItem(event = event,

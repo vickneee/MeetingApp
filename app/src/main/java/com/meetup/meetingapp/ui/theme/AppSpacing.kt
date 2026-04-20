@@ -26,7 +26,7 @@ object AppSpacing {
 
     // big section gap
     // use: screen sections separation
-    val xl = 32.dp
+    val xl = 40.dp
 
     // huge section gap
     val xxl = 48.dp
@@ -39,8 +39,8 @@ object AppSpacing {
 
 object AppPadding {
     val pagePadding = PaddingValues(
-        start = AppSpacing.xl,    // 32dp
-        end = AppSpacing.xl,      // 32dp
+        start = AppSpacing.xl,    // 36dp
+        end = AppSpacing.xl,      // 36dp
         top = AppSpacing.xxxl,     // 56dp
         bottom = AppSpacing.xxxl   // 56dp
     )
