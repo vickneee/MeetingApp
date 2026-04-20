@@ -182,7 +182,7 @@ fun TimeSlotsSelectingPageContent(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(AppSize.md),
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
                     contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
                     Icon(
