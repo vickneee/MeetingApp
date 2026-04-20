@@ -10,6 +10,8 @@ object AppSpacing {
     // small spacing (between related items)
     val xs = 8.dp
 
+    val xsm = 10.dp
+
     // default spacing (MOST USED)
     // use: between fields, inputs, texts
     val sm = 14.dp
