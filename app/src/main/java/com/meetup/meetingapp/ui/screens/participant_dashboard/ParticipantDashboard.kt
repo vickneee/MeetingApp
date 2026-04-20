@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.participant_dashboard
 
+import android.R.attr.onClick
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -33,6 +34,9 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.components.ParticipantItemRow
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
@@ -143,51 +147,58 @@ fun ParticipantDashboardContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 56.dp,
-                bottom = 56.dp
-            ),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(buildAnnotatedString {
-                        append("Event Code: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.eventCode)
-                        }
-                    }, fontSize = 20.sp)
+                    Text(
+                        buildAnnotatedString {
+                            append("Event Code: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.eventCode)
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
 
-                    Text(buildAnnotatedString {
-                        append("State: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.status.displayName)
-                        }
-                    }, fontSize = 20.sp)
+                    Text(
+                        buildAnnotatedString {
+                            append("State: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.status.displayName)
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
 
-                    Text(buildAnnotatedString {
-                        append("Event Title: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.eventTitle)
-                        }
-                    }, fontSize = 20.sp)
+                    Text(
+                        buildAnnotatedString {
+                            append("Event Title: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.eventTitle)
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
 
-                    Text(buildAnnotatedString {
-                        append("Host: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.hostName)
-                        }
-                    }, fontSize = 20.sp)
+                    Text(
+                        buildAnnotatedString {
+                            append("Host: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.hostName)
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 Text(
                     text = "Submissions: $submissionsCount",
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 20.sp
+                    style = MaterialTheme.typography.bodyLarge,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -207,13 +218,15 @@ fun ParticipantDashboardContent(
                             Text(
                                 "Waiting for host to close",
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 20.sp,
+                                style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
-                            Spacer(modifier = Modifier.padding(4.dp))
-                            Text("the first voting...",
+                            Spacer(modifier = Modifier.padding(AppSpacing.xxs))
+                            Text(
+                                "the first voting...",
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 20.sp)
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         }
 
                         EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
@@ -229,22 +242,26 @@ fun ParticipantDashboardContent(
                                             append("You already voted.")
                                         }
                                     },
-                                    fontSize = 20.sp,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.padding(bottom = 4.dp)
                                 )
-                                Text("Please wait until",
+                                Text(
+                                    "Please wait until",
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 20.sp,
-                                    modifier = Modifier.padding(bottom = 4.dp))
-                                Text("the host closes the voting.",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                                Text(
+                                    "the host closes the voting.",
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 20.sp,
-                                    modifier = Modifier.padding(bottom = 4.dp))
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
                             } else {
                                 Text(
                                     "Host has closed the voting!",
-                                    fontSize = 20.sp,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.padding(bottom = 4.dp)
                                 )
@@ -260,7 +277,7 @@ fun ParticipantDashboardContent(
                                         }
                                     },
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 20.sp
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
                             }
                         }
@@ -268,19 +285,21 @@ fun ParticipantDashboardContent(
                         EventStatus.FINALIZED -> {
                             Text(
                                 "The event has been finalized!",
-                                fontSize = 20.sp,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(bottom = 4.dp)
                             )
-                            Text("Check the final plan.",
+                            Text(
+                                "Check the final plan.",
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 20.sp)
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         }
 
                         else -> Text(
                             "Please wait...",
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 20.sp
+                            style = MaterialTheme.typography.bodyLarge
                         )
                     }
                 }
@@ -306,7 +325,8 @@ fun ParticipantDashboardContent(
                         enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.85f)
+                        modifier = Modifier.fillMaxWidth(AppSize.xll),
+                        contentPadding = PaddingValues(vertical = AppSpacing.sm)
                     ) {
 
                         Text(
@@ -316,25 +336,23 @@ fun ParticipantDashboardContent(
                                 hasVoted -> "Already Voted"
                                 else -> "Vote Time & Place"
                             },
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 6.dp)
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(36.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.85f)
+                        modifier = Modifier.fillMaxWidth(AppSize.xll),
+                        contentPadding = PaddingValues(vertical = AppSpacing.sm)
                     ) {
                         Text(
                             "Home",
                             color = MaterialTheme.colorScheme.primary,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(vertical = 6.dp)
+                            style = MaterialTheme.typography.labelLarge
                         )
                     }
                 }

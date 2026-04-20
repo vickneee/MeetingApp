@@ -27,13 +27,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.components.AppMultiSelectDropdown
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -136,12 +138,7 @@ fun AvailabilitySelectingPageContent(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues),
-                contentPadding = PaddingValues(
-                    start = 32.dp,
-                    end = 32.dp,
-                    top = 56.dp,
-                    bottom = 56.dp
-                ),
+                contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
@@ -154,7 +151,7 @@ fun AvailabilitySelectingPageContent(
                     )
                 }
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.xs))
 
                     Text(
                         "slots you can join",
@@ -165,7 +162,7 @@ fun AvailabilitySelectingPageContent(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(36.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                     AppMultiSelectDropdown(
                         options = allDateTimes,
@@ -177,7 +174,7 @@ fun AvailabilitySelectingPageContent(
                             val displayDate = try {
                                 val localDate = LocalDate.parse(dateTime.date)
                                 localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 dateTime.date
                             }
                             "$displayDate: ${dateTime.timeSlot.start} - ${dateTime.timeSlot.end}"
@@ -186,19 +183,19 @@ fun AvailabilitySelectingPageContent(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(36.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                     Button(
                         onClick = onNext,
                         enabled = selectedDateTimes.isNotEmpty(),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.65f),
+                        modifier = Modifier.fillMaxWidth(AppSize.md),
+                        contentPadding = PaddingValues(vertical = AppSpacing.sm)
                     ) {
                         Text(
                             text = "Next",
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 6.dp)
+                            style = MaterialTheme.typography.labelLarge
                         )
                     }
                 }
