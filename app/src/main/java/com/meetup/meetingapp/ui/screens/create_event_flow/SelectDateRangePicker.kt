@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.select_date_range
+package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
