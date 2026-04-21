@@ -125,7 +125,7 @@ fun EditTimeSlotScreen(
             onConfirm = { state ->
                 val formattedTime = "%02d:%02d".format(state.hour, state.minute)
                 if (showPickerType == "start") startTime = formattedTime
-                else endTime = formattedTime
+                else
                 showPickerType = null
             },
             onDismiss = { showPickerType = null }
@@ -396,9 +396,7 @@ fun EditTimeSlotScreenPreview() {
                 selectedTime = "No time selected",
                 showPickerType = null,
                 onBack = {},
-                onSaveTimeSlot = { start, end ->
-                    // No-op for preview
-                },
+                onSaveTimeSlot = {_, _ ->},
                 navigateToTimeSlotsSelectingPage = {},
             )
         }
