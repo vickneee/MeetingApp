@@ -9,6 +9,8 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.FoodCategory
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.repositories.EventRepository
+import com.meetup.meetingapp.utils.buildAllAvailableDateTimes
+import com.meetup.meetingapp.utils.buildDateAvailability
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -149,19 +151,7 @@ class ParticipantViewModel(
      */
     val allAvailableDateTimes: StateFlow<List<DateTime>> = _event.map { event ->
         if (event == null) emptyList()
-        else {
-            val start = event.dateRange.startDate()
-            val end = event.dateRange.endDate()
-            val allDates = generateSequence(start) { it.plusDays(1) }
-                .takeWhile { !it.isAfter(end) }
-                .toList()
-            
-            allDates.flatMap { date ->
-                event.timeSlots.map { slot ->
-                    DateTime(date.toString(), slot)
-                }
-            }
-        }
+        else buildAllAvailableDateTimes(event)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /**
@@ -228,37 +218,6 @@ class ParticipantViewModel(
                     _participantState.update { it.copy(participantName = response.name) }
                 }
             }
-        }
-    }
-
-    /**
-     * Builds a list of [DateAvailability] based on the provided event and selected date times.
-     *
-     * @param event The event containing time slots.
-     * @param selectedDateTimes The list of selected date and time slots.
-     * @return A list of [DateAvailability] representing available dates and time slots.
-     * @see UiTimeSlot for more information about time slots.
-     */
-    private fun buildDateAvailability(event: Event, selectedDateTimes: List<DateTime>): List<DateAvailability> {
-        val start = event.dateRange.startDate()
-        val end = event.dateRange.endDate()
-        val allDates = generateSequence(start) { it.plusDays(1) }
-            .takeWhile { !it.isAfter(end) }
-            .toList()
-
-        return allDates.map { date ->
-            val dateString = date.toString()
-            DateAvailability(
-                date = dateString,
-                timeSlots = event.timeSlots.mapIndexed { index, slot ->
-                    val isSelected = selectedDateTimes.any { it.date == dateString && it.timeSlot == slot }
-                    UiTimeSlot(
-                        id = index,
-                        timeRange = "${slot.start} - ${slot.end}",
-                        isSelected = isSelected
-                    )
-                }
-            )
         }
     }
 
@@ -414,7 +373,6 @@ data class ParticipantInputState(
  * @see FetchState.Success for success state.
  * @see FetchState.Error for error state.
  */
-// Fetch state
 sealed interface FetchState {
     object Loading : FetchState
     object Success : FetchState
