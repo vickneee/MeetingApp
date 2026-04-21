@@ -52,8 +52,8 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
  * Navigation destination for the Time Slots Selecting screen.
  */
 object TimeSlotsSelectingPageDestination : NavigationDestination {
-    override val route = "time_slots_selecting_page"
-    override val titleRes = R.string.title_time_slots_selecting_page
+    override val route = "add_time_slots_page"
+    override val titleRes = R.string.title_add_time_slots_page
 }
 
 /**
@@ -66,7 +66,7 @@ object TimeSlotsSelectingPageDestination : NavigationDestination {
  * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
 @Composable
-fun TimeSlotsSelectingPage(
+fun AddTimeSlotsPage(
     onBack: () -> Unit,
     navigateToTimeEditPage: (Int) -> Unit,
     navigateToAreaSelectingPage: () -> Unit,
@@ -74,7 +74,7 @@ fun TimeSlotsSelectingPage(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    TimeSlotsSelectingPageContent(
+    AddTimeSlotsPageContent(
         modifier = Modifier,
         uiState = uiState,
         onBack = onBack,
@@ -96,7 +96,7 @@ fun TimeSlotsSelectingPage(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimeSlotsSelectingPageContent(
+fun AddTimeSlotsPageContent(
     modifier: Modifier = Modifier,
     uiState: EventUiState,
     onBack: () -> Unit,
@@ -107,7 +107,7 @@ fun TimeSlotsSelectingPageContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = stringResource(R.string.title_time_slots_selecting_page),
+                title = stringResource(R.string.title_add_time_slots_page),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -238,7 +238,7 @@ fun TimeSlotItem(
     ) {
         Row(
             modifier = Modifier
-                .padding(vertical = 14.dp, horizontal = 16.dp),
+                .padding(vertical = 14.dp, horizontal = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -247,7 +247,7 @@ fun TimeSlotItem(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 16.dp, vertical = 2.dp),
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -263,11 +263,11 @@ fun TimeSlotItem(
 }
 
 /**
- * Preview for the [TimeSlotsSelectingPageContent] composable.
+ * Preview for the [AddTimeSlotsPageContent] composable.
  */
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun TimeSlotsSelectingPagePreview() {
+fun AddTimeSlotsPagePreview() {
     val mockTimeSlots = listOf(
         TimeSlot(start = "09:00", end = "10:00"),
         TimeSlot(start = "11:30", end = "12:30"),
@@ -279,7 +279,7 @@ fun TimeSlotsSelectingPagePreview() {
     )
 
     MeetingAppTheme {
-        TimeSlotsSelectingPageContent(
+        AddTimeSlotsPageContent(
             uiState = mockUiState,
             onBack = {},
             onRemoveTimeSlot = {},

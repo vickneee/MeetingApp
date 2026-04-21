@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.meetup.meetingapp.ui.AppViewModelProvider
+import com.meetup.meetingapp.ui.screens.create_event_flow.AddTimeSlotsPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.AreaSelectingDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.AreaSelectingPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.CreatingEventPageDestination
@@ -25,7 +26,6 @@ import com.meetup.meetingapp.ui.screens.create_event_flow.EditTimeSlotScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventCreatedDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventCreatedPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
-import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPageDestination
 import com.meetup.meetingapp.ui.screens.create_or_join_page.JoinDestination
 import com.meetup.meetingapp.ui.screens.create_or_join_page.JoinPage
@@ -177,7 +177,7 @@ fun MeetingAppNavHost(
                     factory = AppViewModelProvider.Factory
                 )
 
-                TimeSlotsSelectingPage(
+                AddTimeSlotsPage(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
                     navigateToTimeEditPage = { index ->

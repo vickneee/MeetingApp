@@ -1,7 +1,6 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -207,38 +206,47 @@ fun EditTimeSlotContent(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            item {
+                Text(
+                    text = "Edit Time Slot",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                )}
             // Start Time Section
             item {
                 Text(
                     text = "Start Time",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                    textAlign = TextAlign.Start
                 )
-                Spacer(modifier = Modifier.height(AppSpacing.xsm))
                 TimeSelectorField(
                     label = "Start Time",
                     time = startTime,
-                    onClick = { onStartTimeClick() } // showPickerType = "start"
+                    onClick = { onStartTimeClick() },
+                    textAlign = TextAlign.Start
                 )
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xxs))
             }
-
             // End Time Section
             item {
                 Text(
                     text = "End Time",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                    textAlign = TextAlign.Start
                 )
-                Spacer(modifier = Modifier.height(10.dp))
                 TimeSelectorField(
                     label = "End Time",
                     time = endTime,
-                    onClick = { onEndTimeClick() } // showPickerType = "end"
+                    onClick = { onEndTimeClick() },
+                    textAlign = TextAlign.Start
                 )
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
             }
             // Calculate minutes
             val startTotal = toMinutes(startTime)
@@ -250,13 +258,13 @@ fun EditTimeSlotContent(
             // Validation message
             if (!isValid) {
                 item {
+                    Spacer(modifier = Modifier.height(AppSpacing.xl))
                     Surface(
                         color = MaterialTheme.colorScheme.errorContainer,
                         shape = RoundedCornerShape(8.dp),
                         tonalElevation = 2.dp,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp, horizontal = 16.dp),
+                            .fillMaxWidth(AppSize.lg),
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
@@ -280,7 +288,7 @@ fun EditTimeSlotContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Button(
                     onClick = {
                         onSaveTimeSlot(startTime, endTime)
@@ -310,12 +318,14 @@ fun EditTimeSlotContent(
  * @param label Label for the field
  * @param time Time to display
  * @param onClick Callback to show the time picker
+ * @param textAlign Text alignment for the time field
  */
 @Composable
 fun TimeSelectorField(
     label: String,
     time: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    textAlign: TextAlign
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(AppSize.lg),
@@ -331,18 +341,17 @@ fun TimeSelectorField(
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 14.dp, horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(vertical = 14.dp, horizontal = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = time,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
+                    modifier = Modifier.weight(1f)
+                        .padding(horizontal = 16.dp, vertical = 2.dp),
+                    textAlign = textAlign
                 )
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
@@ -391,7 +400,6 @@ fun EditTimeSlotScreenPreview() {
                     // No-op for preview
                 },
                 navigateToTimeSlotsSelectingPage = {},
-                modifier = Modifier
             )
         }
     }
