@@ -1,38 +1,36 @@
-package com.meetup.meetingapp
+package com.meetup.meetingapp.utils
 
 import android.location.Location
-import com.meetup.meetingapp.utils.calculateDistanceMeters
-import com.meetup.meetingapp.utils.formatDistance
-import org.junit.Assert.*
-import org.junit.Test
-import io.mockk.mockkStatic
 import io.mockk.every
-
+import io.mockk.mockkStatic
+import io.mockk.verify
+import org.junit.Assert
+import org.junit.Test
 
 class DistanceUtilsTest {
 
     @Test
     fun `distance under 1000m is formatted in meters`() {
         val result = formatDistance(999f)
-        assertEquals("999 m", result)
+        Assert.assertEquals("999 m", result)
     }
 
     @Test
     fun `distance exactly 1000m is formatted in km`() {
         val result = formatDistance(1000f)
-        assertEquals("1.0 km", result)
+        Assert.assertEquals("1.0 km", result)
     }
 
     @Test
     fun `distance over 1000m is formatted in km`() {
         val result = formatDistance(1500f)
-        assertEquals("1.5 km", result)
+        Assert.assertEquals("1.5 km", result)
     }
 
     @Test
     fun `distance with decimals under 1000m is truncated`() {
         val result = formatDistance(999.9f)
-        assertEquals("999 m", result)
+        Assert.assertEquals("999 m", result)
     }
 
     @Test
@@ -48,7 +46,7 @@ class DistanceUtilsTest {
 
         val result = calculateDistanceMeters(1.0, 2.0, 3.0, 4.0)
 
-        assertEquals(123.45f, result)
+        Assert.assertEquals(123.45f, result)
     }
 
     @Test
@@ -69,7 +67,7 @@ class DistanceUtilsTest {
 
         calculateDistanceMeters(userLat, userLng, destLat, destLng)
 
-        io.mockk.verify {
+        verify {
             Location.distanceBetween(
                 userLat,
                 userLng,
@@ -88,13 +86,13 @@ class DistanceUtilsTest {
             Location.distanceBetween(any(), any(), any(), any(), any())
         } answers {
             val results = arg<FloatArray>(4)
-            assertEquals(1, results.size)
+            Assert.assertEquals(1, results.size)
             results[0] = 77.7f
         }
 
         val result = calculateDistanceMeters(1.0, 2.0, 3.0, 4.0)
 
-        assertEquals(77.7f, result)
+        Assert.assertEquals(77.7f, result)
     }
 
 
