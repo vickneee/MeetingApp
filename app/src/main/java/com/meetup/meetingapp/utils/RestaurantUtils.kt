@@ -1,7 +1,5 @@
 package com.meetup.meetingapp.utils
 
-import android.R.attr.apiKey
-
 /**
  * Converts a Google Places price level (0–4) into a Euro‑sign representation.
  *
