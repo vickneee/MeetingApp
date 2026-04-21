@@ -2,7 +2,6 @@ package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,7 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -126,7 +125,8 @@ fun TimeSlotsSelectingPageContent(
             item {
                 Text(
                     text = "Time Slots",
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                        .padding(16.dp),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -138,17 +138,16 @@ fun TimeSlotsSelectingPageContent(
 
                 Row(
                     modifier = Modifier
+                        .fillMaxWidth(AppSize.lg)
                         .padding(vertical = AppSpacing.xsm),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TimeSlotItem(
                         timeSlot = "${timeSlot.start} - ${timeSlot.end}",
                         onEditClick = { navigateToTimeEditPage(index) },
-                        modifier = Modifier
-                            .width(220.dp) // Fixed width so delete button fits.
+                        modifier = Modifier.weight(1f)
                     )
-
                     if (index != 0) {
                         Spacer(modifier = Modifier.width(10.dp))
                         IconButton(
@@ -161,14 +160,14 @@ fun TimeSlotsSelectingPageContent(
                                 )
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Remove,
+                                imageVector = Icons.Default.Delete,
                                 contentDescription = "Remove",
                                 tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     } else {
-                        Spacer(modifier = Modifier.padding(8.dp))
+                        Spacer(modifier = Modifier.size(10.dp))
                         Spacer(modifier = Modifier.size(40.dp))
                     }
                 }
@@ -230,9 +229,7 @@ fun TimeSlotItem(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .clickable { onEditClick() },
+        modifier = modifier,
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -241,13 +238,14 @@ fun TimeSlotItem(
     ) {
         Row(
             modifier = Modifier
-                .padding(vertical = 12.dp, horizontal = 16.dp),
+                .padding(vertical = 14.dp, horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = timeSlot,
                 modifier = Modifier
+                    .weight(1f)
                     .padding(horizontal = 16.dp, vertical = 2.dp),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,

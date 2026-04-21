@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -24,6 +25,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -40,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -189,7 +192,7 @@ fun EditTimeSlotContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Edit Time Slot",
+                title = stringResource(R.string.edit_time_slot),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -314,39 +317,56 @@ fun TimeSelectorField(
     time: String,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    Row(
+        modifier = Modifier.fillMaxWidth(AppSize.lg),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(0.45f)
-                .padding(vertical = 12.dp, horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Card(
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Text(
-                text = time,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyLarge,
+            Row(
                 modifier = Modifier
-                    .clickable(onClick = onClick)
-                    .weight(1f),
-                textAlign = TextAlign.Center
-            )
+                    .fillMaxWidth()
+                    .padding(vertical = 14.dp, horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = time,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Select $label",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier
+                .size(40.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(8.dp)
+                )
+        ) {
             Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = "Edit Time Slot",
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .size(20.dp)
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Edit $label",
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(24.dp)
             )
         }
     }
