@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
-
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
@@ -23,14 +22,12 @@ import java.util.Locale
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-
 import android.annotation.SuppressLint
 import android.location.Location
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.meetup.meetingapp.data.model.EventStatus
-
 import com.meetup.meetingapp.utils.calculateDistanceMeters
 import com.meetup.meetingapp.utils.filterRestaurants
 import com.meetup.meetingapp.utils.formatDistance
@@ -182,6 +179,7 @@ class PlaceViewModel(
             }
         }
 
+        // Separate launch — runs concurrently, not blocked by the collect above
         viewModelScope.launch {
             if (eventId.isNotEmpty()) {
                 // Observe restaurant votes
@@ -323,7 +321,6 @@ class PlaceViewModel(
             emptyList()
         )
 
-
     /**
      * Updates user-selected filters.
      */
@@ -423,7 +420,6 @@ class PlaceViewModel(
             }
         }
     }
-
 }
 
 /**
