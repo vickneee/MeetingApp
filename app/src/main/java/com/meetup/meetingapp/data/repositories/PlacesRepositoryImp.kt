@@ -2,6 +2,7 @@ package com.meetup.meetingapp.data.repositories
 
 import android.util.Log
 
+import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.network.GooglePlacesApiService
 
@@ -10,17 +11,6 @@ import retrofit2.HttpException
 /**
  * Concrete implementation of [PlacesRepository] that fetches restaurant data
  * from the Google Places API using Retrofit.
- *
- * Responsibilities:
- *  - Execute a Places Text Search request based on a human-readable query
- *  - Filter out irrelevant or banned place types (e.g., shopping malls)
- *  - Rank results using a weighted score (rating × log(reviewCount))
- *  - Fetch detailed information for the top candidate using Place Details API
- *  - Construct a domain-level [Restaurant] model with merged data
- *  - Wrap all results in [Result] for safe error propagation
- *
- * This class does **not** cache results; persistence is handled by the repository
- * layer that stores results in Firestore and Room.
  */
 class PlacesRepositoryImp(
     private val api: GooglePlacesApiService,
@@ -29,41 +19,29 @@ class PlacesRepositoryImp(
 
     /**
      * Fetches restaurant candidates using Google Places Text Search + Details API.
+     * Includes dynamic location biasing and future availability validation.
      *
-     * Workflow:
-     *  1. Perform a Text Search request using the provided query.
-     *  2. Filter out banned place types (e.g., shopping malls, supermarkets).
-     *  3. Rank remaining places by a weighted score:
-     *         score = rating × ln(reviewCount + 1)
-     *  4. Select the top-ranked place and fetch full details via Place Details API.
-     *  5. Validate that the place is a restaurant/cafe/bar.
-     *  6. Build a [Restaurant] domain model combining Text Search + Details data.
-     *
-     * Error handling:
-     *  - Returns `Result.success(emptyList())` for:
-     *        • No results
-     *        • Banned types
-     *        • Missing details
-     *        • 404 Not Found
-     *  - Returns `Result.failure(e)` for:
-     *        • Network errors
-     *        • HTTP errors other than 404
-     *        • Unexpected exceptions
-     *
-     * @param query A human-readable search query (e.g., "sushi restaurant in Helsinki").
-     * @return A [Result] containing either:
-     *         • A list with a single [Restaurant] candidate, or
-     *         • An empty list if no valid restaurant is found, or
-     *         • A failure if an unexpected error occurs.
+     * @param query A human-readable search query.
+     * @param targetTime The future meeting time to validate availability.
+     * @param lat Latitude of the previously voted city.
+     * @param lng Longitude of the previously voted city.
      */
     override suspend fun fetchRestaurants(
-        query: String
+        query: String,
+        targetTime: DateTime?,
+        lat: Double?,
+        lng: Double?
     ): Result<List<Restaurant>> {
 
         return try {
 
+            val hasLocation = lat != null && lng != null && lat != 0.0
+            val locationString = if (hasLocation) "$lat,$lng" else null
+
             val textSearchResponse = api.textSearch(
                 query = query,
+                location = locationString,
+                radius = if (hasLocation) 10000 else null,
                 apiKey = apiKey
             )
 
@@ -99,8 +77,10 @@ class PlacesRepositoryImp(
             val placeId = firstPlace.place_id ?: return Result.success(emptyList())
 
 
+            // Requesting specific fields including opening_hours to optimize billing
             val detailsResponse = api.placeDetails(
                 placeId = placeId,
+                fields = "name,rating,formatted_address,opening_hours,photos,price_level,types,geometry",
                 apiKey = apiKey
             )
             val details = detailsResponse.result
@@ -165,10 +145,15 @@ class PlacesRepositoryImp(
                 photoReference = photoReference
             )
 
-            Result.success(listOf(restaurant))
+            // Validate that the restaurant is open on the planned day/time
+            if (isOpenAtPlannedTime(restaurant, targetTime)) {
+                Result.success(listOf(restaurant))
+            } else {
+                Log.d("fetchRestaurants", "Restaurant closed at planned time: ${restaurant.name}")
+                Result.success(emptyList())
+            }
 
         } catch (e: HttpException) {
-
 
             if (e.code() == 404) {
                 Log.d("fetchRestaurants", "No results (404)")
@@ -182,5 +167,33 @@ class PlacesRepositoryImp(
             Log.e("fetchRestaurants", "Unknown error", e)
             Result.failure(e)
         }
+    }
+
+    /**
+     * Validates if the restaurant is open based on the future target time.
+     */
+    private fun isOpenAtPlannedTime(restaurant: Restaurant, targetTime: DateTime?): Boolean {
+        // If we don't have a target time, we can't validate, so just return true
+        if (targetTime == null) return true
+
+        if (restaurant.openingHours == null) return true
+
+        val plannedDay = targetTime.toDayOfWeekName()
+        val schedule = restaurant.openingHours.find {
+            it.startsWith(plannedDay, ignoreCase = true)
+        }
+
+        // Returns false only if the schedule explicitly says "Closed"
+        return schedule?.contains("Closed", ignoreCase = true) == false
+    }
+
+    /**
+     * Converts the DateTime object into a full weekday name (e.g., "Monday").
+     */
+    fun DateTime.toDayOfWeekName(): String {
+        return this.toLocalDate().dayOfWeek.getDisplayName(
+            java.time.format.TextStyle.FULL,
+            java.util.Locale.ENGLISH
+        )
     }
 }
