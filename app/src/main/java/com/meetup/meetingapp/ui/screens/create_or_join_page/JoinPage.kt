@@ -9,16 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -29,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,26 +42,24 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 /**
  * Navigation destination for the Create or Join screen.
  */
-object CreateOrJoinDestination : NavigationDestination {
-    override val route = "create_or_join"
-    override val titleRes = R.string.title_create_or_join_page
+object JoinDestination : NavigationDestination {
+    override val route = "join"
+    override val titleRes = R.string.title_join_page
 }
 
 /**
  * Create or Join Page
  * @param onBack Navigate back
- * @param navigateToCreatingEventPage Navigate to the next page
  * @param navigateToPastEventsPage Navigate to the past events page
  * @param navigateToParticipantPage Navigate to the participant page
- * @param viewModel [CreateOrJoinViewModel] to retrieve all items in the Room database.
+ * @param viewModel [JoinViewModel] to retrieve all items in the Room database.
  */
 @Composable
-fun CreateOrJoinPage(
+fun JoinPage(
     onBack: () -> Unit,
-    navigateToCreatingEventPage: () -> Unit,
     navigateToPastEventsPage: () -> Unit,
     navigateToParticipantPage: (Pair<String, String>) -> Unit,
-    viewModel: CreateOrJoinViewModel = viewModel(
+    viewModel: JoinViewModel = viewModel(
         factory = AppViewModelProvider.Factory
     )
 ) {
@@ -84,7 +78,7 @@ fun CreateOrJoinPage(
         }
     }
 
-    CreateOrJoinContent(
+    JoinContent(
         code = viewModel.code,
         codeError = viewModel.codeError,
         onCodeChange = viewModel::updateCode,
@@ -92,9 +86,8 @@ fun CreateOrJoinPage(
         keyError = viewModel.keyError,
         onKeyChange = viewModel::updateKey,
         onBack = onBack,
-        onCreateEventClick = navigateToCreatingEventPage,
         onJoinEventClick = viewModel::joinEvent,
-        onEventsClick = navigateToPastEventsPage
+        onEventsClick = navigateToPastEventsPage,
     )
 }
 
@@ -107,14 +100,13 @@ fun CreateOrJoinPage(
  * @param keyError Key Error
  * @param onKeyChange Key Change
  * @param onBack Navigate back
- * @param onCreateEventClick Navigate to the next page
  * @param modifier Modifier
  * @param onJoinEventClick Join Event
  * @param onEventsClick Navigate to the past events page
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateOrJoinContent(
+fun JoinContent(
     code: String,
     codeError: String?,
     onCodeChange: (String) -> Unit,
@@ -122,7 +114,6 @@ fun CreateOrJoinContent(
     keyError: String?,
     onKeyChange: (String) -> Unit,
     onBack: () -> Unit,
-    onCreateEventClick: () -> Unit,
     modifier: Modifier = Modifier,
     onJoinEventClick: () -> Unit,
     onEventsClick: () -> Unit
@@ -131,7 +122,7 @@ fun CreateOrJoinContent(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             MeetingAppTopAppBar(
-                title = "MeetUp Planner",
+                title = stringResource(R.string.title_join_page),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -147,26 +138,6 @@ fun CreateOrJoinContent(
             verticalArrangement = Arrangement.Center
         ) {
             item {
-                Button(
-                    onClick = onCreateEventClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxSize(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Create Event",
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                }
-                Spacer(modifier = Modifier.height(AppSpacing.sm))
-
                 Text(
                     text = "Join an Event",
                     modifier = Modifier.padding(AppSpacing.md),
@@ -302,13 +273,13 @@ fun CreateOrJoinContent(
 }
 
 /**
- * Preview for the [CreateOrJoinContent] composable.
+ * Preview for the [JoinContent] composable.
  */
 @Preview(showBackground = true)
 @Composable
-fun CreateOrJoinPagePreview() {
+fun JoinPagePreview() {
     MeetingAppTheme {
-        CreateOrJoinContent(
+        JoinContent(
             code = "",
             codeError = null,
             onCodeChange = {},
@@ -316,7 +287,6 @@ fun CreateOrJoinPagePreview() {
             keyError = null,
             onKeyChange = {},
             onBack = {},
-            onCreateEventClick = {},
             onJoinEventClick = {},
             onEventsClick = {}
         )

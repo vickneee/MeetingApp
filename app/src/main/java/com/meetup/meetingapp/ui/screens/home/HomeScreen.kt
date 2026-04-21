@@ -50,13 +50,15 @@ object HomeDestination : NavigationDestination {
 
 /**
  * Home screen composable
- * @param onMainClick Navigate to the second screen
+ * @param onCreateEventClick Navigate to the second screen
+ * @param onJoinEventClick Navigate to the second screen
  * @param onEventsClick Navigate to the past events screen
  * @param viewModel [HomeViewModel] to retrieve all items in the Room database.
  */
 @Composable
 fun HomeScreen(
-    onMainClick: () -> Unit,
+    onCreateEventClick: () -> Unit,
+    onJoinEventClick: () -> Unit,
     onEventsClick: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -69,7 +71,8 @@ fun HomeScreen(
     }
 
     HomeScreenContent(
-        onMainClick = onMainClick,
+        onCreateEventClick = onCreateEventClick,
+        onJoinEventClick = onJoinEventClick,
         onEventsClick = onEventsClick
     )
 }
@@ -77,14 +80,16 @@ fun HomeScreen(
 /**
  * Stateless version of the Home screen
  *
- * @param onMainClick Navigate to the second screen
+ * @param onCreateEventClick Navigate to the second screen
+ * @param onJoinEventClick Navigate to the second screen
  * @param onEventsClick Navigate to the past events screen
  * @param modifier Modifier for the content
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
-    onMainClick: () -> Unit,
+    onCreateEventClick: () -> Unit,
+    onJoinEventClick: () -> Unit,
     onEventsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -127,7 +132,7 @@ fun HomeScreenContent(
                 Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 Button(
-                    onClick = onMainClick,
+                    onClick = onCreateEventClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
@@ -150,7 +155,7 @@ fun HomeScreenContent(
                 Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 Button(
-                    onClick = onMainClick,
+                    onClick = onJoinEventClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
@@ -194,6 +199,9 @@ fun HomeScreenContent(
 fun HomeScreenPreview(
 ) {
     MeetingAppTheme {
-        HomeScreenContent(onMainClick = {}, onEventsClick = {})
+        HomeScreenContent(
+            onCreateEventClick = {},
+            onJoinEventClick = {},
+            onEventsClick = {})
     }
 }

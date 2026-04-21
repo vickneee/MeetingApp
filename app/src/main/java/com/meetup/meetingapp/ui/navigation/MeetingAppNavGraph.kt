@@ -27,8 +27,8 @@ import com.meetup.meetingapp.ui.screens.create_event_flow.EventCreatedPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
 import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPageDestination
-import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinDestination
-import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinPage
+import com.meetup.meetingapp.ui.screens.create_or_join_page.JoinDestination
+import com.meetup.meetingapp.ui.screens.create_or_join_page.JoinPage
 import com.meetup.meetingapp.ui.screens.events_list_page.EventsListDestination
 import com.meetup.meetingapp.ui.screens.events_list_page.EventsListPage
 import com.meetup.meetingapp.ui.screens.home.HomeDestination
@@ -113,20 +113,18 @@ fun MeetingAppNavHost(
          */
         composable(route = HomeDestination.route) {
             HomeScreen(
-                onMainClick = { navController.navigate(CreateOrJoinDestination.route) },
+                onCreateEventClick = { navController.navigate(CreatingEventPageDestination.route) },
+                onJoinEventClick = { navController.navigate(JoinDestination.route) },
                 onEventsClick = { navController.navigate(EventsListDestination.route) }
             )
         }
 
         /**
-         * Create or join destination
+         * Join destination
          */
-        composable(route = CreateOrJoinDestination.route) {
-            CreateOrJoinPage(
+        composable(route = JoinDestination.route) {
+            JoinPage(
                 onBack = { navController.popBackStack() },
-                navigateToCreatingEventPage = {
-                    navController.navigate("event_creation_graph")
-                },
                 navigateToPastEventsPage = {
                     navController.navigate(EventsListDestination.route)
                 },

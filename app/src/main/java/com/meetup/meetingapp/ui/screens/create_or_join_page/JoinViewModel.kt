@@ -23,7 +23,7 @@ import kotlinx.coroutines.tasks.await
  * @property navigateToEventsListPage Whether to navigate to the past events list page.
  * @property navigateToParticipantPage Whether to navigate to the participant page.
  */
-class CreateOrJoinViewModel(
+class JoinViewModel(
     private val db: FirebaseFirestore,
     private val userRepository: UserRepository
 ) : ViewModel() {

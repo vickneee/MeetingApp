@@ -1,7 +1,7 @@
 <resources>
     <string name="back_button">Back</string>
     <string name="app_name">Meeting App</string>
-    <string name="title_create_or_join_page">MeetUp Planner</string>
+    <string name="title_join_page">Join Event</string>
     <string name="title_create_event_page">Choose Place Type</string>
     <string name="title_creating_event_page">Create Event</string>
     <string name="title_event_created">Event Created</string>
