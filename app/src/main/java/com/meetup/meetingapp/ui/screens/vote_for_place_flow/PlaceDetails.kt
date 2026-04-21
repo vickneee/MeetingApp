@@ -35,6 +35,8 @@ import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
+import com.meetup.meetingapp.utils.buildPhotoUrl
+import com.meetup.meetingapp.utils.formatPriceLevel
 import com.meetup.meetingapp.utils.getOpenLabel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -102,13 +104,12 @@ fun PlaceDetailsPage(
         getOpenLabel(restaurant!!, timing!!)
     } else null
 
-    val priceLabel = restaurant?.priceLevel
-        ?.let { viewModel.formatPriceLevel(it) }
-        ?: ""
+    val priceLabel = formatPriceLevel(restaurant?.priceLevel)
 
-    val photoUrl = restaurant?.photoReference
-        ?.let { viewModel.buildPhotoUrl(it) }
-        ?: ""
+    val photoUrl = buildPhotoUrl(
+        photoReference = restaurant?.photoReference,
+        apiKey = viewModel.apiKey
+    ) ?: ""
 
     restaurant?.let { r ->
         PlaceDetailsContent(
