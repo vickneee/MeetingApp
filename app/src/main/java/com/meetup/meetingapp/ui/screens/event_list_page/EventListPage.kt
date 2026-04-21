@@ -36,7 +36,6 @@ import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
 import com.meetup.meetingapp.utils.toEuroDate
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 /**
  * Navigation destination for the Past Events screen.

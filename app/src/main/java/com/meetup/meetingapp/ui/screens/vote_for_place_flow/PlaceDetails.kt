@@ -39,8 +39,6 @@ import com.meetup.meetingapp.utils.buildPhotoUrl
 import com.meetup.meetingapp.utils.formatPriceLevel
 import com.meetup.meetingapp.utils.getOpenLabel
 import com.meetup.meetingapp.utils.toEuroDate
-import com.meetup.meetingapp.utils.toEuroDate
-import com.meetup.meetingapp.utils.toDisplayLabel
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
