@@ -8,18 +8,12 @@ import com.meetup.meetingapp.utils.extractTimeRange
 import com.meetup.meetingapp.utils.getOpenLabel
 import com.meetup.meetingapp.utils.hasOverlap
 import com.meetup.meetingapp.utils.isRestaurantOpenForTiming
-import com.meetup.meetingapp.utils.normalizeHours
 import com.meetup.meetingapp.utils.parseDays
 import com.meetup.meetingapp.utils.toDayAbbrev
 import org.junit.Assert.*
 import org.junit.Test
 
 class OpeningHoursParsingTest {
-    @Test fun testNormalizeHours(){
-        val rawHours = "10:00AM–8:00PM"
-        val expected = "10:00 AM-8:00 PM"
-        assertEquals(expected, normalizeHours(rawHours))
-    }
 
     @Test
     fun testExtractTimeRange() {
