@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
 import kotlin.collections.flatMap
+import com.meetup.meetingapp.data.model.FoodCategory
 
 /**
  * Implementation of [EventRepository] responsible for creating events
@@ -515,50 +516,33 @@ class EventRepositoryImp(
     }
 
     /**
-     * Saves a list of restaurant candidates to Firestore under:
-     *     events/{eventId}/restaurants/{placeId}
+     * Persists discovered restaurants as individual documents within a sub-collection.
      *
-     * Workflow:
-     *  1. Writes each restaurant document to Firestore.
-     *  2. Calls [syncRestaurants] to pull the saved data into Room.
-     *  3. Wraps the entire operation in a Result for safe error handling.
+     * Using a sub-collection (events/{eventId}/restaurants/{placeId}) instead of a
+     * primitive list of Strings in the parent document provides:
+     * 1. **Atomicity**: We can update a single restaurant's vote count without re-writing the whole list.
+     * 2. **Scalability**: Avoids the 1MB Firestore document size limit if the group discovers many places.
+     * 3. **Structure**: Allows storing complex [Restaurant] objects (URLs, Ratings, Coordinates).
      *
-     * Notes:
-     *  - Each restaurant is stored using its placeId as the document ID.
-     *  - If Firestore write succeeds but Room sync fails, the failure is propagated.
-     *
-     * @param eventId The ID of the event to which restaurants belong.
-     * @param restaurants The list of restaurants to save.
-     * @return Result.success(Unit) on success, or Result.failure(e) on any error.
+     * @param eventId The Firestore Document ID of the parent event.
+     * @param restaurants The list of [Restaurant] objects to be stored.
      */
-    override suspend fun saveAllRestaurants(
-        eventId: String,
-        restaurants: List<Restaurant>
-    ): Result<Unit> {
-
+    override suspend fun saveAllRestaurants(eventId: String, restaurants: List<Restaurant>): Result<Unit> {
         return try {
-            val ref = db.collection("events")
+            val batch = db.batch()
+            val restaurantsRef = db.collection("events")
                 .document(eventId)
                 .collection("restaurants")
 
             restaurants.forEach { restaurant ->
-                ref.document(restaurant.placeId)
-                    .set(restaurant)
-                    .await()
+                // Use Google's unique Place ID as the Doc ID to prevent duplicate entries
+                val docRef = restaurantsRef.document(restaurant.placeId)
+                batch.set(docRef, restaurant)
             }
 
-            val syncResult = syncRestaurants(eventId)
-
-            syncResult.fold(
-                onSuccess = {
-                    Result.success(Unit)
-                },
-                onFailure = { e ->
-                    Result.failure(e)
-                }
-            )
+            batch.commit().await()
+            Result.success(Unit)
         } catch (e: Exception) {
-            Log.e("EventRepository", "API error", e)
             Result.failure(e)
         }
     }
@@ -604,20 +588,25 @@ class EventRepositoryImp(
     }
 
     /**
-     * Returns a Flow of restaurant candidates for the given event from Room.
+     * Retrieves a reactive stream of restaurants associated with a specific event.
      *
-     * Behavior:
-     *  - Room is the single source of truth.
-     *  - Emits updates automatically whenever the underlying database changes.
-     *  - Converts Room entities → domain models using RestaurantMapper.
+     * This implementation serves as a bridge between the local database and the UI.
+     * interface, it currently returns the raw results from the local Room database,
+     * allowing the calling ViewModel to perform fine-grained filtering (e.g.,
+     * checking complex opening hours) using its local utility functions.
      *
-     * Usage:
-     *  - Collected by ViewModel to provide reactive UI updates.
-     *
-     * @param eventId The ID of the event whose restaurants should be observed.
-     * @return A Flow emitting the list of restaurants for the event.
+     * @param eventId The unique identifier of the event.
+     * @param targetTime Optional [DateTime] used by the caller for availability filtering.
+     * @param lat Latitude for search biasing (consumed by the API sync layer).
+     * @param lng Longitude for search biasing (consumed by the API sync layer).
+     * @return A [Flow] emitting the list of [Restaurant] domain models.
      */
-    override fun getRestaurants(eventId: String): Flow<List<Restaurant>>{
+    override fun getRestaurants(
+        eventId: String,
+        targetTime: DateTime?,
+        lat: Double,
+        lng: Double
+    ): Flow<List<Restaurant>> {
         return restaurantDao.getRestaurants(eventId)
             .map { list ->
                 list.map { entity ->
@@ -728,16 +717,39 @@ class EventRepositoryImp(
     }
 
     /**
-     * Retrieves a list of restaurants for a given location.
+     * Orchestrates the discovery of restaurant candidates based on participant preferences.
      *
-     * @param event The event for which to retrieve restaurants.
-     * @return A [Result] containing a list of [Restaurant] objects on success,
+     * This process is "lossy" by design—it takes the most popular voted categories
+     * and finds the best matching physical locations to present to the group.
+     *
+     * ### Data Flow:
+     * 1. **Query Generation**: Maps [PlaceType] and food categories into human-readable
+     * strings (e.g., "Vegan restaurant in Helsinki").
+     * 2. **Availability Check**: Uses [targetTime] to ensure the venue isn't explicitly
+     * marked as "Closed" during the planned event window.
+     * 3. **Deduplication**: Uses a [MutableSet] of Place IDs to ensure that if a
+     * popular venue matches multiple queries, it only appears once.
+     * 4. **Persistence**: Saves results into a **Firestore sub-collection** (`/restaurants`)
+     * rather than a flat list, allowing for more detailed venue metadata.
+     * 5. **State Transition**: Once saved, moves the event to [EventStatus.COLLECTING_RESTAURANT_VOTES].
+     *
+     * @param event The current [Event] containing aggregated preferences.
+     * @return A [Result] indicating success or failure of the discovery process.
      */
     override suspend fun fetchAndSaveRestaurants(event: Event): Result<Unit> {
         val seen = mutableSetOf<String>()
         val allRestaurants = mutableListOf<Restaurant>()
 
+        // We use the first date-time candidate to validate opening hours.
+        // If the group hasn't picked a time yet, validation is skipped (returns true).
+        val targetTime = event.dateTimeCandidates.firstOrNull()
+
+        // Geometric biasing: Ensures Google prioritizes results near the chosen area.
+        val lat = event.selectedLocationLat ?: 0.0
+        val lng = event.selectedLocationLng ?: 0.0
+
         event.locationCandidates.forEach { city ->
+            // Generate a matrix of search combinations (City + Type + Category)
             val combinations = event.placeTypeCandidates.flatMap { placeType ->
                 when (placeType) {
                     PlaceType.RESTAURANT -> {
@@ -750,20 +762,20 @@ class EventRepositoryImp(
                     PlaceType.CAFE -> listOf(Triple(city, placeType, null))
                     PlaceType.BAR -> listOf(Triple(city, placeType, null))
                 }
-            }.shuffled().take(10)
+            }.shuffled().take(10) // Limit API usage and keep the list manageable
 
             combinations.forEach { (city, placeType, foodCategory) ->
-                val query = when {
-                    placeType == PlaceType.RESTAURANT && foodCategory != null ->
-                        "${foodCategory.queryName} restaurant in $city"
-                    placeType == PlaceType.CAFE -> "cafe in $city"
-                    placeType == PlaceType.BAR -> "bar in $city"
-                    else -> "${placeType.queryName} in $city"
-                }
-                placesRepository.fetchRestaurants(query).onSuccess { restaurants ->
+                val query = buildSearchQuery(city, placeType, foodCategory)
+
+                placesRepository.fetchRestaurants(
+                    query = query,
+                    targetTime = targetTime,
+                    lat = lat,
+                    lng = lng
+                ).onSuccess { restaurants ->
+                    // Grab the top result for each query combination to maximize variety
                     restaurants.firstOrNull()?.let { restaurant ->
                         if (seen.add(restaurant.placeId)) {
-                            // TAG with the city name
                             allRestaurants.add(restaurant.copy(searchLocation = city))
                         }
                     }
@@ -772,13 +784,28 @@ class EventRepositoryImp(
         }
 
         return if (allRestaurants.isNotEmpty()) {
-            saveAllRestaurants(event.id, allRestaurants).also {
-                if (it.isSuccess) {
+            // Step 4 & 5: Persist to sub-collection and update the main event status
+            saveAllRestaurants(event.id, allRestaurants).fold(
+                onSuccess = {
                     updateEventStatus(event.id, EventStatus.COLLECTING_RESTAURANT_VOTES)
-                }
-            }
+                    Result.success(Unit)
+                },
+                onFailure = { Result.failure(it) }
+            )
         } else {
-            Result.failure(Exception("No restaurants found"))
+            Result.failure(Exception("No restaurants found matching the criteria and timing."))
+        }
+    }
+
+    /**
+     * Internal helper to format strings for the Google Places TextSearch API.
+     */
+    private fun buildSearchQuery(city: String, type: PlaceType, category: FoodCategory?): String {
+        return when {
+            type == PlaceType.RESTAURANT && category != null -> "${category.queryName} restaurant in $city"
+            type == PlaceType.CAFE -> "cafe in $city"
+            type == PlaceType.BAR -> "bar in $city"
+            else -> "${type.queryName} in $city"
         }
     }
 

@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui
 
+import android.location.Geocoder
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
@@ -14,6 +15,7 @@ import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardViewModel
 import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardViewModel
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantViewModel
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
+import java.util.Locale
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -25,8 +27,11 @@ object AppViewModelProvider {
          * Initializer for HomeViewModel
          */
         initializer {
+            val app = meetingApplication()
             HomeViewModel(
-                meetingApplication().container.userRepository
+                userRepository = app.container.userRepository,
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(app),
+                geocoder = Geocoder(app, Locale.getDefault())
             )
         }
 

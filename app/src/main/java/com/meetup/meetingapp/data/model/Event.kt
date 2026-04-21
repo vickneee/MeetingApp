@@ -69,5 +69,9 @@ data class Event (
     val finalTime: DateTime? = null,
     val finalPlace: String? = null,
 
+    // Selected city coordinates
+    val selectedLocationLat: Double? = null,
+    val selectedLocationLng: Double? = null,
+
     val createdAt: Timestamp = Timestamp.now()
 )

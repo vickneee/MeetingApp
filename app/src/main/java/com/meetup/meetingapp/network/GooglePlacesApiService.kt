@@ -60,12 +60,18 @@ interface GooglePlacesApiService {
      * https://developers.google.com/maps/documentation/places/web-service/search-text
      *
      * @param query The text query describing the desired place(s).
+     * @param location The latitude/longitude coordinates (format: "lat,lng") used to bias
+     * search results toward a specific geographic area.
+     * @param radius The distance (in meters) within which to bias the search results;
+     * works in conjunction with [location] to prioritize local venues.
      * @param apiKey Google Maps Platform API key.
      * @return A parsed [PlacesTextSearchResponse] object.
      */
     @GET("place/textsearch/json")
     suspend fun textSearch(
         @Query("query") query: String,
+        @Query("location") location: String?,
+        @Query("radius") radius: Int?,
         @Query("key") apiKey: String
     ): PlacesTextSearchResponse
 

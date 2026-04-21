@@ -151,13 +151,21 @@ interface EventRepository {
     ): Result<Unit>
 
     /**
-     * Retrieves a list of restaurants from the local Room database.
+     * Retrieves a list of restaurants from the local Room database,
+     * filtered by time and location coordinates.
      *
      * @param eventId The ID of the event to retrieve restaurants for.
+     * @param targetTime The future meeting time to validate availability.
+     * @param lat Latitude of the search center.
+     * @param lng Longitude of the search center.
      * @return A [Flow] emitting a list of [Restaurant] objects.
-     * @throws Exception if the synchronization operation fails.
      */
-    fun getRestaurants(eventId: String): Flow<List<Restaurant>>
+    fun getRestaurants(
+        eventId: String,
+        targetTime: DateTime? = null,
+        lat: Double = 0.0,
+        lng: Double = 0.0
+    ): Flow<List<Restaurant>>
 
     /**
      * Retrieves an event by its ID from Firestore and updates the local Room database.

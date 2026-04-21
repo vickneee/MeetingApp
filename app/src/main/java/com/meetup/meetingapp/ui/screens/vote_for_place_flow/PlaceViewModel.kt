@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
-import com.meetup.meetingapp.data.model.TimeSlot
+
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
@@ -23,16 +23,16 @@ import java.util.Locale
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+
 import android.annotation.SuppressLint
 import android.location.Location
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.meetup.meetingapp.data.model.EventStatus
-import com.meetup.meetingapp.data.model.Vote
+
 import com.meetup.meetingapp.utils.calculateDistanceMeters
+import com.meetup.meetingapp.utils.filterRestaurants
 import com.meetup.meetingapp.utils.formatDistance
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.tasks.await
@@ -172,7 +172,8 @@ class PlaceViewModel(
                             currentStatus == EventStatus.FINALIZED
 
                     if (!isSecondRound) {
-                        _uiState.update { it.copy(
+                        _uiState.update { state ->
+                            state.copy(
                             submissionsCount = submissions.size,
                             attendees = submissions.map { it.name }
                         ) }
@@ -190,7 +191,8 @@ class PlaceViewModel(
                             currentStatus == EventStatus.FINALIZED
 
                     if (isSecondRound) {
-                        _uiState.update { it.copy(
+                        _uiState.update { state ->
+                            state.copy(
                             submissionsCount = votes.distinctBy { it.userId }.size,
                             attendees = votes.distinctBy { it.userId }.map { it.userName }
                         ) }
@@ -252,42 +254,56 @@ class PlaceViewModel(
     }
 
     /**
-     * Loads all restaurant candidates for the event from Room.
-     * Ensures Firestore → Room sync before collecting.
+     * Loads all restaurant candidates for the event from the Repository.
+     * It uses the event's selected location to bias the search and fetches
+     * details based on the target meeting time.
      */
     private fun getAllRestaurant(eventId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            eventRepository.syncRestaurants(eventId)
-            eventRepository.getRestaurants(eventId)
-                .collect { restaurants ->
+            try {
+                // 1. Get the current event to extract the voted city/location coordinates
+                val currentEvent = _event.value
+                if (currentEvent == null) {
+                    Log.e("PlaceViewModel", "Cannot fetch restaurants: Event is null")
+                    return@launch
+                }
+
+                // Extract coordinates from the event object
+                val lat = currentEvent.selectedLocationLat ?: 0.0
+                val lng = currentEvent.selectedLocationLng ?: 0.0
+                val timing = selectedTiming.value
+
+                // 2. Sync Firestore data to local Room cache
+                eventRepository.syncRestaurants(eventId)
+
+                // 3. Fetch from repository using the new signature (Time + Location)
+                // This ensures we save tokens by biasing the search to the correct city
+                eventRepository.getRestaurants(
+                    eventId = eventId,
+                    targetTime = timing,
+                    lat = lat,
+                    lng = lng
+                ).collect { restaurants ->
+                    // 4. Update the StateFlow for the UI
                     _allRestaurants.update { it.copy(allRestaurants = restaurants) }
+
+                    // Update the overall state for the UI to handle Loading/Available/Empty
                     _restaurantState.value = if (restaurants.isNotEmpty()) {
                         RestaurantState.Available
                     } else {
                         RestaurantState.Empty
                     }
                 }
+            } catch (e: Exception) {
+                Log.e("PlaceViewModel", "Failed to fetch restaurants", e)
+                _restaurantState.value = RestaurantState.Error(e)
+            }
         }
     }
 
     /**
-     * A reactive list of restaurants filtered by:
-     *
-     * 1. Selected location:
-     *    - Matches restaurant name or address (case‑insensitive)
-     *    - Empty query returns all restaurants
-     *
-     * 2. Selected timing:
-     *    - If timing is null, no time filtering is applied
-     *    - Otherwise only restaurants whose opening hours overlap
-     *      with the selected time slot are included
-     *
-     * This StateFlow updates automatically whenever:
-     * - allRestaurants changes (Firestore updates)
-     * - selectedTiming changes
-     * - selectedLocation changes
-     *
-     * In summary, this StateFlow provides a dynamic list of restaurants
+     * A reactive list of restaurants that combines the raw data from Room/API
+     * with the user's current UI filters (Timing and Area).
      */
     @OptIn(FlowPreview::class)
     val filteredRestaurants: StateFlow<List<Restaurant>> =
@@ -296,136 +312,17 @@ class PlaceViewModel(
             selectedTiming,
             selectedLocation
         ) { allState, timing, location ->
-            val all = allState.allRestaurants
-            all.filter { restaurant ->
-                val query = location?.trim() ?: ""
-                val locationMatch = query.isEmpty() ||
-                        (restaurant.address?.contains(query, ignoreCase = true) == true) ||
-                        (restaurant.name.contains(query, ignoreCase = true))
-
-                val timingMatch = timing == null || isRestaurantOpenForTiming(restaurant, timing)
-                locationMatch && timingMatch
-            }
+            filterRestaurants(
+                restaurants = allState.allRestaurants,
+                timing = timing,
+                location = location
+            )
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
 
-    /**
-     * Converts a DateTime into a 3-letter weekday abbreviation (Mon, Tue…)
-     */
-    fun DateTime.toDayAbbrev(): String {
-        val localDate = this.toLocalDate()
-        return localDate.dayOfWeek.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
-    }
-
-    /**
-     * Extracts weekday from openingHours string, handling ranges like "Mon-Fri".
-     */
-    fun parseDays(hours: String): List<String> {
-        val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-        val normalized = hours.takeWhile { it != ':' }
-
-        // Handle ranges like "Monday-Friday"
-        if (normalized.contains("-") || normalized.contains("–")) {
-            val parts = normalized.split(Regex("[-–]")).map {
-                it.trim().take(3).lowercase().replaceFirstChar { c -> c.uppercase() }
-            }
-            if (parts.size == 2) {
-                val startIdx = daysOfWeek.indexOf(parts[0])
-                val endIdx = daysOfWeek.indexOf(parts[1])
-                if (startIdx != -1 && endIdx != -1) {
-                    return if (startIdx <= endIdx) {
-                        daysOfWeek.subList(startIdx, endIdx + 1)
-                    } else {
-                        // Wraps around weekend
-                        daysOfWeek.subList(startIdx, 7) + daysOfWeek.subList(0, endIdx + 1)
-                    }
-                }
-            }
-        }
-
-        /**
-         * Handle exact matches like "Monday"
-         */
-        val found = daysOfWeek.filter { normalized.contains(it, ignoreCase = true) }
-        if (found.isNotEmpty()) return found
-
-        /**
-         * Handle single-letter matches like "M"
-         */
-        val dayRegex = Regex("([A-Za-z]+):")
-        val match = dayRegex.find(hours) ?: return emptyList()
-        return listOf(match.groupValues[1].take(3).lowercase().replaceFirstChar { it.uppercase() })
-    }
-
-    /**
-     * Normalizes Google Places openingHours strings.
-     */
-    fun normalizeHours(raw: String): String {
-        return raw.replace("–", "-")
-            .replace(Regex("[\\u202F\\u2009\\u200A\\u200B\\uFEFF\\u00A0]"), "")
-            .replace("AM", " AM").replace("PM", " PM").trim()
-    }
-
-    /**
-     * Extracts start/end time from openingHours string.
-     */
-    fun extractTimeRange(hours: String): Pair<String, String>? {
-        val normalized = normalizeHours(hours)
-        val regex = Regex("(\\d{1,2}:\\d{2}\\s?[AP]M)\\s?-\\s?(\\d{1,2}:\\d{2}\\s?[AP]M)")
-        val match = regex.find(normalized) ?: return null
-        val (start, end) = match.destructured
-        return convertTo24(start) to convertTo24(end)
-    }
-
-    /**
-     * Converts "9:00 AM" → "09:00" (24-hour format)
-     */
-    fun convertTo24(time: String): String {
-        val formatter12 = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
-        val formatter24 = DateTimeFormatter.ofPattern("HH:mm")
-        return LocalTime.parse(time.uppercase(), formatter12).format(formatter24)
-    }
-
-    /**
-     * Checks if restaurant is open during the target time slot (lenient overlap).
-     */
-    fun hasOverlap(
-        oStartStr: String,
-        oEndStr: String,
-        tStartStr: String,
-        tEndStr: String
-    ): Boolean {
-        fun toMin(t: String): Int {
-            val p = t.split(":")
-            return (p[0].toIntOrNull() ?: 0) * 60 + (p[1].toIntOrNull() ?: 0)
-        }
-
-        val oStart = toMin(oStartStr)
-        val oEnd = toMin(oEndStr)
-        val tStart = toMin(tStartStr)
-        val tEnd = toMin(tEndStr)
-
-        // Handle cross-midnight (e.g., 18:00 - 02:00)
-        val actualOEnd = if (oEnd <= oStart) oEnd + 1440 else oEnd
-        return minOf(actualOEnd, tEnd) > maxOf(oStart, tStart)
-    }
-
-    /**
-     * Determines whether a restaurant is open during the selected timing.
-     */
-    fun isRestaurantOpenForTiming(restaurant: Restaurant, timing: DateTime): Boolean {
-        val targetDay = timing.toDayAbbrev()
-        val hoursList = restaurant.openingHours ?: return true
-        return hoursList.any { hours ->
-            val days = parseDays(hours)
-            if (!days.contains(targetDay)) return@any false
-            val range = extractTimeRange(hours) ?: return@any false
-            hasOverlap(range.first, range.second, timing.timeSlot.start, timing.timeSlot.end)
-        }
-    }
 
     /**
      * Updates user-selected filters.
@@ -464,6 +361,7 @@ class PlaceViewModel(
                         _voteState.update { it.copy(isVoted = true) }
                         _voteResultState.value = VoteResultState.VoteSuccess
                     }.onFailure { e ->
+                        Log.e("VoteError", "Failed to vote", e)
                         _voteResultState.value = VoteResultState.VoteError("Vote failed")
                     }
             }
@@ -484,35 +382,6 @@ class PlaceViewModel(
     }
 
     /**
-     * Builds a human‑readable opening hours label for the given restaurant
-     * based on the selected timing.
-     *
-     * Example output: `"10:00 AM – 8:00 PM"`
-     *
-     * @param restaurant The restaurant whose opening hours should be evaluated.
-     * @param timing The selected date/time used to determine the correct weekday.
-     * @return A formatted label or null if opening hours are unavailable.
-     */
-    fun getOpenLabel(restaurant: Restaurant, timing: DateTime): String? {
-        val day = timing.toLocalDate().dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
-        val hours = restaurant.openingHours?.firstOrNull { it.startsWith(day) } ?: return null
-        val range = extractTimeRange(hours) ?: return null
-        return "${format24ToAmPm(range.first)} – ${format24ToAmPm(range.second)}"
-    }
-
-    /**
-     * Converts a 24‑hour time string (e.g., `"18:30"`) into a 12‑hour AM/PM format.
-     *
-     * @param time A time string in `"HH:mm"` format.
-     * @return A formatted time string in `"h:mm a"` format.
-     */
-    fun format24ToAmPm(time: String): String {
-        val f24 = DateTimeFormatter.ofPattern("HH:mm")
-        val f12 = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
-        return LocalTime.parse(time, f24).format(f12)
-    }
-
-    /**
      * Converts a Google Places price level (0–4) into a Euro‑sign representation.
      *
      * Example:
@@ -526,6 +395,16 @@ class PlaceViewModel(
     fun formatPriceLevel(level: Int?): String =
         if (level == null || level < 0) "" else "€".repeat(level + 1)
 
+    /**
+     * Builds a Google Places Photo API URL from a given photo reference.
+     *
+     * This function returns a complete URL that can be used to fetch a place photo
+     * from the Google Places API. If the provided [photoReference] is null or empty,
+     * the function returns null instead of generating an invalid URL.
+     *
+     * @param photoReference The photo reference string returned by the Places API.
+     * @return A full photo URL, or null if [photoReference] is null or empty.
+     */
     fun buildPhotoUrl(photoReference: String?): String? {
         if (photoReference.isNullOrEmpty()) return null
         return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=$photoReference&key=$apiKey"
@@ -544,6 +423,7 @@ class PlaceViewModel(
             }
         }
     }
+
 }
 
 /**
@@ -595,18 +475,6 @@ data class DateAndAreaState(val dateLocationOptions: List<DateLocationOption> = 
  * @return String representation of the DateTime.
  */
 fun DateTime.toSerializableString(): String = "$date|${timeSlot.start}-${timeSlot.end}"
-
-/**
- * Converts a string representation of a DateTime to a DateTime object.
- * @return DateTime object parsed from the string.
- *
- * @see toSerializableString for the string format.
- */
-fun String.toDateTime(): DateTime {
-    val parts = split("|")
-    val times = parts[1].split("-")
-    return DateTime(date = parts[0], timeSlot = TimeSlot(times[0], times[1]))
-}
 
 /**
  * Represents the state of restaurant candidates.

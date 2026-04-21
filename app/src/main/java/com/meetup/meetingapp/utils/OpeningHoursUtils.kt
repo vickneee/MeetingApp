@@ -8,14 +8,6 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 
-/**
- * Normalizes Google Places openingHours strings.
- */
-fun normalizeHours(raw: String): String {
-    return raw.replace("–", "-")
-        .replace(Regex("[\\u202F\\u2009\\u200A\\u200B\\uFEFF\\u00A0]"), "")
-        .replace("AM", " AM").replace("PM", " PM").trim()
-}
 
 /**
  * Converts a DateTime into a 3-letter weekday abbreviation (Mon, Tue…)

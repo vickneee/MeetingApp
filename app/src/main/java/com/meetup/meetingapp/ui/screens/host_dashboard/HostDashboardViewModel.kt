@@ -88,14 +88,30 @@ class HostDashboardViewModel(
         _closeVotingState.value = CloseVotingState.Loading
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                // 1. Aggregate responses
                 eventRepository.aggregateParticipantResponses(eventId).getOrThrow()
+
+                // 2. Sync to ensure local cache is fresh
                 eventRepository.syncEventById(eventId)
+
+                // 3. Get the latest event state
                 val updatedEvent = eventRepository.getEventById(eventId).first()
-                updatedEvent?.let {
-                    eventRepository.fetchAndSaveRestaurants(it)
-                }
-                withContext(Dispatchers.Main) {
-                    _closeVotingState.value = CloseVotingState.Success
+
+                if (updatedEvent != null) {
+                    // 4. Fetch restaurants and handle the result explicitly
+                    val result = eventRepository.fetchAndSaveRestaurants(updatedEvent)
+
+                    result.onSuccess {
+                        withContext(Dispatchers.Main) {
+                            _closeVotingState.value = CloseVotingState.Success
+                        }
+                    }.onFailure { error ->
+                        withContext(Dispatchers.Main) {
+                            _closeVotingState.value = CloseVotingState.Error(error)
+                        }
+                    }
+                } else {
+                    throw Exception("Event not found after sync")
                 }
             } catch (e: Throwable) {
                 withContext(Dispatchers.Main) {
