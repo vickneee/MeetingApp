@@ -38,8 +38,9 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import com.meetup.meetingapp.utils.buildPhotoUrl
 import com.meetup.meetingapp.utils.formatPriceLevel
 import com.meetup.meetingapp.utils.getOpenLabel
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.meetup.meetingapp.utils.toEuroDate
+import com.meetup.meetingapp.utils.toEuroDate
+import com.meetup.meetingapp.utils.toDisplayLabel
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
@@ -374,18 +375,18 @@ fun PlaceDetailsContent(
     }
 }
 
-/**
- * Extension function to convert a date string (yyyy-MM-dd) to European format (dd.MM.yyyy).
- */
-private fun String.toEuroDate(): String {
-    return try {
-        val date = LocalDate.parse(this)
-        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-        date.format(formatter)
-    } catch (_: Exception) {
-        this
-    }
-}
+///**
+// * Extension function to convert a date string (yyyy-MM-dd) to European format (dd.MM.yyyy).
+// */
+//private fun String.toEuroDate(): String {
+//    return try {
+//        val date = LocalDate.parse(this)
+//        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+//        date.format(formatter)
+//    } catch (_: Exception) {
+//        this
+//    }
+//}
 
 /**
  * Preview for the [PlaceDetailsContent] composable.

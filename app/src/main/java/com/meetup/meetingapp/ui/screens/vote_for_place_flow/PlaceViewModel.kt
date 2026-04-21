@@ -31,6 +31,7 @@ import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.utils.calculateDistanceMeters
 import com.meetup.meetingapp.utils.filterRestaurants
 import com.meetup.meetingapp.utils.formatDistance
+import com.meetup.meetingapp.utils.toDisplayLabel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.tasks.await
 
@@ -399,21 +400,21 @@ class PlaceViewModel(
  */
 data class AllRestaurantState(val allRestaurants: List<Restaurant> = listOf())
 
-/**
- * Converts a DateTime to a human-readable string.
- * @return Formatted string representing the date and time.
- * @see toDisplayLabel for a more specific label.
- */
-
-fun DateTime.toDisplayLabel(): String {
-    val localDate = this.toLocalDate()
-    return "${
-        localDate.month.getDisplayName(
-            TextStyle.SHORT,
-            Locale.ENGLISH
-        )
-    } ${localDate.dayOfMonth} (${timeSlot.start}–${timeSlot.end})"
-}
+///**
+// * Converts a DateTime to a human-readable string.
+// * @return Formatted string representing the date and time.
+// * @see toDisplayLabel for a more specific label.
+// */
+//
+//fun DateTime.toDisplayLabel(): String {
+//    val localDate = this.toLocalDate()
+//    return "${
+//        localDate.month.getDisplayName(
+//            TextStyle.SHORT,
+//            Locale.ENGLISH
+//        )
+//    } ${localDate.dayOfMonth} (${timeSlot.start}–${timeSlot.end})"
+//}
 
 /**
  * Represents a date and location combination.

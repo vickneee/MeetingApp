@@ -45,6 +45,7 @@ import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSpacing
+import com.meetup.meetingapp.utils.toDisplayLabel
 
 /**
  * Navigation destination for the Place List screen.
