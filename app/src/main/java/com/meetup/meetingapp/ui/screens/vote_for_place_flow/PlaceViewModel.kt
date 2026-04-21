@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
 import android.annotation.SuppressLint
 import android.location.Location
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -252,42 +253,56 @@ class PlaceViewModel(
     }
 
     /**
-     * Loads all restaurant candidates for the event from Room.
-     * Ensures Firestore → Room sync before collecting.
+     * Loads all restaurant candidates for the event from the Repository.
+     * It uses the event's selected location to bias the search and fetches
+     * details based on the target meeting time.
      */
     private fun getAllRestaurant(eventId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            eventRepository.syncRestaurants(eventId)
-            eventRepository.getRestaurants(eventId)
-                .collect { restaurants ->
+            try {
+                // 1. Get the current event to extract the voted city/location coordinates
+                val currentEvent = _event.value
+                if (currentEvent == null) {
+                    Log.e("PlaceViewModel", "Cannot fetch restaurants: Event is null")
+                    return@launch
+                }
+
+                // Extract coordinates from the event object
+                val lat = currentEvent.selectedLocationLat ?: 0.0
+                val lng = currentEvent.selectedLocationLng ?: 0.0
+                val timing = selectedTiming.value
+
+                // 2. Sync Firestore data to local Room cache
+                eventRepository.syncRestaurants(eventId)
+
+                // 3. Fetch from repository using the new signature (Time + Location)
+                // This ensures we save tokens by biasing the search to the correct city
+                eventRepository.getRestaurants(
+                    eventId = eventId,
+                    targetTime = timing,
+                    lat = lat,
+                    lng = lng
+                ).collect { restaurants ->
+                    // 4. Update the StateFlow for the UI
                     _allRestaurants.update { it.copy(allRestaurants = restaurants) }
+
+                    // Update the overall state for the UI to handle Loading/Available/Empty
                     _restaurantState.value = if (restaurants.isNotEmpty()) {
                         RestaurantState.Available
                     } else {
                         RestaurantState.Empty
                     }
                 }
+            } catch (e: Exception) {
+                Log.e("PlaceViewModel", "Failed to fetch restaurants", e)
+                _restaurantState.value = RestaurantState.Error(e)
+            }
         }
     }
 
     /**
-     * A reactive list of restaurants filtered by:
-     *
-     * 1. Selected location:
-     *    - Matches restaurant name or address (case‑insensitive)
-     *    - Empty query returns all restaurants
-     *
-     * 2. Selected timing:
-     *    - If timing is null, no time filtering is applied
-     *    - Otherwise only restaurants whose opening hours overlap
-     *      with the selected time slot are included
-     *
-     * This StateFlow updates automatically whenever:
-     * - allRestaurants changes (Firestore updates)
-     * - selectedTiming changes
-     * - selectedLocation changes
-     *
-     * In summary, this StateFlow provides a dynamic list of restaurants
+     * A reactive list of restaurants that combines the raw data from Room/API
+     * with the user's current UI filters (Timing and Area).
      */
     @OptIn(FlowPreview::class)
     val filteredRestaurants: StateFlow<List<Restaurant>> =
@@ -296,14 +311,19 @@ class PlaceViewModel(
             selectedTiming,
             selectedLocation
         ) { allState, timing, location ->
-            val all = allState.allRestaurants
-            all.filter { restaurant ->
+            val restaurants = allState.allRestaurants
+
+            restaurants.filter { restaurant ->
+                // 1. Location Filter: Matches the sub-area/name text entered or selected
                 val query = location?.trim() ?: ""
                 val locationMatch = query.isEmpty() ||
                         (restaurant.address?.contains(query, ignoreCase = true) == true) ||
                         (restaurant.name.contains(query, ignoreCase = true))
 
+                // 2. Timing Filter: Cross-references the target meeting time
+                // with the detailed weekday_text schedule from Google
                 val timingMatch = timing == null || isRestaurantOpenForTiming(restaurant, timing)
+
                 locationMatch && timingMatch
             }
         }.stateIn(
@@ -370,23 +390,28 @@ class PlaceViewModel(
     }
 
     /**
-     * Extracts start/end time from openingHours string.
-     */
-    fun extractTimeRange(hours: String): Pair<String, String>? {
-        val normalized = normalizeHours(hours)
-        val regex = Regex("(\\d{1,2}:\\d{2}\\s?[AP]M)\\s?-\\s?(\\d{1,2}:\\d{2}\\s?[AP]M)")
-        val match = regex.find(normalized) ?: return null
-        val (start, end) = match.destructured
-        return convertTo24(start) to convertTo24(end)
-    }
-
-    /**
-     * Converts "9:00 AM" → "09:00" (24-hour format)
+     * Converts "8:00AM" or "9:00 AM" → "09:00" (24-hour format string)
      */
     fun convertTo24(time: String): String {
-        val formatter12 = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
+        // 1. Create a flexible formatter that handles AM/PM without a space
+        val flexibleFormatter = DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .appendPattern("h:mm")
+            .appendPattern("a") // Appending 'a' immediately after minutes handles "8:00AM"
+            .toFormatter(Locale.ENGLISH)
+
         val formatter24 = DateTimeFormatter.ofPattern("HH:mm")
-        return LocalTime.parse(time.uppercase(), formatter12).format(formatter24)
+
+        return try {
+            // 2. Sanitize: Remove all spaces to ensure "9:00 AM" becomes "9:00AM"
+            // matches our pattern.
+            val sanitizedTime = time.replace(" ", "").uppercase()
+            LocalTime.parse(sanitizedTime, flexibleFormatter).format(formatter24)
+        } catch (e: Exception) {
+            // Log error and return a fallback or the original string to prevent crash
+            println("Error parsing time: $time")
+            "00:00"
+        }
     }
 
     /**
@@ -543,6 +568,35 @@ class PlaceViewModel(
                     .onSuccess { exists -> _voteState.update { it.copy(isVoted = exists) } }
             }
         }
+    }
+
+    /**
+     * Extracts a start and end time from a Google Places opening hours string.
+     * Expects format: "9:00 AM - 11:00 PM" or "09:00 – 23:00".
+     */
+    fun extractTimeRange(hours: String): Pair<String, String>? {
+        // Clean the string (remove the day prefix like "Monday:")
+        val timePart = hours.substringAfter(": ").trim()
+
+        // Normalize dashes and whitespace
+        val normalized = timePart.replace("–", "-")
+            .replace(Regex("[\\u202F\\u2009\\u200A\\u200B\\uFEFF\\u00A0]"), "")
+            .trim()
+
+        // Regex to find two time patterns (handles both 12h and 24h)
+        val timeRegex = Regex("(\\d{1,2}:\\d{2}\\s?[AP]M|\\d{1,2}:\\d{2})", RegexOption.IGNORE_CASE)
+        val matches = timeRegex.findAll(normalized).toList()
+
+        if (matches.size < 2) return null
+
+        val startRaw = matches[0].value
+        val endRaw = matches[1].value
+
+        // Convert to 24h if they contain AM/PM, otherwise return as is
+        val start = if (startRaw.contains(Regex("[AP]M", RegexOption.IGNORE_CASE))) convertTo24(startRaw) else startRaw
+        val end = if (endRaw.contains(Regex("[AP]M", RegexOption.IGNORE_CASE))) convertTo24(endRaw) else endRaw
+
+        return start to end
     }
 }
 

@@ -61,7 +61,8 @@ fun DateAndAreaPage(
         onBack = onBack,
         dateLocationOptions = dateAndAreaState.dateLocationOptions,
         navigateToRestaurantListPage = { timing, location ->
-            viewModel.setFilter(timing.toDateTime(), location)
+            // Pass the DateTime object directly to avoid parsing crashes
+            viewModel.setFilter(timing, location)
             onNavigateToRestaurantListPage()
         },
         modifier = modifier
@@ -80,7 +81,8 @@ fun DateAndAreaPage(
 fun DateAndAreaContent(
     onBack: () -> Unit,
     dateLocationOptions: List<DateLocationOption>,
-    navigateToRestaurantListPage: (String, String) -> Unit,
+    // Signature updated to accept the DateTime object directly
+    navigateToRestaurantListPage: (DateTime, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -114,7 +116,7 @@ fun DateAndAreaContent(
             }
             items(dateLocationOptions) { option ->
                 Card(
-                    onClick = { navigateToRestaurantListPage(option.timingArg, option.location) },
+                    onClick = { navigateToRestaurantListPage(option.timing, option.location) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
