@@ -378,22 +378,6 @@ class PlaceViewModel(
         return allRestaurants.map { state -> state.allRestaurants.find { it.placeId == placeId } }
     }
 
-
-//    /**
-//     * Builds a Google Places Photo API URL from a given photo reference.
-//     *
-//     * This function returns a complete URL that can be used to fetch a place photo
-//     * from the Google Places API. If the provided [photoReference] is null or empty,
-//     * the function returns null instead of generating an invalid URL.
-//     *
-//     * @param photoReference The photo reference string returned by the Places API.
-//     * @return A full photo URL, or null if [photoReference] is null or empty.
-//     */
-//    fun buildPhotoUrl(photoReference: String?): String? {
-//        if (photoReference.isNullOrEmpty()) return null
-//        return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=$photoReference&key=$apiKey"
-//    }
-
     /**
      * Loads whether the user has already voted for this restaurant at the selected time.
      *

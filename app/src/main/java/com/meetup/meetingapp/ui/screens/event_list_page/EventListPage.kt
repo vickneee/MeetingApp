@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.events_list_page
+package com.meetup.meetingapp.ui.screens.event_list_page
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,9 +40,9 @@ import java.time.format.DateTimeFormatter
 /**
  * Navigation destination for the Past Events screen.
  */
-object EventsListDestination : NavigationDestination {
-    override val route = "events-list"
-    override val titleRes = R.string.title_events_list_page
+object EventListDestination : NavigationDestination {
+    override val route = "event-list"
+    override val titleRes = R.string.title_event_list_page
 }
 
 /**
@@ -70,7 +70,7 @@ fun EventsListPage(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = stringResource(id = R.string.title_events_list_page),
+                title = stringResource(id = R.string.title_event_list_page),
                 canNavigateBack = true,
                 navigateUp = onBack
             )

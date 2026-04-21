@@ -1,4 +1,4 @@
-package com.meetup.meetingapp.ui.screens.create_or_join_page
+package com.meetup.meetingapp.ui.screens.join_page
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background

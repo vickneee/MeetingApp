@@ -27,10 +27,10 @@ import com.meetup.meetingapp.ui.screens.create_event_flow.EventCreatedDestinatio
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventCreatedPage
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
 import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPageDestination
-import com.meetup.meetingapp.ui.screens.create_or_join_page.JoinDestination
-import com.meetup.meetingapp.ui.screens.create_or_join_page.JoinPage
-import com.meetup.meetingapp.ui.screens.events_list_page.EventsListDestination
-import com.meetup.meetingapp.ui.screens.events_list_page.EventsListPage
+import com.meetup.meetingapp.ui.screens.event_list_page.EventListDestination
+import com.meetup.meetingapp.ui.screens.join_page.JoinDestination
+import com.meetup.meetingapp.ui.screens.join_page.JoinPage
+import com.meetup.meetingapp.ui.screens.event_list_page.EventsListPage
 import com.meetup.meetingapp.ui.screens.home.HomeDestination
 import com.meetup.meetingapp.ui.screens.home.HomeScreen
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
@@ -77,7 +77,7 @@ import com.meetup.meetingapp.ui.screens.vote_for_place_flow.ChooseDateAndAreaPag
  * - Host Dashboard
  *
  * The event creation flow shares a single EventViewModel instance across
- * all three screens by scoping the ViewModel to the "event_creation_graph"
+ * all three screens by scoping the ViewModel to the \"event_creation_graph\"
  * navigation graph. This ensures that user input is preserved across screens.
  *
  * @param navController The NavController used to navigate between screens.
@@ -115,7 +115,7 @@ fun MeetingAppNavHost(
             HomeScreen(
                 onCreateEventClick = { navController.navigate(CreatingEventPageDestination.route) },
                 onJoinEventClick = { navController.navigate(JoinDestination.route) },
-                onEventsClick = { navController.navigate(EventsListDestination.route) }
+                onEventsClick = { navController.navigate(EventListDestination.route) }
             )
         }
 
@@ -126,7 +126,7 @@ fun MeetingAppNavHost(
             JoinPage(
                 onBack = { navController.popBackStack() },
                 navigateToPastEventsPage = {
-                    navController.navigate(EventsListDestination.route)
+                    navController.navigate(EventListDestination.route)
                 },
                 navigateToParticipantPage = { (eventCode, eventKey) ->
                     navController.navigate("${MeetUpDetailDestination.route}/$eventCode/$eventKey")
@@ -565,7 +565,7 @@ fun MeetingAppNavHost(
         /**
          * Events List destination
          */
-        composable(route = "events-list") {
+        composable(route = EventListDestination.route) {
             EventsListPage(
                 onBack = { navController.popBackStack() },
                 currentUserId = currentUserId,
