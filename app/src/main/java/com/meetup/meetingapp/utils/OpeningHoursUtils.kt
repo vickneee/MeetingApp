@@ -7,8 +7,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
-
-
 /**
  * Converts a DateTime into a 3-letter weekday abbreviation (Mon, Tue…)
  */
@@ -57,8 +55,6 @@ fun parseDays(hours: String): List<String> {
     return listOf(match.groupValues[1].take(3).lowercase().replaceFirstChar { it.uppercase() })
 }
 
-
-
 /**
  * Extracts start/end time from openingHours string.
  */
@@ -83,7 +79,6 @@ fun extractTimeRange(hours: String): Pair<String, String>? {
     // No valid time range found
     return null
 }
-
 
 /**
  * Converts "9:00 AM" → "09:00" (24-hour format)
@@ -144,8 +139,6 @@ fun hasOverlap(
     // Require at least 60 minutes of overlap
     return maxOverlap >= 60
 }
-
-
 
 /**
  * Determines whether a restaurant is open during the selected timing.
