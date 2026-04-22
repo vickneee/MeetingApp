@@ -29,6 +29,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import kotlinx.coroutines.launch
 
@@ -143,13 +146,15 @@ fun EventCreatedContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             item {
                 Text("Your Event Code",
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 22.sp)
+                    fontSize = 22.sp
+                )
                 Text(
                     text = eventCode,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -160,7 +165,8 @@ fun EventCreatedContent(
 
                 Text("Key",
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 20.sp)
+                    fontSize = 20.sp
+                )
                 Text(
                     text = eventKey,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -172,72 +178,72 @@ fun EventCreatedContent(
                 Text(
                     text = "Share this code and key\nwith participants.",
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(vertical = 24.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(vertical = AppSpacing.md),
                     textAlign = TextAlign.Center
                 )
 
                 OutlinedButton(
                     onClick = onCopyCode,
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.width(180.dp)
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         "Copy Code",
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(6.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 OutlinedButton(
                     onClick = onShare,
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.width(180.dp)
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         "Share",
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(6.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 Button(
                     onClick = onFillAvailability,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.7f)
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         "Fill in my availability",
                         color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(8.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 OutlinedButton(
                     onClick = onNavigateToDashboard,
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.7f)
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         "Go to Dashboard",
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(8.dp)
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
             }

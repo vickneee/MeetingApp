@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -30,10 +31,13 @@ class HostDashboardViewModel(
     private val _closeVotingState = MutableStateFlow<CloseVotingState>(CloseVotingState.Idle)
     val closeVotingState = _closeVotingState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(HostDashboardUiState())
+    private val _uiState = MutableStateFlow(HostDashboardUiState(
+        status = EventStatus.UNKNOWN,
+        hasHostSubmittedAvailability = false
+    ))
     val uiState = _uiState.asStateFlow()
 
-    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     init {
         viewModelScope.launch {
@@ -59,11 +63,17 @@ class HostDashboardViewModel(
                         submissions.map { it.name }
                     }
 
-                    _uiState.value = _uiState.value.copy(
-                        status = e.status,
-                        submissionsCount = count,
-                        attendees = names
-                    )
+                    // Check if host has submitted availability in the first round
+                    val hasAvailability = submissions.any { it.userId == currentUserId || it.name == e.hostName }
+
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            status = e.status,
+                            submissionsCount = count,
+                            attendees = names,
+                            hasHostSubmittedAvailability = hasAvailability
+                        )
+                    }
 
                     // Side effects
                     if (e.status == EventStatus.CREATED) {
@@ -117,13 +127,6 @@ class HostDashboardViewModel(
         }
     }
 
-    fun startRestaurantVoting() {
-        viewModelScope.launch {
-            eventRepository.updateEventStatus(eventId, EventStatus.COLLECTING_RESTAURANT_VOTES)
-            eventRepository.syncEventById(eventId)
-        }
-    }
-
     fun updateEventStatus(status: EventStatus) {
         viewModelScope.launch {
             if (status == EventStatus.FINALIZED) {
@@ -153,17 +156,30 @@ class HostDashboardViewModel(
             val currentEvent = _event.value ?: return@launch
             val hasVoted = eventRepository.hasUserVotedInEvent(
                 eventId = eventId,
-                userId = userId,
+                userId = currentUserId,
                 timings = currentEvent.dateTimeCandidates
             )
-            _uiState.value = _uiState.value.copy(hasVoted = hasVoted)
+            _uiState.update { it.copy(hasVoted = hasVoted) }
         }
     }
 
     fun fetchRestaurantVotesStatus() {
         viewModelScope.launch(Dispatchers.IO) {
             val hasVotes = eventRepository.hasAnyRestaurantVotes(eventId)
-            _uiState.value = _uiState.value.copy(hasAnyRestaurantVotes = hasVotes)
+            _uiState.update { it.copy(hasAnyRestaurantVotes = hasVotes) }
+        }
+    }
+
+    fun checkHostAvailability() {
+        viewModelScope.launch {
+            val eventValue = _event.value ?: return@launch
+            val result = eventRepository.hasUserSubmittedAvailability(
+                eventId = eventValue.id,
+                userId = eventValue.hostId
+            )
+            _uiState.update {
+                it.copy(hasHostSubmittedAvailability = result)
+            }
         }
     }
 }
@@ -173,7 +189,8 @@ data class HostDashboardUiState(
     val attendees: List<String> = emptyList(),
     val status: EventStatus = EventStatus.UNKNOWN,
     val hasVoted: Boolean = false,
-    val hasAnyRestaurantVotes: Boolean = false
+    val hasAnyRestaurantVotes: Boolean = false,
+    val hasHostSubmittedAvailability: Boolean = false
 )
 
 sealed interface CloseVotingState {

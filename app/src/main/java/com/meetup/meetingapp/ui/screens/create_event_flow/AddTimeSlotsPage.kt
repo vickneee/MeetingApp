@@ -2,11 +2,13 @@ package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -15,7 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -32,24 +34,26 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the Time Slots Selecting screen.
  */
 object TimeSlotsSelectingPageDestination : NavigationDestination {
-    override val route = "time_slots_selecting_page"
-    override val titleRes = R.string.title_time_slots_selecting_page
+    override val route = "add_time_slots_page"
+    override val titleRes = R.string.title_add_time_slots_page
 }
 
 /**
@@ -62,7 +66,7 @@ object TimeSlotsSelectingPageDestination : NavigationDestination {
  * @param viewModel [EventViewModel] that provides and manages the UI state for creating an event.
  */
 @Composable
-fun TimeSlotsSelectingPage(
+fun AddTimeSlotsPage(
     onBack: () -> Unit,
     navigateToTimeEditPage: (Int) -> Unit,
     navigateToAreaSelectingPage: () -> Unit,
@@ -70,7 +74,7 @@ fun TimeSlotsSelectingPage(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    TimeSlotsSelectingPageContent(
+    AddTimeSlotsPageContent(
         modifier = Modifier,
         uiState = uiState,
         onBack = onBack,
@@ -92,7 +96,7 @@ fun TimeSlotsSelectingPage(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimeSlotsSelectingPageContent(
+fun AddTimeSlotsPageContent(
     modifier: Modifier = Modifier,
     uiState: EventUiState,
     onBack: () -> Unit,
@@ -103,7 +107,7 @@ fun TimeSlotsSelectingPageContent(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = "Select Time Slots",
+                title = stringResource(R.string.title_add_time_slots_page),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -114,14 +118,16 @@ fun TimeSlotsSelectingPageContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             item {
                 Text(
                     text = "Time Slots",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .padding(16.dp),
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -132,68 +138,77 @@ fun TimeSlotsSelectingPageContent(
 
                 Row(
                     modifier = Modifier
-                        .padding(vertical = 8.dp),
+                        .fillMaxWidth(AppSize.lg)
+                        .padding(vertical = AppSpacing.xsm),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TimeSlotItem(
                         timeSlot = "${timeSlot.start} - ${timeSlot.end}",
                         onEditClick = { navigateToTimeEditPage(index) },
-                        modifier = Modifier
-                            .width(220.dp) // Fixed width so delete button fits
+                        modifier = Modifier.weight(1f)
                     )
-
                     if (index != 0) {
-                        Spacer(modifier = Modifier.padding(8.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                         IconButton(
                             onClick = { onRemoveTimeSlot(timeSlot) },
                             modifier = Modifier
                                 .size(40.dp)
-                                .background(Color.Red, shape = RoundedCornerShape(10.dp))
+                                .background(
+                                    color = MaterialTheme.colorScheme.error,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Remove,
+                                imageVector = Icons.Default.Delete,
                                 contentDescription = "Remove",
                                 tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     } else {
-                        Spacer(modifier = Modifier.padding(8.dp))
+                        Spacer(modifier = Modifier.size(10.dp))
                         Spacer(modifier = Modifier.size(40.dp))
                     }
                 }
             }
             item {
-                Spacer(modifier = Modifier.padding(12.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 OutlinedButton(
                     onClick = { navigateToTimeEditPage(-1) }, // <- editTimeSlot()
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Add Time Slot",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
             item {
-                Spacer(modifier = Modifier.padding(32.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Button(
                     onClick = { navigateToAreaSelectingPage() },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         text = "Next",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
@@ -214,27 +229,26 @@ fun TimeSlotItem(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .clickable { onEditClick() },
+        modifier = modifier,
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
-                .padding(vertical = 12.dp, horizontal = 16.dp),
+                .padding(vertical = 14.dp, horizontal = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = timeSlot,
                 modifier = Modifier
-                    .padding(horizontal = 16.dp),
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
+                    .weight(1f)
+                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -249,11 +263,11 @@ fun TimeSlotItem(
 }
 
 /**
- * Preview for the [TimeSlotsSelectingPageContent] composable.
+ * Preview for the [AddTimeSlotsPageContent] composable.
  */
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun TimeSlotsSelectingPagePreview() {
+fun AddTimeSlotsPagePreview() {
     val mockTimeSlots = listOf(
         TimeSlot(start = "09:00", end = "10:00"),
         TimeSlot(start = "11:30", end = "12:30"),
@@ -265,7 +279,7 @@ fun TimeSlotsSelectingPagePreview() {
     )
 
     MeetingAppTheme {
-        TimeSlotsSelectingPageContent(
+        AddTimeSlotsPageContent(
             uiState = mockUiState,
             onBack = {},
             onRemoveTimeSlot = {},

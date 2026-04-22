@@ -1,7 +1,8 @@
-package com.meetup.meetingapp.ui.screens.select_date_range
+package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
@@ -99,7 +100,7 @@ fun CustomDateRangePickerModal(
                             }
                         }
 
-                        Column(modifier = Modifier.padding(start = 72.dp, end = 24.dp)) {
+                        Column(modifier = Modifier.padding(start = 40.dp, end = 24.dp)) {
                             Text(
                                 "SELECT DATE",
                                 color = primary.copy(alpha = 0.7f),
@@ -108,7 +109,7 @@ fun CustomDateRangePickerModal(
 
                             Spacer(modifier = Modifier.height(24.dp))
 
-                            Row(verticalAlignment = Alignment.Bottom) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = rangeDisplayText,
                                     color = MaterialTheme.colorScheme.onPrimary,

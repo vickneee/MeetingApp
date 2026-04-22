@@ -1,23 +1,37 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.components.AppMultiSelectDropdown
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
@@ -47,7 +61,6 @@ object AreaSelectingDestination : NavigationDestination {
  *
  * @see EventViewModel
  */
-
 @Composable
 fun AreaSelectingPage(
     onBack: () -> Unit,
@@ -55,9 +68,7 @@ fun AreaSelectingPage(
     viewModel: EventViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
     val citiesState by viewModel.citiesState.collectAsState()
-
     val citiesFetchState by viewModel.citiesFetchState.collectAsState()
 
     when (citiesFetchState) {
@@ -131,35 +142,33 @@ fun AreaSelectingContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(paddingValues),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             item {
-                Spacer(modifier = Modifier.height(36.dp))
-
                 Text(
                     "Choose a country and",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
 
                 Text(
                     "select cities",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                 )
             }
 
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 AppMultiSelectDropdown(
                     options = countryOptions,
@@ -172,7 +181,7 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 AppMultiSelectDropdown(
                     options = cityOptions,
@@ -185,22 +194,21 @@ fun AreaSelectingContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 Button(
                     onClick = onNextClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier,
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                     enabled = selectedCities.isNotEmpty() // Only enable if a valid city is selected
                 ) {
                     Text(
                         text = "Next",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
-                Spacer(modifier = Modifier.padding(48.dp))
             }
         }
     }

@@ -2,10 +2,8 @@ package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,6 +29,8 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
@@ -98,20 +98,18 @@ fun DateAndAreaContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(paddingValues),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
 
             item {
-                Spacer(modifier = Modifier.height(48.dp))
-
                 Text(
                     "Choose a date, time & area",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
-                        .padding(bottom = 14.dp)
+                        .padding(bottom = AppSpacing.lg)
                 )
             }
             items(dateLocationOptions) { option ->
@@ -119,7 +117,7 @@ fun DateAndAreaContent(
                     onClick = { navigateToRestaurantListPage(option.timing, option.location) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                        .padding(bottom = 12.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface
@@ -155,6 +153,13 @@ fun DateAndAreaContentPreview() {
                 timeSlot = com.meetup.meetingapp.data.model.TimeSlot("09:00", "12:00")
             ),
             location = "Helsinki"
+        ),
+        DateLocationOption(
+            timing = DateTime(
+                date = "2024-04-12",
+                timeSlot = com.meetup.meetingapp.data.model.TimeSlot("13:00,", "16:00")
+            ),
+            location = "Tampere"
         )
     )
 

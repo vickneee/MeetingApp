@@ -19,6 +19,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
@@ -45,6 +46,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 
 /**
  * Composable function for displaying a multi-select dropdown menu.
@@ -74,7 +77,7 @@ fun <T> AppMultiSelectDropdown(
     
     val configuration = LocalConfiguration.current
     val maxMenuHeight = remember(configuration.screenHeightDp) {
-        (configuration.screenHeightDp * 0.8f).dp
+        (configuration.screenHeightDp * 0.6f).dp
     }
 
     // Optimization: Cache text representations to avoid expensive 'toText' calls during filtering/sorting
@@ -106,9 +109,11 @@ fun <T> AppMultiSelectDropdown(
     Column {
         Text(
             text = label,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp,
-            modifier = Modifier.padding(bottom = 4.dp),
+            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier
+                .fillMaxWidth(AppSize.lg)
+                .padding(bottom = AppSpacing.xs),
             color = MaterialTheme.colorScheme.onBackground
         )
         
@@ -118,7 +123,7 @@ fun <T> AppMultiSelectDropdown(
                 selected.forEach { item ->
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth(AppSize.lg)
                             .padding(vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -171,8 +176,8 @@ fun <T> AppMultiSelectDropdown(
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor()
+                    .fillMaxWidth(AppSize.lg)
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
                     .focusRequester(focusRequester),
                 shape = RoundedCornerShape(8.dp),
                 singleLine = true
@@ -182,7 +187,9 @@ fun <T> AppMultiSelectDropdown(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 scrollState = scrollState,
-                modifier = Modifier.heightIn(max = maxMenuHeight)
+                modifier = Modifier.heightIn(max = maxMenuHeight),
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 3.dp
             ) {
                 sortedOptions.forEach { pair ->
                     val option = pair.first
@@ -192,7 +199,8 @@ fun <T> AppMultiSelectDropdown(
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 AppCheckbox(checked = isSelected)
-                                Spacer(modifier = Modifier.width(4.dp))
+                                Spacer(modifier = Modifier
+                                    .width(AppSpacing.xxs))
                                 Text(text)
                             }
                         },

@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
-
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
 import kotlinx.coroutines.Dispatchers
@@ -18,19 +17,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.format.TextStyle
-import java.util.Locale
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-
 import android.annotation.SuppressLint
 import android.location.Location
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.meetup.meetingapp.data.model.EventStatus
-
 import com.meetup.meetingapp.utils.calculateDistanceMeters
 import com.meetup.meetingapp.utils.filterRestaurants
 import com.meetup.meetingapp.utils.formatDistance
@@ -60,7 +55,7 @@ import kotlinx.coroutines.tasks.await
  */
 class PlaceViewModel(
     private val eventRepository: EventRepository,
-    private val apiKey: String,
+    val apiKey: String,
     private val fusedLocationClient: FusedLocationProviderClient,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -182,6 +177,7 @@ class PlaceViewModel(
             }
         }
 
+        // Separate launch — runs concurrently, not blocked by the collect above
         viewModelScope.launch {
             if (eventId.isNotEmpty()) {
                 // Observe restaurant votes
@@ -323,7 +319,6 @@ class PlaceViewModel(
             emptyList()
         )
 
-
     /**
      * Updates user-selected filters.
      */
@@ -382,35 +377,6 @@ class PlaceViewModel(
     }
 
     /**
-     * Converts a Google Places price level (0–4) into a Euro‑sign representation.
-     *
-     * Example:
-     * - 0 → "€"
-     * - 1 → "€€"
-     * - 2 → "€€€"
-     *
-     * @param level The price level integer from Google Places.
-     * @return A repeated Euro‑sign string, or empty string if invalid.
-     */
-    fun formatPriceLevel(level: Int?): String =
-        if (level == null || level < 0) "" else "€".repeat(level + 1)
-
-    /**
-     * Builds a Google Places Photo API URL from a given photo reference.
-     *
-     * This function returns a complete URL that can be used to fetch a place photo
-     * from the Google Places API. If the provided [photoReference] is null or empty,
-     * the function returns null instead of generating an invalid URL.
-     *
-     * @param photoReference The photo reference string returned by the Places API.
-     * @return A full photo URL, or null if [photoReference] is null or empty.
-     */
-    fun buildPhotoUrl(photoReference: String?): String? {
-        if (photoReference.isNullOrEmpty()) return null
-        return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=$photoReference&key=$apiKey"
-    }
-
-    /**
      * Loads whether the user has already voted for this restaurant at the selected time.
      *
      * Updates voteState.isVoted based on Firestore result.
@@ -423,7 +389,6 @@ class PlaceViewModel(
             }
         }
     }
-
 }
 
 /**
@@ -433,29 +398,12 @@ class PlaceViewModel(
 data class AllRestaurantState(val allRestaurants: List<Restaurant> = listOf())
 
 /**
- * Converts a DateTime to a human-readable string.
- * @return Formatted string representing the date and time.
- * @see toDisplayLabel for a more specific label.
- */
-
-fun DateTime.toDisplayLabel(): String {
-    val localDate = this.toLocalDate()
-    return "${
-        localDate.month.getDisplayName(
-            TextStyle.SHORT,
-            Locale.ENGLISH
-        )
-    } ${localDate.dayOfMonth} (${timeSlot.start}–${timeSlot.end})"
-}
-
-/**
  * Represents a date and location combination.
  *
  * @property timing The date and time for the event.
  * @property location The location for the event.
  * @property label A human-readable label for the combination.
  * @property timingArg A string representation of the timing for navigation.
- * @see toDisplayLabel for a more specific label.
  */
 data class DateLocationOption(val timing: DateTime, val location: String) {
     val label: String get() = "${timing.toDisplayLabel()} — $location"
@@ -469,12 +417,6 @@ data class DateLocationOption(val timing: DateTime, val location: String) {
  * @see DateAndAreaPageDestination for navigation destination.
  */
 data class DateAndAreaState(val dateLocationOptions: List<DateLocationOption> = listOf())
-
-/**
- * Converts a DateTime to a string for storage in Firestore.
- * @return String representation of the DateTime.
- */
-fun DateTime.toSerializableString(): String = "$date|${timeSlot.start}-${timeSlot.end}"
 
 /**
  * Represents the state of restaurant candidates.

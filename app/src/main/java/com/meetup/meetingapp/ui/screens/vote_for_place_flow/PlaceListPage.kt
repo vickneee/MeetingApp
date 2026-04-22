@@ -43,6 +43,9 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSpacing
 
 /**
  * Navigation destination for the Place List screen.
@@ -55,7 +58,6 @@ object PlaceListPageDestination : NavigationDestination {
     override val route = "place_list"
     override val titleRes = R.string.title_place_list
 }
-
 
 /**
  * Top-level composable for the Place List screen.
@@ -75,15 +77,20 @@ fun PlaceListPage(
     val placeListState by viewModel.filteredRestaurants.collectAsStateWithLifecycle(emptyList())
     val selectedTiming by viewModel.selectedTiming.collectAsStateWithLifecycle()
     val selectedLocation by viewModel.selectedLocation.collectAsStateWithLifecycle()
+    val restaurantState by viewModel.restaurantState.collectAsStateWithLifecycle()
 
-    PlaceListContent(
-        onBack = onBack,
-        placeListState = placeListState,
-        selectedTiming = selectedTiming,
-        selectedLocation = selectedLocation,
-        onNavigateToPlaceDetails = onNavigateToPlaceDetails,
-        modifier = modifier
-    )
+    if (restaurantState is RestaurantState.Loading) {
+        LoadingScreen(modifier = Modifier.fillMaxSize())
+    } else {
+        PlaceListContent(
+            onBack = onBack,
+            placeListState = placeListState,
+            selectedTiming = selectedTiming,
+            selectedLocation = selectedLocation,
+            onNavigateToPlaceDetails = onNavigateToPlaceDetails,
+            modifier = modifier
+        )
+    }
 }
 
 /**
@@ -120,15 +127,13 @@ fun PlaceListContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(paddingValues),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
 
             item {
-                Spacer(modifier = Modifier.height(36.dp))
-
                 if (selectedTiming != null && selectedLocation != null) {
                     Column(
                         Modifier.fillMaxWidth(),
@@ -141,11 +146,10 @@ fun PlaceListContent(
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
                         )
-
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = selectedLocation ?: "",
+                            text = selectedLocation,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
@@ -160,20 +164,7 @@ fun PlaceListContent(
                         textAlign = TextAlign.Center
                     )
                 }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(36.dp))
-
-                Text(
-                    "Places",
-                    fontSize = 20.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 14.dp),
-                    textAlign = TextAlign.Start,
-                    fontWeight = FontWeight.Bold
-                )
+                Spacer(modifier = Modifier.height(AppSpacing.md))
             }
 
             if (placeListState.isEmpty()) {
@@ -181,7 +172,7 @@ fun PlaceListContent(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 32.dp),
+                            .padding(top = 160.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -197,7 +188,7 @@ fun PlaceListContent(
                         onClick = { onNavigateToPlaceDetails(option.placeId) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .padding(bottom = 12.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surface
@@ -259,6 +250,9 @@ fun PlaceListContent(
     }
 }
 
+/**
+ * Preview for the [PlaceListContent] composable.
+ */
 @Preview(showBackground = true)
 @Composable
 fun PLaceListContentPreview() {

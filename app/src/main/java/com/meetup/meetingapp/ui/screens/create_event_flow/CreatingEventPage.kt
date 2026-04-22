@@ -3,8 +3,11 @@ package com.meetup.meetingapp.ui.screens.create_event_flow
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,13 +30,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.select_date_range.CustomDateRangePickerModal
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -51,7 +57,7 @@ fun formatDisplayDate(start: String, end: String): String {
         val endDate = LocalDate.parse(end)
 
         "${startDate.format(formatter)} - ${endDate.format(formatter)}"
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         "Invalid date"
     }
 }
@@ -77,7 +83,14 @@ fun CreatingEventPage(
     navigateToCreatingEventPage: () -> Unit,
     viewModel: EventViewModel
 ) {
+    /**
+     * Collects the current UI state from the [EventViewModel].
+     */
     val uiState by viewModel.uiState.collectAsState()
+
+    /**
+     * Controls the visibility of the date range picker modal.
+     */
     var showModal by remember { mutableStateOf(false) }
 
     CreatingEventContent(
@@ -86,9 +99,13 @@ fun CreatingEventPage(
         onHostNameChange = viewModel::updateHostName,
         onBack = onBack,
         onOpenDatePicker = { showModal = true },
+        canProceed = viewModel.canProceed,
         navigateToCreatingEventPage = navigateToCreatingEventPage // real navigation
     )
 
+    /**
+     * Modal for selecting a date range.
+     */
     if (showModal) {
         CustomDateRangePickerModal(
             onDismiss = { showModal = false },
@@ -109,6 +126,7 @@ fun CreatingEventPage(
  * @param onBack Navigate back to the previous screen.
  * @param onOpenDatePicker Callback to open the date range picker.
  * @param navigateToCreatingEventPage Navigate to the date range selection page.
+ * @param canProceed Whether the "Next" button should be enabled or not.
  * @param modifier Optional [Modifier] for layout adjustments.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,6 +138,7 @@ fun CreatingEventContent(
     onBack: () -> Unit,
     onOpenDatePicker: () -> Unit,
     navigateToCreatingEventPage: () -> Unit,
+    canProceed: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -136,94 +155,131 @@ fun CreatingEventContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             item {
                 Text(
-                    text = "Event Title",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 20.sp,
+                    text = "Create an Event",
+                    modifier = Modifier.padding(bottom = AppSpacing.xl),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-
-                OutlinedTextField(
-                    value = uiState.eventTitle,
-                    onValueChange = onEventTitleChange,
-                    placeholder = { Text("Enter title") },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 16.dp),
-                    shape = RoundedCornerShape(8.dp)
                 )
 
                 Text(
-                    text = "Host Name",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    text = "Event Title",
+                    modifier = Modifier
+                        .fillMaxWidth(AppSize.lg)
+                        .padding(bottom = AppSpacing.xxs),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Start
                 )
-
+                OutlinedTextField(
+                    value = uiState.eventTitle,
+                    onValueChange = onEventTitleChange,
+                    label = { Text("Enter title") },
+                    modifier = Modifier
+                        .fillMaxWidth(AppSize.lg)
+                        .padding(bottom = AppSpacing.sm),
+                    shape = RoundedCornerShape(8.dp),
+                    singleLine = true,
+                    // enabled = !isAlreadySubmitted, // Disable if already submitted
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
+                Text(
+                    text = "Host Name",
+                    modifier = Modifier
+                        .fillMaxWidth(AppSize.lg)
+                        .padding(bottom = AppSpacing.xxs),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Start
+                )
                 OutlinedTextField(
                     value = uiState.hostName,
                     onValueChange = onHostNameChange,
-                    placeholder = { Text("Enter host name") },
+                    label = { Text("Enter host name") },
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 16.dp),
-                    shape = RoundedCornerShape(8.dp)
+                        .fillMaxWidth(AppSize.lg)
+                        .padding(bottom = AppSpacing.sm),
+                    shape = RoundedCornerShape(8.dp),
+                    singleLine = true,
+                    // enabled = !isAlreadySubmitted, // Disable if already submitted
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
                 )
 
                 Text(
                     text = "Date Range",
-                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
-                    fontSize = 20.sp,
+                    modifier = Modifier.padding(top = AppSpacing.md, bottom = AppSpacing.xs),
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                Spacer(modifier = Modifier.padding(4.dp))
+                Spacer(modifier = Modifier.padding(bottom = AppSpacing.xs))
 
                 Text(
                     text = formatDisplayDate(
                         uiState.dateRange.start,
                         uiState.dateRange.end
                     ),
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = if (uiState.hasSelectedDateRange) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = AppSpacing.md)
                 )
 
                 OutlinedButton(
                     onClick = { onOpenDatePicker() },
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md)
                 ) {
                     Text(
                         text = "Select New Date Range",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
-
-                Spacer(modifier = Modifier.padding(28.dp))
-
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Button(
                     onClick = { navigateToCreatingEventPage() },
+                    enabled = canProceed,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
                     Text(
                         text = "Next",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(4.dp)
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
@@ -244,7 +300,8 @@ fun CreatingEventPagePreview() {
             onHostNameChange = {},
             onBack = {},
             onOpenDatePicker = {},
-            navigateToCreatingEventPage = {}
+            navigateToCreatingEventPage = {},
+            canProceed = true
         )
     }
 }

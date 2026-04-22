@@ -1,7 +1,6 @@
-package com.meetup.meetingapp.ui.screens.events_list_page
+package com.meetup.meetingapp.ui.screens.event_list_page
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,15 +34,15 @@ import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
+import com.meetup.meetingapp.utils.toEuroDate
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 /**
  * Navigation destination for the Past Events screen.
  */
-object EventsListDestination : NavigationDestination {
-    override val route = "events-list"
-    override val titleRes = R.string.title_events_list_page
+object EventListDestination : NavigationDestination {
+    override val route = "event-list"
+    override val titleRes = R.string.title_event_list_page
 }
 
 /**
@@ -71,7 +70,7 @@ fun EventsListPage(
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
-                title = stringResource(id = R.string.title_events_list_page),
+                title = stringResource(id = R.string.title_event_list_page),
                 canNavigateBack = true,
                 navigateUp = onBack
             )
@@ -83,11 +82,12 @@ fun EventsListPage(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
             contentPadding = PaddingValues(
-                top = 26.dp,
-                bottom = 26.dp
+                start = 32.dp,
+                end = 32.dp,
+                top = 32.dp,
+                bottom = 32.dp
             ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(sortedEvents) { event ->
                 EventItem(event = event,
@@ -124,7 +124,7 @@ fun EventItem(
         onClick = { onItemClick(event) },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 40.dp),
+            .padding(bottom = 12.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -144,18 +144,18 @@ fun EventItem(
     }
 }
 
-/**
- * Extension function to convert a date string (yyyy-MM-dd) to European format (dd.MM.yyyy).
- */
-private fun String.toEuroDate(): String {
-    return try {
-        val date = LocalDate.parse(this)
-        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-        date.format(formatter)
-    } catch (e: Exception) {
-        this
-    }
-}
+///**
+// * Extension function to convert a date string (yyyy-MM-dd) to European format (dd.MM.yyyy).
+// */
+//private fun String.toEuroDate(): String {
+//    return try {
+//        val date = LocalDate.parse(this)
+//        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+//        date.format(formatter)
+//    } catch (_: Exception) {
+//        this
+//    }
+//}
 
 /**
  * Preview for the [EventsListPage] composable.
@@ -199,11 +199,14 @@ fun EventsListPagePreview() {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp)
-                .padding(top = 26.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 32.dp,
+                end = 32.dp,
+                top = 32.dp,
+                bottom = 32.dp
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(events) { event ->
                 EventItem(event = event)

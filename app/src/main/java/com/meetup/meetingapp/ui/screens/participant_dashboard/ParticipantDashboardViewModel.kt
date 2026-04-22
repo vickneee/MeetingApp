@@ -7,7 +7,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -126,9 +125,6 @@ class ParticipantDashboardViewModel(
                             eventRepository.updateEventStatus(e.id, EventStatus.COLLECTING_AVAILABILITY)
                         }
                     }
-                    if (isSecondRound) {
-                        fetchUserVote()
-                    }
                 }
             }.collect {}
         }
@@ -158,15 +154,8 @@ class ParticipantDashboardViewModel(
      * Fetches the user's vote status for the current event.
      */
     fun fetchUserVote() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val event = _event.value ?: return@launch
-            val hasVoted = eventRepository.hasUserVotedInEvent(
-                eventId = eventId,
-                userId = userId,
-                timings = event.dateTimeCandidates
-            )
-            _uiState.update { it.copy(hasVoted = hasVoted) }
-        }
+        // Removed logic that sets hasVoted boolean to false once a vote is detected,
+        // because we now allow multiple votes in the restaurant phase.
     }
 }
 

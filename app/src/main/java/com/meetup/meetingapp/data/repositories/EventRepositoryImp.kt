@@ -60,7 +60,7 @@ class EventRepositoryImp(
 ): EventRepository {
 
     /**
-     * Firebase Firestore instance.
+     * Firebase Authentication instance.
      */
     private val auth = FirebaseAuth.getInstance()
 
@@ -154,6 +154,7 @@ class EventRepositoryImp(
         val eventId = participantInput.eventId
 
         val participantResponse = ParticipantResponse(
+            userId = uid ?: "",
             name = participantInput.participantName,
             dateTimes = participantInput.selectedDateTimes,
             locations = participantInput.selectedLocations,
@@ -313,7 +314,7 @@ class EventRepositoryImp(
                 eventDao.upsertEvent(entity)
             }
 
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // sync failure won't crash the app, Room still serves cached data
         }
     }
@@ -336,7 +337,7 @@ class EventRepositoryImp(
                 val entity = with(EventMapper) { event.toEntity() }
                 eventDao.upsertEvent(entity)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // sync failure won't crash the app
         }
     }
@@ -389,7 +390,7 @@ class EventRepositoryImp(
 
             // Also update local Room cache
             eventDao.updateEventStatus(eventId, newStatus.name)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // sync failure won't crash the app
         }
     }
@@ -477,7 +478,9 @@ class EventRepositoryImp(
             .addSnapshotListener { snapshot, error ->
                 if (error != null) { close(error); return@addSnapshotListener }
                 val responses = snapshot?.documents
-                    ?.mapNotNull { it.toObject(ParticipantResponse::class.java) }
+                    ?.mapNotNull { doc ->
+                        doc.toObject(ParticipantResponse::class.java)?.copy(userId = doc.id)
+                    }
                     ?: emptyList()
                 // Also update Room cache
                 CoroutineScope(Dispatchers.IO).launch {
@@ -662,11 +665,11 @@ class EventRepositoryImp(
                     auth.currentUser?.displayName ?: "Unknown"
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             "Unknown"
         }
 
-        val vote = Vote(dateTime = dateTime, userId = userId, userName = userName)
+        val vote = Vote(placeId = placeId, dateTime = dateTime, userId = userId, userName = userName)
         return try {
             db.collection("events")
                 .document(eventId)
@@ -725,7 +728,7 @@ class EventRepositoryImp(
      * ### Data Flow:
      * 1. **Query Generation**: Maps [PlaceType] and food categories into human-readable
      * strings (e.g., "Vegan restaurant in Helsinki").
-     * 2. **Availability Check**: Uses [targetTime] to ensure the venue isn't explicitly
+     * 2. **Availability Check**: Uses [Event.dateTimeCandidates] to filter out
      * marked as "Closed" during the planned event window.
      * 3. **Deduplication**: Uses a [MutableSet] of Place IDs to ensure that if a
      * popular venue matches multiple queries, it only appears once.
@@ -862,7 +865,7 @@ class EventRepositoryImp(
                 }
             }
             false
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -977,8 +980,8 @@ class EventRepositoryImp(
                         .addSnapshotListener { voteSnapshot, voteError ->
                             if (voteError != null) return@addSnapshotListener
 
-                            val votes = voteSnapshot?.documents?.mapNotNull {
-                                it.toObject(Vote::class.java)
+                            val votes = voteSnapshot?.documents?.mapNotNull { doc ->
+                                doc.toObject(Vote::class.java)?.copy(placeId = restaurantDoc.id)
                             } ?: emptyList()
 
                             allVotesMap[restaurantDoc.id] = votes
@@ -1005,7 +1008,7 @@ class EventRepositoryImp(
                 .get()
                 .await()
                 .toObject(ParticipantResponse::class.java)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -1037,5 +1040,28 @@ class EventRepositoryImp(
                 trySend(response)
             }
         awaitClose { listener.remove() }
+    }
+
+    /**
+     * Checks if the user has submitted availability for the given event.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @return `true` if the user has submitted availability, `false` otherwise.
+     */
+    override suspend fun hasUserSubmittedAvailability(
+        eventId: String,
+        userId: String
+    ): Boolean {
+        return try {
+            val snapshot = db.collection("events")
+                .document(eventId)
+                .collection("participantResponses")
+                .document(userId)
+                .get()
+                .await()
+            snapshot.exists()
+        } catch (_: Exception) {
+            false
+        }
     }
 }

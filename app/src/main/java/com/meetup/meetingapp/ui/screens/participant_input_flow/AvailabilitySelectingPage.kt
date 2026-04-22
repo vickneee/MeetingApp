@@ -3,12 +3,13 @@ package com.meetup.meetingapp.ui.screens.participant_input_flow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -27,13 +28,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.components.AppMultiSelectDropdown
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -124,7 +127,10 @@ fun AvailabilitySelectingPageContent(
         }
     ) { paddingValues ->
         if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -134,72 +140,65 @@ fun AvailabilitySelectingPageContent(
                 modifier = modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(paddingValues)
-                    .padding(horizontal = 48.dp),
+                    .padding(paddingValues),
+                contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
                 item {
-                    Spacer(modifier = Modifier.height(48.dp))
-
                     Text(
                         text = "Choose all dates and time",
-                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
-                }
-                item {
-
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.xs))
 
                     Text(
                         "slots you can join",
-                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(36.dp))
-
-                    AppMultiSelectDropdown(
-                        options = allDateTimes,
-                        selected = selectedDateTimes,
-                        onToggle = onToggleDateTime,
-                        label = "Availability",
-                        instruction = "Select dates and times",
-                        toText = { dateTime ->
-                            val displayDate = try {
-                                val localDate = LocalDate.parse(dateTime.date)
-                                localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-                            } catch (e: Exception) {
-                                dateTime.date
-                            }
-                            "$displayDate: ${dateTime.timeSlot.start} - ${dateTime.timeSlot.end}"
-                        }
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(48.dp))
-
-                    Button(
-                        onClick = onNext,
-                        enabled = selectedDateTimes.isNotEmpty(),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .wrapContentWidth()
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
+                    Column(
+                        horizontalAlignment = Alignment.Start
                     ) {
-                        Text(
-                            text = "Next",
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 4.dp)
+                        AppMultiSelectDropdown(
+                            options = allDateTimes,
+                            selected = selectedDateTimes,
+                            onToggle = onToggleDateTime,
+                            label = "Availability",
+                            instruction = "Select availability",
+                            toText = { dateTime ->
+                                val displayDate = try {
+                                    val localDate = LocalDate.parse(dateTime.date)
+                                    localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+                                } catch (_: Exception) {
+                                    dateTime.date
+                                }
+                                "$displayDate: ${dateTime.timeSlot.start} - ${dateTime.timeSlot.end}"
+                            }
                         )
+                        Spacer(modifier = Modifier.height(AppSpacing.xl))
+
+                        Button(
+                            onClick = onNext,
+                            enabled = selectedDateTimes.isNotEmpty(),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth(AppSize.lg),
+                            contentPadding = PaddingValues(vertical = AppSpacing.md)
+                        ) {
+                            Text(
+                                text = "Next",
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
         }

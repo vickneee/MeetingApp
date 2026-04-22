@@ -1,10 +1,9 @@
-package com.meetup.meetingapp
+package com.meetup.meetingapp.utils
 
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.model.TimeSlot
-import com.meetup.meetingapp.utils.filterRestaurants
-import org.junit.Assert.assertEquals
+import org.junit.Assert
 import org.junit.Test
 
 class RestaurantFilteringTest {
@@ -31,8 +30,8 @@ class RestaurantFilteringTest {
             location = "Tokyo"
         )
 
-        assertEquals(1, result.size)
-        assertEquals("A", result.first().name)
+        Assert.assertEquals(1, result.size)
+        Assert.assertEquals("A", result.first().name)
     }
 
     @Test
@@ -50,7 +49,7 @@ class RestaurantFilteringTest {
             location = "Osaka"
         )
 
-        assertEquals(0, result.size)
+        Assert.assertEquals(0, result.size)
     }
 
     @Test
@@ -68,7 +67,7 @@ class RestaurantFilteringTest {
             location = "Tokyo"
         )
 
-        assertEquals(0, result.size)
+        Assert.assertEquals(0, result.size)
     }
 
     @Test
@@ -86,7 +85,7 @@ class RestaurantFilteringTest {
             location = "Tokyo"
         )
 
-        assertEquals(0, result.size)
+        Assert.assertEquals(0, result.size)
     }
 
     @Test
@@ -104,9 +103,6 @@ class RestaurantFilteringTest {
             location = "Osaka"
         )
 
-        assertEquals(0, result.size)
+        Assert.assertEquals(0, result.size)
     }
 }
-
-
-

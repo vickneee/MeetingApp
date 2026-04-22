@@ -33,10 +33,13 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
+import com.meetup.meetingapp.utils.buildPhotoUrl
+import com.meetup.meetingapp.utils.formatPriceLevel
 import com.meetup.meetingapp.utils.getOpenLabel
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.meetup.meetingapp.utils.toEuroDate
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
@@ -101,13 +104,12 @@ fun PlaceDetailsPage(
         getOpenLabel(restaurant!!, timing!!)
     } else null
 
-    val priceLabel = restaurant?.priceLevel
-        ?.let { viewModel.formatPriceLevel(it) }
-        ?: ""
+    val priceLabel = formatPriceLevel(restaurant?.priceLevel)
 
-    val photoUrl = restaurant?.photoReference
-        ?.let { viewModel.buildPhotoUrl(it) }
-        ?: ""
+    val photoUrl = buildPhotoUrl(
+        photoReference = restaurant?.photoReference,
+        apiKey = viewModel.apiKey
+    ) ?: ""
 
     restaurant?.let { r ->
         PlaceDetailsContent(
@@ -131,7 +133,7 @@ fun PlaceDetailsPage(
                 }
                 try {
                     context.startActivity(mapIntent)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     val webIntent = Intent(
                         Intent.ACTION_VIEW,
                         Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress")
@@ -140,7 +142,7 @@ fun PlaceDetailsPage(
                 }
             }
         )
-    }
+    } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
 
 /**
@@ -196,7 +198,7 @@ fun PlaceDetailsContent(
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface,
                         titleContentColor = MaterialTheme.colorScheme.onSurface,
                         navigationIconContentColor = MaterialTheme.colorScheme.primary
@@ -239,7 +241,7 @@ fun PlaceDetailsContent(
                                 contentDescription = "Visual of ${restaurantDetail.name}",
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(240.dp)
+                                    .height(220.dp)
                                     .clip(RoundedCornerShape(8.dp)),
                                 contentScale = ContentScale.Crop
                             )
@@ -250,7 +252,7 @@ fun PlaceDetailsContent(
                             Text(
                                 text = restaurantDetail.name,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 24.sp,
+                                style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
 
@@ -277,13 +279,15 @@ fun PlaceDetailsContent(
                             thickness = 1.dp)
 
                         // Location/Status Section
-                        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Text(
                                 text = "Distance: $distanceLabel", // Showing dynamic distance
+                                style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
                                 text = "Open: $openLabel",
+                                style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
@@ -298,7 +302,7 @@ fun PlaceDetailsContent(
                             Text(
                                 text = "Date: ${finalTime.date.toEuroDate()} ${finalTime.timeSlot.start} - ${finalTime.timeSlot.end}",
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 17.sp,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.Center
@@ -311,44 +315,45 @@ fun PlaceDetailsContent(
                                 onClick = onMapsClick,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                                contentPadding = PaddingValues(AppSpacing.sm)
                             ) {
                                 Text(
                                     text = "View on Google Maps",
-                                    fontSize = 18.sp,
-                                    modifier = Modifier.padding(6.dp)
+                                    style = MaterialTheme.typography.labelLarge,
                                 )
                             }
 
                             if (isFinalized) {
                                 Button(
                                     onClick = onHomeClick,
-                                    modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(8.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.primary
-                                    )
+                                    ),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(AppSpacing.md)
                                 ) {
                                     Text(
                                         text = "Home",
-                                        fontSize = 18.sp,
-                                        modifier = Modifier.padding(6.dp)
+                                        style = MaterialTheme.typography.labelLarge,
                                     )
                                 }
                             } else {
                                 Button(
                                     onClick = onVoteClick,
                                     enabled = !isVoted,
-                                    modifier = Modifier.fillMaxWidth(),
+
                                     shape = RoundedCornerShape(8.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.primary
-                                    )
+                                    ),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(AppSpacing.md)
                                 ) {
                                     Text(
                                         text = if (isVoted) "Voted" else "Vote for this restaurant",
-                                        fontSize = 18.sp,
-                                        modifier = Modifier.padding(6.dp)
+                                        style = MaterialTheme.typography.labelLarge,
                                     )
                                 }
                             }
@@ -356,8 +361,8 @@ fun PlaceDetailsContent(
                             if (voteResultState is VoteResultState.VoteError) {
                                 Text(
                                     text = voteResultState.message,
-                                    color = Color.Red,
-                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.labelSmall,
                                     modifier = Modifier.align(Alignment.CenterHorizontally)
                                 )
                             }
@@ -366,19 +371,6 @@ fun PlaceDetailsContent(
                 }
             }
         }
-    }
-}
-
-/**
- * Extension function to convert a date string (yyyy-MM-dd) to European format (dd.MM.yyyy).
- */
-private fun String.toEuroDate(): String {
-    return try {
-        val date = LocalDate.parse(this)
-        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-        date.format(formatter)
-    } catch (e: Exception) {
-        this
     }
 }
 

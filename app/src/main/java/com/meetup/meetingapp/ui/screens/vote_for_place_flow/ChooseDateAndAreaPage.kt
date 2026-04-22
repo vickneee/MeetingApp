@@ -4,23 +4,19 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -29,8 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -38,7 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
@@ -46,7 +39,11 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.components.ParticipantItemRow
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
@@ -161,71 +158,77 @@ fun ChooseDateAndAreaContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 48.dp),
+                .padding(paddingValues),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
-
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(buildAnnotatedString {
-                        append("Event Code: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.eventCode)
-                        }
-                    }, fontSize = 20.sp)
-
-                    Text(buildAnnotatedString {
-                        append("State: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.status.displayName)
-                        }
-                    }, fontSize = 20.sp)
-
-                    Text(buildAnnotatedString {
-                        append("Event Title: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.eventTitle)
-                        }
-                    }, fontSize = 20.sp)
-
-                    Text(buildAnnotatedString {
-                        append("Host: ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                            append(event.hostName)
-                        }
-                    }, fontSize = 20.sp)
-
-                    Spacer(modifier = Modifier.padding(12.dp))
-
                     Text(
-                        text = "Submissions: $submissionsCount",
-                        fontSize = 20.sp
+                        buildAnnotatedString {
+                            append("Event Code: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.eventCode)
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    // List of attendees
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        attendees.forEach { name ->
-                            ParticipantItem(name = name)
-                        }
-                    }
+                    Text(
+                        buildAnnotatedString {
+                            append("State: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.status.displayName)
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Text(
+                        buildAnnotatedString {
+                            append("Event Title: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.eventTitle)
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Text(
+                        buildAnnotatedString {
+                            append("Host: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(event.hostName)
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Spacer(modifier = Modifier.height(AppSpacing.sm))
+                    Text(
+                        text = "Submissions: $submissionsCount",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
                 }
             }
 
-            item {
-                Spacer(modifier = Modifier.padding(24.dp))
+            // List of attendees
+            items(attendees) { name ->
+                ParticipantItemRow(name = name, modifier = Modifier.padding(start = 16.dp))
+            }
 
+            item {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -236,24 +239,24 @@ fun ChooseDateAndAreaContent(
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                     Button(
                         onClick = onVoteForRestaurantClick,
                         enabled = buttonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md)
                     ) {
                         Text(
                             "Choose Date & Area",
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -261,50 +264,20 @@ fun ChooseDateAndAreaContent(
                 ) {
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md)
                     ) {
                         Text(
                             "Home",
                             color = MaterialTheme.colorScheme.primary,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(6.dp)
+                            style = MaterialTheme.typography.labelLarge
                         )
                     }
-                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
         }
-    }
-}
-
-/**
- * Composable that displays a participant's name and an icon.
- */
-@Composable
-fun ParticipantItem(name: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            modifier = Modifier
-                .size(32.dp)
-                .clip(CircleShape)
-                .background(Color.LightGray.copy(alpha = 0.3f))
-                .padding(4.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = name,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium
-        )
     }
 }
 

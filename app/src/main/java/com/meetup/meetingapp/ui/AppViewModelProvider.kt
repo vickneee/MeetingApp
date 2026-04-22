@@ -10,7 +10,7 @@ import com.google.android.gms.location.LocationServices
 import com.meetup.meetingapp.MeetingApplication
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
-import com.meetup.meetingapp.ui.screens.create_or_join_page.CreateOrJoinViewModel
+import com.meetup.meetingapp.ui.screens.join_page.JoinViewModel
 import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardViewModel
 import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardViewModel
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantViewModel
@@ -39,7 +39,7 @@ object AppViewModelProvider {
          * Initializer for CreateOrJoinViewModel
          */
         initializer {
-            CreateOrJoinViewModel(
+            JoinViewModel(
                 meetingApplication().container.db,
                 meetingApplication().container.userRepository
             )

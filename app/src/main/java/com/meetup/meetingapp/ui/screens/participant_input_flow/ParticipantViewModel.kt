@@ -9,6 +9,8 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.FoodCategory
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.repositories.EventRepository
+import com.meetup.meetingapp.utils.buildAllAvailableDateTimes
+import com.meetup.meetingapp.utils.buildDateAvailability
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -149,19 +151,7 @@ class ParticipantViewModel(
      */
     val allAvailableDateTimes: StateFlow<List<DateTime>> = _event.map { event ->
         if (event == null) emptyList()
-        else {
-            val start = event.dateRange.startDate()
-            val end = event.dateRange.endDate()
-            val allDates = generateSequence(start) { it.plusDays(1) }
-                .takeWhile { !it.isAfter(end) }
-                .toList()
-            
-            allDates.flatMap { date ->
-                event.timeSlots.map { slot ->
-                    DateTime(date.toString(), slot)
-                }
-            }
-        }
+        else buildAllAvailableDateTimes(event)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /**
@@ -232,37 +222,6 @@ class ParticipantViewModel(
     }
 
     /**
-     * Builds a list of [DateAvailability] based on the provided event and selected date times.
-     *
-     * @param event The event containing time slots.
-     * @param selectedDateTimes The list of selected date and time slots.
-     * @return A list of [DateAvailability] representing available dates and time slots.
-     * @see UiTimeSlot for more information about time slots.
-     */
-    private fun buildDateAvailability(event: Event, selectedDateTimes: List<DateTime>): List<DateAvailability> {
-        val start = event.dateRange.startDate()
-        val end = event.dateRange.endDate()
-        val allDates = generateSequence(start) { it.plusDays(1) }
-            .takeWhile { !it.isAfter(end) }
-            .toList()
-
-        return allDates.map { date ->
-            val dateString = date.toString()
-            DateAvailability(
-                date = dateString,
-                timeSlots = event.timeSlots.mapIndexed { index, slot ->
-                    val isSelected = selectedDateTimes.any { it.date == dateString && it.timeSlot == slot }
-                    UiTimeSlot(
-                        id = index,
-                        timeRange = "${slot.start} - ${slot.end}",
-                        isSelected = isSelected
-                    )
-                }
-            )
-        }
-    }
-
-    /**
      * Submits the participant's input (availability and preferences).
      *
      * This function triggers the submission flow and updates [submitState]
@@ -299,21 +258,21 @@ class ParticipantViewModel(
         }
     }
 
-    /**
-     * Toggles the selection of a date and time slot.
-     *
-     * @param date The date of the slot.
-     * @param slotIndex The index of the slot in the list.
-     * @see UiTimeSlot for more information about time slots.
-     */
-    fun toggleDateTime(date: String, slotIndex: Int) {
-        val currentEvent = _event.value ?: return
-        if (slotIndex !in currentEvent.timeSlots.indices) return
-        
-        val slot = currentEvent.timeSlots[slotIndex]
-        val dateTime = DateTime(date = date, timeSlot = slot)
-        toggleDateTime(dateTime)
-    }
+//    /**
+//     * Toggles the selection of a date and time slot.
+//     *
+//     * @param date The date of the slot.
+//     * @param slotIndex The index of the slot in the list.
+//     * @see UiTimeSlot for more information about time slots.
+//     */
+//    fun toggleDateTime(date: String, slotIndex: Int) {
+//        val currentEvent = _event.value ?: return
+//        if (slotIndex !in currentEvent.timeSlots.indices) return
+//
+//        val slot = currentEvent.timeSlots[slotIndex]
+//        val dateTime = DateTime(date = date, timeSlot = slot)
+//        toggleDateTime(dateTime)
+//    }
 
     /**
      * Toggles the selection of a place type.
@@ -414,7 +373,6 @@ data class ParticipantInputState(
  * @see FetchState.Success for success state.
  * @see FetchState.Error for error state.
  */
-// Fetch state
 sealed interface FetchState {
     object Loading : FetchState
     object Success : FetchState

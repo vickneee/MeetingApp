@@ -159,7 +159,7 @@ class UserRepositoryImp(
         }
     }
 
-    suspend fun syncUser(uid: String) {
+    override suspend fun syncUser(uid: String) {
         val snapshot = db.collection("users").document(uid).get().await()
 
         @Suppress("UNCHECKED_CAST")

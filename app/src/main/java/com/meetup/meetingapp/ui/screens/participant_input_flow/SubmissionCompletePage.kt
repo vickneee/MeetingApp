@@ -2,6 +2,7 @@ package com.meetup.meetingapp.ui.screens.participant_input_flow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,13 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 
 /**
  * Navigation destination for the Submission Complete screen.
@@ -115,7 +117,7 @@ fun SubmissionCompleteContent(
     onNavigateToParticipantDashboard: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
+    
     val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
     val event by viewModel.event.collectAsStateWithLifecycle(null)
 
@@ -132,12 +134,12 @@ fun SubmissionCompleteContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .padding(horizontal = AppSpacing.lg),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             item {
-                Spacer(modifier = Modifier.height(48.dp))
                 Text(
                     "Thank you!",
                     style = MaterialTheme.typography.titleLarge,
@@ -146,39 +148,39 @@ fun SubmissionCompleteContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xxl))
                 Text(
                     "Your availability and preferences",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
 
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
                 Text(
                     "have been submitted.",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
 
             item {
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Text(
-                    "Please wait for the host to close",
-                    fontSize = 20.sp,
+                    "Please wait for the host",
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
 
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
                 Text(
-                    "the voting.",
-                    fontSize = 20.sp,
+                    "to close the voting.",
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
 
             item {
-                Spacer(modifier = Modifier.height(100.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xxxl))
 
                 Button(
                     onClick = {
@@ -191,9 +193,14 @@ fun SubmissionCompleteContent(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(0.7f)
+                    modifier = Modifier
+                        .fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
                 ) {
-                    Text("Go to Dashboard", fontSize = 18.sp, modifier = Modifier.padding(8.dp))
+                    Text(
+                        "Go to Dashboard",
+                        style = MaterialTheme.typography.labelLarge
+                    )
                 }
             }
         }

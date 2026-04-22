@@ -3,11 +3,12 @@ package com.meetup.meetingapp.ui.screens.participant_input_flow
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,7 +31,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.meetup.meetingapp.MeetingAppTopAppBar
@@ -40,6 +40,9 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
+import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
@@ -144,39 +147,24 @@ fun MeetUpDetailContent(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = 48.dp),
-            horizontalAlignment = Alignment.Start,
+                .padding(paddingValues),
+            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
+                Column(
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        "You've joined this meetup!",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
 
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (isAlreadySubmitted) {
-                        Text(
-                            text = buildAnnotatedString {
-                                if (submittedName.isNotEmpty()) {
-                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(submittedName)
-                                    }
-                                    append(", You already voted!")
-                                } else {
-                                    append("You already voted!")
-                                }
-                            },
-                            fontSize = 22.sp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    } else {
-                        Text(
-                            "You've joined this meetup!",
-                            fontSize = 22.sp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    
                     Text(
                         buildAnnotatedString {
                             append("Event Code: ")
@@ -184,10 +172,10 @@ fun MeetUpDetailContent(
                                 append(event.eventCode)
                             }
                         },
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
-                    
+
                     Text(
                         buildAnnotatedString {
                             append("State: ")
@@ -195,8 +183,8 @@ fun MeetUpDetailContent(
                                 append(event.status.displayName)
                             }
                         },
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Text(
@@ -206,8 +194,8 @@ fun MeetUpDetailContent(
                                 append(event.eventTitle)
                             }
                         },
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Text(
@@ -217,26 +205,28 @@ fun MeetUpDetailContent(
                                 append(event.hostName)
                             }
                         },
-                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+
+                    Spacer(modifier = Modifier.height(AppSpacing.sm))
+                    Text(
+                        text = "Submissions: $submissionsCount",
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
+                    Spacer(modifier = Modifier.height(AppSpacing.md))
                 }
+            }
 
-                Spacer(modifier = Modifier.padding(24.dp))
-
-                Text(
-                    text = "Submissions: $submissionsCount",
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-
-                Spacer(modifier = Modifier.padding(vertical = 24.dp))
-
+            item {
                 Text(
                     text = "Your Name",
-                    modifier = Modifier.padding(vertical = 5.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(vertical = AppSpacing.xxs)
+                        .fillMaxWidth(AppSize.lg),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
@@ -247,7 +237,8 @@ fun MeetUpDetailContent(
                     label = { Text("Enter your name") },
                     singleLine = true,
                     enabled = !isAlreadySubmitted, // Disable if already submitted
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -262,22 +253,23 @@ fun MeetUpDetailContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.padding(AppSpacing.md))
 
-                Box(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
                         onClick = onNavigateToTimeAvailability,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md)
                     ) {
                         Text(
                             text = if (isAlreadySubmitted) "Edit Your Vote" else "Next",
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 6.dp)
+                            style = MaterialTheme.typography.labelLarge
+
                         )
                     }
                 }
@@ -302,7 +294,9 @@ fun MeetUpDetailPreview() {
     MeetingAppTheme {
         MeetUpDetailContent(
             event = sampleEvent,
-            submissionsCount = 0,
+            isAlreadySubmitted = false,
+            submittedName = "",
+            submissionsCount = 3,
             participantState = ParticipantInputState(participantName = "Julia"),
             onNameChange = {},
             onBack = {},
