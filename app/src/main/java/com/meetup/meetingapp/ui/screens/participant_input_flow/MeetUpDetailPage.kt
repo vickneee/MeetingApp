@@ -158,29 +158,12 @@ fun MeetUpDetailContent(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    if (isAlreadySubmitted) {
-                        Text(
-                            text = buildAnnotatedString {
-                                if (submittedName.isNotEmpty()) {
-                                    withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                                        append(submittedName)
-                                    }
-                                    append(", You already voted!")
-                                } else {
-                                    append("You already voted!")
-                                }
-                            },
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    } else {
-                        Text(
-                            "You've joined this meetup!",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        "You've joined this meetup!",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
 
                     Text(
                         buildAnnotatedString {
@@ -201,7 +184,7 @@ fun MeetUpDetailContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Text(
@@ -212,7 +195,7 @@ fun MeetUpDetailContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Text(
@@ -223,7 +206,7 @@ fun MeetUpDetailContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Spacer(modifier = Modifier.height(AppSpacing.sm))
