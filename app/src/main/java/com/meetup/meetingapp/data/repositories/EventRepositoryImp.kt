@@ -728,7 +728,7 @@ class EventRepositoryImp(
      * ### Data Flow:
      * 1. **Query Generation**: Maps [PlaceType] and food categories into human-readable
      * strings (e.g., "Vegan restaurant in Helsinki").
-     * 2. **Availability Check**: Uses [targetTime] to ensure the venue isn't explicitly
+     * 2. **Availability Check**: Uses [Event.dateTimeCandidates] to filter out
      * marked as "Closed" during the planned event window.
      * 3. **Deduplication**: Uses a [MutableSet] of Place IDs to ensure that if a
      * popular venue matches multiple queries, it only appears once.

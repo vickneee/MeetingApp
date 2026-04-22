@@ -16,11 +16,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -89,7 +87,6 @@ fun ParticipantDashboardPage(
             submissionsCount = uiState.submissionsCount,
             attendees = uiState.attendees,
             currentUserName = uiState.currentUserName,
-            hasVoted = hasVoted,
             onBack = onBack,
             onVoteForRestaurantClick = onVoteForRestaurantClick,
             onFinalPlanClick = onFinalPlanClick,
@@ -117,7 +114,6 @@ fun ParticipantDashboardContent(
     submissionsCount: Int,
     attendees: List<String>,
     currentUserName: String,
-    hasVoted: Boolean,
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
     onFinalPlanClick: (String) -> Unit,
@@ -337,7 +333,6 @@ fun ParticipantDashboardPreview() {
             submissionsCount = 4,
             attendees = listOf("Alice", "Bob"),
             currentUserName = "Julia",
-            hasVoted = false,
             onBack = {},
             onFinalPlanClick = {},
             onVoteForRestaurantClick = {},
