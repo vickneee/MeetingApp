@@ -67,7 +67,6 @@ fun ParticipantDashboardPage(
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val hasVoted = uiState.hasVoted
 
     // Re-check vote status every time screen resumes
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
