@@ -29,4 +29,11 @@ data class DateTime(
             "${this.date} (${timeSlot.start}–${timeSlot.end})"
         }
     }
+
+    /**
+     * Converts a DateTime to a string for storage in Firestore.
+     * Format: "yyyy-MM-dd|start-end"
+     * @return String representation of the DateTime.
+     */
+    fun toSerializableString(): String = "$date|${timeSlot.start}-${timeSlot.end}"
 }

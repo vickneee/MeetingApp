@@ -419,12 +419,6 @@ data class DateLocationOption(val timing: DateTime, val location: String) {
 data class DateAndAreaState(val dateLocationOptions: List<DateLocationOption> = listOf())
 
 /**
- * Converts a DateTime to a string for storage in Firestore.
- * @return String representation of the DateTime.
- */
-fun DateTime.toSerializableString(): String = "$date|${timeSlot.start}-${timeSlot.end}"
-
-/**
  * Represents the state of restaurant candidates.
  *
  * @property Loading Indicates that loading is in progress.
