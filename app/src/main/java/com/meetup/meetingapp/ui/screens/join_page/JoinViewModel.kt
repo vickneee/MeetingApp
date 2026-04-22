@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.UserRepository
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -127,9 +128,16 @@ class JoinViewModel(
                 keyError = "Wrong key or code"
                 return@launch
             }
-            Log.w("Join", "No event found for code=$code key=$key")
 
-            val eventId = snapshot.documents.first().id
+            val doc = snapshot.documents.first()
+            val statusStr = doc.getString("status") ?: ""
+            
+            if (statusStr == EventStatus.FINALIZED.name) {
+                keyError = "Not able to join, Event is finalized"
+                return@launch
+            }
+
+            val eventId = doc.id
             userRepository.addJoinedEvent(eventId = eventId, uid = uid)
             navigateToParticipantPage = code to key
             Log.d("Join", "Joined event: $eventId")
