@@ -16,7 +16,7 @@ object AppSpacing {
     val sm = 14.dp
 
     // default spacing (MOST USED)
-    val md = 16.dp
+    val md = 14.dp
 
     // section spacing
     val lg = 24.dp

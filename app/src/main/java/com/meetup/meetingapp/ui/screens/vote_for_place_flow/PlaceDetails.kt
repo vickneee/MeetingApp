@@ -331,7 +331,7 @@ fun PlaceDetailsContent(
                                         containerColor = MaterialTheme.colorScheme.primary
                                     ),
                                     modifier = Modifier.fillMaxWidth(),
-                                    contentPadding = PaddingValues(AppSpacing.sm)
+                                    contentPadding = PaddingValues(AppSpacing.md)
                                 ) {
                                     Text(
                                         text = "Home",
@@ -348,7 +348,7 @@ fun PlaceDetailsContent(
                                         containerColor = MaterialTheme.colorScheme.primary
                                     ),
                                     modifier = Modifier.fillMaxWidth(),
-                                    contentPadding = PaddingValues(AppSpacing.sm)
+                                    contentPadding = PaddingValues(AppSpacing.md)
                                 ) {
                                     Text(
                                         text = if (isVoted) "Voted" else "Vote for this restaurant",
