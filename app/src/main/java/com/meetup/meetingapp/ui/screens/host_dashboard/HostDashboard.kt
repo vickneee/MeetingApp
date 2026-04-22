@@ -334,9 +334,12 @@ fun HostDashboardContent(
                                 closeVotingState.error.message
                                     ?: "Unknown error, retry close voting",
                             color = MaterialTheme.colorScheme.error,
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(top = 12.dp),
-                            textAlign = TextAlign.Start,
+                            fontSize = 14.sp,
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth(AppSize.lg)
+                                    .padding(top = 6.dp),
+                            textAlign = TextAlign.Center,
                         )
                     }
 
