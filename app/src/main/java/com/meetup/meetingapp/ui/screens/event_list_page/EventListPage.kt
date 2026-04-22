@@ -65,7 +65,7 @@ fun EventsListPage(
     viewModel: EventViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val events by viewModel.events.collectAsStateWithLifecycle()
-    val sortedEvents = events.sortedByDescending { it.dateRange.startDate() }
+    val sortedEvents = events.sortedByDescending { it.createdAt }
 
     Scaffold(
         topBar = {
@@ -143,19 +143,6 @@ fun EventItem(
         )
     }
 }
-
-///**
-// * Extension function to convert a date string (yyyy-MM-dd) to European format (dd.MM.yyyy).
-// */
-//private fun String.toEuroDate(): String {
-//    return try {
-//        val date = LocalDate.parse(this)
-//        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-//        date.format(formatter)
-//    } catch (_: Exception) {
-//        this
-//    }
-//}
 
 /**
  * Preview for the [EventsListPage] composable.
