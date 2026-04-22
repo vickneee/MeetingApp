@@ -174,7 +174,6 @@ interface EventRepository {
      * @param eventId The ID of the event to retrieve.
      * @return A [Flow] emitting the [Event] object with the specified ID.
      */
-    // Firestore real-time listener
     fun observeEventById(eventId: String): Flow<Event?>
 
     /**
@@ -183,7 +182,6 @@ interface EventRepository {
      * @param eventId The ID of the event to retrieve responses for.
      * @return A [Flow] emitting a list of [ParticipantResponse] objects
      */
-    // Firestore real-time listener
     fun observeSubmissions(eventId: String): Flow<List<ParticipantResponse>>
 
     /**
