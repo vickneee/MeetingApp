@@ -33,6 +33,7 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import com.meetup.meetingapp.utils.buildPhotoUrl
@@ -141,7 +142,7 @@ fun PlaceDetailsPage(
                 }
             }
         )
-    }
+    } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
 
 /**
@@ -372,19 +373,6 @@ fun PlaceDetailsContent(
         }
     }
 }
-
-///**
-// * Extension function to convert a date string (yyyy-MM-dd) to European format (dd.MM.yyyy).
-// */
-//private fun String.toEuroDate(): String {
-//    return try {
-//        val date = LocalDate.parse(this)
-//        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-//        date.format(formatter)
-//    } catch (_: Exception) {
-//        this
-//    }
-//}
 
 /**
  * Preview for the [PlaceDetailsContent] composable.
