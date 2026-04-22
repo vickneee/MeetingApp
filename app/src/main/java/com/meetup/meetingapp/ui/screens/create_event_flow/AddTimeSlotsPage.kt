@@ -227,6 +227,7 @@ fun AddTimeSlotsPageContent(
  * @param onEditClick Callback to edit the selected time slot
  * @param modifier Optional [Modifier] for layout adjustments
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeSlotItem(
     timeSlot: String,
@@ -234,6 +235,7 @@ fun TimeSlotItem(
     modifier: Modifier = Modifier,
 ) {
     Card(
+        onClick = onEditClick,
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
         colors =
