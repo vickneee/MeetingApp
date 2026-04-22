@@ -72,32 +72,35 @@ fun EventsListPage(
             MeetingAppTopAppBar(
                 title = stringResource(id = R.string.title_event_list_page),
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 32.dp,
-                bottom = 32.dp
-            ),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
+            contentPadding =
+                PaddingValues(
+                    start = 32.dp,
+                    end = 32.dp,
+                    top = 32.dp,
+                    bottom = 32.dp,
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             items(sortedEvents) { event ->
-                EventItem(event = event,
+                EventItem(
+                    event = event,
                     onItemClick = {
                         if (event.hostId == currentUserId) {
                             onNavigateToHostDashboard(event.id)
                         } else {
                             onNavigateToParticipantDashboard(event.id)
                         }
-                    }
+                    },
                 )
             }
         }
@@ -112,34 +115,38 @@ fun EventsListPage(
 @Composable
 fun EventItem(
     event: Event,
-    onItemClick: (Event) -> Unit = {}
+    onItemClick: (Event) -> Unit = {},
 ) {
-    val labelText = if (event.status == EventStatus.FINALIZED && event.finalTime != null) {
-        "${event.eventCode} / ${event.finalTime.date.toEuroDate()}"
-    } else {
-        "${event.eventCode} / Ongoing"
-    }
+    val labelText =
+        if (event.status == EventStatus.FINALIZED && event.finalTime != null) {
+            "${event.eventCode} / ${event.finalTime.date.toEuroDate()}"
+        } else {
+            "${event.eventCode} / Ongoing"
+        }
 
     Card(
         onClick = { onItemClick(event) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Text(
             text = labelText,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 20.dp, horizontal = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp, horizontal = 16.dp),
             textAlign = TextAlign.Center,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -151,48 +158,51 @@ fun EventItem(
 @Preview(showBackground = true)
 @Composable
 fun EventsListPagePreview() {
-    val events = listOf(
-        Event(
-            eventCode = "A7F9K2",
-            eventKey = "48392",
-            hostId = "user123",
-            id = "event1",
-            status = EventStatus.CREATED,
-            eventTitle = "Team Lunch",
-            hostName = "John Doe",
-            dateRange = DateRange(LocalDate.now().toString(), LocalDate.now().plusDays(7).toString())
-        ),
-        Event(
-            eventCode = "D1L4P7",
-            eventKey = "12345",
-            hostId = "user123",
-            id = "event2",
-            status = EventStatus.COLLECTING_AVAILABILITY,
-            eventTitle = "Team Dinner",
-            hostName = "John Doe",
-            dateRange = DateRange(LocalDate.now().toString(), LocalDate.now().plusDays(7).toString())
+    val events =
+        listOf(
+            Event(
+                eventCode = "A7F9K2",
+                eventKey = "48392",
+                hostId = "user123",
+                id = "event1",
+                status = EventStatus.CREATED,
+                eventTitle = "Team Lunch",
+                hostName = "John Doe",
+                dateRange = DateRange(LocalDate.now().toString(), LocalDate.now().plusDays(7).toString()),
+            ),
+            Event(
+                eventCode = "D1L4P7",
+                eventKey = "12345",
+                hostId = "user123",
+                id = "event2",
+                status = EventStatus.COLLECTING_AVAILABILITY,
+                eventTitle = "Team Dinner",
+                hostName = "John Doe",
+                dateRange = DateRange(LocalDate.now().toString(), LocalDate.now().plusDays(7).toString()),
+            ),
         )
-    )
 
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
                 title = "Event List",
                 canNavigateBack = true,
-                navigateUp = {}
+                navigateUp = {},
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = 32.dp,
-                end = 32.dp,
-                top = 32.dp,
-                bottom = 32.dp
-            ),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+            contentPadding =
+                PaddingValues(
+                    start = 32.dp,
+                    end = 32.dp,
+                    top = 32.dp,
+                    bottom = 32.dp,
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             items(events) { event ->

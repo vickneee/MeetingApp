@@ -12,17 +12,16 @@ import kotlinx.coroutines.tasks.await
  * Uses Priority.PRIORITY_HIGH_ACCURACY for the best distance calculation.
  */
 @SuppressLint("MissingPermission")
-suspend fun fetchCurrentCoordinates(
-    fusedLocationClient: FusedLocationProviderClient
-): Pair<Double, Double>? {
-    return try {
-        val result: Location? = fusedLocationClient.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            CancellationTokenSource().token
-        ).await() // This "await" comes from play-services-coroutines
+suspend fun fetchCurrentCoordinates(fusedLocationClient: FusedLocationProviderClient): Pair<Double, Double>? =
+    try {
+        val result: Location? =
+            fusedLocationClient
+                .getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    CancellationTokenSource().token,
+                ).await() // This "await" comes from play-services-coroutines
 
         result?.let { it.latitude to it.longitude }
     } catch (e: Exception) {
         null // Handle cases like GPS being turned off
     }
-}

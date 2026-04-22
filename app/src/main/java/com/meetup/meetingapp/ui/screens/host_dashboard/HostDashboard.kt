@@ -69,9 +69,10 @@ fun HostDashboardPage(
     onFinalPlanClick: (String) -> Unit,
     onFillAvailability: (String, String) -> Unit,
     onNavigateToHome: () -> Unit,
-    viewModel: HostDashboardViewModel = viewModel(
-        factory = AppViewModelProvider.Factory
-    )
+    viewModel: HostDashboardViewModel =
+        viewModel(
+            factory = AppViewModelProvider.Factory,
+        ),
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -82,12 +83,13 @@ fun HostDashboardPage(
     // Re-check vote status every time screen resumes
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, lifecycleEvent ->
-            if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-                viewModel.fetchUserVote()
-                viewModel.checkHostAvailability()
+        val observer =
+            LifecycleEventObserver { _, lifecycleEvent ->
+                if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+                    viewModel.fetchUserVote()
+                    viewModel.checkHostAvailability()
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
@@ -100,7 +102,6 @@ fun HostDashboardPage(
             hasVoted = hasVoted,
             hasAnyRestaurantVotes = uiState.hasAnyRestaurantVotes,
             onBack = onBack,
-
             closeVotingState = closeVotingState,
             onCloseVotingClick = { status ->
                 if (status == EventStatus.FIRST_VOTING_CLOSED) {
@@ -113,7 +114,7 @@ fun HostDashboardPage(
             onFinalPlanClick = onFinalPlanClick,
             hasHostSubmittedAvailability = hasHostSubmittedAvailability,
             onFillAvailabilityClick = { onFillAvailability(it.eventCode, it.eventKey) },
-            onNavigateToHome = onNavigateToHome
+            onNavigateToHome = onNavigateToHome,
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
@@ -160,31 +161,32 @@ fun HostDashboardContent(
     onNavigateToHome: () -> Unit,
     hasHostSubmittedAvailability: Boolean,
     onFillAvailabilityClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
                 title = "${stringResource(id = R.string.title_host_dashboard)} / ${event.eventCode}",
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
         ) {
             item {
                 Column(
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
                     horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
                         buildAnnotatedString {
@@ -194,7 +196,7 @@ fun HostDashboardContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Text(
@@ -205,7 +207,7 @@ fun HostDashboardContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Text(
@@ -216,7 +218,7 @@ fun HostDashboardContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Text(
@@ -227,13 +229,13 @@ fun HostDashboardContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Spacer(modifier = Modifier.height(AppSpacing.sm))
                     Text(
                         text = "Submissions: $submissionsCount",
                         color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
                     )
                     Spacer(modifier = Modifier.height(AppSpacing.xxs))
                 }
@@ -245,33 +247,37 @@ fun HostDashboardContent(
             }
 
             item {
-                val buttonText = when (event.status) {
-                    EventStatus.COLLECTING_AVAILABILITY -> "Start Place Voting"
-                    EventStatus.FIRST_VOTING_CLOSED -> "First Voting Closed"
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Place Voting"
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Place Voting"
-                    EventStatus.FINALIZED -> "Event Finalized"
-                    else -> null
-                }
+                val buttonText =
+                    when (event.status) {
+                        EventStatus.COLLECTING_AVAILABILITY -> "Start Place Voting"
+                        EventStatus.FIRST_VOTING_CLOSED -> "First Voting Closed"
+                        EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Place Voting"
+                        EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Place Voting"
+                        EventStatus.FINALIZED -> "Event Finalized"
+                        else -> null
+                    }
 
-                val nextStatus = when (event.status) {
-                    EventStatus.COLLECTING_AVAILABILITY -> EventStatus.FIRST_VOTING_CLOSED
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> EventStatus.COLLECTING_RESTAURANT_VOTES
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> EventStatus.FINALIZED
-                    else -> null
-                }
+                val nextStatus =
+                    when (event.status) {
+                        EventStatus.COLLECTING_AVAILABILITY -> EventStatus.FIRST_VOTING_CLOSED
+                        EventStatus.RESTAURANT_CANDIDATES_GENERATED -> EventStatus.COLLECTING_RESTAURANT_VOTES
+                        EventStatus.COLLECTING_RESTAURANT_VOTES -> EventStatus.FINALIZED
+                        else -> null
+                    }
 
                 // Close Voting button enabled logic
-                val buttonEnabled = when (event.status) {
-                    EventStatus.COLLECTING_AVAILABILITY -> true
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> false
-                    EventStatus.COLLECTING_RESTAURANT_VOTES -> hasAnyRestaurantVotes
-                    else -> false
-                } && closeVotingState != CloseVotingState.Loading
+                val buttonEnabled =
+                    when (event.status) {
+                        EventStatus.COLLECTING_AVAILABILITY -> true
+                        EventStatus.RESTAURANT_CANDIDATES_GENERATED -> false
+                        EventStatus.COLLECTING_RESTAURANT_VOTES -> hasAnyRestaurantVotes
+                        else -> false
+                    } &&
+                        closeVotingState != CloseVotingState.Loading
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
 
@@ -287,7 +293,7 @@ fun HostDashboardContent(
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
-                        contentPadding = PaddingValues(vertical = AppSpacing.md)
+                        contentPadding = PaddingValues(vertical = AppSpacing.md),
                     ) {
                         Text(
                             when {
@@ -295,7 +301,7 @@ fun HostDashboardContent(
                                 event.status == EventStatus.FINALIZED -> "View Final Plan"
                                 else -> "Vote Time & Place"
                             },
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
 
@@ -316,18 +322,19 @@ fun HostDashboardContent(
                         ) {
                             Text(
                                 text = buttonText,
-                                style = MaterialTheme.typography.labelLarge
+                                style = MaterialTheme.typography.labelLarge,
                             )
                         }
                     }
 
                     if (closeVotingState is CloseVotingState.Error) {
                         Text(
-                            text = closeVotingState.error.message
-                                ?: "Unknown error, retry close voting",
+                            text =
+                                closeVotingState.error.message
+                                    ?: "Unknown error, retry close voting",
                             color = Color.Red,
                             fontSize = 16.sp,
-                            modifier = Modifier.padding(top = 12.dp)
+                            modifier = Modifier.padding(top = 12.dp),
                         )
                     }
 
@@ -337,11 +344,11 @@ fun HostDashboardContent(
                             onClick = onFillAvailabilityClick,
                             modifier = Modifier.fillMaxWidth(AppSize.lg),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(vertical = AppSpacing.md)
+                            contentPadding = PaddingValues(vertical = AppSpacing.md),
                         ) {
                             Text(
                                 "Fill My Availability",
-                                style = MaterialTheme.typography.labelLarge
+                                style = MaterialTheme.typography.labelLarge,
                             )
                         }
                     }
@@ -351,12 +358,12 @@ fun HostDashboardContent(
                         border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
-                        contentPadding = PaddingValues(vertical = AppSpacing.md)
+                        contentPadding = PaddingValues(vertical = AppSpacing.md),
                     ) {
                         Text(
                             "Home",
                             color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
                 }
@@ -373,12 +380,13 @@ fun HostDashboardContent(
 fun HostDashboardPreview() {
     MeetingAppTheme {
         HostDashboardContent(
-            event = Event(
-                eventCode = "A7F9K2",
-                status = EventStatus.COLLECTING_AVAILABILITY,
-                eventTitle = "Meet & Chat",
-                hostName = "Julia",
-            ),
+            event =
+                Event(
+                    eventCode = "A7F9K2",
+                    status = EventStatus.COLLECTING_AVAILABILITY,
+                    eventTitle = "Meet & Chat",
+                    hostName = "Julia",
+                ),
             submissionsCount = 4,
             attendees = listOf("Alice", "Bob", "Diana"),
             hasVoted = false,
@@ -390,7 +398,7 @@ fun HostDashboardPreview() {
             onCloseVotingClick = {},
             hasHostSubmittedAvailability = false,
             onFillAvailabilityClick = {},
-            onNavigateToHome = {}
+            onNavigateToHome = {},
         )
     }
 }

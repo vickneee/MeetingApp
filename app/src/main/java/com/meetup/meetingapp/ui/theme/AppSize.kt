@@ -1,7 +1,6 @@
 package com.meetup.meetingapp.ui.theme
 
 object AppSize {
-
     // small spacing
     val sm = 0.60f
 

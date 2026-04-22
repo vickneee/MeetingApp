@@ -4,5 +4,5 @@ package com.meetup.meetingapp.data.model
 data class LocationOption(
     val countries: List<String> = listOf(),
     val region: String = "",
-    val cities: List<String> = listOf()
+    val cities: List<String> = listOf(),
 )

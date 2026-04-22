@@ -83,7 +83,7 @@ fun EditTimeSlotScreen(
     index: Int,
     onBack: () -> Unit,
     navigateToTimeSlotsSelectingPage: () -> Unit,
-    viewModel: EventViewModel
+    viewModel: EventViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
@@ -91,12 +91,12 @@ fun EditTimeSlotScreen(
 
     var startTime by remember {
         mutableStateOf(
-            if (index >= 0) uiState.timeSlots[index].start else "13:00"
+            if (index >= 0) uiState.timeSlots[index].start else "13:00",
         )
     }
     var endTime by remember {
         mutableStateOf(
-            if (index >= 0) uiState.timeSlots[index].end else "16:00"
+            if (index >= 0) uiState.timeSlots[index].end else "16:00",
         )
     }
     var showPickerType by remember { mutableStateOf<String?>(null) }
@@ -113,8 +113,11 @@ fun EditTimeSlotScreen(
         showPickerType = showPickerType,
         onBack = onBack,
         onSaveTimeSlot = { start, end ->
-            if (index >= 0) viewModel.updateTimeSlot(index, start, end)
-            else viewModel.addTimeSlot(start, end)
+            if (index >= 0) {
+                viewModel.updateTimeSlot(index, start, end)
+            } else {
+                viewModel.addTimeSlot(start, end)
+            }
         },
         navigateToTimeSlotsSelectingPage = navigateToTimeSlotsSelectingPage,
     )
@@ -124,11 +127,13 @@ fun EditTimeSlotScreen(
         AdvancedTimePicker(
             onConfirm = { state ->
                 val formattedTime = "%02d:%02d".format(state.hour, state.minute)
-                if (showPickerType == "start") startTime = formattedTime
-                else
-                showPickerType = null
+                if (showPickerType == "start") {
+                    startTime = formattedTime
+                } else {
+                    showPickerType = null
+                }
             },
-            onDismiss = { showPickerType = null }
+            onDismiss = { showPickerType = null },
         )
     }
 }
@@ -142,7 +147,7 @@ fun EditTimeSlotScreen(
 @Composable
 fun AdvancedTimePicker(
     onConfirm: (TimePickerState) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val state = rememberTimePickerState()
     AlertDialog(
@@ -153,7 +158,7 @@ fun AdvancedTimePicker(
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
         },
-        text = { TimePicker(state = state) }
+        text = { TimePicker(state = state) },
     )
 }
 
@@ -193,18 +198,19 @@ fun EditTimeSlotContent(
             MeetingAppTopAppBar(
                 title = stringResource(R.string.edit_time_slot),
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item {
                 Text(
@@ -212,22 +218,24 @@ fun EditTimeSlotContent(
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                )}
+                )
+            }
             // Start Time Section
             item {
                 Text(
                     text = "Start Time",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                     style = MaterialTheme.typography.labelLarge,
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Start,
                 )
                 TimeSelectorField(
                     label = "Start Time",
                     time = startTime,
                     onClick = { onStartTimeClick() },
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Start,
                 )
                 Spacer(modifier = Modifier.height(AppSpacing.xxs))
             }
@@ -235,17 +243,18 @@ fun EditTimeSlotContent(
             item {
                 Text(
                     text = "End Time",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                     style = MaterialTheme.typography.labelLarge,
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Start,
                 )
                 TimeSelectorField(
                     label = "End Time",
                     time = endTime,
                     onClick = { onEndTimeClick() },
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Start,
                 )
             }
             // Calculate minutes
@@ -263,18 +272,19 @@ fun EditTimeSlotContent(
                         color = MaterialTheme.colorScheme.errorContainer,
                         shape = RoundedCornerShape(8.dp),
                         tonalElevation = 2.dp,
-                        modifier = Modifier
-                            .fillMaxWidth(AppSize.lg),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(AppSize.lg),
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.Center,
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Warning,
                                 contentDescription = "Warning",
-                                tint = MaterialTheme.colorScheme.error
+                                tint = MaterialTheme.colorScheme.error,
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
@@ -296,16 +306,18 @@ fun EditTimeSlotContent(
                     },
                     enabled = isValid,
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme
-                            .colorScheme.primary
-                    ),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor =
+                                MaterialTheme
+                                    .colorScheme.primary,
+                        ),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         text = "Save",
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
             }
@@ -325,57 +337,62 @@ fun TimeSelectorField(
     label: String,
     time: String,
     onClick: () -> Unit,
-    textAlign: TextAlign
+    textAlign: TextAlign,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(AppSize.lg),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Card(
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         ) {
             Row(
-                modifier = Modifier
-                    .padding(vertical = 14.dp, horizontal = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier =
+                    Modifier
+                        .padding(vertical = 14.dp, horizontal = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = time,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
-                    modifier = Modifier.weight(1f)
-                        .padding(horizontal = 16.dp, vertical = 2.dp),
-                    textAlign = textAlign
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .padding(horizontal = 16.dp, vertical = 2.dp),
+                    textAlign = textAlign,
                 )
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = "Select $label",
                     tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(20.dp),
                 )
             }
         }
         Spacer(modifier = Modifier.width(10.dp))
         IconButton(
             onClick = onClick,
-            modifier = Modifier
-                .size(40.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(8.dp)
-                )
+            modifier =
+                Modifier
+                    .size(40.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(8.dp),
+                    ),
         ) {
             Icon(
                 imageVector = Icons.Default.Edit,
                 contentDescription = "Edit $label",
                 tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(24.dp),
             )
         }
     }
@@ -396,10 +413,9 @@ fun EditTimeSlotScreenPreview() {
                 selectedTime = "No time selected",
                 showPickerType = null,
                 onBack = {},
-                onSaveTimeSlot = {_, _ ->},
+                onSaveTimeSlot = { _, _ -> },
                 navigateToTimeSlotsSelectingPage = {},
             )
         }
     }
 }
-

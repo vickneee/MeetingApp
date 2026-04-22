@@ -80,7 +80,7 @@ fun AddTimeSlotsPage(
         onBack = onBack,
         onRemoveTimeSlot = viewModel::removeTimeSlot,
         navigateToTimeEditPage = navigateToTimeEditPage,
-        navigateToAreaSelectingPage = navigateToAreaSelectingPage
+        navigateToAreaSelectingPage = navigateToAreaSelectingPage,
     )
 }
 
@@ -102,34 +102,36 @@ fun AddTimeSlotsPageContent(
     onBack: () -> Unit,
     onRemoveTimeSlot: (TimeSlot) -> Unit,
     navigateToAreaSelectingPage: () -> Unit,
-    navigateToTimeEditPage: (Int) -> Unit
+    navigateToTimeEditPage: (Int) -> Unit,
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
                 title = stringResource(R.string.title_add_time_slots_page),
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Text(
                     text = "Time Slots",
-                    modifier = Modifier
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .padding(16.dp),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
             }
 
@@ -137,33 +139,35 @@ fun AddTimeSlotsPageContent(
                 val timeSlot = uiState.timeSlots[index]
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(AppSize.lg)
-                        .padding(vertical = AppSpacing.xsm),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(AppSize.lg)
+                            .padding(vertical = AppSpacing.xsm),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     TimeSlotItem(
                         timeSlot = "${timeSlot.start} - ${timeSlot.end}",
                         onEditClick = { navigateToTimeEditPage(index) },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
                     if (index != 0) {
                         Spacer(modifier = Modifier.width(10.dp))
                         IconButton(
                             onClick = { onRemoveTimeSlot(timeSlot) },
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.error,
-                                    shape = RoundedCornerShape(8.dp)
-                                )
+                            modifier =
+                                Modifier
+                                    .size(40.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.error,
+                                        shape = RoundedCornerShape(8.dp),
+                                    ),
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Remove",
                                 tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(24.dp),
                             )
                         }
                     } else {
@@ -177,23 +181,24 @@ fun AddTimeSlotsPageContent(
                 OutlinedButton(
                     onClick = { navigateToTimeEditPage(-1) }, // <- editTimeSlot()
                     border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary,
+                        ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = null,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(18.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Add Time Slot",
                         style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                 }
             }
@@ -204,11 +209,11 @@ fun AddTimeSlotsPageContent(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         text = "Next",
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
             }
@@ -226,37 +231,40 @@ fun AddTimeSlotsPageContent(
 fun TimeSlotItem(
     timeSlot: String,
     onEditClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
-            modifier = Modifier
-                .padding(vertical = 14.dp, horizontal = 6.dp),
+            modifier =
+                Modifier
+                    .padding(vertical = 14.dp, horizontal = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
                 text = timeSlot,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp, vertical = 2.dp),
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Edit Time Slot",
                 tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(20.dp),
             )
         }
     }
@@ -268,15 +276,17 @@ fun TimeSlotItem(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AddTimeSlotsPagePreview() {
-    val mockTimeSlots = listOf(
-        TimeSlot(start = "09:00", end = "10:00"),
-        TimeSlot(start = "11:30", end = "12:30"),
-        TimeSlot(start = "14:00", end = "15:30")
-    )
+    val mockTimeSlots =
+        listOf(
+            TimeSlot(start = "09:00", end = "10:00"),
+            TimeSlot(start = "11:30", end = "12:30"),
+            TimeSlot(start = "14:00", end = "15:30"),
+        )
 
-    val mockUiState = EventUiState(
-        timeSlots = mockTimeSlots
-    )
+    val mockUiState =
+        EventUiState(
+            timeSlots = mockTimeSlots,
+        )
 
     MeetingAppTheme {
         AddTimeSlotsPageContent(
@@ -284,7 +294,7 @@ fun AddTimeSlotsPagePreview() {
             onBack = {},
             onRemoveTimeSlot = {},
             navigateToAreaSelectingPage = {},
-            navigateToTimeEditPage = {}
+            navigateToTimeEditPage = {},
         )
     }
 }

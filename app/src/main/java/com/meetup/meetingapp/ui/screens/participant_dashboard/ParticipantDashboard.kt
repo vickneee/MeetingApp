@@ -61,9 +61,10 @@ fun ParticipantDashboardPage(
     onVoteForRestaurantClick: () -> Unit,
     onFinalPlanClick: (String) -> Unit,
     onNavigateToHome: () -> Unit,
-    viewModel: ParticipantDashboardViewModel = viewModel(
-        factory = AppViewModelProvider.Factory
-    )
+    viewModel: ParticipantDashboardViewModel =
+        viewModel(
+            factory = AppViewModelProvider.Factory,
+        ),
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -71,11 +72,12 @@ fun ParticipantDashboardPage(
     // Re-check vote status every time screen resumes
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, lifecycleEvent ->
-            if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
-                viewModel.fetchUserVote()
+        val observer =
+            LifecycleEventObserver { _, lifecycleEvent ->
+                if (lifecycleEvent == Lifecycle.Event.ON_RESUME) {
+                    viewModel.fetchUserVote()
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
@@ -89,7 +91,7 @@ fun ParticipantDashboardPage(
             onBack = onBack,
             onVoteForRestaurantClick = onVoteForRestaurantClick,
             onFinalPlanClick = onFinalPlanClick,
-            onNavigateToHome = onNavigateToHome
+            onNavigateToHome = onNavigateToHome,
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
@@ -117,25 +119,26 @@ fun ParticipantDashboardContent(
     onVoteForRestaurantClick: () -> Unit,
     onFinalPlanClick: (String) -> Unit,
     onNavigateToHome: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
                 title = "${stringResource(id = R.string.title_participant_dashboard)} / ${event.eventCode}",
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding,
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -196,7 +199,7 @@ fun ParticipantDashboardContent(
             item {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Spacer(modifier = Modifier.padding(8.dp))
                     when (event.status) {
@@ -205,13 +208,13 @@ fun ParticipantDashboardContent(
                                 "Waiting for host to start",
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.padding(top = 4.dp)
+                                modifier = Modifier.padding(top = 4.dp),
                             )
                             Spacer(modifier = Modifier.padding(AppSpacing.xxs))
                             Text(
                                 "the place voting...",
                                 color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.bodyLarge,
                             )
                         }
 
@@ -223,18 +226,19 @@ fun ParticipantDashboardContent(
                                 modifier = Modifier.padding(bottom = 4.dp),
                             )
                             Text(
-                                text = buildAnnotatedString {
-                                    if (currentUserName.isNotEmpty()) {
-                                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                            append(currentUserName)
+                                text =
+                                    buildAnnotatedString {
+                                        if (currentUserName.isNotEmpty()) {
+                                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                                append(currentUserName)
+                                            }
+                                            append(", you can vote now.")
+                                        } else {
+                                            append("You can vote now.")
                                         }
-                                        append(", you can vote now.")
-                                    } else {
-                                        append("You can vote now.")
-                                    }
-                                },
+                                    },
                                 color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.bodyLarge,
                             )
                         }
 
@@ -243,20 +247,21 @@ fun ParticipantDashboardContent(
                                 "The event has been finalized!",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(bottom = 4.dp)
+                                modifier = Modifier.padding(bottom = 4.dp),
                             )
                             Text(
                                 "Check the final plan.",
                                 color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.bodyLarge,
                             )
                         }
 
-                        else -> Text(
-                            "Please wait...",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        else ->
+                            Text(
+                                "Please wait...",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
                     }
                 }
             }
@@ -266,7 +271,7 @@ fun ParticipantDashboardContent(
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -282,7 +287,7 @@ fun ParticipantDashboardContent(
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
-                        contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                        contentPadding = PaddingValues(vertical = AppSpacing.sm),
                     ) {
                         Text(
                             when {
@@ -301,12 +306,12 @@ fun ParticipantDashboardContent(
                         border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
-                        contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                        contentPadding = PaddingValues(vertical = AppSpacing.sm),
                     ) {
                         Text(
                             "Home",
                             color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
                 }
@@ -323,19 +328,20 @@ fun ParticipantDashboardContent(
 fun ParticipantDashboardPreview() {
     MeetingAppTheme {
         ParticipantDashboardContent(
-            event = Event(
-                eventCode = "A7F9K2",
-                status = EventStatus.COLLECTING_AVAILABILITY,
-                eventTitle = "Meet & Chat",
-                hostName = "Julia",
-            ),
+            event =
+                Event(
+                    eventCode = "A7F9K2",
+                    status = EventStatus.COLLECTING_AVAILABILITY,
+                    eventTitle = "Meet & Chat",
+                    hostName = "Julia",
+                ),
             submissionsCount = 4,
             attendees = listOf("Alice", "Bob"),
             currentUserName = "Julia",
             onBack = {},
             onFinalPlanClick = {},
             onVoteForRestaurantClick = {},
-            onNavigateToHome = {}
+            onNavigateToHome = {},
         )
     }
 }

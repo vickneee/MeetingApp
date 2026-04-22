@@ -27,11 +27,12 @@ import com.meetup.meetingapp.data.model.Restaurant
 fun filterRestaurants(
     restaurants: List<Restaurant>,
     timing: DateTime?,
-    location: String?
+    location: String?,
 ): List<Restaurant> {
     val query = location?.trim() ?: ""
     return restaurants.filter { restaurant ->
-        val locationMatch = query.isEmpty() ||
+        val locationMatch =
+            query.isEmpty() ||
                 (restaurant.address?.contains(query, ignoreCase = true) == true) ||
                 (restaurant.name.contains(query, ignoreCase = true))
 

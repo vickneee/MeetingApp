@@ -19,7 +19,6 @@ import com.meetup.meetingapp.data.model.Restaurant
  * It also safely handles JSON-encoded fields such as openingHours and types.
  */
 object RestaurantMapper {
-
     private val gson = GsonBuilder().create()
 
     /**
@@ -35,7 +34,10 @@ object RestaurantMapper {
      * @param json The JSON string to decode.
      * @param default The fallback value if parsing fails.
      */
-    private inline fun <reified T> safeFromJson(json: String?, default: T): T {
+    private inline fun <reified T> safeFromJson(
+        json: String?,
+        default: T,
+    ): T {
         if (json.isNullOrBlank()) return default
         return runCatching {
             gson.fromJson<T>(json, object : TypeToken<T>() {}.type)
@@ -56,21 +58,22 @@ object RestaurantMapper {
      * @param eventId The ID of the event this restaurant belongs to.
      * @return A Room entity ready for database insertion.
      */
-    fun Restaurant.toEntity(eventId: String): RestaurantEntity = RestaurantEntity(
-        placeId = placeId,
-        eventId = eventId,
-        name = name,
-        address = address ?: "",
-        searchLocation = searchLocation ?: "",
-        latitude = latitude ?: 0.0,
-        longitude = longitude ?: 0.0,
-        openingHoursJson = gson.toJson(openingHours),
-        typesJson = gson.toJson(types),
-        photoReference = photoReference,
-        priceLevel = priceLevel ?: 0,
-        rating = rating ?: 0.0,
-        userRatingCount = userRatingCount ?: 0
-    )
+    fun Restaurant.toEntity(eventId: String): RestaurantEntity =
+        RestaurantEntity(
+            placeId = placeId,
+            eventId = eventId,
+            name = name,
+            address = address ?: "",
+            searchLocation = searchLocation ?: "",
+            latitude = latitude ?: 0.0,
+            longitude = longitude ?: 0.0,
+            openingHoursJson = gson.toJson(openingHours),
+            typesJson = gson.toJson(types),
+            photoReference = photoReference,
+            priceLevel = priceLevel ?: 0,
+            rating = rating ?: 0.0,
+            userRatingCount = userRatingCount ?: 0,
+        )
 
     /**
      * Converts a Room [RestaurantEntity] back into a domain [Restaurant].
@@ -84,19 +87,20 @@ object RestaurantMapper {
      *
      * @return A fully constructed domain [Restaurant].
      */
-    fun RestaurantEntity.toDomain(): Restaurant = Restaurant(
-        placeId = placeId,
-        name = name,
-        address = address,
-        searchLocation = searchLocation,
-        latitude = latitude,
-        longitude = longitude,
-        // Safe JSON decode
-        openingHours = safeFromJson(openingHoursJson, emptyList()),
-        types = safeFromJson(typesJson, emptyList()),
-        photoReference = photoReference,
-        priceLevel = priceLevel,
-        rating = rating,
-        userRatingCount = userRatingCount
-    )
+    fun RestaurantEntity.toDomain(): Restaurant =
+        Restaurant(
+            placeId = placeId,
+            name = name,
+            address = address,
+            searchLocation = searchLocation,
+            latitude = latitude,
+            longitude = longitude,
+            // Safe JSON decode
+            openingHours = safeFromJson(openingHoursJson, emptyList()),
+            types = safeFromJson(typesJson, emptyList()),
+            photoReference = photoReference,
+            priceLevel = priceLevel,
+            rating = rating,
+            userRatingCount = userRatingCount,
+        )
 }

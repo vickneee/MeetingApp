@@ -50,8 +50,11 @@ import java.time.format.DateTimeFormatter
  * @param end The end date as a string.
  * @return A formatted string representing the date range.
  */
-fun formatDisplayDate(start: String, end: String): String {
-    return try {
+fun formatDisplayDate(
+    start: String,
+    end: String,
+): String =
+    try {
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
         val startDate = LocalDate.parse(start)
         val endDate = LocalDate.parse(end)
@@ -60,7 +63,6 @@ fun formatDisplayDate(start: String, end: String): String {
     } catch (_: Exception) {
         "Invalid date"
     }
-}
 
 /**
  * Navigation destination for the Create Creating Event Page.
@@ -81,7 +83,7 @@ object CreatingEventPageDestination : NavigationDestination {
 fun CreatingEventPage(
     onBack: () -> Unit,
     navigateToCreatingEventPage: () -> Unit,
-    viewModel: EventViewModel
+    viewModel: EventViewModel,
 ) {
     /**
      * Collects the current UI state from the [EventViewModel].
@@ -100,7 +102,7 @@ fun CreatingEventPage(
         onBack = onBack,
         onOpenDatePicker = { showModal = true },
         canProceed = viewModel.canProceed,
-        navigateToCreatingEventPage = navigateToCreatingEventPage // real navigation
+        navigateToCreatingEventPage = navigateToCreatingEventPage, // real navigation
     )
 
     /**
@@ -112,7 +114,7 @@ fun CreatingEventPage(
             onSave = { range ->
                 viewModel.updateDateRange(range.first, range.second)
                 showModal = false
-            }
+            },
         )
     }
 }
@@ -146,18 +148,19 @@ fun CreatingEventContent(
             MeetingAppTopAppBar(
                 title = "Create Event",
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Text(
@@ -170,66 +173,72 @@ fun CreatingEventContent(
 
                 Text(
                     text = "Event Title",
-                    modifier = Modifier
-                        .fillMaxWidth(AppSize.lg)
-                        .padding(bottom = AppSpacing.xxs),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(AppSize.lg)
+                            .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground,
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Start,
                 )
                 OutlinedTextField(
                     value = uiState.eventTitle,
                     onValueChange = onEventTitleChange,
                     label = { Text("Enter title") },
-                    modifier = Modifier
-                        .fillMaxWidth(AppSize.lg)
-                        .padding(bottom = AppSpacing.sm),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(AppSize.lg)
+                            .padding(bottom = AppSpacing.sm),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     // enabled = !isAlreadySubmitted, // Disable if already submitted
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        ),
                 )
                 Spacer(modifier = Modifier.height(AppSpacing.xs))
                 Text(
                     text = "Host Name",
-                    modifier = Modifier
-                        .fillMaxWidth(AppSize.lg)
-                        .padding(bottom = AppSpacing.xxs),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(AppSize.lg)
+                            .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground,
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Start,
                 )
                 OutlinedTextField(
                     value = uiState.hostName,
                     onValueChange = onHostNameChange,
                     label = { Text("Enter host name") },
-                    modifier = Modifier
-                        .fillMaxWidth(AppSize.lg)
-                        .padding(bottom = AppSpacing.sm),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(AppSize.lg)
+                            .padding(bottom = AppSpacing.sm),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     // enabled = !isAlreadySubmitted, // Disable if already submitted
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        ),
                 )
 
                 Text(
@@ -237,35 +246,37 @@ fun CreatingEventContent(
                     modifier = Modifier.padding(top = AppSpacing.md, bottom = AppSpacing.xs),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
 
                 Spacer(modifier = Modifier.padding(bottom = AppSpacing.xs))
 
                 Text(
-                    text = formatDisplayDate(
-                        uiState.dateRange.start,
-                        uiState.dateRange.end
-                    ),
+                    text =
+                        formatDisplayDate(
+                            uiState.dateRange.start,
+                            uiState.dateRange.end,
+                        ),
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (uiState.hasSelectedDateRange) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = AppSpacing.md)
+                    modifier = Modifier.padding(bottom = AppSpacing.md),
                 )
 
                 OutlinedButton(
                     onClick = { onOpenDatePicker() },
                     border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.primary,
+                        ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         text = "Select New Date Range",
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
                 Spacer(modifier = Modifier.height(AppSpacing.xl))
@@ -275,11 +286,11 @@ fun CreatingEventContent(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm),
                 ) {
                     Text(
                         text = "Next",
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
             }
@@ -301,7 +312,7 @@ fun CreatingEventPagePreview() {
             onBack = {},
             onOpenDatePicker = {},
             navigateToCreatingEventPage = {},
-            canProceed = true
+            canProceed = true,
         )
     }
 }

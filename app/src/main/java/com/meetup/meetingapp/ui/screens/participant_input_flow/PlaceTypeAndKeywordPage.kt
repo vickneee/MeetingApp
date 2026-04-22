@@ -70,7 +70,7 @@ fun PlaceTypeAndKeywordPage(
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle(null)
     val participantState by viewModel.participantState.collectAsStateWithLifecycle(
-        ParticipantInputState()
+        ParticipantInputState(),
     )
 
     event?.let {
@@ -84,7 +84,7 @@ fun PlaceTypeAndKeywordPage(
                 viewModel.submitParticipantInput()
                 onNavigateToSubmissionCompletePage()
             },
-            modifier = modifier
+            modifier = modifier,
         )
     }
 }
@@ -112,34 +112,34 @@ fun PlaceTypeAndKeywordContent(
     onTogglePlaceType: (PlaceType) -> Unit,
     onToggleFoodCategory: (FoodCategory) -> Unit,
     onSubmit: () -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
                 title = stringResource(id = R.string.title_place_type_and_keyword),
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
         ) {
-
             item {
                 Text(
                     "Choose a place type and",
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
 
@@ -151,7 +151,7 @@ fun PlaceTypeAndKeywordContent(
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
 
@@ -164,7 +164,7 @@ fun PlaceTypeAndKeywordContent(
                     onToggle = { onTogglePlaceType(it) },
                     label = "Place type",
                     instruction = "Select place type",
-                    toText = { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } }
+                    toText = { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } },
                 )
             }
 
@@ -177,7 +177,7 @@ fun PlaceTypeAndKeywordContent(
                     onToggle = { onToggleFoodCategory(it) },
                     label = "Food category",
                     instruction = "Select food category",
-                    toText = { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } }
+                    toText = { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } },
                 )
             }
 
@@ -186,18 +186,20 @@ fun PlaceTypeAndKeywordContent(
 
                 Button(
                     onClick = onSubmit,
-                    enabled = participantState.selectedPlaceTypes.isNotEmpty() &&
+                    enabled =
+                        participantState.selectedPlaceTypes.isNotEmpty() &&
                             participantState.selectedFoodCategories.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         text = "Submit",
                         color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
             }
@@ -213,35 +215,37 @@ fun PlaceTypeAndKeywordContent(
 fun PlaceTypeAndKeywordContentPreview() {
     MeetingAppTheme {
         PlaceTypeAndKeywordContent(
-            event = Event(
-                id = "1",
-                eventCode = "ABC123",
-                eventKey = "key",
-                hostId = "host1",
-                status = EventStatus.COLLECTING_AVAILABILITY,
-                eventTitle = "Team Lunch",
-                hostName = "Alice",
-                dateRange = DateRange("2026-04-01", "2026-04-07"),
-                timeSlots = emptyList(),
-                locationOptions = LocationOption(),
-                placeTypeOptions = listOf(PlaceType.RESTAURANT, PlaceType.CAFE),
-                dateTimeCandidates = emptyList(),
-                locationCandidates = emptyList(),
-                foodCategoryCandidates = emptyList(),
-                restaurantCandidates = emptyList(),
-                finalTime = null,
-                finalPlace = null,
-                createdAt = Timestamp.now()
-            ),
-            participantState = ParticipantInputState(
-                selectedPlaceTypes = listOf(PlaceType.RESTAURANT),
-                selectedFoodCategories = listOf(FoodCategory.ITALIAN)
-            ),
+            event =
+                Event(
+                    id = "1",
+                    eventCode = "ABC123",
+                    eventKey = "key",
+                    hostId = "host1",
+                    status = EventStatus.COLLECTING_AVAILABILITY,
+                    eventTitle = "Team Lunch",
+                    hostName = "Alice",
+                    dateRange = DateRange("2026-04-01", "2026-04-07"),
+                    timeSlots = emptyList(),
+                    locationOptions = LocationOption(),
+                    placeTypeOptions = listOf(PlaceType.RESTAURANT, PlaceType.CAFE),
+                    dateTimeCandidates = emptyList(),
+                    locationCandidates = emptyList(),
+                    foodCategoryCandidates = emptyList(),
+                    restaurantCandidates = emptyList(),
+                    finalTime = null,
+                    finalPlace = null,
+                    createdAt = Timestamp.now(),
+                ),
+            participantState =
+                ParticipantInputState(
+                    selectedPlaceTypes = listOf(PlaceType.RESTAURANT),
+                    selectedFoodCategories = listOf(FoodCategory.ITALIAN),
+                ),
             onBack = {},
             onTogglePlaceType = {},
             onToggleFoodCategory = {},
             onSubmit = {},
-            modifier = Modifier
+            modifier = Modifier,
         )
     }
 }

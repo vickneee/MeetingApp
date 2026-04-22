@@ -13,10 +13,9 @@ data class FirestoreCity(
     @get:PropertyName("name")
     @set:PropertyName("name")
     var name: String = "",
-
     @get:PropertyName("search_query")
     @set:PropertyName("search_query")
-    var search_query: String = ""
+    var search_query: String = "",
 )
 
 /**
@@ -27,7 +26,7 @@ data class FirestoreCity(
 data class FirestoreCityList(
     @get:PropertyName("items")
     @set:PropertyName("items")
-    var items: List<FirestoreCity> = emptyList()
+    var items: List<FirestoreCity> = emptyList(),
 )
 
 /**
@@ -35,10 +34,10 @@ data class FirestoreCityList(
  * @constructor Creates a new instance of the CityMapper object.
  */
 object CityMapper {
-
-    fun FirestoreCity.toEntity(country: String) = CityEntity(
-        name = name,
-        searchQuery = search_query,
-        country = country
-    )
+    fun FirestoreCity.toEntity(country: String) =
+        CityEntity(
+            name = name,
+            searchQuery = search_query,
+            country = country,
+        )
 }

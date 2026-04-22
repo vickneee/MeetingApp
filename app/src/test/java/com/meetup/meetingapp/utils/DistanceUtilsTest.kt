@@ -8,7 +8,6 @@ import org.junit.Assert
 import org.junit.Test
 
 class DistanceUtilsTest {
-
     @Test
     fun `distance under 1000m is formatted in meters`() {
         val result = formatDistance(999f)
@@ -73,7 +72,7 @@ class DistanceUtilsTest {
                 userLng,
                 destLat,
                 destLng,
-                any()
+                any(),
             )
         }
     }
@@ -94,6 +93,4 @@ class DistanceUtilsTest {
 
         Assert.assertEquals(77.7f, result)
     }
-
-
 }

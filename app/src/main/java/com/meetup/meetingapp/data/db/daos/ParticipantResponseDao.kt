@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface ParticipantResponseDao {
-
     /**
      * Inserts or updates a list of participant responses in the database.
      * @param responses The list of participant responses to be inserted or updated.

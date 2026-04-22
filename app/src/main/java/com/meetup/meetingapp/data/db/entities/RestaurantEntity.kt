@@ -34,7 +34,6 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "restaurants")
 data class RestaurantEntity(
-
     @PrimaryKey
     val placeId: String,
     val eventId: String,
@@ -48,5 +47,5 @@ data class RestaurantEntity(
     val photoReference: String?,
     val priceLevel: Int,
     val rating: Double,
-    val userRatingCount: Int
+    val userRatingCount: Int,
 )

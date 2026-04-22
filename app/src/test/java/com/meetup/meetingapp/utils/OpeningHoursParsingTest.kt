@@ -7,7 +7,6 @@ import org.junit.Assert
 import org.junit.Test
 
 class OpeningHoursParsingTest {
-
     @Test
     fun testExtractTimeRange() {
         val hours = "Mon: 10:00 AM – 8:00 PM"
@@ -79,9 +78,10 @@ class OpeningHoursParsingTest {
 
     @Test
     fun testIsRestaurantOpenForTiming() {
-        val restaurant = Restaurant(
-            openingHours = listOf("Mon: 10:00 AM - 8:00 PM")
-        )
+        val restaurant =
+            Restaurant(
+                openingHours = listOf("Mon: 10:00 AM - 8:00 PM"),
+            )
         val timing = DateTime("2025-01-06", TimeSlot("12:00", "14:00")) // Monday
 
         Assert.assertTrue(isRestaurantOpenForTiming(restaurant, timing))
@@ -90,9 +90,10 @@ class OpeningHoursParsingTest {
     @Test
     fun testIsRestaurantOpenForTiming_CrossMidnight_True() {
         // Restaurant is open from Monday 6:00 PM until Tuesday 2:00 AM
-        val restaurant = Restaurant(
-            openingHours = listOf("Mon: 6:00 PM - 2:00 AM")
-        )
+        val restaurant =
+            Restaurant(
+                openingHours = listOf("Mon: 6:00 PM - 2:00 AM"),
+            )
 
         // User selects Monday 23:00–01:00 → within the open hours
         val timing = DateTime("2025-01-06", TimeSlot("23:00", "01:00"))
@@ -102,9 +103,10 @@ class OpeningHoursParsingTest {
 
     @Test
     fun testIsRestaurantOpenForTiming_False() {
-        val restaurant = Restaurant(
-            openingHours = listOf("Mon: 10:00 AM - 8:00 PM")
-        )
+        val restaurant =
+            Restaurant(
+                openingHours = listOf("Mon: 10:00 AM - 8:00 PM"),
+            )
         val timing = DateTime("2025-01-07", TimeSlot("12:00", "14:00")) // Tuesday
 
         Assert.assertFalse(isRestaurantOpenForTiming(restaurant, timing))
@@ -113,9 +115,10 @@ class OpeningHoursParsingTest {
     @Test
     fun testIsRestaurantOpenForTiming_CrossMidnight_False() {
         // Restaurant is open from Monday 6:00 PM until Tuesday 2:00 AM
-        val restaurant = Restaurant(
-            openingHours = listOf("Mon: 6:00 PM - 2:00 AM")
-        )
+        val restaurant =
+            Restaurant(
+                openingHours = listOf("Mon: 6:00 PM - 2:00 AM"),
+            )
 
         // User selects Monday 03:00–04:00 → after closing time
         val timing = DateTime("2025-01-06", TimeSlot("03:00", "04:00"))
@@ -131,9 +134,10 @@ class OpeningHoursParsingTest {
 
     @Test
     fun testGetOpenLabel() {
-        val restaurant = Restaurant(
-            openingHours = listOf("Monday: 10:00 AM - 8:00 PM")
-        )
+        val restaurant =
+            Restaurant(
+                openingHours = listOf("Monday: 10:00 AM - 8:00 PM"),
+            )
         val timing = DateTime("2025-01-06", TimeSlot("12:00", "14:00"))
 
         Assert.assertEquals("10:00 AM – 8:00 PM", getOpenLabel(restaurant, timing))
@@ -142,9 +146,10 @@ class OpeningHoursParsingTest {
     @Test
     fun testGetOpenLabel_CrossMidnight() {
         // Restaurant open from Monday 6:00 PM to Tuesday 2:00 AM
-        val restaurant = Restaurant(
-            openingHours = listOf("Monday: 6:00 PM - 2:00 AM")
-        )
+        val restaurant =
+            Restaurant(
+                openingHours = listOf("Monday: 6:00 PM - 2:00 AM"),
+            )
 
         // Any Monday timing should return the correct label
         val timing = DateTime("2025-01-06", TimeSlot("23:00", "01:00"))

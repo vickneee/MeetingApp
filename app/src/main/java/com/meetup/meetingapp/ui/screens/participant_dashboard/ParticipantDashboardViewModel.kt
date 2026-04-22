@@ -35,9 +35,8 @@ import kotlinx.coroutines.launch
  */
 class ParticipantDashboardViewModel(
     private val eventRepository: EventRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
     /**
      * The ID of the event to load.
      */
@@ -82,42 +81,48 @@ class ParticipantDashboardViewModel(
 
             combine(eventFlow, submissionsFlow, votesFlow) { eventData, submissions, votes ->
                 _event.value = eventData
-                
+
                 eventData?.let { e ->
                     // 1. Identify current user's name reactively from either the event (if host)
                     // or from the list of participant submissions.
-                    val currentName = if (e.hostId == userId) {
-                        e.hostName
-                    } else {
-                        // In Firestore, the participant response document ID is the userId.
-                        // However, observeSubmissions returns a list of ParticipantResponse objects.
-                        // We need to fetch the specific response for the user to be certain,
-                        // but we can also try to find it in the current list if names are unique.
-                        // For now, we'll trigger a side fetch to be safe if it's missing.
-                        "" 
-                    }
+                    val currentName =
+                        if (e.hostId == userId) {
+                            e.hostName
+                        } else {
+                            // In Firestore, the participant response document ID is the userId.
+                            // However, observeSubmissions returns a list of ParticipantResponse objects.
+                            // We need to fetch the specific response for the user to be certain,
+                            // but we can also try to find it in the current list if names are unique.
+                            // For now, we'll trigger a side fetch to be safe if it's missing.
+                            ""
+                        }
 
-                    val isSecondRound = e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
+                    val isSecondRound =
+                        e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
                             e.status == EventStatus.FINALIZED
 
-                    val count = if (isSecondRound) {
-                        votes.distinctBy { it.userId }.size
-                    } else {
-                        submissions.size
-                    }
+                    val count =
+                        if (isSecondRound) {
+                            votes.distinctBy { it.userId }.size
+                        } else {
+                            submissions.size
+                        }
 
-                    val names = if (isSecondRound) {
-                        votes.distinctBy { it.userId }.map { it.userName }
-                    } else {
-                        submissions.map { it.name }
-                    }
+                    val names =
+                        if (isSecondRound) {
+                            votes.distinctBy { it.userId }.map { it.userName }
+                        } else {
+                            submissions.map { it.name }
+                        }
 
-                    _uiState.update { it.copy(
-                        status = e.status,
-                        submissionsCount = count,
-                        attendees = names,
-                        currentUserName = if (currentName.isNotEmpty()) currentName else it.currentUserName
-                    ) }
+                    _uiState.update {
+                        it.copy(
+                            status = e.status,
+                            submissionsCount = count,
+                            attendees = names,
+                            currentUserName = if (currentName.isNotEmpty()) currentName else it.currentUserName,
+                        )
+                    }
 
                     // Side effects
                     if (e.status == EventStatus.CREATED) {
@@ -128,7 +133,7 @@ class ParticipantDashboardViewModel(
                 }
             }.collect {}
         }
-        
+
         // Background fetch for user name to ensure it's available for "You can now vote"
         fetchCurrentUserName()
     }
@@ -173,5 +178,5 @@ data class ParticipantDashboardUiState(
     val attendees: List<String> = emptyList(),
     val status: EventStatus = EventStatus.UNKNOWN,
     val hasVoted: Boolean = false,
-    val currentUserName: String = ""
+    val currentUserName: String = "",
 )

@@ -59,9 +59,10 @@ fun JoinPage(
     onBack: () -> Unit,
     navigateToPastEventsPage: () -> Unit,
     navigateToParticipantPage: (Pair<String, String>) -> Unit,
-    viewModel: JoinViewModel = viewModel(
-        factory = AppViewModelProvider.Factory
-    )
+    viewModel: JoinViewModel =
+        viewModel(
+            factory = AppViewModelProvider.Factory,
+        ),
 ) {
     // Navigate when join succeeds
     LaunchedEffect(viewModel.navigateToEventsListPage) {
@@ -116,7 +117,7 @@ fun JoinContent(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     onJoinEventClick: () -> Unit,
-    onEventsClick: () -> Unit
+    onEventsClick: () -> Unit,
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -124,18 +125,19 @@ fun JoinContent(
             MeetingAppTopAppBar(
                 title = stringResource(R.string.title_join_page),
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Text(
@@ -143,19 +145,20 @@ fun JoinContent(
                     modifier = Modifier.padding(AppSpacing.md),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = "Event Code",
-                    modifier = Modifier
-                        .fillMaxWidth(AppSize.lg)
-                        .padding(bottom = AppSpacing.xxs),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(AppSize.lg)
+                            .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Start,
                 )
                 OutlinedTextField(
                     value = code,
@@ -164,43 +167,47 @@ fun JoinContent(
                         // Clear error on type
                     },
                     label = { Text("Enter code") },
-                    modifier = Modifier
-                        .fillMaxWidth(AppSize.lg),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(AppSize.lg),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     // enabled = !isAlreadySubmitted, // Disable if already submitted
                     isError = codeError != null,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        ),
                 )
                 if (codeError != null) {
                     Text(
                         text = codeError,
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier
-                            .fillMaxWidth(AppSize.lg)
-                            .padding(start = 16.dp, top = 4.dp)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(AppSize.lg)
+                                .padding(start = 16.dp, top = 4.dp),
                     )
                 }
                 Spacer(modifier = Modifier.height(AppSpacing.md))
                 Text(
                     text = "Event Key",
-                    modifier = Modifier
-                        .fillMaxWidth(AppSize.lg)
-                        .padding(bottom = AppSpacing.xxs),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(AppSize.lg)
+                            .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Start,
                 )
                 OutlinedTextField(
                     value = key,
@@ -209,31 +216,34 @@ fun JoinContent(
                         // Clear error on type
                     },
                     label = { Text("Enter key") },
-                    modifier = Modifier
-                        .fillMaxWidth(AppSize.lg),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(AppSize.lg),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyMedium,
                     isError = keyError != null,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        ),
                 )
                 if (keyError != null) {
                     Text(
                         text = keyError,
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier
-                            .fillMaxWidth(AppSize.lg)
-                            .padding(start = 16.dp, top = 4.dp)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(AppSize.lg)
+                                .padding(start = 16.dp, top = 4.dp),
                     )
                 }
                 Spacer(modifier = Modifier.height(AppSpacing.lg))
@@ -242,29 +252,30 @@ fun JoinContent(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         text = "Join Event",
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
                 Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Button(
                     onClick = { onEventsClick() },
                     border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.primary,
+                        ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         text = "Events",
                         style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                 }
             }
@@ -288,7 +299,7 @@ fun JoinPagePreview() {
             onKeyChange = {},
             onBack = {},
             onJoinEventClick = {},
-            onEventsClick = {}
+            onEventsClick = {},
         )
     }
 }

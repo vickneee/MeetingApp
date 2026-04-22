@@ -72,7 +72,7 @@ fun PlaceListPage(
     onBack: () -> Unit,
     viewModel: PlaceViewModel,
     onNavigateToPlaceDetails: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val placeListState by viewModel.filteredRestaurants.collectAsStateWithLifecycle(emptyList())
     val selectedTiming by viewModel.selectedTiming.collectAsStateWithLifecycle()
@@ -88,7 +88,7 @@ fun PlaceListPage(
             selectedTiming = selectedTiming,
             selectedLocation = selectedLocation,
             onNavigateToPlaceDetails = onNavigateToPlaceDetails,
-            modifier = modifier
+            modifier = modifier,
         )
     }
 }
@@ -112,32 +112,32 @@ fun PlaceListContent(
     selectedTiming: DateTime?,
     selectedLocation: String?,
     onNavigateToPlaceDetails: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
                 title = stringResource(id = R.string.title_place_list),
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
         ) {
-
             item {
                 if (selectedTiming != null && selectedLocation != null) {
                     Column(
                         Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
                             text = selectedTiming.toDisplayLabel(),
@@ -152,7 +152,7 @@ fun PlaceListContent(
                             text = selectedLocation,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
                     }
                 } else {
@@ -161,7 +161,7 @@ fun PlaceListContent(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
                 Spacer(modifier = Modifier.height(AppSpacing.md))
@@ -170,15 +170,16 @@ fun PlaceListContent(
             if (placeListState.isEmpty()) {
                 item {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 160.dp),
-                        contentAlignment = Alignment.Center
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(top = 160.dp),
+                        contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = "No places found for this selection.",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -186,21 +187,24 @@ fun PlaceListContent(
                 items(placeListState) { option ->
                     Card(
                         onClick = { onNavigateToPlaceDetails(option.placeId) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        colors =
+                            CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                            ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 20.dp, horizontal = 24.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 20.dp, horizontal = 24.dp),
                             horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
                                 text = option.name,
@@ -210,35 +214,35 @@ fun PlaceListContent(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 3,
                                 overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f, fill = false)
+                                modifier = Modifier.weight(1f, fill = false),
                             )
                             if (option.rating != null && option.rating > 0) {
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
+                                    horizontalArrangement = Arrangement.Center,
                                 ) {
                                     Text(
                                         text = "(",
                                         fontSize = 14.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                     Icon(
                                         imageVector = Icons.Filled.Star,
                                         contentDescription = null,
                                         tint = Color(0xFFFFB400),
-                                        modifier = Modifier.size(16.dp)
+                                        modifier = Modifier.size(16.dp),
                                     )
                                     Spacer(modifier = Modifier.padding(2.dp))
                                     Text(
                                         text = "${option.rating}",
                                         fontSize = 14.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                     Text(
                                         text = ")",
                                         fontSize = 14.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
                             }
@@ -256,26 +260,27 @@ fun PlaceListContent(
 @Preview(showBackground = true)
 @Composable
 fun PLaceListContentPreview() {
-    val sampleOptions = listOf(
-        Restaurant(
-            placeId = "1",
-            name = "Woolshed Helsinki - Australian Gastropub",
-            rating = 4.5,
-            userRatingCount = 120
-        ),
-        Restaurant(
-            placeId = "2",
-            name = "Restaurant B",
-            rating = 3.8,
-            userRatingCount = 85
+    val sampleOptions =
+        listOf(
+            Restaurant(
+                placeId = "1",
+                name = "Woolshed Helsinki - Australian Gastropub",
+                rating = 4.5,
+                userRatingCount = 120,
+            ),
+            Restaurant(
+                placeId = "2",
+                name = "Restaurant B",
+                rating = 3.8,
+                userRatingCount = 85,
+            ),
         )
-    )
 
     PlaceListContent(
         onBack = {},
         placeListState = sampleOptions,
         selectedTiming = DateTime("2024-04-14", TimeSlot("11:00", "14:00")),
         selectedLocation = "Espoo",
-        onNavigateToPlaceDetails = {}
+        onNavigateToPlaceDetails = {},
     )
 }

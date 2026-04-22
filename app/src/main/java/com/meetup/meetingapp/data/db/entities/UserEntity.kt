@@ -17,5 +17,5 @@ import androidx.room.PrimaryKey
 data class UserEntity(
     @PrimaryKey val uid: String,
     val createdEventIds: List<String>,
-    val joinedEventIds: List<String>
+    val joinedEventIds: List<String>,
 )

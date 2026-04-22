@@ -18,6 +18,7 @@ import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
+import com.meetup.meetingapp.data.model.FoodCategory
 import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.Restaurant
@@ -36,7 +37,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
 import kotlin.collections.flatMap
-import com.meetup.meetingapp.data.model.FoodCategory
 
 /**
  * Implementation of [EventRepository] responsible for creating events
@@ -55,10 +55,9 @@ class EventRepositoryImp(
     private val eventDao: EventDao,
     private val cityDao: CityDao,
     private val participantResponseDao: ParticipantResponseDao,
-    private val restaurantDao : RestaurantDao,
-    private val placesRepository: PlacesRepository
-): EventRepository {
-
+    private val restaurantDao: RestaurantDao,
+    private val placesRepository: PlacesRepository,
+) : EventRepository {
     /**
      * Firebase Authentication instance.
      */
@@ -79,10 +78,7 @@ class EventRepositoryImp(
      * @return A [Result] containing a triple of (eventCode, eventKey, eventId) on success,
      * or an error on failure.
      */
-    override suspend fun createEvent(
-        eventValues: EventUiState
-    ): Result<Triple<String, String, String>>{
-
+    override suspend fun createEvent(eventValues: EventUiState): Result<Triple<String, String, String>> {
         // Create a new document reference with an auto-generated ID.
         val docRef = db.collection("events").document()
         val eventId = docRef.id
@@ -93,31 +89,32 @@ class EventRepositoryImp(
         // Generate a 6-character event code (e.g., "A1B2C3").
         val eventCode =
             (1..6)
-            .map{chars.random()}
-            .joinToString("")
+                .map { chars.random() }
+                .joinToString("")
 
         // Generate a 5-digit numeric event key (e.g., "48392").
         val eventKey =
             (1..5)
-                .map{(0..9).random()}
+                .map { (0..9).random() }
                 .joinToString("")
 
         // Ensure the user is logged in before creating an event.
         val uid = uid ?: return Result.failure(Exception("User is not logged in"))
 
         // Build the Event object to be stored in Firestore.
-        val event = Event(
-            eventCode = eventCode,
-            eventKey= eventKey,
-            hostId = uid,
-            id = eventId,
-            eventTitle = eventValues.eventTitle,
-            hostName = eventValues.hostName,
-            dateRange = eventValues.dateRange,
-            timeSlots = eventValues.timeSlots,
-            locationOptions = eventValues.locations,
-            placeTypeOptions = eventValues.placeTypes
-        )
+        val event =
+            Event(
+                eventCode = eventCode,
+                eventKey = eventKey,
+                hostId = uid,
+                id = eventId,
+                eventTitle = eventValues.eventTitle,
+                hostName = eventValues.hostName,
+                dateRange = eventValues.dateRange,
+                timeSlots = eventValues.timeSlots,
+                locationOptions = eventValues.locations,
+                placeTypeOptions = eventValues.placeTypes,
+            )
 
         try {
             // Store the event document in Firestore.
@@ -127,11 +124,11 @@ class EventRepositoryImp(
             with(EventMapper) { eventDao.upsertEvent(event.toEntity()) }
 
             // After successful creation, update the host's created event list.
-            userRepository.addCreatedEvent(eventId= eventId, uid = uid)
+            userRepository.addCreatedEvent(eventId = eventId, uid = uid)
 
             // Return the generated eventCode, eventKey and eventId.
             return Result.success(Triple(eventCode, eventKey, eventId))
-        } catch(e: Exception){
+        } catch (e: Exception) {
             // Return the error if any Firestore operation fails.
             return Result.failure(e)
         }
@@ -150,23 +147,25 @@ class EventRepositoryImp(
      * @param participantInput The participant's selected availability, locations,
      * place types, and food categories.
      */
-    override suspend fun createParticipantAvailability(participantInput: ParticipantInputState): Result<Unit>{
+    override suspend fun createParticipantAvailability(participantInput: ParticipantInputState): Result<Unit> {
         val eventId = participantInput.eventId
 
-        val participantResponse = ParticipantResponse(
-            userId = uid ?: "",
-            name = participantInput.participantName,
-            dateTimes = participantInput.selectedDateTimes,
-            locations = participantInput.selectedLocations,
-            placeTypes = participantInput.selectedPlaceTypes,
-            foodCategories = participantInput.selectedFoodCategories
-        )
+        val participantResponse =
+            ParticipantResponse(
+                userId = uid ?: "",
+                name = participantInput.participantName,
+                dateTimes = participantInput.selectedDateTimes,
+                locations = participantInput.selectedLocations,
+                placeTypes = participantInput.selectedPlaceTypes,
+                foodCategories = participantInput.selectedFoodCategories,
+            )
 
         // Ensure the user is logged in before creating an event.
         val uid = uid ?: return Result.failure(Exception("User is not logged in"))
 
         return try {
-            db.collection("events")
+            db
+                .collection("events")
                 .document(eventId)
                 .collection("participantResponses")
                 .document(uid)
@@ -181,7 +180,7 @@ class EventRepositoryImp(
             participantResponseDao.upsertResponses(listOf(entity))
 
             Result.success(Unit)
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }
@@ -204,39 +203,47 @@ class EventRepositoryImp(
      *
      * @throws Exception Wrapped inside [Result.failure] if Firestore operations fail.
      */
-    override suspend fun aggregateParticipantResponses(eventId: String): Result<Unit>{
+    override suspend fun aggregateParticipantResponses(eventId: String): Result<Unit> {
         return try {
-            val snapshot = db.collection("events")
-                .document(eventId)
-                .collection("participantResponses")
-                .get()
-                .await()
+            val snapshot =
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("participantResponses")
+                    .get()
+                    .await()
 
-            val participantResponses = snapshot.documents.mapNotNull {
-                it.toObject(ParticipantResponse::class.java)
-            }
+            val participantResponses =
+                snapshot.documents.mapNotNull {
+                    it.toObject(ParticipantResponse::class.java)
+                }
 
             if (participantResponses.isEmpty()) {
                 return Result.failure(Exception("No participant responses found"))
             }
 
-            val dateTimeCandidates = findTopCandidates(
-                participantResponses.flatMap { it.dateTimes }
-            )
+            val dateTimeCandidates =
+                findTopCandidates(
+                    participantResponses.flatMap { it.dateTimes },
+                )
 
-            val locationCandidates = findTopCandidates(
-                participantResponses.flatMap { it.locations }
-            )
+            val locationCandidates =
+                findTopCandidates(
+                    participantResponses.flatMap { it.locations },
+                )
 
-            val placeTypeCandidates = findTopCandidates(
-                participantResponses.flatMap { it.placeTypes }
-            )
+            val placeTypeCandidates =
+                findTopCandidates(
+                    participantResponses.flatMap { it.placeTypes },
+                )
 
-            val foodCategoryCandidates = findTopCandidates(
-                participantResponses.flatMap { it.foodCategories }
-            )
+            val foodCategoryCandidates =
+                findTopCandidates(
+                    participantResponses.flatMap { it.foodCategories },
+                )
 
-            db.collection("events")
+            db
+                .collection("events")
                 .document(eventId)
                 .update(
                     mapOf(
@@ -244,15 +251,13 @@ class EventRepositoryImp(
                         "dateTimeCandidates" to dateTimeCandidates,
                         "locationCandidates" to locationCandidates,
                         "placeTypeCandidates" to placeTypeCandidates,
-                        "foodCategoryCandidates" to foodCategoryCandidates
-                    )
-                )
-                .await()
+                        "foodCategoryCandidates" to foodCategoryCandidates,
+                    ),
+                ).await()
 
             syncEventById(eventId)
 
             Result.success(Unit)
-
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -272,11 +277,12 @@ class EventRepositoryImp(
     private fun <T> findTopCandidates(items: List<T>): List<T> {
         if (items.isEmpty()) return emptyList()
 
-        val grouped = items
-            .groupBy { it }
-            .mapValues { (_, list) -> list.size }
-            .entries
-            .sortedByDescending { it.value }
+        val grouped =
+            items
+                .groupBy { it }
+                .mapValues { (_, list) -> list.size }
+                .entries
+                .sortedByDescending { it.value }
 
         val maxCount = grouped.first().value
 
@@ -291,7 +297,8 @@ class EventRepositoryImp(
      * @return A [Flow] emitting a list of [Event] objects.
      */
     override fun getEvents(): Flow<List<Event>> =
-        eventDao.getAllEvents()
+        eventDao
+            .getAllEvents()
             .map { entities -> entities.map { with(EventMapper) { it.toDomain() } } }
 
     /**
@@ -300,20 +307,25 @@ class EventRepositoryImp(
      * @param eventCode The event code to search for.
      * @param eventKey The event key to search for.
      */
-    override suspend fun syncEventByEventCodeAndKey(eventCode: String, eventKey: String){
+    override suspend fun syncEventByEventCodeAndKey(
+        eventCode: String,
+        eventKey: String,
+    ) {
         try {
-            val event = db.collection("events")
-                .whereEqualTo("eventCode", eventCode)
-                .whereEqualTo("eventKey", eventKey)
-                .get()
-                .await()
-                .documents.firstNotNullOfOrNull { it.toObject(Event::class.java) }
+            val event =
+                db
+                    .collection("events")
+                    .whereEqualTo("eventCode", eventCode)
+                    .whereEqualTo("eventKey", eventKey)
+                    .get()
+                    .await()
+                    .documents
+                    .firstNotNullOfOrNull { it.toObject(Event::class.java) }
 
             if (event != null) {
                 val entity = with(EventMapper) { event.toEntity() }
                 eventDao.upsertEvent(entity)
             }
-
         } catch (_: Exception) {
             // sync failure won't crash the app, Room still serves cached data
         }
@@ -327,11 +339,13 @@ class EventRepositoryImp(
      */
     override suspend fun syncEventById(eventId: String) {
         try {
-            val event = db.collection("events")
-                .document(eventId)
-                .get()
-                .await()
-                .toObject(Event::class.java)
+            val event =
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .get()
+                    .await()
+                    .toObject(Event::class.java)
 
             if (event != null) {
                 val entity = with(EventMapper) { event.toEntity() }
@@ -348,9 +362,7 @@ class EventRepositoryImp(
      * @param location The location for which to retrieve restaurants.
      * @return A [Flow] emitting a list of [Restaurant] objects.
      */
-    override fun getRestaurantsByLocation(location: String): Flow<List<Restaurant>> {
-        return flowOf(emptyList())
-    }
+    override fun getRestaurantsByLocation(location: String): Flow<List<Restaurant>> = flowOf(emptyList())
 
     /**
      * Retrieves an event by its ID from the local Room database.
@@ -358,10 +370,10 @@ class EventRepositoryImp(
      * @param id The ID of the event to retrieve.
      * @return A [Flow] emitting the [Event] object with the specified ID.
      */
-    override fun getEventById(id: String): Flow<Event?> {
-        return eventDao.getEventById(id)
+    override fun getEventById(id: String): Flow<Event?> =
+        eventDao
+            .getEventById(id)
             .map { it?.let { with(EventMapper) { it.toDomain() } } }
-    }
 
     /**
      * Retrieves an event by its event code from the local Room database.
@@ -369,10 +381,10 @@ class EventRepositoryImp(
      * @param eventCode The event code to search for.
      * @return A [Flow] emitting the [Event] object with the specified event code
      */
-    override fun getEventByEventCode(eventCode: String): Flow<Event?>{
-        return eventDao.getEventByCode(eventCode)
+    override fun getEventByEventCode(eventCode: String): Flow<Event?> =
+        eventDao
+            .getEventByCode(eventCode)
             .map { it?.let { with(EventMapper) { it.toDomain() } } }
-    }
 
     /**
      * Updates the status of an event in the database.
@@ -381,9 +393,13 @@ class EventRepositoryImp(
      * @param newStatus The new status to set for the event.
      * @throws Exception if the update operation fails.
      */
-    override suspend fun updateEventStatus(eventId: String, newStatus: EventStatus) {
+    override suspend fun updateEventStatus(
+        eventId: String,
+        newStatus: EventStatus,
+    ) {
         try {
-            db.collection("events")
+            db
+                .collection("events")
                 .document(eventId)
                 .update("status", newStatus.name)
                 .await()
@@ -401,12 +417,12 @@ class EventRepositoryImp(
      * @param country The country for which to retrieve cities.
      * @return A [Flow] emitting a list of [String] representing city names.
      */
-    override fun getCitiesByCountry(country: CountryOption): Flow<List<String>>{
-        return cityDao.getCitiesByCountry(country.name)
+    override fun getCitiesByCountry(country: CountryOption): Flow<List<String>> =
+        cityDao
+            .getCitiesByCountry(country.name)
             .map { entityCity ->
-                entityCity.map{it.name}
+                entityCity.map { it.name }
             }
-    }
 
     /**
      * Retrieves a list of cities from the local Room database.
@@ -416,29 +432,32 @@ class EventRepositoryImp(
      */
     override suspend fun syncCities() {
         try {
-            val docs = db.collection("static_data")
-                .get()
-                .await()
-                .documents
+            val docs =
+                db
+                    .collection("static_data")
+                    .get()
+                    .await()
+                    .documents
 
-            val allCities = docs
-                .filter { it.id.lowercase().endsWith("_cities") }
-                .flatMap { doc ->
-                    val country = doc.id
-                        .split("_")[0]
-                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            val allCities =
+                docs
+                    .filter { it.id.lowercase().endsWith("_cities") }
+                    .flatMap { doc ->
+                        val country =
+                            doc.id
+                                .split("_")[0]
+                                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
-                    val data = doc.toObject(FirestoreCityList::class.java)
+                        val data = doc.toObject(FirestoreCityList::class.java)
 
-                    data?.items?.map { city ->
-                        with(CityMapper) { city.toEntity(country) }
-                    } ?: emptyList()
-                }
+                        data?.items?.map { city ->
+                            with(CityMapper) { city.toEntity(country) }
+                        } ?: emptyList()
+                    }
 
             if (allCities.isNotEmpty()) {
                 cityDao.upsertCities(allCities)
             }
-
         } catch (e: Exception) {
             Log.e("CitySync", "Sync failed", e)
         }
@@ -451,46 +470,60 @@ class EventRepositoryImp(
      * @return A [Flow] emitting the [Event] object with the specified ID.
      * @throws Exception if the synchronization operation fails.
      */
-    override fun observeEventById(eventId: String): Flow<Event?> = callbackFlow {
-        val listener = db.collection("events")
-            .document(eventId)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) { close(error); return@addSnapshotListener }
-                val event = snapshot?.toObject(Event::class.java)
-                if (event != null) {
-                    val entity = with(EventMapper) { event.toEntity() }
-                    CoroutineScope(Dispatchers.IO).launch { eventDao.upsertEvent(entity) }
-                }
-                trySend(event)
-            }
-        awaitClose { listener.remove() }
-    }
+    override fun observeEventById(eventId: String): Flow<Event?> =
+        callbackFlow {
+            val listener =
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            close(error)
+                            return@addSnapshotListener
+                        }
+                        val event = snapshot?.toObject(Event::class.java)
+                        if (event != null) {
+                            val entity = with(EventMapper) { event.toEntity() }
+                            CoroutineScope(Dispatchers.IO).launch { eventDao.upsertEvent(entity) }
+                        }
+                        trySend(event)
+                    }
+            awaitClose { listener.remove() }
+        }
 
     /**
      * Retrieves participant responses from Firestore and updates the local Room database.
      * @param eventId The ID of the event to retrieve responses for.
      * @return A [Flow] emitting a list of [ParticipantResponse] objects
      */
-    override fun observeSubmissions(eventId: String): Flow<List<ParticipantResponse>> = callbackFlow {
-        val listener = db.collection("events")
-            .document(eventId)
-            .collection("participantResponses")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) { close(error); return@addSnapshotListener }
-                val responses = snapshot?.documents
-                    ?.mapNotNull { doc ->
-                        doc.toObject(ParticipantResponse::class.java)?.copy(userId = doc.id)
+    override fun observeSubmissions(eventId: String): Flow<List<ParticipantResponse>> =
+        callbackFlow {
+            val listener =
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("participantResponses")
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            close(error)
+                            return@addSnapshotListener
+                        }
+                        val responses =
+                            snapshot
+                                ?.documents
+                                ?.mapNotNull { doc ->
+                                    doc.toObject(ParticipantResponse::class.java)?.copy(userId = doc.id)
+                                }
+                                ?: emptyList()
+                        // Also update Room cache
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val entities = responses.map { with(ParticipantResponseMapper) { it.toEntity(eventId) } }
+                            participantResponseDao.upsertResponses(entities)
+                        }
+                        trySend(responses)
                     }
-                    ?: emptyList()
-                // Also update Room cache
-                CoroutineScope(Dispatchers.IO).launch {
-                    val entities = responses.map { with(ParticipantResponseMapper) { it.toEntity(eventId) } }
-                    participantResponseDao.upsertResponses(entities)
-                }
-                trySend(responses)
-            }
-        awaitClose { listener.remove() }
-    }
+            awaitClose { listener.remove() }
+        }
 
     /**
      * Checks whether the event already has at least one restaurant candidate stored in Firestore.
@@ -508,12 +541,14 @@ class EventRepositoryImp(
      * @return True if at least one restaurant document exists, false otherwise.
      */
     override suspend fun hasRestaurantCandidates(eventId: String): Boolean {
-        val snapshot = db.collection("events")
-            .document(eventId)
-            .collection("restaurants")
-            .limit(1)
-            .get()
-            .await()
+        val snapshot =
+            db
+                .collection("events")
+                .document(eventId)
+                .collection("restaurants")
+                .limit(1)
+                .get()
+                .await()
 
         return !snapshot.isEmpty
     }
@@ -530,12 +565,17 @@ class EventRepositoryImp(
      * @param eventId The Firestore Document ID of the parent event.
      * @param restaurants The list of [Restaurant] objects to be stored.
      */
-    override suspend fun saveAllRestaurants(eventId: String, restaurants: List<Restaurant>): Result<Unit> {
-        return try {
+    override suspend fun saveAllRestaurants(
+        eventId: String,
+        restaurants: List<Restaurant>,
+    ): Result<Unit> =
+        try {
             val batch = db.batch()
-            val restaurantsRef = db.collection("events")
-                .document(eventId)
-                .collection("restaurants")
+            val restaurantsRef =
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("restaurants")
 
             restaurants.forEach { restaurant ->
                 // Use Google's unique Place ID as the Doc ID to prevent duplicate entries
@@ -548,7 +588,6 @@ class EventRepositoryImp(
         } catch (e: Exception) {
             Result.failure(e)
         }
-    }
 
     /**
      * Synchronizes restaurant candidates from Firestore into the local Room database.
@@ -568,23 +607,25 @@ class EventRepositoryImp(
      * @param eventId The ID of the event whose restaurants should be synced.
      * @return Result.success(Unit) on success, or Result.failure(e) on error.
      */
-    override suspend fun syncRestaurants(eventId: String):Result<Unit>{
-        if (!hasRestaurantCandidates(eventId)){
+    override suspend fun syncRestaurants(eventId: String): Result<Unit> {
+        if (!hasRestaurantCandidates(eventId)) {
             return Result.failure(Exception("No Restaurant information is available"))
-        } else{
-            try{
-                val restaurants =  db.collection("events")
-                    .document(eventId)
-                    .collection("restaurants")
-                    .get()
-                    .await()
-                    .mapNotNull { it.toObject(Restaurant::class.java) }
-                    .map { it.toEntity(eventId) }
+        } else {
+            try {
+                val restaurants =
+                    db
+                        .collection("events")
+                        .document(eventId)
+                        .collection("restaurants")
+                        .get()
+                        .await()
+                        .mapNotNull { it.toObject(Restaurant::class.java) }
+                        .map { it.toEntity(eventId) }
 
                 restaurantDao.upsertRestaurants(restaurants)
 
                 return Result.success(Unit)
-            }catch (e: Exception) {
+            } catch (e: Exception) {
                 return Result.failure(e)
             }
         }
@@ -608,15 +649,15 @@ class EventRepositoryImp(
         eventId: String,
         targetTime: DateTime?,
         lat: Double,
-        lng: Double
-    ): Flow<List<Restaurant>> {
-        return restaurantDao.getRestaurants(eventId)
+        lng: Double,
+    ): Flow<List<Restaurant>> =
+        restaurantDao
+            .getRestaurants(eventId)
             .map { list ->
                 list.map { entity ->
                     with(RestaurantMapper) { entity.toDomain() }
                 }
             }
-    }
 
     /**
      * Submits a vote for a specific restaurant and date-time within an event.
@@ -644,44 +685,53 @@ class EventRepositoryImp(
         eventId: String,
         placeId: String,
         userId: String,
-        dateTime: DateTime
+        dateTime: DateTime,
     ): Result<Unit> {
-        val userName = try {
-            val response = db.collection("events")
-                .document(eventId)
-                .collection("participantResponses")
-                .document(userId)
-                .get()
-                .await()
-                .toObject(ParticipantResponse::class.java)
-            
-            if (response != null) {
-                response.name
-            } else {
-                val eventDoc = db.collection("events").document(eventId).get().await().toObject(Event::class.java)
-                if (eventDoc?.hostId == userId) {
-                    eventDoc.hostName
+        val userName =
+            try {
+                val response =
+                    db
+                        .collection("events")
+                        .document(eventId)
+                        .collection("participantResponses")
+                        .document(userId)
+                        .get()
+                        .await()
+                        .toObject(ParticipantResponse::class.java)
+
+                if (response != null) {
+                    response.name
                 } else {
-                    auth.currentUser?.displayName ?: "Unknown"
+                    val eventDoc =
+                        db
+                            .collection("events")
+                            .document(eventId)
+                            .get()
+                            .await()
+                            .toObject(Event::class.java)
+                    if (eventDoc?.hostId == userId) {
+                        eventDoc.hostName
+                    } else {
+                        auth.currentUser?.displayName ?: "Unknown"
+                    }
                 }
+            } catch (_: Exception) {
+                "Unknown"
             }
-        } catch (_: Exception) {
-            "Unknown"
-        }
 
         val vote = Vote(placeId = placeId, dateTime = dateTime, userId = userId, userName = userName)
         return try {
-            db.collection("events")
+            db
+                .collection("events")
                 .document(eventId)
                 .collection("restaurants")
                 .document(placeId)
                 .collection("votes")
-                .document("${userId}_${dateTime}")
+                .document("${userId}_$dateTime")
                 .set(vote)
                 .await()
 
             Result.success(Unit)
-
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -700,24 +750,24 @@ class EventRepositoryImp(
         eventId: String,
         placeId: String,
         userId: String,
-        dateTime: DateTime
-    ): Result<Boolean> {
-        return try {
-            val snapshot = db.collection("events")
-                .document(eventId)
-                .collection("restaurants")
-                .document(placeId)
-                .collection("votes")
-                .document("${userId}_${dateTime}")
-                .get()
-                .await()
+        dateTime: DateTime,
+    ): Result<Boolean> =
+        try {
+            val snapshot =
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("restaurants")
+                    .document(placeId)
+                    .collection("votes")
+                    .document("${userId}_$dateTime")
+                    .get()
+                    .await()
 
             Result.success(snapshot.exists())
-
         } catch (e: Exception) {
             Result.failure(e)
         }
-    }
 
     /**
      * Orchestrates the discovery of restaurant candidates based on participant preferences.
@@ -753,36 +803,40 @@ class EventRepositoryImp(
 
         event.locationCandidates.forEach { city ->
             // Generate a matrix of search combinations (City + Type + Category)
-            val combinations = event.placeTypeCandidates.flatMap { placeType ->
-                when (placeType) {
-                    PlaceType.RESTAURANT -> {
-                        if (event.foodCategoryCandidates.isEmpty()) {
-                            listOf(Triple(city, placeType, null))
-                        } else {
-                            event.foodCategoryCandidates.map { Triple(city, placeType, it) }
+            val combinations =
+                event.placeTypeCandidates
+                    .flatMap { placeType ->
+                        when (placeType) {
+                            PlaceType.RESTAURANT -> {
+                                if (event.foodCategoryCandidates.isEmpty()) {
+                                    listOf(Triple(city, placeType, null))
+                                } else {
+                                    event.foodCategoryCandidates.map { Triple(city, placeType, it) }
+                                }
+                            }
+                            PlaceType.CAFE -> listOf(Triple(city, placeType, null))
+                            PlaceType.BAR -> listOf(Triple(city, placeType, null))
                         }
-                    }
-                    PlaceType.CAFE -> listOf(Triple(city, placeType, null))
-                    PlaceType.BAR -> listOf(Triple(city, placeType, null))
-                }
-            }.shuffled().take(10) // Limit API usage and keep the list manageable
+                    }.shuffled()
+                    .take(10) // Limit API usage and keep the list manageable
 
             combinations.forEach { (city, placeType, foodCategory) ->
                 val query = buildSearchQuery(city, placeType, foodCategory)
 
-                placesRepository.fetchRestaurants(
-                    query = query,
-                    targetTime = targetTime,
-                    lat = lat,
-                    lng = lng
-                ).onSuccess { restaurants ->
-                    // Grab the top result for each query combination to maximize variety
-                    restaurants.firstOrNull()?.let { restaurant ->
-                        if (seen.add(restaurant.placeId)) {
-                            allRestaurants.add(restaurant.copy(searchLocation = city))
+                placesRepository
+                    .fetchRestaurants(
+                        query = query,
+                        targetTime = targetTime,
+                        lat = lat,
+                        lng = lng,
+                    ).onSuccess { restaurants ->
+                        // Grab the top result for each query combination to maximize variety
+                        restaurants.firstOrNull()?.let { restaurant ->
+                            if (seen.add(restaurant.placeId)) {
+                                allRestaurants.add(restaurant.copy(searchLocation = city))
+                            }
                         }
                     }
-                }
             }
         }
 
@@ -793,7 +847,7 @@ class EventRepositoryImp(
                     updateEventStatus(event.id, EventStatus.COLLECTING_RESTAURANT_VOTES)
                     Result.success(Unit)
                 },
-                onFailure = { Result.failure(it) }
+                onFailure = { Result.failure(it) },
             )
         } else {
             Result.failure(Exception("No restaurants found matching the criteria and timing."))
@@ -803,14 +857,17 @@ class EventRepositoryImp(
     /**
      * Internal helper to format strings for the Google Places TextSearch API.
      */
-    private fun buildSearchQuery(city: String, type: PlaceType, category: FoodCategory?): String {
-        return when {
+    private fun buildSearchQuery(
+        city: String,
+        type: PlaceType,
+        category: FoodCategory?,
+    ): String =
+        when {
             type == PlaceType.RESTAURANT && category != null -> "${category.queryName} restaurant in $city"
             type == PlaceType.CAFE -> "cafe in $city"
             type == PlaceType.BAR -> "bar in $city"
             else -> "${type.queryName} in $city"
         }
-    }
 
     /**
      * Retrieves a list of restaurants for a given location.
@@ -821,7 +878,7 @@ class EventRepositoryImp(
     override suspend fun hasUserVotedInEvent(
         eventId: String,
         userId: String,
-        timings: List<DateTime>
+        timings: List<DateTime>,
     ): Boolean {
         syncRestaurants(eventId)
 
@@ -844,21 +901,25 @@ class EventRepositoryImp(
      */
     override suspend fun hasAnyRestaurantVotes(eventId: String): Boolean {
         return try {
-            val restaurantsSnapshot = db.collection("events")
-                .document(eventId)
-                .collection("restaurants")
-                .get()
-                .await()
-
-            for (restaurantDoc in restaurantsSnapshot.documents) {
-                val votesSnapshot = db.collection("events")
+            val restaurantsSnapshot =
+                db
+                    .collection("events")
                     .document(eventId)
                     .collection("restaurants")
-                    .document(restaurantDoc.id)
-                    .collection("votes")
-                    .limit(1)
                     .get()
                     .await()
+
+            for (restaurantDoc in restaurantsSnapshot.documents) {
+                val votesSnapshot =
+                    db
+                        .collection("events")
+                        .document(eventId)
+                        .collection("restaurants")
+                        .document(restaurantDoc.id)
+                        .collection("votes")
+                        .limit(1)
+                        .get()
+                        .await()
 
                 if (!votesSnapshot.isEmpty) {
                     return true
@@ -879,11 +940,13 @@ class EventRepositoryImp(
      */
     override suspend fun aggregateRestaurantVotes(eventId: String): Result<Unit> {
         return try {
-            val restaurantsSnapshot = db.collection("events")
-                .document(eventId)
-                .collection("restaurants")
-                .get()
-                .await()
+            val restaurantsSnapshot =
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("restaurants")
+                    .get()
+                    .await()
 
             // Count votes per placeId
             val voteCounts = mutableMapOf<String, Int>()
@@ -891,17 +954,20 @@ class EventRepositoryImp(
 
             restaurantsSnapshot.documents.forEach { restaurantDoc ->
                 val placeId = restaurantDoc.id
-                val votesSnapshot = db.collection("events")
-                    .document(eventId)
-                    .collection("restaurants")
-                    .document(placeId)
-                    .collection("votes")
-                    .get()
-                    .await()
+                val votesSnapshot =
+                    db
+                        .collection("events")
+                        .document(eventId)
+                        .collection("restaurants")
+                        .document(placeId)
+                        .collection("votes")
+                        .get()
+                        .await()
 
-                val votes = votesSnapshot.documents.mapNotNull {
-                    it.toObject(Vote::class.java)
-                }
+                val votes =
+                    votesSnapshot.documents.mapNotNull {
+                        it.toObject(Vote::class.java)
+                    }
                 voteCounts[placeId] = votes.size
                 votesByPlace[placeId] = votes
             }
@@ -909,38 +975,44 @@ class EventRepositoryImp(
             if (voteCounts.isEmpty()) return Result.failure(Exception("No votes found"))
 
             // Find winning placeId — random tiebreaker if tied
-            val maxVotes = voteCounts.maxOfOrNull { it.value }
-                ?: return Result.failure(Exception("No votes found"))
-            val winnerPlaceId = voteCounts
-                .filter { it.value == maxVotes }
-                .keys.random()
+            val maxVotes =
+                voteCounts.maxOfOrNull { it.value }
+                    ?: return Result.failure(Exception("No votes found"))
+            val winnerPlaceId =
+                voteCounts
+                    .filter { it.value == maxVotes }
+                    .keys
+                    .random()
 
             // Find most common DateTime from winner's votes — random tiebreaker if tied
             val winnerVotes = votesByPlace[winnerPlaceId] ?: emptyList()
-            val groupedTimings = winnerVotes
-                .mapNotNull { it.dateTime }
-                .groupBy { it }
-            val maxTimingVotes = groupedTimings.maxOfOrNull { it.value.size }
-                ?: return Result.failure(Exception("No timings found in winner votes"))
-            val winnerTime = groupedTimings
-                .filter { it.value.size == maxTimingVotes }
-                .keys.random()
+            val groupedTimings =
+                winnerVotes
+                    .mapNotNull { it.dateTime }
+                    .groupBy { it }
+            val maxTimingVotes =
+                groupedTimings.maxOfOrNull { it.value.size }
+                    ?: return Result.failure(Exception("No timings found in winner votes"))
+            val winnerTime =
+                groupedTimings
+                    .filter { it.value.size == maxTimingVotes }
+                    .keys
+                    .random()
 
             // Save to events document
-            db.collection("events")
+            db
+                .collection("events")
                 .document(eventId)
                 .update(
                     mapOf(
                         "finalPlace" to winnerPlaceId,
                         "finalTime" to winnerTime,
-                        "status" to EventStatus.FINALIZED.name
-                    )
-                )
-                .await()
+                        "status" to EventStatus.FINALIZED.name,
+                    ),
+                ).await()
 
             syncEventById(eventId)
             Result.success(Unit)
-
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -951,57 +1023,67 @@ class EventRepositoryImp(
      * @param eventId The ID of the event to observe votes for.
      * @return A [Flow] emitting a list of [Vote] objects.
      */
-    override fun observeRestaurantVotes(eventId: String): Flow<List<Vote>> = callbackFlow {
-        val listeners = mutableListOf<ListenerRegistration>()
+    override fun observeRestaurantVotes(eventId: String): Flow<List<Vote>> =
+        callbackFlow {
+            val listeners = mutableListOf<ListenerRegistration>()
 
-        val mainListener = db.collection("events")
-            .document(eventId)
-            .collection("restaurants")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-
-                // Remove old listeners for votes
-                listeners.forEach { it.remove() }
-                listeners.clear()
-
-                val restaurantDocs = snapshot?.documents ?: emptyList()
-                if (restaurantDocs.isEmpty()) {
-                    trySend(emptyList())
-                    return@addSnapshotListener
-                }
-
-                val allVotesMap = mutableMapOf<String, List<Vote>>()
-
-                restaurantDocs.forEach { restaurantDoc ->
-                    val listener = restaurantDoc.reference.collection("votes")
-                        .addSnapshotListener { voteSnapshot, voteError ->
-                            if (voteError != null) return@addSnapshotListener
-
-                            val votes = voteSnapshot?.documents?.mapNotNull { doc ->
-                                doc.toObject(Vote::class.java)?.copy(placeId = restaurantDoc.id)
-                            } ?: emptyList()
-
-                            allVotesMap[restaurantDoc.id] = votes
-
-                            // Emit the union of all votes collected so far
-                            trySend(allVotesMap.values.flatten())
+            val mainListener =
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("restaurants")
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            close(error)
+                            return@addSnapshotListener
                         }
-                    listeners.add(listener)
-                }
+
+                        // Remove old listeners for votes
+                        listeners.forEach { it.remove() }
+                        listeners.clear()
+
+                        val restaurantDocs = snapshot?.documents ?: emptyList()
+                        if (restaurantDocs.isEmpty()) {
+                            trySend(emptyList())
+                            return@addSnapshotListener
+                        }
+
+                        val allVotesMap = mutableMapOf<String, List<Vote>>()
+
+                        restaurantDocs.forEach { restaurantDoc ->
+                            val listener =
+                                restaurantDoc.reference
+                                    .collection("votes")
+                                    .addSnapshotListener { voteSnapshot, voteError ->
+                                        if (voteError != null) return@addSnapshotListener
+
+                                        val votes =
+                                            voteSnapshot?.documents?.mapNotNull { doc ->
+                                                doc.toObject(Vote::class.java)?.copy(placeId = restaurantDoc.id)
+                                            } ?: emptyList()
+
+                                        allVotesMap[restaurantDoc.id] = votes
+
+                                        // Emit the union of all votes collected so far
+                                        trySend(allVotesMap.values.flatten())
+                                    }
+                            listeners.add(listener)
+                        }
+                    }
+
+            awaitClose {
+                mainListener.remove()
+                listeners.forEach { it.remove() }
             }
-
-        awaitClose {
-            mainListener.remove()
-            listeners.forEach { it.remove() }
         }
-    }
 
-    override suspend fun getParticipantResponse(eventId: String, userId: String): ParticipantResponse? {
-        return try {
-            db.collection("events")
+    override suspend fun getParticipantResponse(
+        eventId: String,
+        userId: String,
+    ): ParticipantResponse? =
+        try {
+            db
+                .collection("events")
                 .document(eventId)
                 .collection("participantResponses")
                 .document(userId)
@@ -1011,7 +1093,6 @@ class EventRepositoryImp(
         } catch (_: Exception) {
             null
         }
-    }
 
     /**
      * Observes the participant response for a specific user and event in real-time.
@@ -1019,28 +1100,34 @@ class EventRepositoryImp(
      * @param userId The ID of the user.
      * @return A [Flow] emitting the [ParticipantResponse] object for the user.
      */
-    override fun observeParticipantResponse(eventId: String, userId: String): Flow<ParticipantResponse?> = callbackFlow {
-        val listener = db.collection("events")
-            .document(eventId)
-            .collection("participantResponses")
-            .document(userId)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-                val response = snapshot?.toObject(ParticipantResponse::class.java)
-                if (response != null) {
-                    // Also update Room cache
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val entity = with(ParticipantResponseMapper) { response.toEntity(eventId) }
-                        participantResponseDao.upsertResponses(listOf(entity))
+    override fun observeParticipantResponse(
+        eventId: String,
+        userId: String,
+    ): Flow<ParticipantResponse?> =
+        callbackFlow {
+            val listener =
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("participantResponses")
+                    .document(userId)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            close(error)
+                            return@addSnapshotListener
+                        }
+                        val response = snapshot?.toObject(ParticipantResponse::class.java)
+                        if (response != null) {
+                            // Also update Room cache
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val entity = with(ParticipantResponseMapper) { response.toEntity(eventId) }
+                                participantResponseDao.upsertResponses(listOf(entity))
+                            }
+                        }
+                        trySend(response)
                     }
-                }
-                trySend(response)
-            }
-        awaitClose { listener.remove() }
-    }
+            awaitClose { listener.remove() }
+        }
 
     /**
      * Checks if the user has submitted availability for the given event.
@@ -1050,18 +1137,19 @@ class EventRepositoryImp(
      */
     override suspend fun hasUserSubmittedAvailability(
         eventId: String,
-        userId: String
-    ): Boolean {
-        return try {
-            val snapshot = db.collection("events")
-                .document(eventId)
-                .collection("participantResponses")
-                .document(userId)
-                .get()
-                .await()
+        userId: String,
+    ): Boolean =
+        try {
+            val snapshot =
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("participantResponses")
+                    .document(userId)
+                    .get()
+                    .await()
             snapshot.exists()
         } catch (_: Exception) {
             false
         }
-    }
 }

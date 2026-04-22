@@ -5,7 +5,6 @@ import com.meetup.meetingapp.data.AppContainer
 import com.meetup.meetingapp.data.AppDataContainer
 
 class MeetingApplication : Application() {
-
     /**
      * AppContainer instance used by the rest of the classes to obtain dependencies
      */

@@ -60,7 +60,7 @@ fun HomeScreen(
     onCreateEventClick: () -> Unit,
     onJoinEventClick: () -> Unit,
     onEventsClick: () -> Unit,
-    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     /**
      * Sign in anonymously to the Firebase Realtime Database
@@ -73,7 +73,7 @@ fun HomeScreen(
     HomeScreenContent(
         onCreateEventClick = onCreateEventClick,
         onJoinEventClick = onJoinEventClick,
-        onEventsClick = onEventsClick
+        onEventsClick = onEventsClick,
     )
 }
 
@@ -91,33 +91,36 @@ fun HomeScreenContent(
     onCreateEventClick: () -> Unit,
     onJoinEventClick: () -> Unit,
     onEventsClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Text(
                     text = "MeetUp",
-                    style = MaterialTheme.typography.displayLarge.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.primary,
-                        shadow = Shadow(
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
-                            offset = Offset(0f, 6f),
-                            blurRadius = 7f
-                        )
-                    )
+                    style =
+                        MaterialTheme.typography.displayLarge.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary,
+                            shadow =
+                                Shadow(
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
+                                    offset = Offset(0f, 6f),
+                                    blurRadius = 7f,
+                                ),
+                        ),
                 )
 
                 Spacer(modifier = Modifier.height(AppSpacing.sm))
@@ -126,29 +129,30 @@ fun HomeScreenContent(
                     text = "Make plans easy for everyone.",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
 
                 Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 Button(
                     onClick = onCreateEventClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                        ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxSize(AppSize.lg),
-                    contentPadding = PaddingValues(AppSpacing.md)
+                    contentPadding = PaddingValues(AppSpacing.md),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = null,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(18.dp),
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Create Event",
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
 
@@ -156,16 +160,17 @@ fun HomeScreenContent(
 
                 Button(
                     onClick = onJoinEventClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                        ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxSize(AppSize.lg),
-                    contentPadding = PaddingValues(AppSpacing.md)
+                    contentPadding = PaddingValues(AppSpacing.md),
                 ) {
                     Text(
                         text = "Join Event",
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
                 Spacer(modifier = Modifier.height(AppSpacing.xl))
@@ -173,17 +178,18 @@ fun HomeScreenContent(
                 Button(
                     onClick = onEventsClick,
                     border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary,
+                        ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxSize(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         text = "Events",
                         style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                 }
             }
@@ -196,12 +202,12 @@ fun HomeScreenContent(
  */
 @Preview(showBackground = true)
 @Composable
-fun HomeScreenPreview(
-) {
+fun HomeScreenPreview() {
     MeetingAppTheme {
         HomeScreenContent(
             onCreateEventClick = {},
             onJoinEventClick = {},
-            onEventsClick = {})
+            onEventsClick = {},
+        )
     }
 }

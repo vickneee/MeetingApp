@@ -6,20 +6,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
@@ -52,11 +52,11 @@ object SmallAreaSelectingDestination : NavigationDestination {
 fun SmallAreaSelectingPage(
     onBack: () -> Unit,
     viewModel: ParticipantViewModel,
-    onNext: () -> Unit
+    onNext: () -> Unit,
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle(null)
     val participantState by viewModel.participantState.collectAsStateWithLifecycle(
-        ParticipantInputState()
+        ParticipantInputState(),
     )
 
     event?.let {
@@ -65,7 +65,7 @@ fun SmallAreaSelectingPage(
             selectedAreas = participantState.selectedLocations,
             onAreaToggle = { viewModel.toggleLocation(it) },
             onBack = onBack,
-            onNext = onNext
+            onNext = onNext,
         )
     }
 }
@@ -92,25 +92,26 @@ fun SmallAreaSelectingContent(
     selectedAreas: List<String>,
     onAreaToggle: (String) -> Unit,
     onBack: () -> Unit,
-    onNext: () -> Unit
+    onNext: () -> Unit,
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
                 title = stringResource(id = R.string.title_small_area_selection_page),
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Text(
@@ -118,8 +119,9 @@ fun SmallAreaSelectingContent(
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -127,16 +129,17 @@ fun SmallAreaSelectingContent(
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = AppSpacing.md)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = AppSpacing.md),
                 )
             }
             items(cityOptions) { city ->
                 AreaItem(
                     title = city,
                     checked = selectedAreas.contains(city),
-                    onCheckedChange = { onAreaToggle(city) }
+                    onCheckedChange = { onAreaToggle(city) },
                 )
             }
 
@@ -151,18 +154,17 @@ fun SmallAreaSelectingContent(
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         text = "Next",
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
             }
         }
     }
 }
-
 
 /**
  * A reusable row component representing a selectable area.
@@ -182,21 +184,22 @@ fun SmallAreaSelectingContent(
 fun AreaItem(
     title: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth(AppSize.lg)
-            .height(56.dp)
-            .toggleable(
-                value = checked,
-                onValueChange = { onCheckedChange(it) }
-            ),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            Modifier
+                .fillMaxWidth(AppSize.lg)
+                .height(56.dp)
+                .toggleable(
+                    value = checked,
+                    onValueChange = { onCheckedChange(it) },
+                ),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Checkbox(
             checked = checked,
-            onCheckedChange = null
+            onCheckedChange = null,
         )
         Text(
             text = title,
@@ -213,14 +216,15 @@ fun AreaItem(
 @Composable
 fun SmallAreaSelectingPreview() {
     SmallAreaSelectingContent(
-        cityOptions = listOf(
-            "City A",
-            "City B",
-            "City C"
-        ),
+        cityOptions =
+            listOf(
+                "City A",
+                "City B",
+                "City C",
+            ),
         selectedAreas = listOf(),
         onAreaToggle = {},
         onBack = {},
-        onNext = {}
+        onNext = {},
     )
 }

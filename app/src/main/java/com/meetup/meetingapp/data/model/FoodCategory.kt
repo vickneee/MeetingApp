@@ -1,7 +1,9 @@
 package com.meetup.meetingapp.data.model
 
 // Food categories used as keyword candidates when querying the Google Places API.
-enum class FoodCategory(val queryName: String) {
+enum class FoodCategory(
+    val queryName: String,
+) {
     ITALIAN("Italian"),
     PIZZA("Pizza"),
     BURGER("Burger"),
@@ -14,5 +16,5 @@ enum class FoodCategory(val queryName: String) {
     ASIAN("Asian"),
     SUSHI("Sushi"),
     THAI("Thai"),
-    INDIAN("Indian")
+    INDIAN("Indian"),
 }

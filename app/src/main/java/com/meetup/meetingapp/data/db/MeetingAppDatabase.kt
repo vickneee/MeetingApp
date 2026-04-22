@@ -23,11 +23,15 @@ import com.meetup.meetingapp.data.db.entities.UserEntity
  * access point for the underlying storage.
  * @constructor Creates a new instance of the MeetingAppDatabase.
  */
-@Database(entities = [EventEntity::class, UserEntity::class, CityEntity::class, ParticipantResponseEntity::class, RestaurantEntity::class], version = 10, exportSchema = false)
+@Database(
+    entities = [EventEntity::class, UserEntity::class, CityEntity::class, ParticipantResponseEntity::class, RestaurantEntity::class],
+    version = 10,
+    exportSchema = false,
+)
 @TypeConverters(Converters::class)
 abstract class MeetingAppDatabase : RoomDatabase() {
-
     abstract fun eventDao(): EventDao
+
     abstract fun userDao(): UserDao
 
     abstract fun cityDao(): CityDao
@@ -40,18 +44,18 @@ abstract class MeetingAppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: MeetingAppDatabase? = null
 
-        fun getDatabase(context: Context): MeetingAppDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    MeetingAppDatabase::class.java,
-                    "meeting_app"
-                )
-                    .fallbackToDestructiveMigration(dropAllTables = true)
-                    .build()
+        fun getDatabase(context: Context): MeetingAppDatabase =
+            INSTANCE ?: synchronized(this) {
+                val instance =
+                    Room
+                        .databaseBuilder(
+                            context.applicationContext,
+                            MeetingAppDatabase::class.java,
+                            "meeting_app",
+                        ).fallbackToDestructiveMigration(dropAllTables = true)
+                        .build()
                 INSTANCE = instance
                 instance
             }
-        }
     }
 }

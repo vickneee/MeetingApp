@@ -20,16 +20,13 @@ import kotlinx.coroutines.flow.Flow
  * Room and Cloud Firestore.
  */
 interface EventRepository {
-
     /**
      * Creates a new event in Firestore and returns the generated event code and event key.
      *
      * @return A [Result] containing a triple of (eventCode, eventKey, eventId) on success,
      * or an error on failure.
      */
-    suspend fun createEvent(
-        eventValues: EventUiState
-    ): Result<Triple<String, String, String>>
+    suspend fun createEvent(eventValues: EventUiState): Result<Triple<String, String, String>>
 
     /**
      * Stores the participant's availability and preferences in Firestore.
@@ -62,7 +59,10 @@ interface EventRepository {
      * @param eventCode The event code to search for.
      * @param eventKey The event key to search for.
      */
-    suspend fun syncEventByEventCodeAndKey(eventCode: String, eventKey: String)
+    suspend fun syncEventByEventCodeAndKey(
+        eventCode: String,
+        eventKey: String,
+    )
 
     /**
      * Synchronizes an event by its ID from Firestore with the local Room database.
@@ -103,7 +103,10 @@ interface EventRepository {
      * @param newStatus The newStatus to set for the event.
      * @throws Exception if the update operation fails.
      */
-    suspend fun updateEventStatus(eventId: String, newStatus: EventStatus)
+    suspend fun updateEventStatus(
+        eventId: String,
+        newStatus: EventStatus,
+    )
 
     /**
      * Retrieves a list of cities from the local Room database.
@@ -137,7 +140,7 @@ interface EventRepository {
      */
     suspend fun saveAllRestaurants(
         eventId: String,
-        restaurants: List<Restaurant>
+        restaurants: List<Restaurant>,
     ): Result<Unit>
 
     /**
@@ -146,9 +149,7 @@ interface EventRepository {
      * @param eventId The ID of the event to retrieve restaurants for.
      * @return A [Flow] emitting a list of [Restaurant] objects.
      */
-    suspend fun syncRestaurants(
-        eventId: String
-    ): Result<Unit>
+    suspend fun syncRestaurants(eventId: String): Result<Unit>
 
     /**
      * Retrieves a list of restaurants from the local Room database,
@@ -164,7 +165,7 @@ interface EventRepository {
         eventId: String,
         targetTime: DateTime? = null,
         lat: Double = 0.0,
-        lng: Double = 0.0
+        lng: Double = 0.0,
     ): Flow<List<Restaurant>>
 
     /**
@@ -193,14 +194,24 @@ interface EventRepository {
      *
      * @return Result.success(Unit) on success, or Result.failure(e) on error.
      */
-    suspend fun submitVote(eventId: String, placeId: String, userId: String, dateTime: DateTime): Result<Unit>
+    suspend fun submitVote(
+        eventId: String,
+        placeId: String,
+        userId: String,
+        dateTime: DateTime,
+    ): Result<Unit>
 
     /**
      * Returns whether the user has already voted for the given restaurant and time slot.
      *
      * @return Result<Boolean> — true if the vote document exists in Firestore.
      */
-    suspend fun getUserVote(eventId: String, placeId: String, userId: String, dateTime: DateTime): Result<Boolean>
+    suspend fun getUserVote(
+        eventId: String,
+        placeId: String,
+        userId: String,
+        dateTime: DateTime,
+    ): Result<Boolean>
 
     /**
      * Fetches and saves restaurants for the given event.
@@ -221,7 +232,7 @@ interface EventRepository {
     suspend fun hasUserVotedInEvent(
         eventId: String,
         userId: String,
-        timings: List<DateTime>
+        timings: List<DateTime>,
     ): Boolean
 
     /**
@@ -251,7 +262,10 @@ interface EventRepository {
      * @param userId The ID of the user.
      * @return The [ParticipantResponse] if found, null otherwise.
      */
-    suspend fun getParticipantResponse(eventId: String, userId: String): ParticipantResponse?
+    suspend fun getParticipantResponse(
+        eventId: String,
+        userId: String,
+    ): ParticipantResponse?
 
     /**
      * Observes the participant response for a specific user and event in real-time.
@@ -259,7 +273,10 @@ interface EventRepository {
      * @param userId The ID of the user.
      * @return A [Flow] emitting the [ParticipantResponse] object for the user.
      */
-    fun observeParticipantResponse(eventId: String, userId: String): Flow<ParticipantResponse?>
+    fun observeParticipantResponse(
+        eventId: String,
+        userId: String,
+    ): Flow<ParticipantResponse?>
 
     /**
      * Retrieves the participant response for a specific user and event.
@@ -267,5 +284,8 @@ interface EventRepository {
      * @param userId The ID of the host user.
      * @return The [hasUserSubmittedAvailability] true if found, null otherwise.
      */
-    suspend fun hasUserSubmittedAvailability(eventId: String, userId: String): Boolean
+    suspend fun hasUserSubmittedAvailability(
+        eventId: String,
+        userId: String,
+    ): Boolean
 }

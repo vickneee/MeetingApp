@@ -8,16 +8,13 @@ import androidx.room.TypeConverter
  * @constructor Creates a new instance of the Converters class.
  */
 class Converters {
-
     /**
      * Converts a list of strings to a comma-separated string.
      * @param value The list of strings to be converted.
      * @return A comma-separated string representation of the input list.
      */
     @TypeConverter
-    fun fromList(value: List<String>): String {
-        return value.joinToString(",")
-    }
+    fun fromList(value: List<String>): String = value.joinToString(",")
 
     /**
      * Converts a comma-separated string to a list of strings.

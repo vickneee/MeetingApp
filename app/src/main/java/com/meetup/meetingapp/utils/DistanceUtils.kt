@@ -20,7 +20,7 @@ fun calculateDistanceMeters(
     userLat: Double,
     userLng: Double,
     destLat: Double,
-    destLng: Double
+    destLng: Double,
 ): Float {
     val results = FloatArray(1)
     Location.distanceBetween(userLat, userLng, destLat, destLng, results)
@@ -40,10 +40,9 @@ fun calculateDistanceMeters(
  * @param distanceMeters The distance in meters.
  * @return A formatted string such as `"850 m"` or `"1.2 km"`.
  */
-fun formatDistance(distanceMeters: Float): String {
-    return if (distanceMeters < 1000) {
+fun formatDistance(distanceMeters: Float): String =
+    if (distanceMeters < 1000) {
         "${distanceMeters.toInt()} m"
     } else {
         String.format(Locale.US, "%.1f km", distanceMeters / 1000)
     }
-}

@@ -53,7 +53,7 @@ fun DateAndAreaPage(
     onBack: () -> Unit,
     viewModel: PlaceViewModel,
     onNavigateToRestaurantListPage: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val dateAndAreaState by viewModel.dateAndAreaState.collectAsStateWithLifecycle()
 
@@ -65,7 +65,7 @@ fun DateAndAreaPage(
             viewModel.setFilter(timing, location)
             onNavigateToRestaurantListPage()
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -83,56 +83,60 @@ fun DateAndAreaContent(
     dateLocationOptions: List<DateLocationOption>,
     // Signature updated to accept the DateTime object directly
     navigateToRestaurantListPage: (DateTime, String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
                 title = stringResource(id = R.string.title_date_and_area),
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
         ) {
-
             item {
                 Text(
                     "Choose a date, time & area",
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                        .padding(bottom = AppSpacing.lg)
+                    modifier =
+                        Modifier
+                            .padding(bottom = AppSpacing.lg),
                 )
             }
             items(dateLocationOptions) { option ->
                 Card(
                     onClick = { navigateToRestaurantListPage(option.timing, option.location) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                        ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                 ) {
                     Text(
                         text = option.label,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 20.dp, horizontal = 16.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 20.dp, horizontal = 16.dp),
                         textAlign = TextAlign.Center,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -146,28 +150,35 @@ fun DateAndAreaContent(
 @Preview(showBackground = true)
 @Composable
 fun DateAndAreaContentPreview() {
-    val sampleOptions = listOf(
-        DateLocationOption(
-            timing = DateTime(
-                date = "2024-04-12",
-                timeSlot = com.meetup.meetingapp.data.model.TimeSlot("09:00", "12:00")
+    val sampleOptions =
+        listOf(
+            DateLocationOption(
+                timing =
+                    DateTime(
+                        date = "2024-04-12",
+                        timeSlot =
+                            com.meetup.meetingapp.data.model
+                                .TimeSlot("09:00", "12:00"),
+                    ),
+                location = "Helsinki",
             ),
-            location = "Helsinki"
-        ),
-        DateLocationOption(
-            timing = DateTime(
-                date = "2024-04-12",
-                timeSlot = com.meetup.meetingapp.data.model.TimeSlot("13:00,", "16:00")
+            DateLocationOption(
+                timing =
+                    DateTime(
+                        date = "2024-04-12",
+                        timeSlot =
+                            com.meetup.meetingapp.data.model
+                                .TimeSlot("13:00,", "16:00"),
+                    ),
+                location = "Tampere",
             ),
-            location = "Tampere"
         )
-    )
 
     MeetingAppTheme {
         DateAndAreaContent(
             onBack = {},
             dateLocationOptions = sampleOptions,
-            navigateToRestaurantListPage = { _, _ -> }
+            navigateToRestaurantListPage = { _, _ -> },
         )
     }
 }
