@@ -275,22 +275,6 @@ class ParticipantViewModel(
         }
     }
 
-//    /**
-//     * Toggles the selection of a date and time slot.
-//     *
-//     * @param date The date of the slot.
-//     * @param slotIndex The index of the slot in the list.
-//     * @see UiTimeSlot for more information about time slots.
-//     */
-//    fun toggleDateTime(date: String, slotIndex: Int) {
-//        val currentEvent = _event.value ?: return
-//        if (slotIndex !in currentEvent.timeSlots.indices) return
-//
-//        val slot = currentEvent.timeSlots[slotIndex]
-//        val dateTime = DateTime(date = date, timeSlot = slot)
-//        toggleDateTime(dateTime)
-//    }
-
     /**
      * Toggles the selection of a place type.
      *
