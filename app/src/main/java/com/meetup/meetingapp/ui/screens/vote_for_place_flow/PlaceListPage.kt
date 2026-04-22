@@ -43,6 +43,7 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSpacing
 
@@ -76,15 +77,20 @@ fun PlaceListPage(
     val placeListState by viewModel.filteredRestaurants.collectAsStateWithLifecycle(emptyList())
     val selectedTiming by viewModel.selectedTiming.collectAsStateWithLifecycle()
     val selectedLocation by viewModel.selectedLocation.collectAsStateWithLifecycle()
+    val restaurantState by viewModel.restaurantState.collectAsStateWithLifecycle()
 
-    PlaceListContent(
-        onBack = onBack,
-        placeListState = placeListState,
-        selectedTiming = selectedTiming,
-        selectedLocation = selectedLocation,
-        onNavigateToPlaceDetails = onNavigateToPlaceDetails,
-        modifier = modifier
-    )
+    if (restaurantState is RestaurantState.Loading) {
+        LoadingScreen(modifier = Modifier.fillMaxSize())
+    } else {
+        PlaceListContent(
+            onBack = onBack,
+            placeListState = placeListState,
+            selectedTiming = selectedTiming,
+            selectedLocation = selectedLocation,
+            onNavigateToPlaceDetails = onNavigateToPlaceDetails,
+            modifier = modifier
+        )
+    }
 }
 
 /**
