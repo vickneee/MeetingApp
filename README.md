@@ -28,6 +28,9 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 
 [Documentation Link](./FIREBASE.md)
 
+## Ktlint Code Style
+[Documentation Link](./KTLINT.md)]
+
 ## Kotlin Dokka Documentation Link
 
 [Documentation Link - Tulossa]()

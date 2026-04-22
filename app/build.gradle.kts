@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.dokka)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.ktlint)
 
     // Add the Google services Gradle plugin
     id("com.google.gms.google-services")
@@ -22,7 +23,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -30,7 +30,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
