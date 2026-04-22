@@ -22,5 +22,5 @@ data class ParticipantResponseEntity(
     val dateTimes: String,
     val locations: String,
     val placeTypes: String,
-    val foodCategories: String
+    val foodCategories: String,
 )

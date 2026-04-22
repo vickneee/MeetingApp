@@ -16,5 +16,5 @@ data class CityEntity(
     @PrimaryKey
     val name: String,
     val searchQuery: String,
-    val country: String
+    val country: String,
 )

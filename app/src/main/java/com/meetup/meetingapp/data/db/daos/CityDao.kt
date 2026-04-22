@@ -12,7 +12,6 @@ interface CityDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertCities(cities: List<CityEntity>)
 
-
     @Query("SELECT * FROM cities WHERE country = :country")
     fun getCitiesByCountry(country: String): Flow<List<CityEntity>>
 }

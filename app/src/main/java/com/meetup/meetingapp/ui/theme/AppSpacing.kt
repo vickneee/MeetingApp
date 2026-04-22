@@ -3,7 +3,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.dp
 
 object AppSpacing {
-
     // very small space (inside components)
     val xxs = 4.dp
 
@@ -32,10 +31,11 @@ object AppSpacing {
 }
 
 object AppPadding {
-    val pagePadding = PaddingValues(
-        start = AppSpacing.xl,    // 32dp
-        end = AppSpacing.xl,      // 32dp
-        top = AppSpacing.xxxl,     // 56dp
-        bottom = AppSpacing.xxxl   // 56dp
-    )
+    val pagePadding =
+        PaddingValues(
+            start = AppSpacing.xl, // 32dp
+            end = AppSpacing.xl, // 32dp
+            top = AppSpacing.xxxl, // 56dp
+            bottom = AppSpacing.xxxl, // 56dp
+        )
 }

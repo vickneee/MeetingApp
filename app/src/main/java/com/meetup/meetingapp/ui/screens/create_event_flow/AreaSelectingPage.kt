@@ -65,7 +65,7 @@ object AreaSelectingDestination : NavigationDestination {
 fun AreaSelectingPage(
     onBack: () -> Unit,
     navigateToCreatingEventPage: () -> Unit,
-    viewModel: EventViewModel
+    viewModel: EventViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val citiesState by viewModel.citiesState.collectAsState()
@@ -83,7 +83,7 @@ fun AreaSelectingPage(
                 selectedCities = uiState.locations.cities,
                 onCityChange = { viewModel.toggleCity(it) },
                 onBack = onBack,
-                onNextClick = navigateToCreatingEventPage
+                onNextClick = navigateToCreatingEventPage,
             )
 
         is CitiesFetchState.Error -> {
@@ -91,7 +91,7 @@ fun AreaSelectingPage(
             ErrorScreen(
                 message = state.message,
                 onRetry = { viewModel.observeCities(listOf(CountryOption.Finland)) },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
@@ -127,32 +127,33 @@ fun AreaSelectingContent(
     onCityChange: (String) -> Unit,
     onBack: () -> Unit,
     onNextClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
                 title = "Choose Meeting Location",
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
         ) {
             item {
                 Text(
                     "Choose a country and",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
             item {
@@ -162,8 +163,9 @@ fun AreaSelectingContent(
                     "select cities",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(),
                 )
             }
 
@@ -176,7 +178,7 @@ fun AreaSelectingContent(
                     onToggle = onCountryToggle,
                     label = "Select Countries",
                     instruction = "Search Countries",
-                    toText = { it.toString() }
+                    toText = { it.toString() },
                 )
             }
 
@@ -189,7 +191,7 @@ fun AreaSelectingContent(
                     onToggle = onCityChange,
                     label = "Select Cities",
                     instruction = "Type city's name",
-                    toText = { it }
+                    toText = { it },
                 )
             }
 
@@ -202,11 +204,11 @@ fun AreaSelectingContent(
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
                     contentPadding = PaddingValues(vertical = AppSpacing.md),
-                    enabled = selectedCities.isNotEmpty() // Only enable if a valid city is selected
+                    enabled = selectedCities.isNotEmpty(), // Only enable if a valid city is selected
                 ) {
                     Text(
                         text = "Next",
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
             }
@@ -230,7 +232,7 @@ fun AreaSelectingPagePreview() {
             onCityChange = {},
             onBack = {},
             onNextClick = {},
-            modifier = Modifier
+            modifier = Modifier,
         )
     }
 }

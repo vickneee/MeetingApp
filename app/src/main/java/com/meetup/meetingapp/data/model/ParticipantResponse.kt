@@ -20,5 +20,5 @@ data class ParticipantResponse(
     val dateTimes: List<DateTime> = listOf(),
     val locations: List<String> = listOf(),
     val placeTypes: List<PlaceType> = listOf(),
-    val foodCategories: List<FoodCategory> = listOf()
+    val foodCategories: List<FoodCategory> = listOf(),
 )

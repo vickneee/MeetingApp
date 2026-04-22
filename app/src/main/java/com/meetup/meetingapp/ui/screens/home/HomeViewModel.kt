@@ -8,8 +8,8 @@ import com.meetup.meetingapp.data.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 /**
  * ViewModel for the Home screen.
@@ -17,13 +17,11 @@ import kotlinx.coroutines.flow.update
 class HomeViewModel(
     private val userRepository: UserRepository,
     private val fusedLocationClient: com.google.android.gms.location.FusedLocationProviderClient,
-    private val geocoder: android.location.Geocoder // Passing geocoder makes it easier to test
+    private val geocoder: android.location.Geocoder, // Passing geocoder makes it easier to test
 ) : ViewModel() {
-
     private val auth = FirebaseAuth.getInstance()
 
     private val _homeUiState = MutableStateFlow(HomeUiState())
-    val homeUiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow()
 
     /**
      * The current user ID.
@@ -46,14 +44,15 @@ class HomeViewModel(
             return
         }
 
-        auth.signInAnonymously()
+        auth
+            .signInAnonymously()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("Auth", "sign in success: ${auth.currentUser?.uid}")
                     val user = auth.currentUser
-                    if(user?.uid != null){
+                    if (user?.uid != null) {
                         _currentUserId.value = user.uid // Update the current user ID
-                        viewModelScope.launch{
+                        viewModelScope.launch {
                             userRepository.syncUser(user.uid)
                         }
                     }
@@ -65,9 +64,9 @@ class HomeViewModel(
             }
     }
 
-    companion object {
-        private const val TIMEOUT_MILLIS = 5_000L
-    }
+//    companion object {
+//        private const val TIMEOUT_MILLIS = 5_000L
+//    }
 
     /**
      * Attempts to fetch location once, determine country, and save it to the repository.
@@ -78,7 +77,9 @@ class HomeViewModel(
                 // Update UI state to show the terminal is working
                 _homeUiState.update { it.copy(detectedCountry = "ESTABLISHING_UPLINK...") }
 
-                val coords = com.meetup.meetingapp.data.location.fetchCurrentCoordinates(fusedLocationClient)
+                val coords =
+                    com.meetup.meetingapp.data.location
+                        .fetchCurrentCoordinates(fusedLocationClient)
 
                 if (coords != null) {
                     val (lat, lng) = coords
@@ -111,5 +112,5 @@ class HomeViewModel(
  */
 data class HomeUiState(
     val message: String = "",
-    val detectedCountry: String = "WAITING_FOR_GPS..."
+    val detectedCountry: String = "WAITING_FOR_GPS...",
 )

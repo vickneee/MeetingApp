@@ -41,7 +41,5 @@ data class Restaurant(
     val latitude: Double? = 0.0,
     val longitude: Double? = 0.0,
     val openingHours: List<String>? = emptyList(),
-    val photoReference: String? = ""
+    val photoReference: String? = "",
 )
-
-

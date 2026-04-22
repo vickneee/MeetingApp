@@ -62,7 +62,7 @@ fun PlaceDetailsPage(
     onNavigateToHostDashboard: (String) -> Unit,
     onNavigateToParticipantDashboard: (String) -> Unit,
     viewModel: PlaceViewModel,
-    placeId: String
+    placeId: String,
 ) {
     val context = LocalContext.current
 
@@ -81,7 +81,7 @@ fun PlaceDetailsPage(
         if (voteResultState is VoteResultState.VoteSuccess) {
             val currentEvent = event ?: return@LaunchedEffect
             val currentUserId = viewModel.userId
-            
+
             if (currentEvent.hostId == currentUserId) {
                 onNavigateToHostDashboard(currentEvent.id)
             } else {
@@ -96,20 +96,24 @@ fun PlaceDetailsPage(
         viewModel.loadPlaceData(
             placeId = placeId,
             lat = restaurant?.latitude, // Ensure your Restaurant model has these
-            lng = restaurant?.longitude
+            lng = restaurant?.longitude,
         )
     }
 
-    val openLabel = if (restaurant != null && timing != null) {
-        getOpenLabel(restaurant!!, timing!!)
-    } else null
+    val openLabel =
+        if (restaurant != null && timing != null) {
+            getOpenLabel(restaurant!!, timing!!)
+        } else {
+            null
+        }
 
     val priceLabel = formatPriceLevel(restaurant?.priceLevel)
 
-    val photoUrl = buildPhotoUrl(
-        photoReference = restaurant?.photoReference,
-        apiKey = viewModel.apiKey
-    ) ?: ""
+    val photoUrl =
+        buildPhotoUrl(
+            photoReference = restaurant?.photoReference,
+            apiKey = viewModel.apiKey,
+        ) ?: ""
 
     restaurant?.let { r ->
         PlaceDetailsContent(
@@ -128,19 +132,21 @@ fun PlaceDetailsPage(
             onMapsClick = {
                 val encodedAddress = Uri.encode(r.address)
                 val gmmIntentUri = Uri.parse("geo:0,0?q=$encodedAddress")
-                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
-                    setPackage("com.google.android.apps.maps")
-                }
+                val mapIntent =
+                    Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                        setPackage("com.google.android.apps.maps")
+                    }
                 try {
                     context.startActivity(mapIntent)
                 } catch (_: Exception) {
-                    val webIntent = Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress")
-                    )
+                    val webIntent =
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress"),
+                        )
                     context.startActivity(webIntent)
                 }
-            }
+            },
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 }
@@ -178,7 +184,7 @@ fun PlaceDetailsContent(
     onHomeClick: () -> Unit,
     onVoteClick: () -> Unit,
     onMapsClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
@@ -187,63 +193,67 @@ fun PlaceDetailsContent(
                     title = {
                         Text(
                             text = stringResource(id = R.string.title_place_details),
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
                         )
                     },
                     navigationIcon = {
                         IconButton(onClick = onHomeClick) {
                             Icon(
                                 imageVector = Icons.Default.Home,
-                                contentDescription = "Home"
+                                contentDescription = "Home",
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface,
-                        navigationIconContentColor = MaterialTheme.colorScheme.primary
-                    )
+                    colors =
+                        TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            titleContentColor = MaterialTheme.colorScheme.onSurface,
+                            navigationIconContentColor = MaterialTheme.colorScheme.primary,
+                        ),
                 )
             } else {
                 MeetingAppTopAppBar(
                     title = stringResource(id = R.string.title_place_details),
                     canNavigateBack = true,
-                    navigateUp = onBack
+                    navigateUp = onBack,
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
             contentPadding = PaddingValues(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                        ),
                     shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 ) {
                     Column(
                         modifier = Modifier.padding(28.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
                         // Image Section
                         if (photoUrl.isNotEmpty()) {
                             AsyncImage(
                                 model = photoUrl,
                                 contentDescription = "Visual of ${restaurantDetail.name}",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(220.dp)
-                                    .clip(RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(220.dp)
+                                        .clip(RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Crop,
                             )
                         }
 
@@ -253,7 +263,7 @@ fun PlaceDetailsContent(
                                 text = restaurantDetail.name,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
                             )
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -261,39 +271,41 @@ fun PlaceDetailsContent(
                                     imageVector = Icons.Default.Star,
                                     contentDescription = null,
                                     tint = Color(0xFFFFC107),
-                                    modifier = Modifier.size(22.dp)
+                                    modifier = Modifier.size(22.dp),
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "${restaurantDetail.rating} (${restaurantDetail.userRatingCount} reviews)",
-                                    fontSize = 16.sp
+                                    fontSize = 16.sp,
                                 )
                             }
                             Text(
                                 text = "${restaurantDetail.types?.firstOrNull() ?: "Restaurant"} · $priceLabel",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
 
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant,
-                            thickness = 1.dp)
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            thickness = 1.dp,
+                        )
 
                         // Location/Status Section
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Text(
                                 text = "Distance: $distanceLabel", // Showing dynamic distance
                                 style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
                             )
                             Text(
                                 text = "Open: $openLabel",
                                 style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
                             )
                             Text(
                                 text = "Address: ${restaurantDetail.address}",
                                 fontSize = 15.sp,
-                                lineHeight = 24.sp
+                                lineHeight = 24.sp,
                             )
                         }
 
@@ -305,7 +317,7 @@ fun PlaceDetailsContent(
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
                             )
                         }
 
@@ -316,7 +328,7 @@ fun PlaceDetailsContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp),
                                 border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
-                                contentPadding = PaddingValues(AppSpacing.sm)
+                                contentPadding = PaddingValues(AppSpacing.sm),
                             ) {
                                 Text(
                                     text = "View on Google Maps",
@@ -328,11 +340,12 @@ fun PlaceDetailsContent(
                                 Button(
                                     onClick = onHomeClick,
                                     shape = RoundedCornerShape(8.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary
-                                    ),
+                                    colors =
+                                        ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                        ),
                                     modifier = Modifier.fillMaxWidth(),
-                                    contentPadding = PaddingValues(AppSpacing.md)
+                                    contentPadding = PaddingValues(AppSpacing.md),
                                 ) {
                                     Text(
                                         text = "Home",
@@ -343,13 +356,13 @@ fun PlaceDetailsContent(
                                 Button(
                                     onClick = onVoteClick,
                                     enabled = !isVoted,
-
                                     shape = RoundedCornerShape(8.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary
-                                    ),
+                                    colors =
+                                        ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                        ),
                                     modifier = Modifier.fillMaxWidth(),
-                                    contentPadding = PaddingValues(AppSpacing.md)
+                                    contentPadding = PaddingValues(AppSpacing.md),
                                 ) {
                                     Text(
                                         text = if (isVoted) "Voted" else "Vote for this restaurant",
@@ -363,7 +376,7 @@ fun PlaceDetailsContent(
                                     text = voteResultState.message,
                                     color = MaterialTheme.colorScheme.error,
                                     style = MaterialTheme.typography.labelSmall,
-                                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
                                 )
                             }
                         }
@@ -382,35 +395,38 @@ fun PlaceDetailsContent(
 fun PlaceDetailsPreview() {
     MeetingAppTheme {
         PlaceDetailsContent(
-            restaurantDetail = Restaurant(
-                placeId = "123",
-                name = "Ravintola Aino",
-                rating = 4.5,
-                userRatingCount = 230,
-                types = listOf("Italian"),
-                priceLevel = 2,
-                openingHours = listOf("Monday: 4:00PM – 2:00AM"),
-                address = "Iso Omena, Piispansilta 11, Espoo",
-                photoReference = ""
-            ),
+            restaurantDetail =
+                Restaurant(
+                    placeId = "123",
+                    name = "Ravintola Aino",
+                    rating = 4.5,
+                    userRatingCount = 230,
+                    types = listOf("Italian"),
+                    priceLevel = 2,
+                    openingHours = listOf("Monday: 4:00PM – 2:00AM"),
+                    address = "Iso Omena, Piispansilta 11, Espoo",
+                    photoReference = "",
+                ),
             openLabel = "4:00PM – 2:00AM",
             priceLabel = "€€",
             photoUrl = "",
             distanceLabel = "1.2 km",
             isVoted = false,
             isFinalized = false,
-            finalTime = DateTime(
-                date = "2023-11-01",
-                timeSlot = com.meetup.meetingapp.data.model.TimeSlot(
-                    start = "12:00",
-                    end = "13:00"
-                )
-            ),
+            finalTime =
+                DateTime(
+                    date = "2023-11-01",
+                    timeSlot =
+                        com.meetup.meetingapp.data.model.TimeSlot(
+                            start = "12:00",
+                            end = "13:00",
+                        ),
+                ),
             voteResultState = null,
             onBack = {},
             onHomeClick = {},
             onVoteClick = {},
-            onMapsClick = {}
+            onMapsClick = {},
         )
     }
 }

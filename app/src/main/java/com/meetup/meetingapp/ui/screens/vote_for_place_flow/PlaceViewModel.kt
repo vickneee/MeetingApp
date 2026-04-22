@@ -1,35 +1,35 @@
 package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
+import android.annotation.SuppressLint
+import android.location.Location
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
+import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.repositories.EventRepository
+import com.meetup.meetingapp.utils.calculateDistanceMeters
+import com.meetup.meetingapp.utils.filterRestaurants
+import com.meetup.meetingapp.utils.formatDistance
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import android.annotation.SuppressLint
-import android.location.Location
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
-import com.meetup.meetingapp.data.model.EventStatus
-import com.meetup.meetingapp.utils.calculateDistanceMeters
-import com.meetup.meetingapp.utils.filterRestaurants
-import com.meetup.meetingapp.utils.formatDistance
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 /**
@@ -57,9 +57,8 @@ class PlaceViewModel(
     private val eventRepository: EventRepository,
     val apiKey: String,
     private val fusedLocationClient: FusedLocationProviderClient,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
     /** Currently authenticated user's UID (empty if not logged in). */
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
@@ -71,8 +70,8 @@ class PlaceViewModel(
 
     /** Event ID passed from navigation arguments. */
     private val eventId: String =
-        savedStateHandle[PlaceDetailsDestination.eventIdArg] ?:
-        savedStateHandle[ChooseDateAndAreaDestination.eventIdArg] ?: ""
+        savedStateHandle[PlaceDetailsDestination.eventIdArg]
+            ?: savedStateHandle[ChooseDateAndAreaDestination.eventIdArg] ?: ""
 
     /** The event data observed from Firestore. */
     private val _event = MutableStateFlow<Event?>(null)
@@ -146,11 +145,10 @@ class PlaceViewModel(
                         viewModelScope.launch {
                             eventRepository.updateEventStatus(
                                 event.id,
-                                EventStatus.COLLECTING_RESTAURANT_VOTES
+                                EventStatus.COLLECTING_RESTAURANT_VOTES,
                             )
                         }
                     }
-
                 } else if (!restaurantsLoaded) {
                     _restaurantState.value = RestaurantState.Empty
                 }
@@ -163,15 +161,17 @@ class PlaceViewModel(
                 // Observe availability submissions
                 eventRepository.observeSubmissions(eventId).collect { submissions ->
                     val currentStatus = _event.value?.status ?: EventStatus.UNKNOWN
-                    val isSecondRound = currentStatus == EventStatus.COLLECTING_RESTAURANT_VOTES ||
+                    val isSecondRound =
+                        currentStatus == EventStatus.COLLECTING_RESTAURANT_VOTES ||
                             currentStatus == EventStatus.FINALIZED
 
                     if (!isSecondRound) {
                         _uiState.update { state ->
                             state.copy(
-                            submissionsCount = submissions.size,
-                            attendees = submissions.map { it.name }
-                        ) }
+                                submissionsCount = submissions.size,
+                                attendees = submissions.map { it.name },
+                            )
+                        }
                     }
                 }
             }
@@ -183,15 +183,17 @@ class PlaceViewModel(
                 // Observe restaurant votes
                 eventRepository.observeRestaurantVotes(eventId).collect { votes ->
                     val currentStatus = _event.value?.status ?: EventStatus.UNKNOWN
-                    val isSecondRound = currentStatus == EventStatus.COLLECTING_RESTAURANT_VOTES ||
+                    val isSecondRound =
+                        currentStatus == EventStatus.COLLECTING_RESTAURANT_VOTES ||
                             currentStatus == EventStatus.FINALIZED
 
                     if (isSecondRound) {
                         _uiState.update { state ->
                             state.copy(
-                            submissionsCount = votes.distinctBy { it.userId }.size,
-                            attendees = votes.distinctBy { it.userId }.map { it.userName }
-                        ) }
+                                submissionsCount = votes.distinctBy { it.userId }.size,
+                                attendees = votes.distinctBy { it.userId }.map { it.userName },
+                            )
+                        }
                     }
                 }
             }
@@ -204,7 +206,11 @@ class PlaceViewModel(
      * @param lat The latitude of the restaurant; used for distance calculation.
      * @param lng The longitude of the restaurant; used for distance calculation.
      */
-    fun loadPlaceData(placeId: String, lat: Double?, lng: Double?) {
+    fun loadPlaceData(
+        placeId: String,
+        lat: Double?,
+        lng: Double?,
+    ) {
         fetchUserVote(placeId)
         updateDistanceToRestaurant(lat, lng)
     }
@@ -214,7 +220,10 @@ class PlaceViewModel(
      * and the restaurant coordinates.
      */
     @SuppressLint("MissingPermission")
-    fun updateDistanceToRestaurant(destLat: Double?, destLng: Double?) {
+    fun updateDistanceToRestaurant(
+        destLat: Double?,
+        destLng: Double?,
+    ) {
         if (destLat == null || destLng == null) {
             _restaurantDistance.value = "Unknown distance"
             return
@@ -224,19 +233,22 @@ class PlaceViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // 3. Request current location from the hardware
-                val location: Location? = fusedLocationClient.getCurrentLocation(
-                    Priority.PRIORITY_HIGH_ACCURACY,
-                    CancellationTokenSource().token
-                ).await()
+                val location: Location? =
+                    fusedLocationClient
+                        .getCurrentLocation(
+                            Priority.PRIORITY_HIGH_ACCURACY,
+                            CancellationTokenSource().token,
+                        ).await()
 
                 location?.let { userLoc ->
                     // 4. Calculate distance and format it for display
-                    val distance = calculateDistanceMeters(
-                        userLoc.latitude,
-                        userLoc.longitude,
-                        destLat,
-                        destLng
-                    )
+                    val distance =
+                        calculateDistanceMeters(
+                            userLoc.latitude,
+                            userLoc.longitude,
+                            destLat,
+                            destLng,
+                        )
 
                     _restaurantDistance.value = formatDistance(distance)
                 } ?: run {
@@ -274,22 +286,24 @@ class PlaceViewModel(
 
                 // 3. Fetch from repository using the new signature (Time + Location)
                 // This ensures we save tokens by biasing the search to the correct city
-                eventRepository.getRestaurants(
-                    eventId = eventId,
-                    targetTime = timing,
-                    lat = lat,
-                    lng = lng
-                ).collect { restaurants ->
-                    // 4. Update the StateFlow for the UI
-                    _allRestaurants.update { it.copy(allRestaurants = restaurants) }
+                eventRepository
+                    .getRestaurants(
+                        eventId = eventId,
+                        targetTime = timing,
+                        lat = lat,
+                        lng = lng,
+                    ).collect { restaurants ->
+                        // 4. Update the StateFlow for the UI
+                        _allRestaurants.update { it.copy(allRestaurants = restaurants) }
 
-                    // Update the overall state for the UI to handle Loading/Available/Empty
-                    _restaurantState.value = if (restaurants.isNotEmpty()) {
-                        RestaurantState.Available
-                    } else {
-                        RestaurantState.Empty
+                        // Update the overall state for the UI to handle Loading/Available/Empty
+                        _restaurantState.value =
+                            if (restaurants.isNotEmpty()) {
+                                RestaurantState.Available
+                            } else {
+                                RestaurantState.Empty
+                            }
                     }
-                }
             } catch (e: Exception) {
                 Log.e("PlaceViewModel", "Failed to fetch restaurants", e)
                 _restaurantState.value = RestaurantState.Error(e)
@@ -306,23 +320,26 @@ class PlaceViewModel(
         combine(
             allRestaurants,
             selectedTiming,
-            selectedLocation
+            selectedLocation,
         ) { allState, timing, location ->
             filterRestaurants(
                 restaurants = allState.allRestaurants,
                 timing = timing,
-                location = location
+                location = location,
             )
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            emptyList()
+            emptyList(),
         )
 
     /**
      * Updates user-selected filters.
      */
-    fun setFilter(timing: DateTime, location: String) {
+    fun setFilter(
+        timing: DateTime,
+        location: String,
+    ) {
         selectedTiming.value = timing
         selectedLocation.value = location
     }
@@ -330,10 +347,14 @@ class PlaceViewModel(
     /**
      * Builds all combinations of date/time and location options.
      */
-    fun buildDateLocationOptions(dateTimes: List<DateTime>, locations: List<String>) {
-        val options = dateTimes.flatMap { dt ->
-            locations.map { loc -> DateLocationOption(timing = dt, location = loc) }
-        }
+    fun buildDateLocationOptions(
+        dateTimes: List<DateTime>,
+        locations: List<String>,
+    ) {
+        val options =
+            dateTimes.flatMap { dt ->
+                locations.map { loc -> DateLocationOption(timing = dt, location = loc) }
+            }
         _dateAndAreaState.value = DateAndAreaState(dateLocationOptions = options)
 
         // Auto-select first option so the list isn't empty before the user picks
@@ -351,7 +372,8 @@ class PlaceViewModel(
     fun submitVote(placeId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             selectedTiming.value?.let { timing ->
-                eventRepository.submitVote(eventId, placeId, userId, timing)
+                eventRepository
+                    .submitVote(eventId, placeId, userId, timing)
                     .onSuccess {
                         _voteState.update { it.copy(isVoted = true) }
                         _voteResultState.value = VoteResultState.VoteSuccess
@@ -372,9 +394,8 @@ class PlaceViewModel(
      * @param placeId Google Places ID of the restaurant to retrieve.
      * @return A [Flow] emitting the matching [Restaurant] or null.
      */
-    fun fetchRestaurantDetail(placeId: String): Flow<Restaurant?> {
-        return allRestaurants.map { state -> state.allRestaurants.find { it.placeId == placeId } }
-    }
+    fun fetchRestaurantDetail(placeId: String): Flow<Restaurant?> =
+        allRestaurants.map { state -> state.allRestaurants.find { it.placeId == placeId } }
 
     /**
      * Loads whether the user has already voted for this restaurant at the selected time.
@@ -384,7 +405,8 @@ class PlaceViewModel(
     fun fetchUserVote(placeId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             selectedTiming.value?.let { timing ->
-                eventRepository.getUserVote(eventId, placeId, userId, timing)
+                eventRepository
+                    .getUserVote(eventId, placeId, userId, timing)
                     .onSuccess { exists -> _voteState.update { it.copy(isVoted = exists) } }
             }
         }
@@ -395,7 +417,9 @@ class PlaceViewModel(
  * UI state for all restaurants.
  * @property allRestaurants List of all restaurants.
  */
-data class AllRestaurantState(val allRestaurants: List<Restaurant> = listOf())
+data class AllRestaurantState(
+    val allRestaurants: List<Restaurant> = listOf(),
+)
 
 /**
  * Represents a date and location combination.
@@ -405,7 +429,10 @@ data class AllRestaurantState(val allRestaurants: List<Restaurant> = listOf())
  * @property label A human-readable label for the combination.
  * @property timingArg A string representation of the timing for navigation.
  */
-data class DateLocationOption(val timing: DateTime, val location: String) {
+data class DateLocationOption(
+    val timing: DateTime,
+    val location: String,
+) {
     val label: String get() = "${timing.toDisplayLabel()} — $location"
     val timingArg: String get() = timing.toSerializableString()
 }
@@ -416,7 +443,9 @@ data class DateLocationOption(val timing: DateTime, val location: String) {
  * @property dateLocationOptions List of available date and location combinations.
  * @see DateAndAreaPageDestination for navigation destination.
  */
-data class DateAndAreaState(val dateLocationOptions: List<DateLocationOption> = listOf())
+data class DateAndAreaState(
+    val dateLocationOptions: List<DateLocationOption> = listOf(),
+)
 
 /**
  * Represents the state of restaurant candidates.
@@ -428,9 +457,14 @@ data class DateAndAreaState(val dateLocationOptions: List<DateLocationOption> = 
  */
 sealed interface RestaurantState {
     object Loading : RestaurantState
+
     object Available : RestaurantState
+
     object Empty : RestaurantState
-    data class Error(val error: Throwable) : RestaurantState
+
+    data class Error(
+        val error: Throwable,
+    ) : RestaurantState
 }
 
 /**
@@ -438,10 +472,16 @@ sealed interface RestaurantState {
  *
  * @property isVoted True if the user has already voted.
  */
-data class VoteState(val isVoted: Boolean = false)
+data class VoteState(
+    val isVoted: Boolean = false,
+)
+
 sealed class VoteResultState {
     object VoteSuccess : VoteResultState()
-    data class VoteError(val message: String) : VoteResultState()
+
+    data class VoteError(
+        val message: String,
+    ) : VoteResultState()
 }
 
 /**
@@ -452,5 +492,5 @@ sealed class VoteResultState {
  */
 data class PlaceUiState(
     val submissionsCount: Int = 0,
-    val attendees: List<String> = emptyList()
+    val attendees: List<String> = emptyList(),
 )

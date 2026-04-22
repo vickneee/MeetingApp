@@ -39,37 +39,41 @@ fun AdvancedTimePickerDialog(
 ) {
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false
-        )
+        properties =
+            DialogProperties(
+                usePlatformDefaultWidth = false,
+            ),
     ) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp,
-            modifier = Modifier
-                .width(IntrinsicSize.Min)
-                .height(IntrinsicSize.Min)
+            modifier =
+                Modifier
+                    .width(IntrinsicSize.Min)
+                    .height(IntrinsicSize.Min),
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
 //                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp),
                     text = title,
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.labelMedium,
                 )
 
                 content()
 
                 Row(
-                    modifier = Modifier
-                        .height(40.dp)
-                        .fillMaxWidth()
+                    modifier =
+                        Modifier
+                            .height(40.dp)
+                            .fillMaxWidth(),
                 ) {
                     toggle()
                     Spacer(modifier = Modifier.weight(1f))
@@ -98,10 +102,10 @@ fun AdvancedTimePickerDialogPreview() {
                     IconButton(onClick = { }) {
                         Icon(
                             imageVector = Icons.Default.EditCalendar,
-                            contentDescription = "Switch to input"
+                            contentDescription = "Switch to input",
                         )
                     }
-                }
+                },
             ) {
                 // Mocking the content that goes inside the dialog
                 TimePicker(state = state)

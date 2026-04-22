@@ -14,11 +14,12 @@ import com.meetup.meetingapp.ui.screens.participant_input_flow.UiTimeSlot
 fun buildAllAvailableDateTimes(event: Event): List<DateTime> {
     val start = event.dateRange.startDate()
     val end = event.dateRange.endDate()
-    
-    val allDates = generateSequence(start) { it.plusDays(1) }
-        .takeWhile { !it.isAfter(end) }
-        .toList()
-    
+
+    val allDates =
+        generateSequence(start) { it.plusDays(1) }
+            .takeWhile { !it.isAfter(end) }
+            .toList()
+
     return allDates.flatMap { date ->
         event.timeSlots.map { slot ->
             DateTime(date.toString(), slot)
@@ -34,25 +35,30 @@ fun buildAllAvailableDateTimes(event: Event): List<DateTime> {
  * @return A list of [DateAvailability] representing available dates and time slots.
  * @see UiTimeSlot for more information about time slots.
  */
-fun buildDateAvailability(event: Event, selectedDateTimes: List<DateTime>): List<DateAvailability> {
+fun buildDateAvailability(
+    event: Event,
+    selectedDateTimes: List<DateTime>,
+): List<DateAvailability> {
     val start = event.dateRange.startDate()
     val end = event.dateRange.endDate()
-    val allDates = generateSequence(start) { it.plusDays(1) }
-        .takeWhile { !it.isAfter(end) }
-        .toList()
+    val allDates =
+        generateSequence(start) { it.plusDays(1) }
+            .takeWhile { !it.isAfter(end) }
+            .toList()
 
     return allDates.map { date ->
         val dateString = date.toString()
         DateAvailability(
             date = dateString,
-            timeSlots = event.timeSlots.mapIndexed { index, slot ->
-                val isSelected = selectedDateTimes.any { it.date == dateString && it.timeSlot == slot }
-                UiTimeSlot(
-                    id = index,
-                    timeRange = "${slot.start} - ${slot.end}",
-                    isSelected = isSelected
-                )
-            }
+            timeSlots =
+                event.timeSlots.mapIndexed { index, slot ->
+                    val isSelected = selectedDateTimes.any { it.date == dateString && it.timeSlot == slot }
+                    UiTimeSlot(
+                        id = index,
+                        timeRange = "${slot.start} - ${slot.end}",
+                        isSelected = isSelected,
+                    )
+                },
         )
     }
 }

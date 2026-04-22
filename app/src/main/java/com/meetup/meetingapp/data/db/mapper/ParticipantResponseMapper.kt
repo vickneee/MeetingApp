@@ -19,15 +19,14 @@ object ParticipantResponseMapper {
      * Converts a ParticipantResponseEntity object to a ParticipantResponse object.
      * @return The converted ParticipantResponse object.
      */
-    fun ParticipantResponseEntity.toDomain(): ParticipantResponse {
-        return ParticipantResponse(
+    fun ParticipantResponseEntity.toDomain(): ParticipantResponse =
+        ParticipantResponse(
             name = name,
             dateTimes = gson.fromJson(dateTimes, object : TypeToken<List<DateTime>>() {}.type),
             locations = gson.fromJson(locations, object : TypeToken<List<String>>() {}.type),
             placeTypes = gson.fromJson(placeTypes, object : TypeToken<List<PlaceType>>() {}.type),
-            foodCategories = gson.fromJson(foodCategories, object : TypeToken<List<FoodCategory>>() {}.type)
+            foodCategories = gson.fromJson(foodCategories, object : TypeToken<List<FoodCategory>>() {}.type),
         )
-    }
 
     /**
      * Converts a ParticipantResponse object to a ParticipantResponseEntity object.
@@ -36,15 +35,14 @@ object ParticipantResponseMapper {
      * @param eventId The ID of the event associated with the participant response.
      * @see ParticipantResponseEntity for the mapping logic.
      */
-    fun ParticipantResponse.toEntity(eventId: String): ParticipantResponseEntity {
-        return ParticipantResponseEntity(
-            id = "${eventId}_${name}",
+    fun ParticipantResponse.toEntity(eventId: String): ParticipantResponseEntity =
+        ParticipantResponseEntity(
+            id = "${eventId}_$name",
             eventId = eventId,
             name = name,
             dateTimes = gson.toJson(dateTimes),
             locations = gson.toJson(locations),
             placeTypes = gson.toJson(placeTypes),
-            foodCategories = gson.toJson(foodCategories)
+            foodCategories = gson.toJson(foodCategories),
         )
-    }
 }

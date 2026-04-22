@@ -76,33 +76,35 @@ fun MeetUpDetailPage(
     val fetchState by viewModel.fetchState.collectAsStateWithLifecycle(FetchState.Loading)
     val event by viewModel.event.collectAsStateWithLifecycle(null)
     val participantState by viewModel.participantState.collectAsStateWithLifecycle(
-        ParticipantInputState()
+        ParticipantInputState(),
     )
     val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     when (val currentFetchState = fetchState) {
         is FetchState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
-        is FetchState.Error -> ErrorScreen(
-            message = currentFetchState.message,
-            onRetry = {},
-            modifier = Modifier.fillMaxSize()
-        )
-
-        is FetchState.Success -> event?.let {
-            MeetUpDetailContent(
-                event = it,
-                submissionsCount = uiState.submissionsCount,
-                isAlreadySubmitted = uiState.isAlreadySubmitted,
-                submittedName = uiState.submittedName,
-                participantState = participantState,
-                onNameChange = viewModel::updateName,
-                onBack = onBack,
-                onNavigateToTimeAvailability = onNavigateToTimeAvailability,
-                isHost = isHost,
-                modifier = modifier
+        is FetchState.Error ->
+            ErrorScreen(
+                message = currentFetchState.message,
+                onRetry = {},
+                modifier = Modifier.fillMaxSize(),
             )
-        }
+
+        is FetchState.Success ->
+            event?.let {
+                MeetUpDetailContent(
+                    event = it,
+                    submissionsCount = uiState.submissionsCount,
+                    isAlreadySubmitted = uiState.isAlreadySubmitted,
+                    submittedName = uiState.submittedName,
+                    participantState = participantState,
+                    onNameChange = viewModel::updateName,
+                    onBack = onBack,
+                    onNavigateToTimeAvailability = onNavigateToTimeAvailability,
+                    isHost = isHost,
+                    modifier = modifier,
+                )
+            }
     }
     Log.d("Participant", "ParticipantMeetUpDetailPage loaded")
 }
@@ -139,30 +141,31 @@ fun MeetUpDetailContent(
             MeetingAppTopAppBar(
                 title = stringResource(id = R.string.title_meetup_details_page),
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
         ) {
             item {
                 Column(
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
                     horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
                         "You've joined this meetup!",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
 
                     Text(
@@ -213,7 +216,7 @@ fun MeetUpDetailContent(
                     Text(
                         text = "Submissions: $submissionsCount",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Spacer(modifier = Modifier.height(AppSpacing.md))
                 }
@@ -222,12 +225,13 @@ fun MeetUpDetailContent(
             item {
                 Text(
                     text = "Your Name",
-                    modifier = Modifier
-                        .padding(vertical = AppSpacing.xxs)
-                        .fillMaxWidth(AppSize.lg),
+                    modifier =
+                        Modifier
+                            .padding(vertical = AppSpacing.xxs)
+                            .fillMaxWidth(AppSize.lg),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 // Input for participant name
@@ -239,16 +243,17 @@ fun MeetUpDetailContent(
                     enabled = !isAlreadySubmitted, // Disable if already submitted
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
                     shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        ),
                 )
             }
 
@@ -257,19 +262,18 @@ fun MeetUpDetailContent(
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Button(
                         onClick = onNavigateToTimeAvailability,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
-                        contentPadding = PaddingValues(vertical = AppSpacing.md)
+                        contentPadding = PaddingValues(vertical = AppSpacing.md),
                     ) {
                         Text(
                             text = if (isAlreadySubmitted) "Edit Your Vote" else "Next",
-                            style = MaterialTheme.typography.labelLarge
-
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
                 }
@@ -285,11 +289,12 @@ fun MeetUpDetailContent(
 @Composable
 fun MeetUpDetailPreview() {
     // Sample Event
-    val sampleEvent = Event(
-        eventCode = "AX4C2G",
-        eventTitle = "Team Meetup",
-        hostName = "Victoria"
-    )
+    val sampleEvent =
+        Event(
+            eventCode = "AX4C2G",
+            eventTitle = "Team Meetup",
+            hostName = "Victoria",
+        )
 
     MeetingAppTheme {
         MeetUpDetailContent(
@@ -301,7 +306,7 @@ fun MeetUpDetailPreview() {
             onNameChange = {},
             onBack = {},
             onNavigateToTimeAvailability = {},
-            modifier = Modifier
+            modifier = Modifier,
         )
     }
 }

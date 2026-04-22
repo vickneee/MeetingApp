@@ -8,7 +8,6 @@ import com.meetup.meetingapp.data.model.Restaurant
  * primarily the Google Places API.
  */
 interface PlacesRepository {
-
     /**
      * Fetches a list of restaurants based on a text query, filtered by location and time.
      *
@@ -22,6 +21,6 @@ interface PlacesRepository {
         query: String,
         targetTime: DateTime? = null,
         lat: Double? = null,
-        lng: Double? = null
+        lng: Double? = null,
     ): Result<List<Restaurant>>
 }

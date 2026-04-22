@@ -10,16 +10,15 @@ import java.lang.reflect.Type
 import java.time.LocalDate
 
 object LocalDateAdapter : JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {
-
     override fun serialize(
         src: LocalDate,
         type: Type,
-        context: JsonSerializationContext
+        context: JsonSerializationContext,
     ): JsonElement = JsonPrimitive(src.toString())
 
     override fun deserialize(
         json: JsonElement,
         type: Type,
-        context: JsonDeserializationContext
+        context: JsonDeserializationContext,
     ): LocalDate = LocalDate.parse(json.asString)
 }

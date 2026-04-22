@@ -16,7 +16,7 @@ package com.meetup.meetingapp.network
  */
 data class PlacesTextSearchResponse(
     val results: List<PlaceItem>?,
-    val status: String?
+    val status: String?,
 )
 
 /**
@@ -65,8 +65,5 @@ data class PlaceItem(
     val user_ratings_total: Int?,
     val price_level: Int?,
     val types: List<String>?,
-    val photos: List<PlacePhoto>?
+    val photos: List<PlacePhoto>?,
 )
-
-
-

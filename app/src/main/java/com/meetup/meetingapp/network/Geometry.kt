@@ -15,7 +15,7 @@ package com.meetup.meetingapp.network
  *                    of the place. May be null if the API omits it.
  */
 data class Geometry(
-    val location: LatLngLiteral?
+    val location: LatLngLiteral?,
 )
 
 /**
@@ -32,5 +32,5 @@ data class Geometry(
  */
 data class LatLngLiteral(
     val lat: Double?,
-    val lng: Double?
+    val lng: Double?,
 )

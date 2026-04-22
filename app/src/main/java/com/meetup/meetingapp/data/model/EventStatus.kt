@@ -9,12 +9,14 @@ package com.meetup.meetingapp.data.model
  *
  * @property displayName A human-readable label for the status to be shown in the UI.
  */
-enum class EventStatus(val displayName: String) {
+enum class EventStatus(
+    val displayName: String,
+) {
     CREATED("Created"),
     COLLECTING_AVAILABILITY("Collecting Availability"),
     FIRST_VOTING_CLOSED("First Voting Closed"),
     RESTAURANT_CANDIDATES_GENERATED("First Voting Closed"),
     COLLECTING_RESTAURANT_VOTES("Collecting Place Votes"),
     FINALIZED("Finalized"),
-    UNKNOWN("Unknown")
+    UNKNOWN("Unknown"),
 }

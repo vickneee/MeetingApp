@@ -69,9 +69,10 @@ fun ChooseDateAndAreaPage(
     onBack: () -> Unit,
     onNavigateToChooseDatePage: () -> Unit,
     onNavigateToHome: () -> Unit,
-    viewModel: PlaceViewModel = viewModel(
-        factory = AppViewModelProvider.Factory
-    )
+    viewModel: PlaceViewModel =
+        viewModel(
+            factory = AppViewModelProvider.Factory,
+        ),
 ) {
     val event by viewModel.event.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -80,44 +81,47 @@ fun ChooseDateAndAreaPage(
     when (restaurantState) {
         is RestaurantState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
 
-        is RestaurantState.Available -> event?.let {
-            ChooseDateAndAreaContent(
-                event = it,
-                submissionsCount = uiState.submissionsCount,
-                attendees = uiState.attendees,
-                isLoading = false,
-                onBack = onBack,
-                onVoteForRestaurantClick = onNavigateToChooseDatePage,
-                onNavigateToHome = onNavigateToHome,
-                buttonEnabled = true
-            )
-        } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
+        is RestaurantState.Available ->
+            event?.let {
+                ChooseDateAndAreaContent(
+                    event = it,
+                    submissionsCount = uiState.submissionsCount,
+                    attendees = uiState.attendees,
+                    isLoading = false,
+                    onBack = onBack,
+                    onVoteForRestaurantClick = onNavigateToChooseDatePage,
+                    onNavigateToHome = onNavigateToHome,
+                    buttonEnabled = true,
+                )
+            } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 
-        is RestaurantState.Error -> event?.let {
-            ChooseDateAndAreaContent(
-                event = it,
-                submissionsCount = uiState.submissionsCount,
-                attendees = uiState.attendees,
-                isLoading = false,
-                onBack = onBack,
-                onVoteForRestaurantClick = {},
-                onNavigateToHome = {},
-                buttonEnabled = false
-            )
-        } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
+        is RestaurantState.Error ->
+            event?.let {
+                ChooseDateAndAreaContent(
+                    event = it,
+                    submissionsCount = uiState.submissionsCount,
+                    attendees = uiState.attendees,
+                    isLoading = false,
+                    onBack = onBack,
+                    onVoteForRestaurantClick = {},
+                    onNavigateToHome = {},
+                    buttonEnabled = false,
+                )
+            } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 
-        else -> event?.let {
-            ChooseDateAndAreaContent(
-                event = it,
-                submissionsCount = uiState.submissionsCount,
-                attendees = uiState.attendees,
-                isLoading = true, // Show loading indicator
-                onBack = onBack,
-                onVoteForRestaurantClick = {},
-                onNavigateToHome = {},
-                buttonEnabled = false
-            )
-        } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
+        else ->
+            event?.let {
+                ChooseDateAndAreaContent(
+                    event = it,
+                    submissionsCount = uiState.submissionsCount,
+                    attendees = uiState.attendees,
+                    isLoading = true, // Show loading indicator
+                    onBack = onBack,
+                    onVoteForRestaurantClick = {},
+                    onNavigateToHome = {},
+                    buttonEnabled = false,
+                )
+            } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
     }
 }
 
@@ -150,24 +154,25 @@ fun ChooseDateAndAreaContent(
             MeetingAppTopAppBar(
                 title = "${stringResource(id = R.string.title_participant_dashboard)} / ${event.eventCode}",
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
         ) {
             item {
                 Column(
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
                     horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
                         buildAnnotatedString {
@@ -177,7 +182,7 @@ fun ChooseDateAndAreaContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Text(
@@ -188,7 +193,7 @@ fun ChooseDateAndAreaContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Text(
@@ -199,7 +204,7 @@ fun ChooseDateAndAreaContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Text(
@@ -210,14 +215,14 @@ fun ChooseDateAndAreaContent(
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     Spacer(modifier = Modifier.height(AppSpacing.sm))
                     Text(
                         text = "Submissions: $submissionsCount",
                         color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
                     )
                     Spacer(modifier = Modifier.height(AppSpacing.xxs))
                 }
@@ -231,12 +236,12 @@ fun ChooseDateAndAreaContent(
             item {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                            modifier = Modifier.padding(bottom = 16.dp),
                         )
                     }
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
@@ -247,7 +252,7 @@ fun ChooseDateAndAreaContent(
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
-                        contentPadding = PaddingValues(vertical = AppSpacing.md)
+                        contentPadding = PaddingValues(vertical = AppSpacing.md),
                     ) {
                         Text(
                             "Choose Date & Area",
@@ -260,19 +265,19 @@ fun ChooseDateAndAreaContent(
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     OutlinedButton(
                         onClick = onNavigateToHome,
                         border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
-                        contentPadding = PaddingValues(vertical = AppSpacing.md)
+                        contentPadding = PaddingValues(vertical = AppSpacing.md),
                     ) {
                         Text(
                             "Home",
                             color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
                 }
@@ -289,18 +294,19 @@ fun ChooseDateAndAreaContent(
 fun ChooseDateAndAreaPagePreview() {
     MeetingAppTheme {
         ChooseDateAndAreaContent(
-            event = Event(
-                eventCode = "A7F9K2",
-                eventTitle = "Meet & Chat",
-                hostName = "Julia",
-            ),
+            event =
+                Event(
+                    eventCode = "A7F9K2",
+                    eventTitle = "Meet & Chat",
+                    hostName = "Julia",
+                ),
             onBack = {},
             submissionsCount = 2,
             attendees = listOf("Alice", "Bob"),
             isLoading = false,
             onVoteForRestaurantClick = {},
             onNavigateToHome = {},
-            buttonEnabled = true
+            buttonEnabled = true,
         )
     }
 }

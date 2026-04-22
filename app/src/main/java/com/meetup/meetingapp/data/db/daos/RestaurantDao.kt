@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface RestaurantDao {
-
     /**
      * Returns a reactive stream of all restaurants associated with the given event.
      *

@@ -11,17 +11,19 @@ import java.time.format.DateTimeParseException
  */
 data class DateRange(
     val start: String = LocalDate.now().toString(),
-    val end: String = LocalDate.now().plusDays(7).toString()
+    val end: String = LocalDate.now().plusDays(7).toString(),
 ) {
-    fun startDate(): LocalDate = try {
-        if (start.isBlank()) LocalDate.now() else LocalDate.parse(start)
-    } catch (e: DateTimeParseException) {
-        LocalDate.now()
-    }
+    fun startDate(): LocalDate =
+        try {
+            if (start.isBlank()) LocalDate.now() else LocalDate.parse(start)
+        } catch (_: DateTimeParseException) {
+            LocalDate.now()
+        }
 
-    fun endDate(): LocalDate = try {
-        if (end.isBlank()) LocalDate.now().plusDays(7) else LocalDate.parse(end)
-    } catch (e: DateTimeParseException) {
-        LocalDate.now().plusDays(7)
-    }
+    fun endDate(): LocalDate =
+        try {
+            if (end.isBlank()) LocalDate.now().plusDays(7) else LocalDate.parse(end)
+        } catch (_: DateTimeParseException) {
+            LocalDate.now().plusDays(7)
+        }
 }

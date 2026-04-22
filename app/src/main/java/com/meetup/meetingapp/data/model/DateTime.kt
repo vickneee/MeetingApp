@@ -12,7 +12,7 @@ import java.util.Locale
  */
 data class DateTime(
     val date: String = LocalDate.now().toString(), // Firestore friendly
-    val timeSlot: TimeSlot = TimeSlot()
+    val timeSlot: TimeSlot = TimeSlot(),
 ) {
     fun toLocalDate(): LocalDate = LocalDate.parse(date)
 
@@ -20,15 +20,14 @@ data class DateTime(
      * Converts a DateTime to a human-readable display label.
      * Example: "Nov 1 (12:00–13:00)"
      */
-    fun toDisplayLabel(): String {
-        return try {
+    fun toDisplayLabel(): String =
+        try {
             val localDate = LocalDate.parse(this.date)
             val month = localDate.month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
             "$month ${localDate.dayOfMonth} (${timeSlot.start}–${timeSlot.end})"
         } catch (_: Exception) {
             "${this.date} (${timeSlot.start}–${timeSlot.end})"
         }
-    }
 
     /**
      * Converts a DateTime to a string for storage in Firestore.

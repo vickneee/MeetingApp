@@ -6,8 +6,6 @@ import androidx.room.PrimaryKey
 /**
  * Represents an event entity in the Room database.
  *
- * This entity is the local persistence layer version of the domain model [Event].
- *
  * Room acts as the single source of truth for event data in the app.
  * @property id The unique identifier of the event.
  * @property eventCode The unique identifier of the event.
@@ -37,13 +35,11 @@ data class EventEntity(
     val eventCode: String,
     val eventKey: String,
     val hostId: String,
-    val status: String,              // EventStatus.name
+    val status: String, // EventStatus.name
     val eventTitle: String,
     val hostName: String,
-
     val dateRangeStartString: String, // ← for display in Room
-    val dateRangeEndString: String,   // ← for display in Room
-
+    val dateRangeEndString: String, // ← for display in Room
     // Complex lists → JSON strings (via Converter)
     val timeSlotsJson: String,
     val locationOptionsJson: String,
@@ -53,11 +49,9 @@ data class EventEntity(
     val foodCategoryCandidatesJson: String,
     val restaurantCandidatesJson: String,
     val placeTypeCandidatesJson: String,
-
     // Final selections → JSON strings
     val finalTimeJson: String?,
     val finalPlace: String?,
-
-    val createdAt: Long,              // Timestamp → Long (epoch millis)
-    val createdAtString: String? = null // optional formatted string
+    val createdAt: Long, // Timestamp → Long (epoch millis)
+    val createdAtString: String? = null, // optional formatted string
 )

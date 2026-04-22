@@ -6,7 +6,6 @@ import android.net.Uri
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import org.hamcrest.Matchers.allOf
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
@@ -16,6 +15,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasPackage
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceDetailsContent
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
+import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -26,16 +26,17 @@ class PlaceDetailsMapsTest {
     val composeTestRule = createComposeRule()
 
     private val testAddress = "123 Test St, Helsinki"
-    private val fakeRestaurant = Restaurant(
-        placeId = "123",
-        name = "Test Cafe",
-        rating = 4.5,
-        userRatingCount = 10,
-        address = testAddress,
-        types = listOf("Cafe"),
-        priceLevel = 1,
-        photoReference = ""
-    )
+    private val fakeRestaurant =
+        Restaurant(
+            placeId = "123",
+            name = "Test Cafe",
+            rating = 4.5,
+            userRatingCount = 10,
+            address = testAddress,
+            types = listOf("Cafe"),
+            priceLevel = 1,
+            photoReference = "",
+        )
 
     @Before
     fun setUp() {
@@ -68,14 +69,17 @@ class PlaceDetailsMapsTest {
                         // This mimics the logic in your PlaceDetailsPage
                         val encodedAddress = Uri.encode(fakeRestaurant.address)
                         val gmmIntentUri = Uri.parse("geo:0,0?q=$encodedAddress")
-                        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
-                            setPackage("com.google.android.apps.maps")
-                        }
+                        val mapIntent =
+                            Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                                setPackage("com.google.android.apps.maps")
+                            }
                         // The test environment handles the context
                         ApplicationProvider
                             .getApplicationContext<Context>()
-                            .startActivity(mapIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                    }
+                            .startActivity(
+                                mapIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                            )
+                    },
                 )
             }
         }
@@ -90,8 +94,8 @@ class PlaceDetailsMapsTest {
             allOf(
                 hasAction(Intent.ACTION_VIEW),
                 hasData(expectedUri),
-                hasPackage("com.google.android.apps.maps")
-            )
+                hasPackage("com.google.android.apps.maps"),
+            ),
         )
     }
 }

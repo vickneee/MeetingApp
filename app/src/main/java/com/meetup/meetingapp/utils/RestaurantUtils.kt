@@ -11,8 +11,7 @@ package com.meetup.meetingapp.utils
  * @param level The price level integer from Google Places.
  * @return A repeated Euro‑sign string, or empty string if invalid.
  */
-fun formatPriceLevel(level: Int?): String =
-    if (level == null || level < 0) "" else "€".repeat(level + 1)
+fun formatPriceLevel(level: Int?): String = if (level == null || level < 0) "" else "€".repeat(level + 1)
 
 /**
  * Builds a Google Places Photo API URL from a given photo reference.
@@ -24,7 +23,10 @@ fun formatPriceLevel(level: Int?): String =
  * @param photoReference The photo reference string returned by the Places API.
  * @return A full photo URL, or null if [photoReference] is null or empty.
  */
-fun buildPhotoUrl(photoReference: String?, apiKey: String): String? {
+fun buildPhotoUrl(
+    photoReference: String?,
+    apiKey: String,
+): String? {
     if (photoReference.isNullOrEmpty()) return null
     return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=$photoReference&key=$apiKey"
 }

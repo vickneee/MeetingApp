@@ -30,17 +30,18 @@ import java.util.*
 @Composable
 fun CustomDateRangePickerModal(
     onDismiss: () -> Unit,
-    onSave: (Pair<Long?, Long?>) -> Unit
+    onSave: (Pair<Long?, Long?>) -> Unit,
 ) {
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false
-        )
+        properties =
+            DialogProperties(
+                usePlatformDefaultWidth = false,
+            ),
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+            color = MaterialTheme.colorScheme.background,
         ) {
             val dateRangePickerState = rememberDateRangePickerState()
             val primary = MaterialTheme.colorScheme.primary
@@ -54,48 +55,51 @@ fun CustomDateRangePickerModal(
             val rangeDisplayText =
                 if (startDateText.isNotEmpty()) "$startDateText – $endDateText" else "Select dates"
 
-            val customCalendarColors = DatePickerDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                dayInSelectionRangeContainerColor = primary.copy(alpha = 0.12f),
-                selectedDayContainerColor = primary,
-                selectedDayContentColor = MaterialTheme.colorScheme.onPrimary
-            )
+            val customCalendarColors =
+                DatePickerDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    dayInSelectionRangeContainerColor = primary.copy(alpha = 0.12f),
+                    selectedDayContainerColor = primary,
+                    selectedDayContentColor = MaterialTheme.colorScheme.onPrimary,
+                )
 
             Scaffold(
                 topBar = {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(primary)
-                            .padding(top = 16.dp, bottom = 24.dp)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .background(primary)
+                                .padding(top = 16.dp, bottom = 24.dp),
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             IconButton(onClick = onDismiss) {
                                 Icon(
                                     Icons.Default.Close,
                                     "Close",
-                                    tint = MaterialTheme.colorScheme.onPrimary
+                                    tint = MaterialTheme.colorScheme.onPrimary,
                                 )
                             }
                             TextButton(onClick = {
                                 onSave(
                                     Pair(
                                         dateRangePickerState.selectedStartDateMillis,
-                                        dateRangePickerState.selectedEndDateMillis
-                                    )
+                                        dateRangePickerState.selectedEndDateMillis,
+                                    ),
                                 )
                                 onDismiss()
                             }) {
                                 Text(
                                     "SAVE",
                                     color = MaterialTheme.colorScheme.onPrimary,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
                                 )
                             }
                         }
@@ -104,7 +108,7 @@ fun CustomDateRangePickerModal(
                             Text(
                                 "SELECT DATE",
                                 color = primary.copy(alpha = 0.7f),
-                                fontSize = 12.sp
+                                fontSize = 12.sp,
                             )
 
                             Spacer(modifier = Modifier.height(24.dp))
@@ -114,7 +118,7 @@ fun CustomDateRangePickerModal(
                                     text = rangeDisplayText,
                                     color = MaterialTheme.colorScheme.onPrimary,
                                     fontSize = 28.sp,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
                                 )
 
                                 IconButton(onClick = {
@@ -128,25 +132,27 @@ fun CustomDateRangePickerModal(
                                     Icon(
                                         Icons.Default.Edit,
                                         "Edit",
-                                        tint = MaterialTheme.colorScheme.onPrimary
+                                        tint = MaterialTheme.colorScheme.onPrimary,
                                     )
                                 }
                             }
                         }
                     }
-                }
+                },
             ) { paddingValues ->
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp)
-                        .background(MaterialTheme.colorScheme.background)
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(24.dp)
+                            .background(MaterialTheme.colorScheme.background),
                 ) {
                     HorizontalDivider(
-                        modifier = Modifier
-                            .padding(horizontal = 24.dp, vertical = 8.dp),
+                        modifier =
+                            Modifier
+                                .padding(horizontal = 24.dp, vertical = 8.dp),
                         thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
                     )
                 }
                 DateRangePicker(
@@ -155,9 +161,10 @@ fun CustomDateRangePickerModal(
                     title = null,
                     headline = null,
                     showModeToggle = false,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                 )
             }
         }
@@ -175,7 +182,7 @@ fun CustomDateRangePickerModalPreview() {
             onDismiss = {},
             onSave = { (start, end) ->
                 println("Selected: $start to $end")
-            }
+            },
         )
     }
 }

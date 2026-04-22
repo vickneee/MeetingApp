@@ -21,9 +21,8 @@ import kotlinx.coroutines.withContext
  */
 class HostDashboardViewModel(
     private val eventRepository: EventRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
     private val eventId: String = savedStateHandle["eventId"] ?: ""
     private val _event = MutableStateFlow<Event?>(null)
     val event = _event.asStateFlow()
@@ -31,10 +30,13 @@ class HostDashboardViewModel(
     private val _closeVotingState = MutableStateFlow<CloseVotingState>(CloseVotingState.Idle)
     val closeVotingState = _closeVotingState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(HostDashboardUiState(
-        status = EventStatus.UNKNOWN,
-        hasHostSubmittedAvailability = false
-    ))
+    private val _uiState =
+        MutableStateFlow(
+            HostDashboardUiState(
+                status = EventStatus.UNKNOWN,
+                hasHostSubmittedAvailability = false,
+            ),
+        )
     val uiState = _uiState.asStateFlow()
 
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
@@ -48,20 +50,23 @@ class HostDashboardViewModel(
             combine(eventFlow, submissionsFlow, votesFlow) { eventData, submissions, votes ->
                 _event.value = eventData
                 eventData?.let { e ->
-                    val isSecondRound = e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
+                    val isSecondRound =
+                        e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
                             e.status == EventStatus.FINALIZED
 
-                    val count = if (isSecondRound) {
-                        votes.distinctBy { it.userId }.size
-                    } else {
-                        submissions.size
-                    }
+                    val count =
+                        if (isSecondRound) {
+                            votes.distinctBy { it.userId }.size
+                        } else {
+                            submissions.size
+                        }
 
-                    val names = if (isSecondRound) {
-                        votes.distinctBy { it.userId }.map { it.userName }
-                    } else {
-                        submissions.map { it.name }
-                    }
+                    val names =
+                        if (isSecondRound) {
+                            votes.distinctBy { it.userId }.map { it.userName }
+                        } else {
+                            submissions.map { it.name }
+                        }
 
                     // Check if host has submitted availability in the first round
                     val hasAvailability = submissions.any { it.userId == currentUserId || it.name == e.hostName }
@@ -71,7 +76,7 @@ class HostDashboardViewModel(
                             status = e.status,
                             submissionsCount = count,
                             attendees = names,
-                            hasHostSubmittedAvailability = hasAvailability
+                            hasHostSubmittedAvailability = hasAvailability,
                         )
                     }
 
@@ -107,15 +112,16 @@ class HostDashboardViewModel(
                     // 4. Fetch restaurants and handle the result explicitly
                     val result = eventRepository.fetchAndSaveRestaurants(updatedEvent)
 
-                    result.onSuccess {
-                        withContext(Dispatchers.Main) {
-                            _closeVotingState.value = CloseVotingState.Success
+                    result
+                        .onSuccess {
+                            withContext(Dispatchers.Main) {
+                                _closeVotingState.value = CloseVotingState.Success
+                            }
+                        }.onFailure { error ->
+                            withContext(Dispatchers.Main) {
+                                _closeVotingState.value = CloseVotingState.Error(error)
+                            }
                         }
-                    }.onFailure { error ->
-                        withContext(Dispatchers.Main) {
-                            _closeVotingState.value = CloseVotingState.Error(error)
-                        }
-                    }
                 } else {
                     throw Exception("Event not found after sync")
                 }
@@ -132,13 +138,13 @@ class HostDashboardViewModel(
             if (status == EventStatus.FINALIZED) {
                 _closeVotingState.value = CloseVotingState.Loading
                 viewModelScope.launch(Dispatchers.IO) {
-                    eventRepository.aggregateRestaurantVotes(eventId)
+                    eventRepository
+                        .aggregateRestaurantVotes(eventId)
                         .onSuccess {
                             withContext(Dispatchers.Main) {
                                 _closeVotingState.value = CloseVotingState.Success
                             }
-                        }
-                        .onFailure { e ->
+                        }.onFailure { e ->
                             withContext(Dispatchers.Main) {
                                 _closeVotingState.value = CloseVotingState.Error(e)
                             }
@@ -154,11 +160,12 @@ class HostDashboardViewModel(
     fun fetchUserVote() {
         viewModelScope.launch(Dispatchers.IO) {
             val currentEvent = _event.value ?: return@launch
-            val hasVoted = eventRepository.hasUserVotedInEvent(
-                eventId = eventId,
-                userId = currentUserId,
-                timings = currentEvent.dateTimeCandidates
-            )
+            val hasVoted =
+                eventRepository.hasUserVotedInEvent(
+                    eventId = eventId,
+                    userId = currentUserId,
+                    timings = currentEvent.dateTimeCandidates,
+                )
             _uiState.update { it.copy(hasVoted = hasVoted) }
         }
     }
@@ -173,10 +180,11 @@ class HostDashboardViewModel(
     fun checkHostAvailability() {
         viewModelScope.launch {
             val eventValue = _event.value ?: return@launch
-            val result = eventRepository.hasUserSubmittedAvailability(
-                eventId = eventValue.id,
-                userId = eventValue.hostId
-            )
+            val result =
+                eventRepository.hasUserSubmittedAvailability(
+                    eventId = eventValue.id,
+                    userId = eventValue.hostId,
+                )
             _uiState.update {
                 it.copy(hasHostSubmittedAvailability = result)
             }
@@ -190,12 +198,17 @@ data class HostDashboardUiState(
     val status: EventStatus = EventStatus.UNKNOWN,
     val hasVoted: Boolean = false,
     val hasAnyRestaurantVotes: Boolean = false,
-    val hasHostSubmittedAvailability: Boolean = false
+    val hasHostSubmittedAvailability: Boolean = false,
 )
 
 sealed interface CloseVotingState {
     object Idle : CloseVotingState
+
     object Loading : CloseVotingState
+
     object Success : CloseVotingState
-    data class Error(val error: Throwable) : CloseVotingState
+
+    data class Error(
+        val error: Throwable,
+    ) : CloseVotingState
 }

@@ -26,9 +26,8 @@ import kotlinx.coroutines.tasks.await
  */
 class JoinViewModel(
     private val db: FirebaseFirestore,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) : ViewModel() {
-
     /**
      * Firebase Authentication instance.
      */
@@ -49,7 +48,7 @@ class JoinViewModel(
      */
     fun updateCode(newCode: String) {
         code = newCode
-        codeError = null   // clear error on type
+        codeError = null // clear error on type
     }
 
     /**
@@ -57,7 +56,7 @@ class JoinViewModel(
      */
     fun updateKey(newKey: String) {
         key = newKey
-        keyError = null    // clear error on type
+        keyError = null // clear error on type
     }
 
     /**
@@ -100,7 +99,6 @@ class JoinViewModel(
      * Joins an event with the provided code and key.
      */
     fun joinEvent() {
-
         // Reset errors
         codeError = null
         keyError = null
@@ -118,11 +116,13 @@ class JoinViewModel(
         viewModelScope.launch {
             val uid = auth.currentUser?.uid ?: return@launch
             // Find event by code + key
-            val snapshot = db.collection("events")
-                .whereEqualTo("eventCode", code)
-                .whereEqualTo("eventKey", key)
-                .get()
-                .await()
+            val snapshot =
+                db
+                    .collection("events")
+                    .whereEqualTo("eventCode", code)
+                    .whereEqualTo("eventKey", key)
+                    .get()
+                    .await()
 
             if (snapshot.isEmpty) {
                 keyError = "Wrong key or code"
@@ -131,7 +131,7 @@ class JoinViewModel(
 
             val doc = snapshot.documents.first()
             val statusStr = doc.getString("status") ?: ""
-            
+
             if (statusStr == EventStatus.FINALIZED.name) {
                 keyError = "Not able to join, Event is finalized"
                 return@launch

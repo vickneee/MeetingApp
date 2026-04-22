@@ -15,5 +15,5 @@ package com.meetup.meetingapp.network
  *                        the API does not provide opening hours for the place.
  */
 data class OpeningHours(
-    val weekday_text: List<String>?
+    val weekday_text: List<String>?,
 )

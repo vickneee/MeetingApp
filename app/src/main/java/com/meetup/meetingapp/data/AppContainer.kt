@@ -28,8 +28,9 @@ interface AppContainer {
 /**
  * [AppContainer] implementation that provides instance of repositories
  */
-class AppDataContainer(private val context: Context) : AppContainer {
-
+class AppDataContainer(
+    private val context: Context,
+) : AppContainer {
     // Shared Firestore instance used across repositories.
     override val db = Firebase.firestore
 
@@ -37,7 +38,7 @@ class AppDataContainer(private val context: Context) : AppContainer {
     override val userRepository: UserRepository by lazy {
         UserRepositoryImp(
             db,
-            userDao = MeetingAppDatabase.getDatabase(context).userDao()
+            userDao = MeetingAppDatabase.getDatabase(context).userDao(),
         )
     }
 
@@ -54,7 +55,7 @@ class AppDataContainer(private val context: Context) : AppContainer {
             MeetingAppDatabase.getDatabase(context).cityDao(),
             MeetingAppDatabase.getDatabase(context).participantResponseDao(),
             MeetingAppDatabase.getDatabase(context).restaurantDao(),
-            placesRepository
+            placesRepository,
         )
     }
     override val placesApiKey: String by lazy {
@@ -64,12 +65,12 @@ class AppDataContainer(private val context: Context) : AppContainer {
     override val placesRepository: PlacesRepository by lazy {
         PlacesRepositoryImp(
             api = retrofitService,
-            apiKey = placesApiKey
+            apiKey = placesApiKey,
         )
     }
 
-    private fun loadApiKey(context: Context): String {
-        return try {
+    private fun loadApiKey(context: Context): String =
+        try {
             val props = java.util.Properties()
             context.assets.open("secret.properties").use { stream ->
                 props.load(stream)
@@ -79,7 +80,4 @@ class AppDataContainer(private val context: Context) : AppContainer {
             Log.e("AppDataContainer", "Failed to load API key from secret.properties: ${e.message}")
             ""
         }
-    }
-
-
 }

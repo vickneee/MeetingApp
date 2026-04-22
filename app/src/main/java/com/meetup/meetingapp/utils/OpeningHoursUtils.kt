@@ -12,7 +12,10 @@ import java.util.Locale
  */
 fun DateTime.toDayAbbrev(): String {
     val localDate = this.toLocalDate()
-    return localDate.dayOfWeek.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+    return localDate.dayOfWeek.name
+        .take(3)
+        .lowercase()
+        .replaceFirstChar { it.uppercase() }
 }
 
 /**
@@ -24,9 +27,14 @@ fun parseDays(hours: String): List<String> {
 
     // Handle ranges like "Monday-Friday"
     if (normalized.contains("-") || normalized.contains("–")) {
-        val parts = normalized.split(Regex("[-–]")).map {
-            it.trim().take(3).lowercase().replaceFirstChar { c -> c.uppercase() }
-        }
+        val parts =
+            normalized.split(Regex("[-–]")).map {
+                it
+                    .trim()
+                    .take(3)
+                    .lowercase()
+                    .replaceFirstChar { c -> c.uppercase() }
+            }
         if (parts.size == 2) {
             val startIdx = daysOfWeek.indexOf(parts[0])
             val endIdx = daysOfWeek.indexOf(parts[1])
@@ -52,7 +60,12 @@ fun parseDays(hours: String): List<String> {
      */
     val dayRegex = Regex("([A-Za-z]+):")
     val match = dayRegex.find(hours) ?: return emptyList()
-    return listOf(match.groupValues[1].take(3).lowercase().replaceFirstChar { it.uppercase() })
+    return listOf(
+        match.groupValues[1]
+            .take(3)
+            .lowercase()
+            .replaceFirstChar { it.uppercase() },
+    )
 }
 
 /**
@@ -97,9 +110,8 @@ fun hasOverlap(
     oStartStr: String,
     oEndStr: String,
     tStartStr: String,
-    tEndStr: String
+    tEndStr: String,
 ): Boolean {
-
     fun toMin(t: String): Int {
         val p = t.split(":")
         return (p[0].toInt() * 60) + p[1].toInt()
@@ -113,13 +125,15 @@ fun hasOverlap(
 
     // Split an interval into one or two segments on [0, 1440)
     // If it crosses midnight, it becomes [start, 1440) and [0, end)
-    fun toSegments(start: Int, end: Int): List<Pair<Int, Int>> {
-        return if (end > start) {
+    fun toSegments(
+        start: Int,
+        end: Int,
+    ): List<Pair<Int, Int>> =
+        if (end > start) {
             listOf(start to end)
         } else {
             listOf(start to 1440, 0 to end)
         }
-    }
 
     val oSegments = toSegments(oStart, oEnd)
     val tSegments = toSegments(tStart, tEnd)
@@ -143,7 +157,10 @@ fun hasOverlap(
 /**
  * Determines whether a restaurant is open during the selected timing.
  */
-fun isRestaurantOpenForTiming(restaurant: Restaurant, timing: DateTime): Boolean {
+fun isRestaurantOpenForTiming(
+    restaurant: Restaurant,
+    timing: DateTime,
+): Boolean {
     val targetDay = timing.toDayAbbrev()
     val hoursList = restaurant.openingHours ?: return true
     return hoursList.any { hours ->
@@ -164,7 +181,10 @@ fun isRestaurantOpenForTiming(restaurant: Restaurant, timing: DateTime): Boolean
  * @param timing The selected date/time used to determine the correct weekday.
  * @return A formatted label or null if opening hours are unavailable.
  */
-fun getOpenLabel(restaurant: Restaurant, timing: DateTime): String? {
+fun getOpenLabel(
+    restaurant: Restaurant,
+    timing: DateTime,
+): String? {
     val day = timing.toLocalDate().dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
     val hours = restaurant.openingHours?.firstOrNull { it.startsWith(day) } ?: return null
     val range = extractTimeRange(hours) ?: return null

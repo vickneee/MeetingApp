@@ -27,9 +27,8 @@ import kotlin.collections.emptyList
  */
 class UserRepositoryImp(
     private val db: FirebaseFirestore,
-    private val userDao: UserDao
+    private val userDao: UserDao,
 ) : UserRepository {
-
     override val currentUserId: String
         get() = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
@@ -46,7 +45,8 @@ class UserRepositoryImp(
 
         // Save to Firestore.
         try {
-            db.collection("users")
+            db
+                .collection("users")
                 .document(uid)
                 .set(user)
                 .await()
@@ -73,7 +73,8 @@ class UserRepositoryImp(
 
         try {
             // Update Firestore
-            db.collection("users")
+            db
+                .collection("users")
                 .document(uid)
                 .update("defaultCountry", country)
                 .await()
@@ -93,16 +94,19 @@ class UserRepositoryImp(
      * @param eventId The ID of the event created by the user.
      * @param uid The unique identifier of the user.
      */
-    override suspend fun addCreatedEvent(eventId: String, uid: String) {
+    override suspend fun addCreatedEvent(
+        eventId: String,
+        uid: String,
+    ) {
         try {
             // Firebase
-            db.collection("users")
+            db
+                .collection("users")
                 .document(uid)
                 .set(
                     mapOf("createdEventIds" to FieldValue.arrayUnion(eventId)),
-                    SetOptions.merge()
-                )
-                .await()
+                    SetOptions.merge(),
+                ).await()
 
             // Room
             val user = userDao.getUser(uid) ?: return
@@ -125,17 +129,19 @@ class UserRepositoryImp(
      * @param eventId The ID of the event the user joined.
      * @param uid The unique identifier of the user.
      */
-    override suspend fun addJoinedEvent(eventId: String, uid: String) {
+    override suspend fun addJoinedEvent(
+        eventId: String,
+        uid: String,
+    ) {
         try {
-
             // Firebase
-            db.collection("users")
+            db
+                .collection("users")
                 .document(uid)
                 .set(
                     mapOf("joinedEventIds" to FieldValue.arrayUnion(eventId)),
-                    SetOptions.merge()
-                )
-                .await()
+                    SetOptions.merge(),
+                ).await()
 
             // Room
             var user = userDao.getUser(uid)
@@ -160,10 +166,16 @@ class UserRepositoryImp(
     }
 
     override suspend fun syncUser(uid: String) {
-        val snapshot = db.collection("users").document(uid).get().await()
+        val snapshot =
+            db
+                .collection("users")
+                .document(uid)
+                .get()
+                .await()
 
         @Suppress("UNCHECKED_CAST")
         val created = snapshot.get("createdEventIds") as? List<String> ?: emptyList()
+
         @Suppress("UNCHECKED_CAST")
         val joined = snapshot.get("joinedEventIds") as? List<String> ?: emptyList()
 
@@ -179,7 +191,5 @@ class UserRepositoryImp(
      *
      * @param uid The unique identifier of the user.
      */
-    override suspend fun getJoinedEventIds(uid: String): List<String> {
-        return userDao.getUser(uid)?.joinedEventIds ?: emptyList()
-    }
+    override suspend fun getJoinedEventIds(uid: String): List<String> = userDao.getUser(uid)?.joinedEventIds ?: emptyList()
 }

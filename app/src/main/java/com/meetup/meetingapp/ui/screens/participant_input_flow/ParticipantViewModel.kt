@@ -46,9 +46,8 @@ import kotlinx.coroutines.withContext
  */
 class ParticipantViewModel(
     private val eventRepository: EventRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
     /**
      * The event code to load.
      */
@@ -127,32 +126,38 @@ class ParticipantViewModel(
     /**
      * State flow indicating whether the current user is the host of the event.
      */
-    val isHost: StateFlow<Boolean> = _event
-        .map { event ->
-            event != null && event.hostId == currentUserId  // compare hostId to actual user ID
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val isHost: StateFlow<Boolean> =
+        _event
+            .map { event ->
+                event != null && event.hostId == currentUserId // compare hostId to actual user ID
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /**
      * Represents the availability of time slots for each date.
      *
      * @see UiTimeSlot for more information about time slots.
      */
-    val dates: StateFlow<List<DateAvailability>> = combine(_event, _participantState) { event, state ->
-        if (event == null) {
-            emptyList()
-        } else {
-            buildDateAvailability(event, state.selectedDateTimes)
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val dates: StateFlow<List<DateAvailability>> =
+        combine(_event, _participantState) { event, state ->
+            if (event == null) {
+                emptyList()
+            } else {
+                buildDateAvailability(event, state.selectedDateTimes)
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /**
      * Flattened list of all available date and time slot combinations for the event.
      */
-    val allAvailableDateTimes: StateFlow<List<DateTime>> = _event.map { event ->
-        if (event == null) emptyList()
-        else buildAllAvailableDateTimes(event)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val allAvailableDateTimes: StateFlow<List<DateTime>> =
+        _event
+            .map { event ->
+                if (event == null) {
+                    emptyList()
+                } else {
+                    buildAllAvailableDateTimes(event)
+                }
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /**
      * Initializes the view model by syncing the event and observing it.
@@ -165,8 +170,8 @@ class ParticipantViewModel(
     /**
      *  Synchronizes events from the repository.
      */
-    private fun syncEvent(){
-        viewModelScope.launch(Dispatchers.IO){
+    private fun syncEvent() {
+        viewModelScope.launch(Dispatchers.IO) {
             eventRepository.syncEventByEventCodeAndKey(eventCode, eventKey)
         }
     }
@@ -179,15 +184,23 @@ class ParticipantViewModel(
      */
     private fun observeEventByEventCode(eventCode: String) {
         viewModelScope.launch {
-            eventRepository.getEventByEventCode(eventCode)
+            eventRepository
+                .getEventByEventCode(eventCode)
                 .collect { event ->
                     if (event != null) {
                         _event.value = event
-                        _participantState.update { 
+                        _participantState.update {
                             it.copy(
                                 eventId = event.id,
-                                participantName = if (it.participantName.isEmpty() && event.hostId == currentUserId) event.hostName else it.participantName
-                            ) 
+                                participantName =
+                                    if (it.participantName.isEmpty() &&
+                                        event.hostId == currentUserId
+                                    ) {
+                                        event.hostName
+                                    } else {
+                                        it.participantName
+                                    },
+                            )
                         }
                         checkIfUserAlreadySubmitted(event.id)
                         observeSubmissions(event.id)
@@ -209,10 +222,12 @@ class ParticipantViewModel(
         viewModelScope.launch {
             val response = eventRepository.getParticipantResponse(eventId, uid)
             if (response != null) {
-                _uiState.update { it.copy(
-                    isAlreadySubmitted = true,
-                    submittedName = response.name
-                ) }
+                _uiState.update {
+                    it.copy(
+                        isAlreadySubmitted = true,
+                        submittedName = response.name,
+                    )
+                }
                 // Also update the input state name if it's empty
                 if (_participantState.value.participantName.isEmpty()) {
                     _participantState.update { it.copy(participantName = response.name) }
@@ -250,29 +265,15 @@ class ParticipantViewModel(
      */
     fun toggleDateTime(dateTime: DateTime) {
         _participantState.update { current ->
-            val updated = if (current.selectedDateTimes.contains(dateTime))
-                current.selectedDateTimes - dateTime
-            else
-                current.selectedDateTimes + dateTime
+            val updated =
+                if (current.selectedDateTimes.contains(dateTime)) {
+                    current.selectedDateTimes - dateTime
+                } else {
+                    current.selectedDateTimes + dateTime
+                }
             current.copy(selectedDateTimes = updated)
         }
     }
-
-//    /**
-//     * Toggles the selection of a date and time slot.
-//     *
-//     * @param date The date of the slot.
-//     * @param slotIndex The index of the slot in the list.
-//     * @see UiTimeSlot for more information about time slots.
-//     */
-//    fun toggleDateTime(date: String, slotIndex: Int) {
-//        val currentEvent = _event.value ?: return
-//        if (slotIndex !in currentEvent.timeSlots.indices) return
-//
-//        val slot = currentEvent.timeSlots[slotIndex]
-//        val dateTime = DateTime(date = date, timeSlot = slot)
-//        toggleDateTime(dateTime)
-//    }
 
     /**
      * Toggles the selection of a place type.
@@ -282,10 +283,12 @@ class ParticipantViewModel(
      */
     fun togglePlaceType(placeType: PlaceType) {
         _participantState.update { current ->
-            val updated = if (current.selectedPlaceTypes.contains(placeType))
-                current.selectedPlaceTypes - placeType
-            else
-                current.selectedPlaceTypes + placeType
+            val updated =
+                if (current.selectedPlaceTypes.contains(placeType)) {
+                    current.selectedPlaceTypes - placeType
+                } else {
+                    current.selectedPlaceTypes + placeType
+                }
             current.copy(selectedPlaceTypes = updated)
         }
     }
@@ -297,10 +300,12 @@ class ParticipantViewModel(
      */
     fun toggleLocation(city: String) {
         _participantState.update { current ->
-            val updated = if (current.selectedLocations.contains(city))
-                current.selectedLocations - city
-            else
-                current.selectedLocations + city
+            val updated =
+                if (current.selectedLocations.contains(city)) {
+                    current.selectedLocations - city
+                } else {
+                    current.selectedLocations + city
+                }
             current.copy(selectedLocations = updated)
         }
     }
@@ -313,10 +318,12 @@ class ParticipantViewModel(
      */
     fun toggleFoodCategory(category: FoodCategory) {
         _participantState.update { current ->
-            val updated = if (current.selectedFoodCategories.contains(category))
-                current.selectedFoodCategories - category
-            else
-                current.selectedFoodCategories + category
+            val updated =
+                if (current.selectedFoodCategories.contains(category)) {
+                    current.selectedFoodCategories - category
+                } else {
+                    current.selectedFoodCategories + category
+                }
             current.copy(selectedFoodCategories = updated)
         }
     }
@@ -342,7 +349,6 @@ class ParticipantViewModel(
             }
         }
     }
-
 }
 
 /**
@@ -361,7 +367,7 @@ data class ParticipantInputState(
     val selectedDateTimes: List<DateTime> = emptyList(),
     val selectedLocations: List<String> = emptyList(),
     val selectedPlaceTypes: List<PlaceType> = emptyList(),
-    val selectedFoodCategories: List<FoodCategory> = emptyList()
+    val selectedFoodCategories: List<FoodCategory> = emptyList(),
 )
 
 /**
@@ -375,8 +381,12 @@ data class ParticipantInputState(
  */
 sealed interface FetchState {
     object Loading : FetchState
+
     object Success : FetchState
-    data class Error(val message: String) : FetchState
+
+    data class Error(
+        val message: String,
+    ) : FetchState
 }
 
 /**
@@ -395,6 +405,7 @@ sealed interface SubmitState {
      * Initial state of the submission process.
      */
     object Idle : SubmitState
+
     /** Submission is in progress or has not started yet. */
     object Loading : SubmitState
 
@@ -402,7 +413,9 @@ sealed interface SubmitState {
     object Success : SubmitState
 
     /** Submission failed due to an error. */
-    data class Error(val error: Throwable) : SubmitState
+    data class Error(
+        val error: Throwable,
+    ) : SubmitState
 
     /**
      * Represents the state of the participant dashboard.
@@ -410,6 +423,6 @@ sealed interface SubmitState {
     data class ParticipantDashboardUiState(
         val submissionsCount: Int = 0,
         val isAlreadySubmitted: Boolean = false,
-        val submittedName: String = ""
+        val submittedName: String = "",
     )
 }

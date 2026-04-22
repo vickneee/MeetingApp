@@ -40,16 +40,18 @@ import java.time.ZoneId
  * @property citiesState State flow exposing the list of cities based on selected countries.
  * @property events State flow exposing the list of events.
  */
-class EventViewModel(private val eventRepository: EventRepository):  ViewModel(){
-
+class EventViewModel(
+    private val eventRepository: EventRepository,
+) : ViewModel() {
     /**
      * Mutable state flow representing the current UI state.
      */
-    private val _uiState = MutableStateFlow(
-        EventUiState(
-            timeSlots = mutableListOf(TimeSlot("11:00", "13:00"))
+    private val _uiState =
+        MutableStateFlow(
+            EventUiState(
+                timeSlots = mutableListOf(TimeSlot("11:00", "13:00")),
+            ),
         )
-    )
 
     /**
      * State flow exposing the current UI state.
@@ -92,39 +94,40 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      * Uses Room as the single source of truth.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    val citiesState: StateFlow<List<String>> = _selectedCountries
-        .flatMapLatest { countries ->
-            if (countries.isEmpty()) {
-                _citiesFetchState.value = CitiesFetchState.Success
-                flowOf(emptyList())
-            } else {
-                _citiesFetchState.value = CitiesFetchState.Loading
-                val flows = countries.map { eventRepository.getCitiesByCountry(it) }
-                combine(flows) { cityLists ->
-                    cityLists.flatMap { it }.distinct().sorted()
+    val citiesState: StateFlow<List<String>> =
+        _selectedCountries
+            .flatMapLatest { countries ->
+                if (countries.isEmpty()) {
+                    _citiesFetchState.value = CitiesFetchState.Success
+                    flowOf(emptyList())
+                } else {
+                    _citiesFetchState.value = CitiesFetchState.Loading
+                    val flows = countries.map { eventRepository.getCitiesByCountry(it) }
+                    combine(flows) { cityLists ->
+                        cityLists.flatMap { it }.distinct().sorted()
+                    }
                 }
-            }
-        }
-        .flowOn(Dispatchers.Default)
-        .map {
-            _citiesFetchState.value = CitiesFetchState.Success
-            it
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+            }.flowOn(Dispatchers.Default)
+            .map {
+                _citiesFetchState.value = CitiesFetchState.Success
+                it
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList(),
+            )
 
     /**
      * Synchronizes events from the repository.
      */
-    val events: StateFlow<List<Event>> = eventRepository.getEvents()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    val events: StateFlow<List<Event>> =
+        eventRepository
+            .getEvents()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList(),
+            )
 
     /**
      * Initializes the ViewModel by synchronizing cities.
@@ -136,8 +139,8 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
     /**
      *  Synchronizes cities from the repository.
      */
-    private fun syncCities(){
-        viewModelScope.launch(Dispatchers.IO){
+    private fun syncCities() {
+        viewModelScope.launch(Dispatchers.IO) {
             eventRepository.syncCities()
         }
     }
@@ -155,14 +158,14 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      */
     fun createEvent() {
         _eventState.value = EventState.Loading
-        viewModelScope.launch(Dispatchers.IO)  {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val(eventCode, eventKey, eventId) = eventRepository.createEvent(uiState.value).getOrThrow()
 
                 withContext(Dispatchers.Main) {
                     _eventState.value = EventState.Success(eventCode, eventKey, eventId)
                 }
-            } catch (e: Throwable){
+            } catch (e: Throwable) {
                 withContext(Dispatchers.Main) {
                     _eventState.value = EventState.Error(e)
                 }
@@ -175,10 +178,10 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      *
      * @param title New event title.
      */
-    fun updateTitle(title: String){
-        _uiState.update {current ->
+    fun updateTitle(title: String) {
+        _uiState.update { current ->
             current.copy(
-                eventTitle = title
+                eventTitle = title,
             )
         }
     }
@@ -188,10 +191,10 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      *
      * @param name New host name.
      */
-    fun updateHostName(name: String){
-        _uiState.update {current ->
+    fun updateHostName(name: String) {
+        _uiState.update { current ->
             current.copy(
-                hostName = name
+                hostName = name,
             )
         }
     }
@@ -202,14 +205,17 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      * @param dateRange1 Start date of the range.
      * @param dateRange2 End date of the range.
      */
-    fun updateDateRange(dateRange1: Long?, dateRange2: Long?){
+    fun updateDateRange(
+        dateRange1: Long?,
+        dateRange2: Long?,
+    ) {
         if (dateRange1 != null && dateRange2 != null) {
             val start = Instant.ofEpochMilli(dateRange1).atZone(ZoneId.systemDefault()).toLocalDate()
             val end = Instant.ofEpochMilli(dateRange2).atZone(ZoneId.systemDefault()).toLocalDate()
             _uiState.update { current ->
                 current.copy(
                     dateRange = DateRange(start.toString(), end.toString()),
-                    hasSelectedDateRange = true
+                    hasSelectedDateRange = true,
                 )
             }
         }
@@ -221,7 +227,10 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      * @param start Start time of the time slot.
      * @param end End time of the time slot.
      */
-    fun addTimeSlot(start: String, end: String) {
+    fun addTimeSlot(
+        start: String,
+        end: String,
+    ) {
         val current = _uiState.value.timeSlots.toMutableList()
         current.add(TimeSlot(start, end))
         _uiState.update { it.copy(timeSlots = current) }
@@ -234,7 +243,11 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      * @param start New start time of the time slot.
      * @param end New end time of the time slot.
      */
-    fun updateTimeSlot(index: Int, start: String, end: String) {
+    fun updateTimeSlot(
+        index: Int,
+        start: String,
+        end: String,
+    ) {
         val current = _uiState.value.timeSlots.toMutableList()
         current[index] = TimeSlot(start, end)
         _uiState.update { it.copy(timeSlots = current) }
@@ -245,10 +258,10 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      *
      * @param slot Time slot to remove.
      */
-    fun removeTimeSlot(slot: TimeSlot){
-        _uiState.update {current ->
+    fun removeTimeSlot(slot: TimeSlot) {
+        _uiState.update { current ->
             current.copy(
-                timeSlots = current.timeSlots - slot
+                timeSlots = current.timeSlots - slot,
             )
         }
     }
@@ -260,22 +273,26 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      */
     fun toggleCountry(country: CountryOption) {
         _uiState.update { current ->
-            val updatedCountries = if (current.locations.countries.contains(country.name))
-                current.locations.countries - country.name
-            else
-                current.locations.countries + country.name
-            
+            val updatedCountries =
+                if (current.locations.countries.contains(country.name)) {
+                    current.locations.countries - country.name
+                } else {
+                    current.locations.countries + country.name
+                }
+
             current.copy(
-                locations = current.locations.copy(
-                    countries = updatedCountries
-                )
+                locations =
+                    current.locations.copy(
+                        countries = updatedCountries,
+                    ),
             )
         }
-        
+
         // Refresh cities based on all selected countries
-        val selectedCountryOptions = _uiState.value.locations.countries.mapNotNull { name ->
-            CountryOption.entries.find { it.name == name }
-        }
+        val selectedCountryOptions =
+            _uiState.value.locations.countries.mapNotNull { name ->
+                CountryOption.entries.find { it.name == name }
+            }
         _selectedCountries.value = selectedCountryOptions
     }
 
@@ -286,14 +303,17 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      */
     fun toggleCity(city: String) {
         _uiState.update { current ->
-            val updated = if (current.locations.cities.contains(city))
-                current.locations.cities - city
-            else
-                current.locations.cities + city
+            val updated =
+                if (current.locations.cities.contains(city)) {
+                    current.locations.cities - city
+                } else {
+                    current.locations.cities + city
+                }
             current.copy(
-                locations = current.locations.copy(
-                    cities = updated
-                )
+                locations =
+                    current.locations.copy(
+                        cities = updated,
+                    ),
             )
         }
     }
@@ -303,10 +323,10 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      *
      * @param placeType Place type to add.
      */
-    fun addPlaceType(placeType: PlaceType){
-        _uiState.update {current ->
+    fun addPlaceType(placeType: PlaceType) {
+        _uiState.update { current ->
             current.copy(
-                placeTypes = current.placeTypes + placeType
+                placeTypes = current.placeTypes + placeType,
             )
         }
     }
@@ -316,10 +336,10 @@ class EventViewModel(private val eventRepository: EventRepository):  ViewModel()
      *
      * @param placeType Place type to remove.
      */
-    fun removePlaceType(placeType: PlaceType){
-        _uiState.update {current ->
+    fun removePlaceType(placeType: PlaceType) {
+        _uiState.update { current ->
             current.copy(
-                placeTypes = current.placeTypes - placeType
+                placeTypes = current.placeTypes - placeType,
             )
         }
     }
@@ -342,8 +362,10 @@ data class EventUiState(
     val dateRange: DateRange = DateRange(),
     val hasSelectedDateRange: Boolean = false,
     val timeSlots: List<TimeSlot> = emptyList(),
-    val locations: com.meetup.meetingapp.data.model.LocationOption = com.meetup.meetingapp.data.model.LocationOption(),
-    val placeTypes: List<PlaceType> = emptyList()
+    val locations: com.meetup.meetingapp.data.model.LocationOption =
+        com.meetup.meetingapp.data.model
+            .LocationOption(),
+    val placeTypes: List<PlaceType> = emptyList(),
 )
 
 /**
@@ -355,8 +377,16 @@ data class EventUiState(
  */
 sealed interface EventState {
     object Loading : EventState
-    data class Success(val eventCode: String, val eventKey: String, val eventId: String) : EventState
-    data class Error(val error: Throwable) : EventState
+
+    data class Success(
+        val eventCode: String,
+        val eventKey: String,
+        val eventId: String,
+    ) : EventState
+
+    data class Error(
+        val error: Throwable,
+    ) : EventState
 }
 
 /**
@@ -368,6 +398,10 @@ sealed interface EventState {
  */
 sealed interface CitiesFetchState {
     object Loading : CitiesFetchState
+
     object Success : CitiesFetchState
-    data class Error(val message: String) : CitiesFetchState
+
+    data class Error(
+        val message: String,
+    ) : CitiesFetchState
 }

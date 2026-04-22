@@ -6,7 +6,6 @@ import androidx.room.PrimaryKey
 /**
  * Room entity representing a restaurant candidate stored locally for an event.
  *
- * This entity is the local persistence layer version of the domain model [Restaurant].
  * It is populated by:
  *   • Firestore → Repository → Room (syncRestaurants)
  *   • Places API → Repository → Firestore → Room
@@ -34,7 +33,6 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "restaurants")
 data class RestaurantEntity(
-
     @PrimaryKey
     val placeId: String,
     val eventId: String,
@@ -48,5 +46,5 @@ data class RestaurantEntity(
     val photoReference: String?,
     val priceLevel: Int,
     val rating: Double,
-    val userRatingCount: Int
+    val userRatingCount: Int,
 )

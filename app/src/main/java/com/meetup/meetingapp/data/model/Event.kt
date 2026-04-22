@@ -32,22 +32,17 @@ import com.google.firebase.Timestamp
  *
  * @property createdAt Timestamp indicating when the event was created.
  */
-data class Event (
+data class Event(
     // Public event code shared with participants.
     val eventCode: String = "",
-
     // Private key required to join the event.
     val eventKey: String = "",
-
     // Reference to the host user document.
     val hostId: String = "",
-
     // Firestore document ID for this event.
     val id: String = "",
-
     // Current status of the event.
     val status: EventStatus = EventStatus.CREATED,
-
     // Host-defined settings for the event.
     val eventTitle: String = "",
     val hostName: String = "",
@@ -55,23 +50,18 @@ data class Event (
     val timeSlots: List<TimeSlot> = listOf(),
     val locationOptions: LocationOption = LocationOption(),
     val placeTypeOptions: List<PlaceType> = listOf(),
-
     // The first voting results.
     val dateTimeCandidates: List<DateTime> = listOf(),
     val locationCandidates: List<String> = listOf(),
     val placeTypeCandidates: List<PlaceType> = listOf(),
     val foodCategoryCandidates: List<FoodCategory> = listOf(),
-
     // The second voting result
     val restaurantCandidates: List<String> = listOf(),
-
     // Final selections.
     val finalTime: DateTime? = null,
     val finalPlace: String? = null,
-
     // Selected city coordinates
     val selectedLocationLat: Double? = null,
     val selectedLocationLng: Double? = null,
-
-    val createdAt: Timestamp = Timestamp.now()
+    val createdAt: Timestamp = Timestamp.now(),
 )

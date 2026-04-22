@@ -35,15 +35,15 @@ fun MeetingAppTopAppBar(
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     windowInsets: WindowInsets = WindowInsets.statusBars,
-    navigateUp: () -> Unit = {}
+    navigateUp: () -> Unit = {},
 ) {
     CenterAlignedTopAppBar(
-        title = { 
+        title = {
             Text(
                 text = title,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 20.sp
-            ) 
+                fontSize = 20.sp,
+            )
         },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
@@ -53,10 +53,10 @@ fun MeetingAppTopAppBar(
                 IconButton(onClick = navigateUp) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back_button)
+                        contentDescription = stringResource(R.string.back_button),
                     )
                 }
             }
-        }
+        },
     )
 }

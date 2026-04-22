@@ -31,30 +31,32 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun ParticipantItemRow(
     name: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
     ) {
         Icon(
             imageVector = Icons.Default.Person,
             contentDescription = null,
-            modifier = Modifier
-                .size(32.dp)
-                .clip(CircleShape)
-                .background(Color.LightGray.copy(alpha = 0.3f))
-                .padding(4.dp),
-            tint = MaterialTheme.colorScheme.primary
+            modifier =
+                Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(Color.LightGray.copy(alpha = 0.3f))
+                    .padding(4.dp),
+            tint = MaterialTheme.colorScheme.primary,
         )
         Text(
             text = name,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }

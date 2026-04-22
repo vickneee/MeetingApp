@@ -14,12 +14,11 @@ import kotlinx.coroutines.flow.Flow
 data class EventAvailabilityTuple(
     @ColumnInfo(name = "dateRangeStartString") val dateRangeStart: String,
     @ColumnInfo(name = "dateRangeEndString") val dateRangeEnd: String,
-    @ColumnInfo(name = "timeSlotsJson") val timeSlotsJson: String
+    @ColumnInfo(name = "timeSlotsJson") val timeSlotsJson: String,
 )
 
 @Dao
 interface EventDao {
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertEvent(event: EventEntity)
 
@@ -39,7 +38,10 @@ interface EventDao {
     fun getAvailabilityByEventCode(eventCode: String): Flow<EventAvailabilityTuple>
 
     @Query("UPDATE events SET status = :status WHERE id = :eventId")
-    suspend fun updateEventStatus(eventId: String, status: String)
+    suspend fun updateEventStatus(
+        eventId: String,
+        status: String,
+    )
 
     @Upsert
     suspend fun upsertEvent(event: EventEntity)

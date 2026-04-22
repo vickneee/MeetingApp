@@ -61,36 +61,38 @@ fun SubmissionCompletePage(
     viewModel: ParticipantViewModel,
     onNavigateToHostDashboard: (String) -> Unit,
     onNavigateToParticipantDashboard: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val submitState by viewModel.submitState.collectAsStateWithLifecycle()
 
     // Handle different submission states
     when (submitState) {
-        is SubmitState.Idle -> SubmissionCompleteContent(
-            onBack = onBack,
-            viewModel = viewModel,
-            onNavigateToHostDashboard = onNavigateToHostDashboard,
-            onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
-            modifier = modifier
-        )
+        is SubmitState.Idle ->
+            SubmissionCompleteContent(
+                onBack = onBack,
+                viewModel = viewModel,
+                onNavigateToHostDashboard = onNavigateToHostDashboard,
+                onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
+                modifier = modifier,
+            )
 
         is SubmitState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
 
-        is SubmitState.Success -> SubmissionCompleteContent(
-            onBack = onBack,
-            viewModel = viewModel,
-            onNavigateToHostDashboard = onNavigateToHostDashboard,
-            onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
-            modifier = modifier
-        )
+        is SubmitState.Success ->
+            SubmissionCompleteContent(
+                onBack = onBack,
+                viewModel = viewModel,
+                onNavigateToHostDashboard = onNavigateToHostDashboard,
+                onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
+                modifier = modifier,
+            )
 
         is SubmitState.Error -> {
             val state = submitState as SubmitState.Error
             ErrorScreen(
                 message = state.error.message ?: "Something went wrong",
                 onRetry = { viewModel.submitParticipantInput() },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
@@ -115,9 +117,8 @@ fun SubmissionCompleteContent(
     viewModel: ParticipantViewModel,
     onNavigateToHostDashboard: (String) -> Unit,
     onNavigateToParticipantDashboard: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    
     val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
     val event by viewModel.event.collectAsStateWithLifecycle(null)
 
@@ -126,24 +127,25 @@ fun SubmissionCompleteContent(
             MeetingAppTopAppBar(
                 title = stringResource(id = R.string.title_submission_complete),
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-                .padding(horizontal = AppSpacing.lg),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues)
+                    .padding(horizontal = AppSpacing.lg),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Text(
                     "Thank you!",
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
 
@@ -193,13 +195,14 @@ fun SubmissionCompleteContent(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(AppSize.lg),
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm),
                 ) {
                     Text(
                         "Go to Dashboard",
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
             }

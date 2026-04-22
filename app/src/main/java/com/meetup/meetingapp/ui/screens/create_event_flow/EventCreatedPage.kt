@@ -55,7 +55,7 @@ fun EventCreatedPage(
     onBack: () -> Unit,
     onNavigateToDashboard: (String) -> Unit,
     onNavigateToAvailability: (String, String) -> Unit,
-    viewModel: EventViewModel
+    viewModel: EventViewModel,
 ) {
     val eventState by viewModel.eventState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -77,23 +77,24 @@ fun EventCreatedPage(
                             ClipEntry(
                                 ClipData.newPlainText(
                                     "Event Info",
-                                    "Code: ${state.eventCode} Key: ${state.eventKey}"
-                                )
-                            )
+                                    "Code: ${state.eventCode} Key: ${state.eventKey}",
+                                ),
+                            ),
                         )
                     }
                 },
                 onShare = {
-                    val intent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(
-                            Intent.EXTRA_TEXT,
-                            "Join my event!\nCode: ${state.eventCode}\nKey: ${state.eventKey}"
-                        )
-                    }
+                    val intent =
+                        Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(
+                                Intent.EXTRA_TEXT,
+                                "Join my event!\nCode: ${state.eventCode}\nKey: ${state.eventKey}",
+                            )
+                        }
                     context.startActivity(Intent.createChooser(intent, "Share event"))
                 },
-                onFillAvailability = { onNavigateToAvailability(state.eventCode, state.eventKey) }
+                onFillAvailability = { onNavigateToAvailability(state.eventCode, state.eventKey) },
             )
         }
 
@@ -102,7 +103,7 @@ fun EventCreatedPage(
             ErrorScreen(
                 message = state.error.message ?: "Something went wrong",
                 onRetry = { viewModel.createEvent() },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
@@ -129,50 +130,52 @@ fun EventCreatedContent(
     onShare: () -> Unit,
     onFillAvailability: () -> Unit,
     onNavigateToDashboard: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
-
         topBar = {
             MeetingAppTopAppBar(
                 title = "Event Created",
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
-                Text("Your Event Code",
+                Text(
+                    "Your Event Code",
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 22.sp
+                    fontSize = 22.sp,
                 )
                 Text(
                     text = eventCode,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    modifier = Modifier.padding(vertical = 8.dp),
                 )
 
-                Text("Key",
+                Text(
+                    "Key",
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 20.sp
+                    fontSize = 20.sp,
                 )
                 Text(
                     text = eventKey,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    modifier = Modifier.padding(vertical = 8.dp),
                 )
 
                 Text(
@@ -180,7 +183,7 @@ fun EventCreatedContent(
                     color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(vertical = AppSpacing.md),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
 
                 OutlinedButton(
@@ -188,12 +191,12 @@ fun EventCreatedContent(
                     border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         "Copy Code",
                         color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
 
@@ -204,14 +207,14 @@ fun EventCreatedContent(
                     border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm)
+                    contentPadding = PaddingValues(vertical = AppSpacing.sm),
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         "Share",
                         color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
 
@@ -222,12 +225,12 @@ fun EventCreatedContent(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         "Fill in my availability",
                         color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
 
@@ -238,7 +241,7 @@ fun EventCreatedContent(
                     border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md)
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         "Go to Dashboard",
@@ -261,7 +264,7 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
     Image(
         modifier = modifier.size(200.dp),
         painter = painterResource(R.drawable.loading_img),
-        contentDescription = "Loading"
+        contentDescription = "Loading",
     )
 }
 
@@ -273,14 +276,19 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
  * @param modifier Optional modifier for layout adjustments.
  */
 @Composable
-fun ErrorScreen(message: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+fun ErrorScreen(
+    message: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_connection_error), contentDescription = ""
+            painter = painterResource(id = R.drawable.ic_connection_error),
+            contentDescription = "",
         )
         Text(text = message, modifier = Modifier.padding(16.dp))
         Button(onClick = onRetry) {
@@ -303,7 +311,7 @@ fun EventCreatedPagePreview() {
             onNavigateToDashboard = {},
             onCopyCode = {},
             onShare = {},
-            onFillAvailability = {}
+            onFillAvailability = {},
         )
     }
 }

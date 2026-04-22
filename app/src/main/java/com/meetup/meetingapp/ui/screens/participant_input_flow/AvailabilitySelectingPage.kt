@@ -48,7 +48,11 @@ import java.time.format.DateTimeFormatter
  * @property isSelected Indicates whether the time slot is currently selected.
  * @constructor Creates a new instance of [UiTimeSlot].
  */
-data class UiTimeSlot(val id: Int, val timeRange: String, val isSelected: Boolean)
+data class UiTimeSlot(
+    val id: Int,
+    val timeRange: String,
+    val isSelected: Boolean,
+)
 
 /**
  * Represents a date and its associated time slots.
@@ -58,7 +62,10 @@ data class UiTimeSlot(val id: Int, val timeRange: String, val isSelected: Boolea
  * @constructor Creates a new instance of [DateAvailability].
  * @see UiTimeSlot for more information about time slots.
  */
-data class DateAvailability(val date: String, val timeSlots: List<UiTimeSlot>)
+data class DateAvailability(
+    val date: String,
+    val timeSlots: List<UiTimeSlot>,
+)
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
@@ -79,7 +86,7 @@ object TimeAvailabilityDestination : NavigationDestination {
 fun AvailabilitySelectingPage(
     onBack: () -> Unit,
     navigateToNextStep: () -> Unit,
-    viewModel: ParticipantViewModel
+    viewModel: ParticipantViewModel,
 ) {
     val allDateTimes by viewModel.allAvailableDateTimes.collectAsState()
     val participantState by viewModel.participantState.collectAsState()
@@ -92,7 +99,7 @@ fun AvailabilitySelectingPage(
         selectedDateTimes = participantState.selectedDateTimes,
         isLoading = isLoading,
         onToggleDateTime = { viewModel.toggleDateTime(it) },
-        modifier = Modifier
+        modifier = Modifier,
     )
 }
 
@@ -115,35 +122,36 @@ fun AvailabilitySelectingPageContent(
     allDateTimes: List<DateTime> = emptyList(),
     selectedDateTimes: List<DateTime> = emptyList(),
     isLoading: Boolean = false,
-    onToggleDateTime: (DateTime) -> Unit = {}
+    onToggleDateTime: (DateTime) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
                 title = stringResource(id = R.string.title_time_availability_page),
                 canNavigateBack = true,
-                navigateUp = onBack
+                navigateUp = onBack,
             )
-        }
+        },
     ) { paddingValues ->
         if (isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
         } else {
             LazyColumn(
-                modifier = modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(paddingValues),
+                modifier =
+                    modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(paddingValues),
                 contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
+                verticalArrangement = Arrangement.Top,
             ) {
                 item {
                     Text(
@@ -151,7 +159,7 @@ fun AvailabilitySelectingPageContent(
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Spacer(modifier = Modifier.height(AppSpacing.xs))
 
@@ -160,11 +168,11 @@ fun AvailabilitySelectingPageContent(
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
                     Column(
-                        horizontalAlignment = Alignment.Start
+                        horizontalAlignment = Alignment.Start,
                     ) {
                         AppMultiSelectDropdown(
                             options = allDateTimes,
@@ -173,14 +181,15 @@ fun AvailabilitySelectingPageContent(
                             label = "Availability",
                             instruction = "Select availability",
                             toText = { dateTime ->
-                                val displayDate = try {
-                                    val localDate = LocalDate.parse(dateTime.date)
-                                    localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-                                } catch (_: Exception) {
-                                    dateTime.date
-                                }
+                                val displayDate =
+                                    try {
+                                        val localDate = LocalDate.parse(dateTime.date)
+                                        localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+                                    } catch (_: Exception) {
+                                        dateTime.date
+                                    }
                                 "$displayDate: ${dateTime.timeSlot.start} - ${dateTime.timeSlot.end}"
-                            }
+                            },
                         )
                         Spacer(modifier = Modifier.height(AppSpacing.xl))
 
@@ -190,12 +199,12 @@ fun AvailabilitySelectingPageContent(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth(AppSize.lg),
-                            contentPadding = PaddingValues(vertical = AppSpacing.md)
+                            contentPadding = PaddingValues(vertical = AppSpacing.md),
                         ) {
                             Text(
                                 text = "Next",
                                 color = MaterialTheme.colorScheme.onPrimary,
-                                style = MaterialTheme.typography.labelLarge
+                                style = MaterialTheme.typography.labelLarge,
                             )
                         }
                     }
@@ -216,10 +225,11 @@ fun AvailabilitySelectingPageContentPreview() {
             isLoading = false,
             onBack = {},
             onNext = {},
-            allDateTimes = listOf(
-                DateTime("2025-04-13", TimeSlot("11:00", "14:00")),
-                DateTime("2025-04-14", TimeSlot("09:00", "12:00"))
-            )
+            allDateTimes =
+                listOf(
+                    DateTime("2025-04-13", TimeSlot("11:00", "14:00")),
+                    DateTime("2025-04-14", TimeSlot("09:00", "12:00")),
+                ),
         )
     }
 }

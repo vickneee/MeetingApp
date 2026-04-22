@@ -8,7 +8,6 @@ package com.meetup.meetingapp.data.repositories
  * user-specific event lists such as created or joined events.
  */
 interface UserRepository {
-
     /**
      * The unique identifier of the currently authenticated user.
      */
@@ -46,7 +45,10 @@ interface UserRepository {
      * @param eventId The ID of the event created by the user.
      * @param uid The unique identifier of the user.
      */
-    suspend fun addCreatedEvent(eventId: String, uid: String)
+    suspend fun addCreatedEvent(
+        eventId: String,
+        uid: String,
+    )
 
     /**
      * Adds an event ID to the list of events the user has joined.
@@ -58,7 +60,10 @@ interface UserRepository {
      * @param eventId The ID of the event the user joined.
      * @param uid The unique identifier of the user.
      */
-    suspend fun addJoinedEvent(eventId: String, uid: String)
+    suspend fun addJoinedEvent(
+        eventId: String,
+        uid: String,
+    )
 
     /**
      * Retrieves the list of event IDs the user has created.
