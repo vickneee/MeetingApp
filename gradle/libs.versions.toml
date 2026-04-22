@@ -25,6 +25,7 @@ foundation = "1.10.6"
 material3 = "1.4.0"
 uiTestJunit4 = "1.10.6"
 kotlinxCoroutinesTest = "1.10.2"
+ktlint = "12.1.2"
 
 [libraries]
 androidx-compose-animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
@@ -73,3 +74,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }

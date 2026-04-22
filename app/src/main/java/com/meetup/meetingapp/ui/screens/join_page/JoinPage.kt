@@ -160,7 +160,7 @@ fun JoinContent(
                 OutlinedTextField(
                     value = code,
                     onValueChange = {
-                        onCodeChange(it)
+                        onCodeChange(it.uppercase())
                         // Clear error on type
                     },
                     label = { Text("Enter code") },
