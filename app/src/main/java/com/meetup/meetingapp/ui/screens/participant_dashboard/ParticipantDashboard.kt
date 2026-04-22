@@ -3,7 +3,6 @@ package com.meetup.meetingapp.ui.screens.participant_dashboard
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,9 +16,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,19 +51,11 @@ object ParticipantDashboardDestination : NavigationDestination {
 /**
  * Entry point composable for the Participant Dashboard screen.
  *
- * This composable:
- * - Retrieves the ParticipantDashboardViewModel instance.
- * - Collects event data, UI state, and close-voting state from the ViewModel.
- * - Displays a loading screen until the event is available.
- * - Delegates UI rendering to [ParticipantDashboardContent].
- *
  * @param onBack Callback invoked when the user navigates back.
  * @param onVoteForRestaurantClick Callback invoked when the user clicks on the "Vote for a Time & Place" button.
  * @param onFinalPlanClick Callback invoked when the user clicks on the "View Final Plan" button.
  * @param onNavigateToHome Callback invoked when the user navigates to the home screen.
  * @param viewModel The ViewModel providing event and submission data.
- *
- * @see ParticipantDashboardViewModel ParticipantDashboardViewModel
  */
 @Composable
 fun ParticipantDashboardPage(
@@ -145,7 +138,7 @@ fun ParticipantDashboardContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
+            contentPadding = AppPadding.pagePadding,
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
@@ -214,70 +207,40 @@ fun ParticipantDashboardContent(
                     when (event.status) {
                         EventStatus.COLLECTING_AVAILABILITY -> {
                             Text(
-                                "Waiting for host to close",
+                                "Waiting for host to start",
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                             Spacer(modifier = Modifier.padding(AppSpacing.xxs))
                             Text(
-                                "the first voting...",
+                                "the place voting...",
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
 
                         EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
-                            if (hasVoted) {
-                                Text(
-                                    text = buildAnnotatedString {
-                                        if (currentUserName.isNotEmpty()) {
-                                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                                append(currentUserName)
-                                            }
-                                            append(", You already voted.")
-                                        } else {
-                                            append("You already voted.")
+                            Text(
+                                "Place voting is now open!",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(bottom = 4.dp),
+                            )
+                            Text(
+                                text = buildAnnotatedString {
+                                    if (currentUserName.isNotEmpty()) {
+                                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                            append(currentUserName)
                                         }
-                                    },
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.padding(bottom = 4.dp)
-                                )
-                                Text(
-                                    "Please wait until",
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(bottom = 4.dp)
-                                )
-                                Text(
-                                    "the host closes the voting.",
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(bottom = 4.dp)
-                                )
-                            } else {
-                                Text(
-                                    "Host has closed the voting!",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.padding(bottom = 4.dp)
-                                )
-                                Text(
-                                    text = buildAnnotatedString {
-                                        if (currentUserName.isNotEmpty()) {
-                                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                                append(currentUserName)
-                                            }
-                                            append(", You can now vote.")
-                                        } else {
-                                            append("You can now vote.")
-                                        }
-                                    },
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
+                                        append(", you can vote now.")
+                                    } else {
+                                        append("You can vote now.")
+                                    }
+                                },
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         }
 
                         EventStatus.FINALIZED -> {
@@ -320,18 +283,16 @@ fun ParticipantDashboardContent(
                                 onVoteForRestaurantClick()
                             }
                         },
-                        enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
+                        enabled = (event.status == EventStatus.FINALIZED) || (event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
                         contentPadding = PaddingValues(vertical = AppSpacing.sm)
                     ) {
-
                         Text(
                             when {
                                 event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open"
                                 event.status == EventStatus.FINALIZED -> "View Final Plan"
-                                hasVoted -> "Already Voted"
                                 else -> "Vote Time & Place"
                             },
                             style = MaterialTheme.typography.labelLarge,
@@ -369,6 +330,7 @@ fun ParticipantDashboardPreview() {
         ParticipantDashboardContent(
             event = Event(
                 eventCode = "A7F9K2",
+                status = EventStatus.COLLECTING_AVAILABILITY,
                 eventTitle = "Meet & Chat",
                 hostName = "Julia",
             ),

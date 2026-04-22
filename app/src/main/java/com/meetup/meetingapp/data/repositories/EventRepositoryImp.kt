@@ -60,7 +60,7 @@ class EventRepositoryImp(
 ): EventRepository {
 
     /**
-     * Firebase Firestore instance.
+     * Firebase Authentication instance.
      */
     private val auth = FirebaseAuth.getInstance()
 
@@ -154,6 +154,7 @@ class EventRepositoryImp(
         val eventId = participantInput.eventId
 
         val participantResponse = ParticipantResponse(
+            userId = uid ?: "",
             name = participantInput.participantName,
             dateTimes = participantInput.selectedDateTimes,
             locations = participantInput.selectedLocations,
@@ -477,7 +478,9 @@ class EventRepositoryImp(
             .addSnapshotListener { snapshot, error ->
                 if (error != null) { close(error); return@addSnapshotListener }
                 val responses = snapshot?.documents
-                    ?.mapNotNull { it.toObject(ParticipantResponse::class.java) }
+                    ?.mapNotNull { doc ->
+                        doc.toObject(ParticipantResponse::class.java)?.copy(userId = doc.id)
+                    }
                     ?: emptyList()
                 // Also update Room cache
                 CoroutineScope(Dispatchers.IO).launch {
@@ -666,7 +669,7 @@ class EventRepositoryImp(
             "Unknown"
         }
 
-        val vote = Vote(dateTime = dateTime, userId = userId, userName = userName)
+        val vote = Vote(placeId = placeId, dateTime = dateTime, userId = userId, userName = userName)
         return try {
             db.collection("events")
                 .document(eventId)
@@ -977,8 +980,8 @@ class EventRepositoryImp(
                         .addSnapshotListener { voteSnapshot, voteError ->
                             if (voteError != null) return@addSnapshotListener
 
-                            val votes = voteSnapshot?.documents?.mapNotNull {
-                                it.toObject(Vote::class.java)
+                            val votes = voteSnapshot?.documents?.mapNotNull { doc ->
+                                doc.toObject(Vote::class.java)?.copy(placeId = restaurantDoc.id)
                             } ?: emptyList()
 
                             allVotesMap[restaurantDoc.id] = votes

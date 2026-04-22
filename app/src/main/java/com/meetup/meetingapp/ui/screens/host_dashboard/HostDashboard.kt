@@ -246,9 +246,9 @@ fun HostDashboardContent(
 
             item {
                 val buttonText = when (event.status) {
-                    EventStatus.COLLECTING_AVAILABILITY -> "Close First Voting"
+                    EventStatus.COLLECTING_AVAILABILITY -> "Start Place Voting"
                     EventStatus.FIRST_VOTING_CLOSED -> "First Voting Closed"
-                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "First Voting Closed"
+                    EventStatus.RESTAURANT_CANDIDATES_GENERATED -> "Start Place Voting"
                     EventStatus.COLLECTING_RESTAURANT_VOTES -> "Close Place Voting"
                     EventStatus.FINALIZED -> "Event Finalized"
                     else -> null
@@ -283,7 +283,7 @@ fun HostDashboardContent(
                                 onVoteForRestaurantClick()
                             }
                         },
-                        enabled = (event.status == EventStatus.FINALIZED) || (!hasVoted && event.status != EventStatus.COLLECTING_AVAILABILITY),
+                        enabled = (event.status == EventStatus.FINALIZED) || (event.status != EventStatus.COLLECTING_AVAILABILITY),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
@@ -293,7 +293,6 @@ fun HostDashboardContent(
                             when {
                                 event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open"
                                 event.status == EventStatus.FINALIZED -> "View Final Plan"
-                                hasVoted -> "Already Voted"
                                 else -> "Vote Time & Place"
                             },
                             style = MaterialTheme.typography.labelLarge
