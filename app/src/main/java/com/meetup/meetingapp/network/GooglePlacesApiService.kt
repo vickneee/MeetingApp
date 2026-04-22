@@ -27,10 +27,6 @@ val retrofit =
 
 /**
  * Lazily created Retrofit service for accessing Google Places API endpoints.
- *
- * This service is injected into repository implementations such as
- * [PlacesRepositoryImp] to provide access to the Google Places API
- * and business logic.
  */
 val retrofitService: GooglePlacesApiService =
     retrofit.create(GooglePlacesApiService::class.java)

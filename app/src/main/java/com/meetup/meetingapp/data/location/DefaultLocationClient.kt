@@ -22,6 +22,6 @@ suspend fun fetchCurrentCoordinates(fusedLocationClient: FusedLocationProviderCl
                 ).await() // This "await" comes from play-services-coroutines
 
         result?.let { it.latitude to it.longitude }
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null // Handle cases like GPS being turned off
     }

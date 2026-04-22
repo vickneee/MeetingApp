@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.data.db.mapper
 
+import android.annotation.SuppressLint
 import com.google.firebase.Timestamp
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -21,6 +22,7 @@ object EventMapper {
             .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter)
             .create()
 
+    @SuppressLint("ConstantLocale")
     private val displayDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     // Safe JSON parse helper — prevents crashes on malformed/empty JSON

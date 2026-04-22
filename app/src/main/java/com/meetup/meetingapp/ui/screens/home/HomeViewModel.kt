@@ -22,7 +22,6 @@ class HomeViewModel(
     private val auth = FirebaseAuth.getInstance()
 
     private val _homeUiState = MutableStateFlow(HomeUiState())
-    val homeUiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow()
 
     /**
      * The current user ID.
@@ -65,9 +64,9 @@ class HomeViewModel(
             }
     }
 
-    companion object {
-        private const val TIMEOUT_MILLIS = 5_000L
-    }
+//    companion object {
+//        private const val TIMEOUT_MILLIS = 5_000L
+//    }
 
     /**
      * Attempts to fetch location once, determine country, and save it to the repository.

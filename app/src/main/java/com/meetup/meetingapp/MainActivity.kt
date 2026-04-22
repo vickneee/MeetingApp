@@ -24,6 +24,7 @@ class MainActivity : ComponentActivity() {
             if (fineLocationGranted || coarseLocationGranted) {
                 homeViewModel.initDefaultCountry()
             } else {
+                // Handle the case where the user denies location permission
             }
         }
 

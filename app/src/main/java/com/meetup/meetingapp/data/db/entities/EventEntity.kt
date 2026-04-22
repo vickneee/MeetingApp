@@ -6,8 +6,6 @@ import androidx.room.PrimaryKey
 /**
  * Represents an event entity in the Room database.
  *
- * This entity is the local persistence layer version of the domain model [Event].
- *
  * Room acts as the single source of truth for event data in the app.
  * @property id The unique identifier of the event.
  * @property eventCode The unique identifier of the event.

@@ -16,14 +16,14 @@ data class DateRange(
     fun startDate(): LocalDate =
         try {
             if (start.isBlank()) LocalDate.now() else LocalDate.parse(start)
-        } catch (e: DateTimeParseException) {
+        } catch (_: DateTimeParseException) {
             LocalDate.now()
         }
 
     fun endDate(): LocalDate =
         try {
             if (end.isBlank()) LocalDate.now().plusDays(7) else LocalDate.parse(end)
-        } catch (e: DateTimeParseException) {
+        } catch (_: DateTimeParseException) {
             LocalDate.now().plusDays(7)
         }
 }
