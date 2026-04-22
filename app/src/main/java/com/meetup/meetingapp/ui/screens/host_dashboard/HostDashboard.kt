@@ -67,7 +67,7 @@ fun HostDashboardPage(
     onBack: () -> Unit,
     onVoteForRestaurantClick: () -> Unit,
     onFinalPlanClick: (String) -> Unit,
-    onFillAvailability: () -> Unit,
+    onFillAvailability: (String, String) -> Unit,
     onNavigateToHome: () -> Unit,
     viewModel: HostDashboardViewModel = viewModel(
         factory = AppViewModelProvider.Factory
@@ -111,8 +111,8 @@ fun HostDashboardPage(
             },
             onVoteForRestaurantClick = onVoteForRestaurantClick,
             onFinalPlanClick = onFinalPlanClick,
-            hasHostSubmittedAvailability = hasHostSubmittedAvailability as Boolean,
-            onFillAvailabilityClick = onFillAvailability,
+            hasHostSubmittedAvailability = hasHostSubmittedAvailability,
+            onFillAvailabilityClick = { onFillAvailability(it.eventCode, it.eventKey) },
             onNavigateToHome = onNavigateToHome
         )
     } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -140,6 +140,8 @@ fun HostDashboardPage(
  * @param onFinalPlanClick Callback to trigger the final plan generation.
  * @param onCloseVotingClick Callback to trigger the close-voting operation.
  * @param onNavigateToHome Callback to navigate to the home screen.
+ * @param hasHostSubmittedAvailability Whether the host has submitted availability.
+ * @param onFillAvailabilityClick Callback to trigger the availability submission.
  * @param modifier Optional modifier for layout customization.
  */
 @OptIn(ExperimentalMaterial3Api::class)

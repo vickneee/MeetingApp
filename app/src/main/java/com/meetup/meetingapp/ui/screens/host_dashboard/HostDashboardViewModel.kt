@@ -37,7 +37,7 @@ class HostDashboardViewModel(
     ))
     val uiState = _uiState.asStateFlow()
 
-    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     init {
         viewModelScope.launch {
@@ -64,7 +64,7 @@ class HostDashboardViewModel(
                     }
 
                     // Check if host has submitted availability in the first round
-                    val hasAvailability = submissions.any { it.userId == userId || it.name == e.hostName }
+                    val hasAvailability = submissions.any { it.userId == currentUserId || it.name == e.hostName }
 
                     _uiState.update { currentState ->
                         currentState.copy(
@@ -156,7 +156,7 @@ class HostDashboardViewModel(
             val currentEvent = _event.value ?: return@launch
             val hasVoted = eventRepository.hasUserVotedInEvent(
                 eventId = eventId,
-                userId = userId,
+                userId = currentUserId,
                 timings = currentEvent.dateTimeCandidates
             )
             _uiState.update { it.copy(hasVoted = hasVoted) }

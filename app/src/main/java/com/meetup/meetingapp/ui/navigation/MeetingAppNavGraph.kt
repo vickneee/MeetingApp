@@ -428,8 +428,8 @@ fun MeetingAppNavHost(
                 onFinalPlanClick = { placeId ->
                     navController.navigate("${PlaceDetailsDestination.route}/$eventId/$placeId")
                 },
-                onFillAvailability = {
-                    navController.navigate(TimeAvailabilityDestination.route)
+                onFillAvailability = { eventId, eventKey ->
+                    navController.navigate("${MeetUpDetailDestination.route}/$eventId/$eventKey")
                 },
                 onNavigateToHome = {
                     navController.navigate(HomeDestination.route)
