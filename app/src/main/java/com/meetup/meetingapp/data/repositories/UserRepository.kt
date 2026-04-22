@@ -64,9 +64,14 @@ interface UserRepository {
      * Retrieves the list of event IDs the user has created.
      *
      * This method queries the user's document in the database and returns
-     * the list of event IDs associated with the user's creation.
+     * the list of event IDs associated with the user's joining.
      *
      * @param uid The unique identifier of the user.
      */
     suspend fun getJoinedEventIds(uid: String): List<String>
+
+    /**
+     * Synchronizes user data from Firestore to the local database.
+     */
+    suspend fun syncUser(uid: String)
 }

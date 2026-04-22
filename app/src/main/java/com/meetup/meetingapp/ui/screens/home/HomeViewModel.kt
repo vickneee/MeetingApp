@@ -54,7 +54,7 @@ class HomeViewModel(
                     if(user?.uid != null){
                         _currentUserId.value = user.uid // Update the current user ID
                         viewModelScope.launch{
-                            userRepository.createUser(user.uid)
+                            userRepository.syncUser(user.uid)
                         }
                     }
                     Log.d("Auth", "SUCCESS UID: ${user?.uid}")

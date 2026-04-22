@@ -725,7 +725,7 @@ class EventRepositoryImp(
      * ### Data Flow:
      * 1. **Query Generation**: Maps [PlaceType] and food categories into human-readable
      * strings (e.g., "Vegan restaurant in Helsinki").
-     * 2. **Availability Check**: Uses [Event.dateTimeCandidates] to filter out
+     * 2. **Availability Check**: Uses [targetTime] to ensure the venue isn't explicitly
      * marked as "Closed" during the planned event window.
      * 3. **Deduplication**: Uses a [MutableSet] of Place IDs to ensure that if a
      * popular venue matches multiple queries, it only appears once.
@@ -1049,13 +1049,16 @@ class EventRepositoryImp(
         eventId: String,
         userId: String
     ): Boolean {
-        val snapshot = FirebaseFirestore.getInstance()
-            .collection("participantResponses")
-            .whereEqualTo("eventId", eventId)
-            .whereEqualTo("userId", userId)
-            .limit(1)
-            .get()
-            .await()
-        return !snapshot.isEmpty
+        return try {
+            val snapshot = db.collection("events")
+                .document(eventId)
+                .collection("participantResponses")
+                .document(userId)
+                .get()
+                .await()
+            snapshot.exists()
+        } catch (_: Exception) {
+            false
+        }
     }
 }

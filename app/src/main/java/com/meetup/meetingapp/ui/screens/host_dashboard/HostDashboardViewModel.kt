@@ -63,11 +63,17 @@ class HostDashboardViewModel(
                         submissions.map { it.name }
                     }
 
-                    _uiState.value = _uiState.value.copy(
-                        status = e.status,
-                        submissionsCount = count,
-                        attendees = names
-                    )
+                    // Check if host has submitted availability in the first round
+                    val hasAvailability = submissions.any { it.userId == userId || it.name == e.hostName }
+
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            status = e.status,
+                            submissionsCount = count,
+                            attendees = names,
+                            hasHostSubmittedAvailability = hasAvailability
+                        )
+                    }
 
                     // Side effects
                     if (e.status == EventStatus.CREATED) {
@@ -153,23 +159,23 @@ class HostDashboardViewModel(
                 userId = userId,
                 timings = currentEvent.dateTimeCandidates
             )
-            _uiState.value = _uiState.value.copy(hasVoted = hasVoted)
+            _uiState.update { it.copy(hasVoted = hasVoted) }
         }
     }
 
     fun fetchRestaurantVotesStatus() {
         viewModelScope.launch(Dispatchers.IO) {
             val hasVotes = eventRepository.hasAnyRestaurantVotes(eventId)
-            _uiState.value = _uiState.value.copy(hasAnyRestaurantVotes = hasVotes)
+            _uiState.update { it.copy(hasAnyRestaurantVotes = hasVotes) }
         }
     }
 
     fun checkHostAvailability() {
         viewModelScope.launch {
-            val event = event.value ?: return@launch
+            val eventValue = _event.value ?: return@launch
             val result = eventRepository.hasUserSubmittedAvailability(
-                eventId = event.id,
-                userId = event.hostId
+                eventId = eventValue.id,
+                userId = eventValue.hostId
             )
             _uiState.update {
                 it.copy(hasHostSubmittedAvailability = result)
@@ -184,7 +190,7 @@ data class HostDashboardUiState(
     val status: EventStatus = EventStatus.UNKNOWN,
     val hasVoted: Boolean = false,
     val hasAnyRestaurantVotes: Boolean = false,
-    val hasHostSubmittedAvailability: Any
+    val hasHostSubmittedAvailability: Boolean = false
 )
 
 sealed interface CloseVotingState {
