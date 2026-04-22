@@ -86,8 +86,6 @@ fun EditTimeSlotScreen(
     viewModel: EventViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var showDialog by remember { mutableStateOf(false) }
-    var selectedTime by remember { mutableStateOf("No time selected") }
 
     var startTime by remember {
         mutableStateOf(
@@ -108,8 +106,8 @@ fun EditTimeSlotScreen(
         endTime = endTime,
         onStartTimeClick = { showPickerType = "start" },
         onEndTimeClick = { showPickerType = "end" },
-        showDialog = showDialog,
-        selectedTime = selectedTime,
+        showDialog = false,
+        selectedTime = "",
         showPickerType = showPickerType,
         onBack = onBack,
         onSaveTimeSlot = { start, end ->
@@ -125,13 +123,16 @@ fun EditTimeSlotScreen(
     // Handle Time Picker Dialog
     if (showPickerType != null) {
         AdvancedTimePicker(
+            initialHour = if (showPickerType == "start") startTime.split(":")[0].toInt() else endTime.split(":")[0].toInt(),
+            initialMinute = if (showPickerType == "start") startTime.split(":")[1].toInt() else endTime.split(":")[1].toInt(),
             onConfirm = { state ->
                 val formattedTime = "%02d:%02d".format(state.hour, state.minute)
                 if (showPickerType == "start") {
                     startTime = formattedTime
-                } else {
-                    showPickerType = null
+                } else if (showPickerType == "end") {
+                    endTime = formattedTime
                 }
+                showPickerType = null
             },
             onDismiss = { showPickerType = null },
         )
@@ -146,10 +147,12 @@ fun EditTimeSlotScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdvancedTimePicker(
+    initialHour: Int = 0,
+    initialMinute: Int = 0,
     onConfirm: (TimePickerState) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val state = rememberTimePickerState()
+    val state = rememberTimePickerState(initialHour = initialHour, initialMinute = initialMinute)
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
