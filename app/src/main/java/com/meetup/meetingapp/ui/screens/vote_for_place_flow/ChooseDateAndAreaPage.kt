@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -95,7 +96,7 @@ fun ChooseDateAndAreaPage(
                 )
             } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 
-        is RestaurantState.Error ->
+        is RestaurantState.Empty ->
             event?.let {
                 ChooseDateAndAreaContent(
                     event = it,
@@ -104,18 +105,19 @@ fun ChooseDateAndAreaPage(
                     isLoading = false,
                     onBack = onBack,
                     onVoteForRestaurantClick = {},
-                    onNavigateToHome = {},
+                    onNavigateToHome = onNavigateToHome,
                     buttonEnabled = false,
+                    emptyMessage = "No meeting places found for the suggested times and areas.",
                 )
             } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
 
-        else ->
+        is RestaurantState.Error ->
             event?.let {
                 ChooseDateAndAreaContent(
                     event = it,
                     submissionsCount = uiState.submissionsCount,
                     attendees = uiState.attendees,
-                    isLoading = true, // Show loading indicator
+                    isLoading = false,
                     onBack = onBack,
                     onVoteForRestaurantClick = {},
                     onNavigateToHome = {},
@@ -135,6 +137,7 @@ fun ChooseDateAndAreaPage(
  * @param onBack Navigate back.
  * @param onVoteForRestaurantClick Navigate to the availability page.
  * @param buttonEnabled Whether the button should be enabled.
+ * @param emptyMessage Optional message to show when no places are available.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -148,6 +151,7 @@ fun ChooseDateAndAreaContent(
     onVoteForRestaurantClick: () -> Unit,
     onNavigateToHome: () -> Unit,
     buttonEnabled: Boolean = true,
+    emptyMessage: String? = null,
 ) {
     Scaffold(
         topBar = {
@@ -244,6 +248,17 @@ fun ChooseDateAndAreaContent(
                             modifier = Modifier.padding(bottom = 16.dp),
                         )
                     }
+
+                    if (emptyMessage != null) {
+                        Text(
+                            text = emptyMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(AppSpacing.md),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                     Button(

@@ -131,7 +131,6 @@ class PlaceViewModel(
                     _restaurantState.value = RestaurantState.Loading
                     return@collect
                 }
-                buildDateLocationOptions(event.dateTimeCandidates, event.locationCandidates)
 
                 // HasCandidates block
                 if (!restaurantsLoaded && eventRepository.hasRestaurantCandidates(event.id)) {
@@ -153,6 +152,19 @@ class PlaceViewModel(
                     _restaurantState.value = RestaurantState.Empty
                 }
             }
+        }
+
+        // Re-build options whenever either event or all restaurants change
+        viewModelScope.launch {
+            combine(_event, _allRestaurants) { event, restaurants ->
+                if (event != null && restaurants.allRestaurants.isNotEmpty()) {
+                    buildDateLocationOptions(
+                        event.dateTimeCandidates,
+                        event.locationCandidates,
+                        restaurants.allRestaurants,
+                    )
+                }
+            }.collect {}
         }
 
         // Separate launch — runs concurrently, not blocked by the collect above
@@ -345,19 +357,32 @@ class PlaceViewModel(
     }
 
     /**
-     * Builds all combinations of date/time and location options.
+     * Builds and filters combinations of date/time and location options
+     * that have at least one restaurant available.
      */
     fun buildDateLocationOptions(
         dateTimes: List<DateTime>,
         locations: List<String>,
+        allRestaurants: List<Restaurant>,
     ) {
         val options =
             dateTimes.flatMap { dt ->
-                locations.map { loc -> DateLocationOption(timing = dt, location = loc) }
+                locations.mapNotNull { loc ->
+                    val filtered =
+                        filterRestaurants(
+                            restaurants = allRestaurants,
+                            timing = dt,
+                            location = loc,
+                        )
+                    if (filtered.isNotEmpty()) {
+                        DateLocationOption(timing = dt, location = loc)
+                    } else {
+                        null
+                    }
+                }
             }
         _dateAndAreaState.value = DateAndAreaState(dateLocationOptions = options)
 
-        // Auto-select first option so the list isn't empty before the user picks
         if (selectedTiming.value == null && options.isNotEmpty()) {
             selectedTiming.value = options.first().timing
             selectedLocation.value = options.first().location
