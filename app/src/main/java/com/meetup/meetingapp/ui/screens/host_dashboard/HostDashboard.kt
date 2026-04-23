@@ -313,6 +313,7 @@ fun HostDashboardContent(
                         Text(
                             "Please fill your availability.",
                             style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     } else {
                         when (event.status) {
