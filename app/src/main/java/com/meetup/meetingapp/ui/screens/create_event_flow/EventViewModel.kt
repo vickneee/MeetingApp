@@ -120,7 +120,6 @@ class EventViewModel(
             )
 
     private val _isEventsLoading = MutableStateFlow(true)
-    val isEventsLoading = _isEventsLoading.asStateFlow()
 
     private val _hasHostSubmitted = MutableStateFlow(false)
     val hasHostSubmitted = _hasHostSubmitted.asStateFlow()
@@ -191,7 +190,7 @@ class EventViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 eventRepository.syncEventById(eventId)
-                val event = eventRepository.getEventById(eventId).onEach { e ->
+                eventRepository.getEventById(eventId).onEach { e ->
                     if (e != null) {
                         _eventState.value = EventState.Success(e.eventCode, e.eventKey, e.id)
                         checkHostSubmission(e.id, e.hostId)
@@ -292,18 +291,6 @@ class EventViewModel(
         _uiState.update { it.copy(timeSlots = current) }
     }
 
-    /**
-     * Removes a time slot from the event.
-     *
-     * @param slot Time slot to remove.
-     */
-    fun removeTimeSlot(slot: TimeSlot) {
-        _uiState.update { current ->
-            current.copy(
-                timeSlots = current.timeSlots - slot,
-            )
-        }
-    }
 
     /**
      * Toggles the selection of a country in the UI state.
