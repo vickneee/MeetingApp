@@ -352,6 +352,9 @@ fun MeetingAppNavHost(
                     onNavigateToTimeAvailability = {
                         navController.navigate(TimeAvailabilityDestination.route)
                     },
+                    onNavigateToHome = {
+                        navController.navigate(HomeDestination.route)
+                    }
                 )
             }
 

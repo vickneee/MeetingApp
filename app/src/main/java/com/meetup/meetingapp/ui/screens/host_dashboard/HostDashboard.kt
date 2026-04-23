@@ -205,7 +205,7 @@ fun HostDashboardContent(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues),
-            contentPadding = AppPadding.pagePadding,
+            contentPadding = AppPadding.pagePadding, 
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
         ) {
@@ -265,7 +265,9 @@ fun HostDashboardContent(
                             withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
                                 append("$submissionsCount")
                             }
-                            append(" / $totalParticipants")
+                            if (totalParticipants > 0) {
+                                append(" / $totalParticipants")
+                            }
                         },
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge,
@@ -347,7 +349,7 @@ fun HostDashboardContent(
                                     onCloseVotingClick(it)
                                 }
                             },
-                            enabled = buttonEnabled && nextStatus != null,
+                            enabled = buttonEnabled,
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth(AppSize.lg),

@@ -1,6 +1,6 @@
 package com.meetup.meetingapp.ui.screens.participant_input_flow
 
-import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -63,6 +64,7 @@ object MeetUpDetailDestination : NavigationDestination {
  * Participant MeetUp Detail Page
  * @param modifier Modifier.
  * @param onBack Navigate back.
+ * @param onNavigateToHome Navigate to the home screen.
  * @param eventCode The unique code for the event.
  * @param onNavigateToTimeAvailability Navigate to the availability page.
  * @param viewModel [ParticipantViewModel] to retrieve event data.
@@ -71,6 +73,7 @@ object MeetUpDetailDestination : NavigationDestination {
 fun MeetUpDetailPage(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
+    onNavigateToHome: () -> Unit,
     eventCode: String,
     onNavigateToTimeAvailability: () -> Unit,
     viewModel: ParticipantViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -103,13 +106,13 @@ fun MeetUpDetailPage(
                     participantState = participantState,
                     onNameChange = viewModel::updateName,
                     onBack = onBack,
+                    onHomeClick = onNavigateToHome,
                     onNavigateToTimeAvailability = onNavigateToTimeAvailability,
                     isHost = isHost,
                     modifier = modifier,
                 )
             }
     }
-    Log.d("Participant", "ParticipantMeetUpDetailPage loaded")
 }
 
 /**
@@ -123,6 +126,7 @@ fun MeetUpDetailPage(
  * @param participantState The participant input state.
  * @param onNameChange Callback to update the participant name.
  * @param onBack Navigate back.
+ * @param onHomeClick Navigate home.
  * @param onNavigateToTimeAvailability Navigate to the availability page.
  * @param isHost Whether the current user is the host.
  */
@@ -138,6 +142,7 @@ fun MeetUpDetailContent(
     participantState: ParticipantInputState,
     onNameChange: (String) -> Unit,
     onBack: () -> Unit,
+    onHomeClick: () -> Unit,
     onNavigateToTimeAvailability: () -> Unit,
     isHost: Boolean = false,
 ) {
@@ -190,7 +195,7 @@ fun MeetUpDetailContent(
 
                     Text(
                         buildAnnotatedString {
-                            append("Event Title: ")
+                            append("Event Name: ")
                             withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
                                 append(event.eventTitle)
                             }
@@ -214,7 +219,8 @@ fun MeetUpDetailContent(
                     Text(
                         text = buildAnnotatedString {
                             append("Availability: ")
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                            withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold)) {
                                 append("$submissionsCount")
                             }
                         },
@@ -231,7 +237,7 @@ fun MeetUpDetailContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(AppSpacing.md))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Text(
                     text = "Your Name",
                     modifier =
@@ -248,6 +254,7 @@ fun MeetUpDetailContent(
                     value = participantState.participantName,
                     onValueChange = onNameChange,
                     label = { Text("Enter your name") },
+                    textStyle = MaterialTheme.typography.bodyMedium,
                     singleLine = true,
                     enabled = !isAlreadySubmitted, // Disable if already submitted
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
@@ -285,6 +292,22 @@ fun MeetUpDetailContent(
                             style = MaterialTheme.typography.labelLarge,
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
+
+                    OutlinedButton(
+                        onClick = onHomeClick,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md),
+                    ) {
+                        Text(
+                            "Home",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    }
                 }
             }
         }
@@ -315,6 +338,7 @@ fun MeetUpDetailPreview() {
             participantState = ParticipantInputState(participantName = "Julia"),
             onNameChange = {},
             onBack = {},
+            onHomeClick = {},
             onNavigateToTimeAvailability = {},
             modifier = Modifier,
         )

@@ -3,6 +3,7 @@ package com.meetup.meetingapp.ui.screens.join_page
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -155,7 +157,7 @@ fun JoinContent(
                         Modifier
                             .fillMaxWidth(AppSize.lg)
                             .padding(bottom = AppSpacing.xxs),
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Start,
@@ -260,14 +262,9 @@ fun JoinContent(
                     )
                 }
                 Spacer(modifier = Modifier.height(AppSpacing.xl))
-                Button(
+                OutlinedButton(
                     onClick = { onEventsClick() },
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                    colors =
-                        ButtonDefaults.outlinedButtonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.primary,
-                        ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
                     contentPadding = PaddingValues(vertical = AppSpacing.md),
@@ -275,7 +272,6 @@ fun JoinContent(
                     Text(
                         text = "Events",
                         style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold,
                     )
                 }
             }

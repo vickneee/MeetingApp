@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.participant_dashboard
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,9 +17,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -235,7 +238,7 @@ fun ParticipantDashboardContent(
                         Text(
                             "Please fill your availability.",
                             color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
                         )
                     } else {
                         when (event.status) {
@@ -328,7 +331,7 @@ fun ParticipantDashboardContent(
                     ) {
                         Text(
                             when {
-                                !hasSubmittedAvailability -> "Vote Time & Place" // Still label it correctly, but button is disabled
+                                !hasSubmittedAvailability -> "Vote Time & Place"
                                 event.status == EventStatus.COLLECTING_AVAILABILITY -> "Voting Not Open"
                                 event.status == EventStatus.FINALIZED -> "View Final Plan"
                                 else -> "Vote Time & Place"

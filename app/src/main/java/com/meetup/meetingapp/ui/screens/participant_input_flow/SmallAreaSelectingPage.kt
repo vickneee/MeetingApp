@@ -111,7 +111,7 @@ fun SmallAreaSelectingContent(
                     .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
         ) {
             item {
                 Text(
