@@ -10,12 +10,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -59,6 +65,7 @@ object SubmissionCompleteDestination : NavigationDestination {
 fun SubmissionCompletePage(
     onBack: () -> Unit,
     viewModel: ParticipantViewModel,
+    onHomeClick: () -> Unit,
     onNavigateToHostDashboard: (String) -> Unit,
     onNavigateToParticipantDashboard: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -71,6 +78,7 @@ fun SubmissionCompletePage(
             SubmissionCompleteContent(
                 onBack = onBack,
                 viewModel = viewModel,
+                onHomeClick = onHomeClick,
                 onNavigateToHostDashboard = onNavigateToHostDashboard,
                 onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
                 modifier = modifier,
@@ -82,6 +90,7 @@ fun SubmissionCompletePage(
             SubmissionCompleteContent(
                 onBack = onBack,
                 viewModel = viewModel,
+                onHomeClick = onHomeClick,
                 onNavigateToHostDashboard = onNavigateToHostDashboard,
                 onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
                 modifier = modifier,
@@ -115,6 +124,7 @@ fun SubmissionCompletePage(
 fun SubmissionCompleteContent(
     onBack: () -> Unit,
     viewModel: ParticipantViewModel,
+    onHomeClick: () -> Unit,
     onNavigateToHostDashboard: (String) -> Unit,
     onNavigateToParticipantDashboard: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -124,10 +134,27 @@ fun SubmissionCompleteContent(
 
     Scaffold(
         topBar = {
-            MeetingAppTopAppBar(
-                title = stringResource(id = R.string.title_submission_complete),
-                canNavigateBack = true,
-                navigateUp = onBack,
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Event Created",
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onHomeClick) {
+                        Icon(
+                            imageVector = Icons.Default.Home,
+                            contentDescription = "Home",
+                        )
+                    }
+                },
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.primary,
+                    ),
             )
         },
     ) { paddingValues ->
@@ -182,7 +209,7 @@ fun SubmissionCompleteContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                Spacer(modifier = Modifier.height(AppSpacing.xxl))
                 Button(
                     onClick = {
                         val eventId = event?.id ?: return@Button
