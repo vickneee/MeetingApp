@@ -281,7 +281,7 @@ fun MeetingAppNavHost(
 
                 EventCreatedPage(
                     viewModel = viewModel,
-                    onBack = { navController.popBackStack() },
+                    onNavigateToHome = { navController.navigate(HomeDestination.route) },
                     onNavigateToDashboard = { eventId ->
                         navController.navigate("${HostDashboardDestination.route}/$eventId")
                     },

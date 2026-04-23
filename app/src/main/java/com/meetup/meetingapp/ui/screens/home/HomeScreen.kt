@@ -132,7 +132,7 @@ fun HomeScreenContent(
                     color = MaterialTheme.colorScheme.onBackground,
                 )
 
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 Button(
                     onClick = onCreateEventClick,
@@ -156,7 +156,7 @@ fun HomeScreenContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 Button(
                     onClick = onJoinEventClick,
@@ -173,7 +173,7 @@ fun HomeScreenContent(
                         style = MaterialTheme.typography.labelLarge,
                     )
                 }
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 Button(
                     onClick = onEventsClick,
