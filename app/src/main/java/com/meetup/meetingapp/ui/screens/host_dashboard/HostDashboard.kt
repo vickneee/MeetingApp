@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -118,6 +119,7 @@ fun HostDashboardPage(
                     submissionsCount = uiState.submissionsCount,
                     totalParticipants = uiState.totalParticipants,
                     attendees = uiState.attendees,
+                    currentUserName = uiState.currentUserName,
                     hasVoted = uiState.hasVoted,
                     hasAnyRestaurantVotes = uiState.hasAnyRestaurantVotes,
                     onBack = onBack,
@@ -132,7 +134,12 @@ fun HostDashboardPage(
                     onVoteForRestaurantClick = onVoteForRestaurantClick,
                     onFinalPlanClick = onFinalPlanClick,
                     hasHostSubmittedAvailability = uiState.hasHostSubmittedAvailability,
-                    onFillAvailabilityClick = { onFillAvailability(event.eventCode, event.eventKey) },
+                    onFillAvailabilityClick = {
+                        onFillAvailability(
+                            event.eventCode,
+                            event.eventKey
+                        )
+                    },
                     onNavigateToHome = onNavigateToHome,
                     onShowEventCodes = onShowEventCodes,
                 )
@@ -144,20 +151,12 @@ fun HostDashboardPage(
 /**
  * Main UI layout for the Host Dashboard screen.
  *
- * This composable displays:
- * - Event metadata (code, title, host, status)
- * - Submission count and attendee list
- * - Actions for voting on restaurants and closing the voting phase
- *
- * The "Close Voting" button is enabled or disabled based on:
- * - The event's current status (cannot close again once FIRST_VOTING_CLOSED)
- * - The in-progress state of the close-voting operation
- *
  * @param modifier Optional modifier for layout customization.
  * @param event The event being displayed.
  * @param submissionsCount Number of participant submissions.
  * @param totalParticipants Total number of expected participants.
  * @param attendees List of participant names who submitted availability.
+ * @param currentUserName The name of the current user.
  * @param hasVoted Whether the user has voted in the current phase.
  * @param hasAnyRestaurantVotes Whether any restaurant votes have been cast.
  * @param onBack Callback to navigate back.
@@ -177,6 +176,7 @@ fun HostDashboardContent(
     submissionsCount: Int,
     totalParticipants: Int,
     attendees: List<String>,
+    currentUserName: String,
     hasVoted: Boolean,
     hasAnyRestaurantVotes: Boolean,
     onBack: () -> Unit,
@@ -204,7 +204,7 @@ fun HostDashboardContent(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues),
-            contentPadding = AppPadding.pagePadding, 
+            contentPadding = AppPadding.pagePadding,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
         ) {
@@ -261,7 +261,12 @@ fun HostDashboardContent(
                     Text(
                         text = buildAnnotatedString {
                             append("Place Votes: ")
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                            withStyle(
+                                SpanStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            ) {
                                 append("$submissionsCount")
                             }
                             if (totalParticipants > 0) {
@@ -271,13 +276,46 @@ fun HostDashboardContent(
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
+                    Spacer(modifier = Modifier.height(2.dp))
                 }
             }
 
             // List of attendees
             items(attendees) { name ->
                 ParticipantItemRow(name = name, modifier = Modifier.padding(start = 16.dp))
+            }
+
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
+
+                    if (event.status == EventStatus.COLLECTING_RESTAURANT_VOTES) {
+
+                        Text(
+                            text = buildAnnotatedString {
+                                if (currentUserName.isNotEmpty()) {
+                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(currentUserName)
+                                    }
+                                    append(", you can vote now.")
+                                } else {
+                                    append("You can vote now.")
+                                }
+                            },
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            text = "Choose all options that suit you.",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
             }
 
             item {
@@ -444,6 +482,7 @@ fun HostDashboardPreview() {
             submissionsCount = 4,
             totalParticipants = 5,
             attendees = listOf("Alice", "Bob", "Diana"),
+            currentUserName = "Julia",
             hasVoted = false,
             hasAnyRestaurantVotes = false,
             onBack = {},

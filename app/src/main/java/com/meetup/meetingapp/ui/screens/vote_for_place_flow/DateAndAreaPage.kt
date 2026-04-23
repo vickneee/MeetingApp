@@ -42,6 +42,8 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 object DateAndAreaPageDestination : NavigationDestination {
     override val route = "date-and-area"
     override val titleRes = R.string.title_date_and_area
+    const val EVENTIDARG = "eventId"
+    val routeWithArgs = "$route/{$EVENTIDARG}"
 }
 
 /**

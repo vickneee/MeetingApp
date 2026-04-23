@@ -176,14 +176,12 @@ fun SubmissionCompleteContent(
             item {
                 Spacer(modifier = Modifier.height(AppSpacing.xs))
                 Text(
-                    "to close the voting.",
+                    "start the place voting.",
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
 
             item {
-                Spacer(modifier = Modifier.height(AppSpacing.xxxl))
-
                 Button(
                     onClick = {
                         val eventId = event?.id ?: return@Button

@@ -66,6 +66,12 @@ class HostDashboardViewModel(
                         } else {
                             submissions.map { it.name }
                         }
+                    
+                    val currentName = if (e.hostId == currentUserId) {
+                        e.hostName
+                    } else {
+                        submissions.find { it.userId == currentUserId }?.name ?: ""
+                    }
 
                     // Check if host has submitted availability in the first round
                     val hasAvailability = submissions.any { it.userId == currentUserId || it.name == e.hostName }
@@ -80,6 +86,7 @@ class HostDashboardViewModel(
                             hasHostSubmittedAvailability = hasAvailability,
                             hasAnyRestaurantVotes = votes.isNotEmpty(),
                             isInitialLoading = false, // Data from all flows has arrived
+                            currentUserName = currentName
                         )
                     }
 
@@ -200,6 +207,7 @@ data class HostDashboardUiState(
     val hasAnyRestaurantVotes: Boolean = false,
     val hasHostSubmittedAvailability: Boolean = false,
     val isInitialLoading: Boolean = true,
+    val currentUserName: String = ""
 )
 
 sealed interface CloseVotingState {

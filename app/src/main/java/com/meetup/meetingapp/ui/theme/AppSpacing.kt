@@ -18,7 +18,7 @@ object AppSpacing {
     val md = 14.dp
 
     // section spacing
-    val lg = 24.dp
+    val lg = 20.dp
 
     // big section gap
     val xl = 32.dp
