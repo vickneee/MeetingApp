@@ -96,7 +96,6 @@ class HostDashboardViewModel(
 
     fun closeVoting() {
         _closeVotingState.value = CloseVotingState.Loading
-        val currentEvent = uiState.value.event ?: return
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // 1. Aggregate responses
