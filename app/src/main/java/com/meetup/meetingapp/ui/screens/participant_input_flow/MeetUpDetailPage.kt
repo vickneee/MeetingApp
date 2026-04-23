@@ -61,7 +61,6 @@ object MeetUpDetailDestination : NavigationDestination {
  * Participant MeetUp Detail Page
  * @param modifier Modifier.
  * @param onBack Navigate back.
- * @param eventCode The unique code for the event.
  * @param onNavigateToTimeAvailability Navigate to the availability page.
  * @param viewModel [ParticipantViewModel] to retrieve event data.
  */
@@ -69,7 +68,6 @@ object MeetUpDetailDestination : NavigationDestination {
 fun MeetUpDetailPage(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
-    eventCode: String,
     onNavigateToTimeAvailability: () -> Unit,
     viewModel: ParticipantViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
@@ -78,7 +76,6 @@ fun MeetUpDetailPage(
     val participantState by viewModel.participantState.collectAsStateWithLifecycle(
         ParticipantInputState(),
     )
-    val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     when (val currentFetchState = fetchState) {
@@ -96,12 +93,10 @@ fun MeetUpDetailPage(
                     event = it,
                     submissionsCount = uiState.submissionsCount,
                     isAlreadySubmitted = uiState.isAlreadySubmitted,
-                    submittedName = uiState.submittedName,
                     participantState = participantState,
                     onNameChange = viewModel::updateName,
                     onBack = onBack,
                     onNavigateToTimeAvailability = onNavigateToTimeAvailability,
-                    isHost = isHost,
                     modifier = modifier,
                 )
             }
@@ -115,12 +110,10 @@ fun MeetUpDetailPage(
  * @param event The event data.
  * @param submissionsCount The number of submissions.
  * @param isAlreadySubmitted Whether the user has already submitted.
- * @param submittedName The name the user submitted with.
  * @param participantState The participant input state.
  * @param onNameChange Callback to update the participant name.
  * @param onBack Navigate back.
  * @param onNavigateToTimeAvailability Navigate to the availability page.
- * @param isHost Whether the current user is the host.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,12 +122,10 @@ fun MeetUpDetailContent(
     event: Event,
     submissionsCount: Int,
     isAlreadySubmitted: Boolean = false,
-    submittedName: String = "",
     participantState: ParticipantInputState,
     onNameChange: (String) -> Unit,
     onBack: () -> Unit,
     onNavigateToTimeAvailability: () -> Unit,
-    isHost: Boolean = false,
 ) {
     Scaffold(
         topBar = {
@@ -300,7 +291,6 @@ fun MeetUpDetailPreview() {
         MeetUpDetailContent(
             event = sampleEvent,
             isAlreadySubmitted = false,
-            submittedName = "",
             submissionsCount = 3,
             participantState = ParticipantInputState(participantName = "Julia"),
             onNameChange = {},

@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
+private const val MINIMUM_OVERLAP_MINUTES = 60
+
 /**
  * Converts a DateTime into a 3-letter weekday abbreviation (Mon, Tue…)
  */
@@ -151,7 +153,7 @@ fun hasOverlap(
     }
 
     // Require at least 60 minutes of overlap
-    return maxOverlap >= 60
+    return maxOverlap >= MINIMUM_OVERLAP_MINUTES
 }
 
 /**

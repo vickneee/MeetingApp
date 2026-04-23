@@ -1,8 +1,15 @@
 package com.meetup.meetingapp.data.repositories
 
 
-import com.meetup.meetingapp.data.model.*
-import io.mockk.*
+import com.meetup.meetingapp.data.model.ParticipantResponse
+import com.meetup.meetingapp.data.model.DateTime
+import com.meetup.meetingapp.data.model.TimeSlot
+import com.meetup.meetingapp.data.model.PlaceType
+import com.meetup.meetingapp.data.model.FoodCategory
+import com.meetup.meetingapp.data.model.Event
+import com.meetup.meetingapp.data.model.Vote
+
+import io.mockk.mockk
 
 import org.junit.Test
 import org.junit.Assert.assertEquals

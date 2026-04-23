@@ -101,14 +101,10 @@ fun EditTimeSlotScreen(
 
     EditTimeSlotContent(
         modifier = Modifier,
-        uiState = uiState,
         startTime = startTime,
         endTime = endTime,
         onStartTimeClick = { showPickerType = "start" },
         onEndTimeClick = { showPickerType = "end" },
-        showDialog = false,
-        selectedTime = "",
-        showPickerType = showPickerType,
         onBack = onBack,
         onSaveTimeSlot = { start, end ->
             if (index >= 0) {
@@ -167,14 +163,10 @@ fun AdvancedTimePicker(
 
 /**
  * Edit Time Slot Content
- * @param uiState Current UI state containing event title, host name, and other form values.
  * @param startTime Start time of the event.
  * @param endTime End time of the event.
  * @param onStartTimeClick Callback to show the start time picker.
  * @param onEndTimeClick Callback to show the end time picker.
- * @param showDialog Whether to show the time picker dialog.
- * @param selectedTime Selected time.
- * @param showPickerType Type of the selected time (start or end).
  * @param onBack Navigate back to the previous screen.
  * @param onSaveTimeSlot Callback to save the time slot.
  * @param navigateToTimeSlotsSelectingPage Callback to navigate to the Time Slots Selecting Page.
@@ -183,14 +175,10 @@ fun AdvancedTimePicker(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTimeSlotContent(
-    uiState: EventUiState,
     startTime: String,
     endTime: String,
     onStartTimeClick: () -> Unit,
     onEndTimeClick: () -> Unit,
-    showDialog: Boolean,
-    selectedTime: String,
-    showPickerType: String?,
     onBack: () -> Unit,
     onSaveTimeSlot: (String, String) -> Unit,
     navigateToTimeSlotsSelectingPage: () -> Unit,
@@ -407,14 +395,10 @@ fun EditTimeSlotScreenPreview() {
     MeetingAppTheme {
         Surface {
             EditTimeSlotContent(
-                uiState = EventUiState(),
                 startTime = "00:00",
                 endTime = "00:00",
                 onStartTimeClick = {},
                 onEndTimeClick = {},
-                showDialog = false,
-                selectedTime = "No time selected",
-                showPickerType = null,
                 onBack = {},
                 onSaveTimeSlot = { _, _ -> },
                 navigateToTimeSlotsSelectingPage = {},

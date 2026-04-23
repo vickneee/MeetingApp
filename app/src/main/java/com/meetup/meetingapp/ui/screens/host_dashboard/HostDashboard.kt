@@ -77,7 +77,6 @@ fun HostDashboardPage(
     val event by viewModel.event.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val closeVotingState by viewModel.closeVotingState.collectAsStateWithLifecycle()
-    val hasVoted = uiState.hasVoted
     val hasHostSubmittedAvailability = uiState.hasHostSubmittedAvailability
 
     // Re-check vote status every time screen resumes
@@ -99,7 +98,6 @@ fun HostDashboardPage(
             event = it,
             submissionsCount = uiState.submissionsCount,
             attendees = uiState.attendees,
-            hasVoted = hasVoted,
             hasAnyRestaurantVotes = uiState.hasAnyRestaurantVotes,
             onBack = onBack,
             closeVotingState = closeVotingState,
@@ -134,7 +132,6 @@ fun HostDashboardPage(
  * @param event The event being displayed.
  * @param submissionsCount Number of participant submissions.
  * @param attendees List of participant names who submitted availability.
- * @param hasVoted Whether the user has voted in the current phase.
  * @param hasAnyRestaurantVotes Whether any restaurant votes have been cast.
  * @param onBack Callback to navigate back.
  * @param closeVotingState UI state for the close-voting action.
@@ -151,7 +148,6 @@ fun HostDashboardContent(
     event: Event,
     submissionsCount: Int,
     attendees: List<String>,
-    hasVoted: Boolean,
     hasAnyRestaurantVotes: Boolean,
     onBack: () -> Unit,
     closeVotingState: CloseVotingState,
@@ -393,7 +389,6 @@ fun HostDashboardPreview() {
                 ),
             submissionsCount = 4,
             attendees = listOf("Alice", "Bob", "Diana"),
-            hasVoted = false,
             hasAnyRestaurantVotes = false,
             onBack = {},
             closeVotingState = CloseVotingState.Success,
