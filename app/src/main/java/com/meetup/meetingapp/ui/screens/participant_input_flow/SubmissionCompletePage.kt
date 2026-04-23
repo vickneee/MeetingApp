@@ -54,7 +54,6 @@ object SubmissionCompleteDestination : NavigationDestination {
  * - a success screen when submission completes,
  * - an error screen with retry support if submission fails.
  *
- * @param onBack Callback invoked when navigating back.
  * @param viewModel The [ParticipantViewModel] providing submission state.
  * @param onNavigateToHostDashboard Callback invoked when navigating to the host dashboard.
  * @param onNavigateToParticipantDashboard Callback invoked when navigating to the participant dashboard.
@@ -62,7 +61,6 @@ object SubmissionCompleteDestination : NavigationDestination {
  */
 @Composable
 fun SubmissionCompletePage(
-    onBack: () -> Unit,
     viewModel: ParticipantViewModel,
     onHomeClick: () -> Unit,
     onNavigateToHostDashboard: (String) -> Unit,
@@ -75,7 +73,6 @@ fun SubmissionCompletePage(
     when (submitState) {
         is SubmitState.Idle ->
             SubmissionCompleteContent(
-                onBack = onBack,
                 viewModel = viewModel,
                 onHomeClick = onHomeClick,
                 onNavigateToHostDashboard = onNavigateToHostDashboard,
@@ -87,7 +84,6 @@ fun SubmissionCompletePage(
 
         is SubmitState.Success ->
             SubmissionCompleteContent(
-                onBack = onBack,
                 viewModel = viewModel,
                 onHomeClick = onHomeClick,
                 onNavigateToHostDashboard = onNavigateToHostDashboard,
@@ -112,7 +108,6 @@ fun SubmissionCompletePage(
  * Shows a confirmation message and a button that navigates the user to the
  * event dashboard. The event ID is retrieved from the ViewModel.
  *
- * @param onBack Callback invoked when navigating back.
  * @param viewModel The [ParticipantViewModel] used to access event data.
  * @param onNavigateToHostDashboard Callback invoked when navigating to the host dashboard.
  * @param onNavigateToParticipantDashboard Callback invoked when navigating to the participant dashboard.
@@ -121,7 +116,6 @@ fun SubmissionCompletePage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubmissionCompleteContent(
-    onBack: () -> Unit,
     viewModel: ParticipantViewModel,
     onHomeClick: () -> Unit,
     onNavigateToHostDashboard: (String) -> Unit,
