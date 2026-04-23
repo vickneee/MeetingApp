@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -45,14 +46,14 @@ object EventCreatedDestination : NavigationDestination {
 
 /**
  * Event Created Page
- * @param onBack Navigate back
+ * @param onNavigateToHome Navigate to the home screen
  * @param onNavigateToDashboard Navigate to the host dashboard
  * @param onNavigateToAvailability Navigate to the participant availability
  * @param viewModel [EventViewModel] to retrieve generated codes.
  */
 @Composable
 fun EventCreatedPage(
-    onBack: () -> Unit,
+    onNavigateToHome: () -> Unit,
     onNavigateToDashboard: (String) -> Unit,
     onNavigateToAvailability: (String, String) -> Unit,
     viewModel: EventViewModel,
@@ -69,7 +70,7 @@ fun EventCreatedPage(
             EventCreatedContent(
                 eventCode = state.eventCode,
                 eventKey = state.eventKey,
-                onBack = onBack,
+                onHomeClick = onNavigateToHome,
                 onNavigateToDashboard = { onNavigateToDashboard(state.eventId) },
                 onCopyCode = {
                     coroutineScope.launch {
@@ -113,7 +114,7 @@ fun EventCreatedPage(
  * Event Created Page Content
  * @param eventCode The generated event code
  * @param eventKey The generated event key
- * @param onBack Navigate back
+ * @param onHomeClick Navigate home
  * @param onCopyCode Copy code to clipboard
  * @param onShare Open share sheet
  * @param onFillAvailability Enter availability flow
@@ -125,7 +126,7 @@ fun EventCreatedPage(
 fun EventCreatedContent(
     eventCode: String,
     eventKey: String,
-    onBack: () -> Unit,
+    onHomeClick: () -> Unit,
     onCopyCode: () -> Unit,
     onShare: () -> Unit,
     onFillAvailability: () -> Unit,
@@ -134,10 +135,27 @@ fun EventCreatedContent(
 ) {
     Scaffold(
         topBar = {
-            MeetingAppTopAppBar(
-                title = "Event Created",
-                canNavigateBack = true,
-                navigateUp = onBack,
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Event Created",
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onHomeClick) {
+                        Icon(
+                            imageVector = Icons.Default.Home,
+                            contentDescription = "Home",
+                        )
+                    }
+                },
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.primary,
+                    ),
             )
         },
     ) { paddingValues ->
@@ -186,6 +204,8 @@ fun EventCreatedContent(
                     textAlign = TextAlign.Center,
                 )
 
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
+
                 OutlinedButton(
                     onClick = onCopyCode,
                     border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
@@ -207,7 +227,7 @@ fun EventCreatedContent(
                     border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -218,7 +238,7 @@ fun EventCreatedContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 Button(
                     onClick = onFillAvailability,
@@ -307,7 +327,7 @@ fun EventCreatedPagePreview() {
         EventCreatedContent(
             eventCode = "A7F9K2",
             eventKey = "83947",
-            onBack = {},
+            onHomeClick = {},
             onNavigateToDashboard = {},
             onCopyCode = {},
             onShare = {},
