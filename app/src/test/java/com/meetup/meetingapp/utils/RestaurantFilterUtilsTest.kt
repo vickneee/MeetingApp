@@ -6,7 +6,7 @@ import com.meetup.meetingapp.data.model.TimeSlot
 import org.junit.Assert
 import org.junit.Test
 
-class RestaurantFilteringTest {
+class RestaurantFilterUtilsTest {
     @Test
     fun filters_restaurants_by_location_and_timing() {
         val r1 =

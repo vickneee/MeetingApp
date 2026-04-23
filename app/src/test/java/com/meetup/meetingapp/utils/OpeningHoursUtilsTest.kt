@@ -6,7 +6,7 @@ import com.meetup.meetingapp.data.model.TimeSlot
 import org.junit.Assert
 import org.junit.Test
 
-class OpeningHoursParsingTest {
+class OpeningHoursUtilsTest {
     @Test
     fun testExtractTimeRange() {
         val hours = "Mon: 10:00 AM – 8:00 PM"

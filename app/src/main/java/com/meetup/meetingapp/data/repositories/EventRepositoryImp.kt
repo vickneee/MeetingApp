@@ -57,11 +57,8 @@ class EventRepositoryImp(
     private val participantResponseDao: ParticipantResponseDao,
     private val restaurantDao: RestaurantDao,
     private val placesRepository: PlacesRepository,
+    private val auth: FirebaseAuth,
 ) : EventRepository {
-    /**
-     * Firebase Authentication instance.
-     */
-    private val auth = FirebaseAuth.getInstance()
 
     /**
      * Retrieves the UID of the currently authenticated user.
@@ -185,23 +182,63 @@ class EventRepositoryImp(
         }
     }
 
+    data class AggregatedCandidates(
+        val dateTimeCandidates: List<DateTime>,
+        val locationCandidates: List<String>,
+        val placeTypeCandidates: List<PlaceType>,
+        val foodCategoryCandidates: List<FoodCategory>
+    )
+
     /**
-     * Aggregates all participant responses for the given event and updates the event document
-     * with the majority-voted candidates (date/time, location, place type, and food category).
+     * Computes the top‑voted candidates for each category from a list of participant responses.
      *
-     * This function:
-     * 1. Fetches all participantResponses under the event.
-     * 2. Computes the top candidates for each category using `findTopCandidates`.
-     * 3. Updates the event document with the aggregated results and sets the event status
-     *    to `FIRST_VOTING_CLOSED`.
-     * 4. Calls `syncEventById(eventId)` to refresh the local cache after the update.
+     * This function performs pure aggregation logic only. It does not access Firestore or
+     * perform any I/O. Each category (date/time, location, place type, food category) is
+     * flattened across all responses and passed to `findTopCandidates`, which returns the
+     * most frequently selected values.
      *
-     * @param eventId The ID of the event whose participant responses should be aggregated.
+     * @param responses The list of participant responses to aggregate.
+     * @return An [AggregatedCandidates] object containing the top candidates for each category.
+     */
+    fun aggregateCandidatesFromResponses(
+        responses: List<ParticipantResponse>
+    ): AggregatedCandidates {
+
+        val dateTimeCandidates =
+            findTopCandidates(responses.flatMap { it.dateTimes })
+
+        val locationCandidates =
+            findTopCandidates(responses.flatMap { it.locations })
+
+        val placeTypeCandidates =
+            findTopCandidates(responses.flatMap { it.placeTypes })
+
+        val foodCategoryCandidates =
+            findTopCandidates(responses.flatMap { it.foodCategories })
+
+        return AggregatedCandidates(
+            dateTimeCandidates,
+            locationCandidates,
+            placeTypeCandidates,
+            foodCategoryCandidates
+        )
+    }
+
+    /**
+     * Fetches all participant responses for the given event, aggregates their selections,
+     * and updates the event document with the majority‑voted candidates.
      *
-     * @return [Result.success] if aggregation and update succeed, or [Result.failure]
-     *         if no responses are found or any Firestore/processing error occurs.
+     * Workflow:
+     * 1. Reads all `participantResponses` from Firestore.
+     * 2. Converts them into model objects.
+     * 3. Aggregates the top candidates using `aggregateCandidatesFromResponses`.
+     * 4. Updates the event document with the computed candidates and sets the status to
+     *    [EventStatus.FIRST_VOTING_CLOSED].
+     * 5. Calls `syncEventById(eventId)` to refresh the local cache.
      *
-     * @throws Exception Wrapped inside [Result.failure] if Firestore operations fail.
+     * @param eventId The ID of the event whose responses should be aggregated.
+     * @return [Result.success] if aggregation and update succeed, or [Result.failure] if
+     *         no responses exist or a Firestore error occurs.
      */
     override suspend fun aggregateParticipantResponses(eventId: String): Result<Unit> {
         return try {
@@ -222,25 +259,7 @@ class EventRepositoryImp(
                 return Result.failure(Exception("No participant responses found"))
             }
 
-            val dateTimeCandidates =
-                findTopCandidates(
-                    participantResponses.flatMap { it.dateTimes },
-                )
-
-            val locationCandidates =
-                findTopCandidates(
-                    participantResponses.flatMap { it.locations },
-                )
-
-            val placeTypeCandidates =
-                findTopCandidates(
-                    participantResponses.flatMap { it.placeTypes },
-                )
-
-            val foodCategoryCandidates =
-                findTopCandidates(
-                    participantResponses.flatMap { it.foodCategories },
-                )
+            val aggregated = aggregateCandidatesFromResponses(participantResponses)
 
             db
                 .collection("events")
@@ -248,10 +267,10 @@ class EventRepositoryImp(
                 .update(
                     mapOf(
                         "status" to EventStatus.FIRST_VOTING_CLOSED,
-                        "dateTimeCandidates" to dateTimeCandidates,
-                        "locationCandidates" to locationCandidates,
-                        "placeTypeCandidates" to placeTypeCandidates,
-                        "foodCategoryCandidates" to foodCategoryCandidates,
+                        "dateTimeCandidates" to aggregated.dateTimeCandidates,
+                        "locationCandidates" to aggregated.locationCandidates,
+                        "placeTypeCandidates" to aggregated.placeTypeCandidates,
+                        "foodCategoryCandidates" to aggregated.foodCategoryCandidates,
                     ),
                 ).await()
 
@@ -660,6 +679,37 @@ class EventRepositoryImp(
             }
 
     /**
+     * Resolves the appropriate display name for a user when submitting a vote.
+     *
+     * This function is a pure, side‑effect‑free helper used by [submitVote].
+     * It determines the most suitable userName based on the following priority:
+     *
+     * 1. Participant-provided name (participantResponse.name), if non-null and non-blank.
+     * 2. Host name (event.hostName), if the user is the host of the event.
+     * 3. FirebaseAuth displayName (currentUserName), if available.
+     * 4. "Unknown" as a final fallback.
+     *
+     * @param participantResponse The participant's response document, if it exists.
+     * @param event The event document, used to determine host identity.
+     * @param currentUserName The FirebaseAuth displayName of the current user.
+     * @param userId The ID of the user whose name is being resolved.
+     * @return The resolved display name for the user.
+     */
+    fun resolveUserName(
+        participantResponse: ParticipantResponse?,
+        event: Event?,
+        currentUserName: String?,
+        userId: String
+    ): String {
+        return when {
+            !participantResponse?.name.isNullOrBlank() -> participantResponse.name
+            event?.hostId == userId -> event.hostName
+            !currentUserName.isNullOrBlank() -> currentUserName
+            else -> "Unknown"
+        }
+    }
+
+    /**
      * Submits a vote for a specific restaurant and date-time within an event.
      *
      * This method writes a Vote document to Firestore at the following path:
@@ -687,37 +737,36 @@ class EventRepositoryImp(
         userId: String,
         dateTime: DateTime,
     ): Result<Unit> {
-        val userName =
-            try {
-                val response =
-                    db
-                        .collection("events")
-                        .document(eventId)
-                        .collection("participantResponses")
-                        .document(userId)
-                        .get()
-                        .await()
-                        .toObject(ParticipantResponse::class.java)
+        val participantResponse = try {
+            db.collection("events")
+                .document(eventId)
+                .collection("participantResponses")
+                .document(userId)
+                .get()
+                .await()
+                .toObject(ParticipantResponse::class.java)
+        } catch (_: Exception) {
+            null
+        }
 
-                if (response != null) {
-                    response.name
-                } else {
-                    val eventDoc =
-                        db
-                            .collection("events")
-                            .document(eventId)
-                            .get()
-                            .await()
-                            .toObject(Event::class.java)
-                    if (eventDoc?.hostId == userId) {
-                        eventDoc.hostName
-                    } else {
-                        auth.currentUser?.displayName ?: "Unknown"
-                    }
-                }
-            } catch (_: Exception) {
-                "Unknown"
-            }
+        val eventDoc = try {
+            db.collection("events")
+                .document(eventId)
+                .get()
+                .await()
+                .toObject(Event::class.java)
+        } catch (_: Exception) {
+            null
+        }
+
+        val currentUserName = auth.currentUser?.displayName
+
+        val userName = resolveUserName(
+            participantResponse = participantResponse,
+            event = eventDoc,
+            currentUserName = currentUserName,
+            userId = userId
+        )
 
         val vote = Vote(placeId = placeId, dateTime = dateTime, userId = userId, userName = userName)
         return try {
@@ -862,10 +911,10 @@ class EventRepositoryImp(
         type: PlaceType,
         category: FoodCategory?,
     ): String =
-        when {
-            type == PlaceType.RESTAURANT && category != null -> "${category.queryName} restaurant in $city"
-            type == PlaceType.CAFE -> "cafe in $city"
-            type == PlaceType.BAR -> "bar in $city"
+        when (type) {
+            PlaceType.RESTAURANT if category != null -> "${category.queryName} restaurant in $city"
+            PlaceType.CAFE -> "cafe in $city"
+            PlaceType.BAR -> "bar in $city"
             else -> "${type.queryName} in $city"
         }
 
@@ -932,11 +981,69 @@ class EventRepositoryImp(
     }
 
     /**
-     * Aggregates all participant responses for the given event and updates the event document
-     * with the majority-voted candidates (date/time, location, place type, and food category).
-     * @param eventId The ID of the event whose participant responses should be aggregated.
+     * Determines the winning placeId based on vote counts.
+     *
+     * This is a pure function with no side effects. It selects the placeId with the
+     * highest number of votes. If multiple placeIds are tied for the highest count,
+     * one of them is chosen at random (tie‑breaker).
+     *
+     * @param voteCounts A map of placeId → vote count.
+     * @return The winning placeId.
+     * @throws IllegalArgumentException If the map is empty.
+     */
+    fun pickWinningPlace(voteCounts: Map<String, Int>): String {
+        if (voteCounts.isEmpty()) throw IllegalArgumentException("No votes found")
+
+        val maxVotes = voteCounts.maxOf { it.value }
+        val topPlaces = voteCounts.filter { it.value == maxVotes }.keys
+
+        return topPlaces.random() // tie-breaker
+    }
+
+    /**
+     * Determines the winning DateTime from a list of votes.
+     *
+     * This is a pure function with no side effects. It extracts all non-null
+     * dateTime values from the provided votes and selects the one with the highest
+     * frequency. If multiple DateTime values are tied for the highest count,
+     * one of them is chosen at random (tie‑breaker).
+     *
+     * @param votes The list of votes containing optional dateTime selections.
+     * @return The winning DateTime.
+     * @throws IllegalArgumentException If no valid dateTime values exist.
+     */
+    fun pickWinningTime(votes: List<Vote>): DateTime {
+        val timings = votes.mapNotNull { it.dateTime }
+        if (timings.isEmpty()) throw IllegalArgumentException("No timings found")
+
+        val grouped = timings.groupBy { it }
+        val maxCount = grouped.maxOf { it.value.size }
+        val topTimes = grouped.filter { it.value.size == maxCount }.keys
+
+        return topTimes.random() // tie-breaker
+    }
+
+    /**
+     * Aggregates restaurant votes for the given event and updates the event document
+     * with the final selected place and time.
+     *
+     * Workflow:
+     * 1. Fetches all restaurants under `events/{eventId}/restaurants`.
+     * 2. For each restaurant, fetches its `votes` subcollection and counts votes.
+     * 3. Uses `pickWinningPlace` to determine the winning placeId.
+     * 4. Uses `pickWinningTime` to determine the winning DateTime for that place.
+     * 5. Updates the event document with:
+     *    - finalPlace (winning placeId)
+     *    - finalTime (winning DateTime)
+     *    - status = FINALIZED
+     * 6. Calls `syncEventById(eventId)` to refresh local cache.
+     *
+     * This function handles Firestore I/O and error wrapping. The winner selection
+     * logic is delegated to pure helper functions for easier testing.
+     *
+     * @param eventId The ID of the event whose restaurant votes should be aggregated.
      * @return [Result.success] if aggregation and update succeed, or [Result.failure]
-     *         if no responses are found or any Firestore/processing error occurs.
+     *         if no votes exist or a Firestore error occurs.
      */
     override suspend fun aggregateRestaurantVotes(eventId: String): Result<Unit> {
         return try {
@@ -974,30 +1081,8 @@ class EventRepositoryImp(
 
             if (voteCounts.isEmpty()) return Result.failure(Exception("No votes found"))
 
-            // Find winning placeId — random tiebreaker if tied
-            val maxVotes =
-                voteCounts.maxOfOrNull { it.value }
-                    ?: return Result.failure(Exception("No votes found"))
-            val winnerPlaceId =
-                voteCounts
-                    .filter { it.value == maxVotes }
-                    .keys
-                    .random()
-
-            // Find most common DateTime from winner's votes — random tiebreaker if tied
-            val winnerVotes = votesByPlace[winnerPlaceId] ?: emptyList()
-            val groupedTimings =
-                winnerVotes
-                    .mapNotNull { it.dateTime }
-                    .groupBy { it }
-            val maxTimingVotes =
-                groupedTimings.maxOfOrNull { it.value.size }
-                    ?: return Result.failure(Exception("No timings found in winner votes"))
-            val winnerTime =
-                groupedTimings
-                    .filter { it.value.size == maxTimingVotes }
-                    .keys
-                    .random()
+            val winnerPlaceId = pickWinningPlace(voteCounts)
+            val winnerTime = pickWinningTime(votesByPlace[winnerPlaceId] ?: emptyList())
 
             // Save to events document
             db

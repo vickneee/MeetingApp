@@ -3,6 +3,7 @@ package com.meetup.meetingapp.data
 import android.content.Context
 import android.util.Log
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.meetup.meetingapp.data.db.MeetingAppDatabase
@@ -56,6 +57,7 @@ class AppDataContainer(
             MeetingAppDatabase.getDatabase(context).participantResponseDao(),
             MeetingAppDatabase.getDatabase(context).restaurantDao(),
             placesRepository,
+            FirebaseAuth.getInstance()
         )
     }
     override val placesApiKey: String by lazy {
