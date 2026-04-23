@@ -283,13 +283,16 @@ class ParticipantViewModel(
      */
     fun togglePlaceType(placeType: PlaceType) {
         _participantState.update { current ->
-            val updated =
-                if (current.selectedPlaceTypes.contains(placeType)) {
+            val updated = if (current.selectedPlaceTypes.contains(placeType)) {
                     current.selectedPlaceTypes - placeType
                 } else {
                     current.selectedPlaceTypes + placeType
                 }
-            current.copy(selectedPlaceTypes = updated)
+            val isFoodCategoryRequired = updated.any { it != PlaceType.CAFE && it != PlaceType.BAR }
+            current.copy(
+                selectedPlaceTypes = updated,
+                selectedFoodCategories = if (isFoodCategoryRequired) current.selectedFoodCategories else emptyList()
+            )
         }
     }
 
