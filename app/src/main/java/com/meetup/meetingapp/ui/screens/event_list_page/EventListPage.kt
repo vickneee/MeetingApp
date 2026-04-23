@@ -1,6 +1,5 @@
 package com.meetup.meetingapp.ui.screens.event_list_page
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues

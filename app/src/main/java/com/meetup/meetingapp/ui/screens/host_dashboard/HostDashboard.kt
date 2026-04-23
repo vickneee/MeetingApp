@@ -74,6 +74,7 @@ object HostDashboardDestination : NavigationDestination {
  * @param onBack Callback invoked when the user navigates back.
  * @param onFinalPlanClick Callback invoked when the user clicks on the "Final Plan" button.
  * @param onNavigateToHome Callback invoked when the user navigates to the home screen.
+ * @param onShowEventCodes Callback to navigate to the event created page.
  * @param viewModel The ViewModel providing event and submission data.
  */
 @Composable
@@ -83,6 +84,7 @@ fun HostDashboardPage(
     onFinalPlanClick: (String) -> Unit,
     onFillAvailability: (String, String) -> Unit,
     onNavigateToHome: () -> Unit,
+    onShowEventCodes: () -> Unit,
     viewModel: HostDashboardViewModel =
         viewModel(
             factory = AppViewModelProvider.Factory,
@@ -131,7 +133,7 @@ fun HostDashboardPage(
                     hasHostSubmittedAvailability = uiState.hasHostSubmittedAvailability,
                     onFillAvailabilityClick = { onFillAvailability(event.eventCode, event.eventKey) },
                     onNavigateToHome = onNavigateToHome,
-                    isInitialLoading = uiState.isInitialLoading,
+                    onShowEventCodes = onShowEventCodes,
                 )
             }
         }
@@ -163,7 +165,7 @@ fun HostDashboardPage(
  * @param onNavigateToHome Callback to navigate to the home screen.
  * @param hasHostSubmittedAvailability Whether the host has submitted availability.
  * @param onFillAvailabilityClick Callback to trigger the availability submission.
- * @param isInitialLoading Whether the initial data is still loading.
+ * @param onShowEventCodes Callback to navigate to the event created page.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -182,7 +184,7 @@ fun HostDashboardContent(
     onNavigateToHome: () -> Unit,
     hasHostSubmittedAvailability: Boolean,
     onFillAvailabilityClick: () -> Unit,
-    isInitialLoading: Boolean = false,
+    onShowEventCodes: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -377,6 +379,22 @@ fun HostDashboardContent(
                             )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
+                    OutlinedButton(
+                        onClick = onShowEventCodes,
+                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md),
+                    ) {
+                        Text(
+                            "Show Event Codes",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
                     OutlinedButton(
                         onClick = onNavigateToHome,
@@ -424,6 +442,7 @@ fun HostDashboardPreview() {
             hasHostSubmittedAvailability = false,
             onFillAvailabilityClick = {},
             onNavigateToHome = {},
+            onShowEventCodes = {},
         )
     }
 }

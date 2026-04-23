@@ -2,6 +2,7 @@ package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.DateRange
 import com.meetup.meetingapp.data.model.Event
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -121,6 +123,9 @@ class EventViewModel(
     private val _isEventsLoading = MutableStateFlow(true)
     val isEventsLoading = _isEventsLoading.asStateFlow()
 
+    private val _hasHostSubmitted = MutableStateFlow(false)
+    val hasHostSubmitted = _hasHostSubmitted.asStateFlow()
+
     /**
      * Synchronizes events from the repository.
      */
@@ -169,12 +174,42 @@ class EventViewModel(
 
                 withContext(Dispatchers.Main) {
                     _eventState.value = EventState.Success(eventCode, eventKey, eventId)
+                    _hasHostSubmitted.value = false
                 }
             } catch (e: Throwable) {
                 withContext(Dispatchers.Main) {
                     _eventState.value = EventState.Error(e)
                 }
             }
+        }
+    }
+
+    /**
+     * Loads an existing event's details for the "Event Created" page.
+     */
+    fun loadExistingEvent(eventId: String) {
+        _eventState.value = EventState.Loading
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                eventRepository.syncEventById(eventId)
+                val event = eventRepository.getEventById(eventId).onEach { e ->
+                    if (e != null) {
+                        _eventState.value = EventState.Success(e.eventCode, e.eventKey, e.id)
+                        checkHostSubmission(e.id, e.hostId)
+                    }
+                }.first()
+            } catch (e: Throwable) {
+                withContext(Dispatchers.Main) {
+                    _eventState.value = EventState.Error(e)
+                }
+            }
+        }
+    }
+
+    private fun checkHostSubmission(eventId: String, hostId: String) {
+        viewModelScope.launch {
+            val result = eventRepository.hasUserSubmittedAvailability(eventId, hostId)
+            _hasHostSubmitted.value = result
         }
     }
 

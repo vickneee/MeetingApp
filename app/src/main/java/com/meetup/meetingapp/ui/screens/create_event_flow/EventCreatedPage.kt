@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -27,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.theme.AppPadding
@@ -42,6 +42,8 @@ import kotlinx.coroutines.launch
 object EventCreatedDestination : NavigationDestination {
     override val route = "event_created"
     override val titleRes = R.string.title_event_created
+    const val eventIdArg = "eventId"
+    val routeWithArgs = "$route/{$eventIdArg}"
 }
 
 /**
@@ -50,6 +52,7 @@ object EventCreatedDestination : NavigationDestination {
  * @param onNavigateToDashboard Navigate to the host dashboard
  * @param onNavigateToAvailability Navigate to the participant availability
  * @param viewModel [EventViewModel] to retrieve generated codes.
+ * @param eventId Optional event ID to load an existing event.
  */
 @Composable
 fun EventCreatedPage(
@@ -57,11 +60,20 @@ fun EventCreatedPage(
     onNavigateToDashboard: (String) -> Unit,
     onNavigateToAvailability: (String, String) -> Unit,
     viewModel: EventViewModel,
+    eventId: String? = null,
 ) {
     val eventState by viewModel.eventState.collectAsStateWithLifecycle()
+    val hasHostSubmitted by viewModel.hasHostSubmitted.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
     val coroutineScope = rememberCoroutineScope()
+
+    // Load existing event data if an ID is provided
+    LaunchedEffect(eventId) {
+        if (eventId != null && eventId.isNotEmpty()) {
+            viewModel.loadExistingEvent(eventId)
+        }
+    }
 
     when (eventState) {
         is EventState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -70,6 +82,7 @@ fun EventCreatedPage(
             EventCreatedContent(
                 eventCode = state.eventCode,
                 eventKey = state.eventKey,
+                hasHostSubmitted = hasHostSubmitted,
                 onHomeClick = onNavigateToHome,
                 onNavigateToDashboard = { onNavigateToDashboard(state.eventId) },
                 onCopyCode = {
@@ -114,6 +127,7 @@ fun EventCreatedPage(
  * Event Created Page Content
  * @param eventCode The generated event code
  * @param eventKey The generated event key
+ * @param hasHostSubmitted Whether the host has already submitted availability
  * @param onHomeClick Navigate home
  * @param onCopyCode Copy code to clipboard
  * @param onShare Open share sheet
@@ -126,6 +140,7 @@ fun EventCreatedPage(
 fun EventCreatedContent(
     eventCode: String,
     eventKey: String,
+    hasHostSubmitted: Boolean,
     onHomeClick: () -> Unit,
     onCopyCode: () -> Unit,
     onShare: () -> Unit,
@@ -238,20 +253,22 @@ fun EventCreatedContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                if (!hasHostSubmitted) {
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
 
-                Button(
-                    onClick = onFillAvailability,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md),
-                ) {
-                    Text(
-                        "Fill in my availability",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.labelLarge,
-                    )
+                    Button(
+                        onClick = onFillAvailability,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md),
+                    ) {
+                        Text(
+                            "Fill in my availability",
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(AppSpacing.lg))
@@ -327,6 +344,7 @@ fun EventCreatedPagePreview() {
         EventCreatedContent(
             eventCode = "A7F9K2",
             eventKey = "83947",
+            hasHostSubmitted = false,
             onHomeClick = {},
             onNavigateToDashboard = {},
             onCopyCode = {},

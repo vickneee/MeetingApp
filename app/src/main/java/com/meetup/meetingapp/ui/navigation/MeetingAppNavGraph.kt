@@ -4,6 +4,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -267,8 +268,38 @@ fun MeetingAppNavHost(
             /**
              * Event created destination
              */
-            composable(EventCreatedDestination.route) { backStackEntry ->
+            composable(EventCreatedDestination.route + "/{eventId}") { backStackEntry ->
+                val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
                 // Parent entry for scoping the ViewModel to this navigation graph
+                val parentEntry =
+                    remember(backStackEntry) {
+                        navController.getBackStackEntry("event_creation_graph")
+                    }
+                val viewModel: EventViewModel =
+                    viewModel(
+                        parentEntry,
+                        factory = AppViewModelProvider.Factory,
+                    )
+
+                // Load the existing event data into the shared ViewModel
+                LaunchedEffect(eventId) {
+                    viewModel.loadExistingEvent(eventId)
+                }
+
+                EventCreatedPage(
+                    viewModel = viewModel,
+                    onNavigateToHome = { navController.navigate(HomeDestination.route) },
+                    onNavigateToDashboard = { eventId ->
+                        navController.navigate("${HostDashboardDestination.route}/$eventId")
+                    },
+                    onNavigateToAvailability = { eventCode, eventKey ->
+                        navController.navigate("${MeetUpDetailDestination.route}/$eventCode/$eventKey")
+                    },
+                )
+            }
+            
+            // Fallback for direct navigation from CreateEventPage
+            composable(EventCreatedDestination.route) { backStackEntry ->
                 val parentEntry =
                     remember(backStackEntry) {
                         navController.getBackStackEntry("event_creation_graph")
@@ -455,6 +486,9 @@ fun MeetingAppNavHost(
                 },
                 onNavigateToHome = {
                     navController.navigate(HomeDestination.route)
+                },
+                onShowEventCodes = {
+                    navController.navigate(EventCreatedDestination.route + "/$eventId")
                 },
                 viewModel = viewModel,
             )
