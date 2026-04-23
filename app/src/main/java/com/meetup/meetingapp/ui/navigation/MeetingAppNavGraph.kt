@@ -42,7 +42,7 @@ import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboa
 import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardPage
 import com.meetup.meetingapp.ui.screens.participant_input_flow.AvailabilitySelectingPage
 import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDestination
-import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDestination.eventCodeArg
+import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDestination.EVENTCODEARG
 import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailPage
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantViewModel
 import com.meetup.meetingapp.ui.screens.participant_input_flow.PlaceTypeAndKeywordDestination
@@ -348,7 +348,7 @@ fun MeetingAppNavHost(
                 MeetUpDetailPage(
                     onBack = { navController.popBackStack() },
                     viewModel = participantViewModel,
-                    eventCode = eventCodeArg,
+                    eventCode = EVENTCODEARG,
                     onNavigateToTimeAvailability = {
                         navController.navigate(TimeAvailabilityDestination.route)
                     },
@@ -474,7 +474,7 @@ fun MeetingAppNavHost(
                     factory = AppViewModelProvider.Factory,
                 )
             val eventId =
-                backStackEntry.arguments?.getString(HostDashboardDestination.eventIdArg) ?: ""
+                backStackEntry.arguments?.getString(HostDashboardDestination.EVENTIDARG) ?: ""
             HostDashboardPage(
                 onBack = { navController.popBackStack() },
                 onVoteForRestaurantClick = { navController.navigate("${ChooseDateAndAreaDestination.route}/$eventId") },
@@ -500,12 +500,15 @@ fun MeetingAppNavHost(
         composable(ParticipantDashboardDestination.routeWithArgs) { backStackEntry ->
             val eventId =
                 backStackEntry.arguments
-                    ?.getString(ParticipantDashboardDestination.eventIdArg) ?: ""
+                    ?.getString(ParticipantDashboardDestination.EVENTIDARG) ?: ""
             ParticipantDashboardPage(
                 onBack = { navController.popBackStack() },
                 onVoteForRestaurantClick = { navController.navigate("${ChooseDateAndAreaDestination.route}/$eventId") },
                 onFinalPlanClick = { placeId ->
                     navController.navigate("${PlaceDetailsDestination.route}/$eventId/$placeId")
+                },
+                onFillAvailability = { eventId, eventKey ->
+                    navController.navigate("${MeetUpDetailDestination.route}/$eventId/$eventKey")
                 },
                 onNavigateToHome = {
                     navController.navigate(HomeDestination.route)
@@ -583,7 +586,7 @@ fun MeetingAppNavHost(
                 PlaceListPage(
                     onBack = { navController.popBackStack() },
                     onNavigateToPlaceDetails = { placeId ->
-                        val eventId = parentEntry.arguments?.getString(ChooseDateAndAreaDestination.eventIdArg) ?: ""
+                        val eventId = parentEntry.arguments?.getString(ChooseDateAndAreaDestination.EVENTIDARG) ?: ""
                         navController.navigate("${PlaceDetailsDestination.route}/$eventId/$placeId")
                     },
                     viewModel = viewModel,

@@ -54,8 +54,8 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 object ChooseDateAndAreaDestination : NavigationDestination {
     override val route = "choose_date_and_area"
     override val titleRes = R.string.title_participant_dashboard
-    const val eventIdArg = "eventId"
-    val routeWithArgs = "$route/{$eventIdArg}"
+    const val EVENTIDARG = "eventId"
+    val routeWithArgs = "$route/{$EVENTIDARG}"
 }
 
 /**
@@ -228,10 +228,10 @@ fun ChooseDateAndAreaContent(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
 
-                    Spacer(modifier = Modifier.height(AppSpacing.sm))
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
                     Text(
                         text = buildAnnotatedString {
-                            append("Availability: ")
+                            append("Place Votes: ")
                             withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
                                 append("$submissionsCount")
                             }
@@ -298,7 +298,7 @@ fun ChooseDateAndAreaContent(
                 ) {
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
                         contentPadding = PaddingValues(vertical = AppSpacing.md),

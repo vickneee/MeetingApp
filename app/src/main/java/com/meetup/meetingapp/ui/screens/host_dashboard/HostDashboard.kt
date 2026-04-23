@@ -59,8 +59,8 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 object HostDashboardDestination : NavigationDestination {
     override val route = "host_dashboard"
     override val titleRes = R.string.title_host_dashboard
-    const val eventIdArg = "eventId"
-    val routeWithArgs = "$route/{$eventIdArg}"
+    const val EVENTIDARG = "eventId"
+    val routeWithArgs = "$route/{$EVENTIDARG}"
 }
 
 /**
@@ -258,10 +258,10 @@ fun HostDashboardContent(
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Spacer(modifier = Modifier.height(AppSpacing.sm))
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
                     Text(
                         text = buildAnnotatedString {
-                            append("Submissions: ")
+                            append("Place Votes: ")
                             withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
                                 append("$submissionsCount")
                             }

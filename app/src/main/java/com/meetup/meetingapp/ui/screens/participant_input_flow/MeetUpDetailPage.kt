@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -38,6 +39,7 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.components.ParticipantItemRow
 import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.AppPadding
@@ -51,10 +53,10 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 object MeetUpDetailDestination : NavigationDestination {
     override val route = "participant_meetUp_detail"
     override val titleRes = R.string.title_meetup_details_page
-    const val eventCodeArg = "eventCode"
-    const val eventKeyArg = "eventKey"
+    const val EVENTCODEARG = "eventCode"
+    const val EVENTKEYARG = "eventKey"
 
-    val routeWithArgs = "$route/{$eventCodeArg}/{$eventKeyArg}"
+    val routeWithArgs = "$route/{$EVENTCODEARG}/{$EVENTKEYARG}"
 }
 
 /**
@@ -95,6 +97,7 @@ fun MeetUpDetailPage(
                 MeetUpDetailContent(
                     event = it,
                     submissionsCount = uiState.submissionsCount,
+                    attendees = uiState.attendees,
                     isAlreadySubmitted = uiState.isAlreadySubmitted,
                     submittedName = uiState.submittedName,
                     participantState = participantState,
@@ -114,6 +117,7 @@ fun MeetUpDetailPage(
  * @param modifier Modifier.
  * @param event The event data.
  * @param submissionsCount The number of submissions.
+ * @param attendees List of participant names.
  * @param isAlreadySubmitted Whether the user has already submitted.
  * @param submittedName The name the user submitted with.
  * @param participantState The participant input state.
@@ -128,6 +132,7 @@ fun MeetUpDetailContent(
     modifier: Modifier = Modifier,
     event: Event,
     submissionsCount: Int,
+    attendees: List<String>,
     isAlreadySubmitted: Boolean = false,
     submittedName: String = "",
     participantState: ParticipantInputState,
@@ -161,13 +166,6 @@ fun MeetUpDetailContent(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    Text(
-                        "You've joined this meetup!",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold,
-                    )
-
                     Text(
                         buildAnnotatedString {
                             append("Event Code: ")
@@ -212,17 +210,28 @@ fun MeetUpDetailContent(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
 
-                    Spacer(modifier = Modifier.height(AppSpacing.sm))
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
                     Text(
-                        text = "Submissions: $submissionsCount",
+                        text = buildAnnotatedString {
+                            append("Availability: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                                append("$submissionsCount")
+                            }
+                        },
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Spacer(modifier = Modifier.height(AppSpacing.md))
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
                 }
             }
 
+            // List of attendees
+            items(attendees) { name ->
+                ParticipantItemRow(name = name, modifier = Modifier.padding(start = 16.dp))
+            }
+
             item {
+                Spacer(modifier = Modifier.height(AppSpacing.md))
                 Text(
                     text = "Your Name",
                     modifier =
@@ -302,6 +311,7 @@ fun MeetUpDetailPreview() {
             isAlreadySubmitted = false,
             submittedName = "",
             submissionsCount = 3,
+            attendees = listOf("Victoria", "Alice", "Bob"),
             participantState = ParticipantInputState(participantName = "Julia"),
             onNameChange = {},
             onBack = {},

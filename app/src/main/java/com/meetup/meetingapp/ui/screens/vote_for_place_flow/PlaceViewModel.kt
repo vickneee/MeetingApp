@@ -71,7 +71,7 @@ class PlaceViewModel(
     /** Event ID passed from navigation arguments. */
     private val eventId: String =
         savedStateHandle[PlaceDetailsDestination.eventIdArg]
-            ?: savedStateHandle[ChooseDateAndAreaDestination.eventIdArg] ?: ""
+            ?: savedStateHandle[ChooseDateAndAreaDestination.EVENTIDARG] ?: ""
 
     /** The event data observed from Firestore. */
     private val _event = MutableStateFlow<Event?>(null)
