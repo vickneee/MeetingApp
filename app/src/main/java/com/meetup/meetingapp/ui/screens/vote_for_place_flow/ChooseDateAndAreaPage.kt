@@ -49,6 +49,11 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the choose date and area button screen.
+ *
+ * @property route The route for navigation.
+ * @property titleRes The resource ID for the screen title.
+ * @property EVENTIDARG The argument key for the event ID.
+ * @property routeWithArgs The route with the event ID argument.
  */
 object ChooseDateAndAreaDestination : NavigationDestination {
     override val route = "choose_date_and_area"
