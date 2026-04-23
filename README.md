@@ -31,6 +31,9 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 ## Ktlint Code Style
 [Documentation Link](./KTLINT.md)
 
+## Kotlin Static Analysis (Detekt)
+[Documentation Link](./DETEKT.md)
+
 ## Kotlin Dokka Documentation Link
 
 [Documentation Link - Tulossa]()
