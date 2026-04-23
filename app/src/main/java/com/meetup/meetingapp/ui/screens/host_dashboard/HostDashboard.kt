@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -116,6 +117,7 @@ fun HostDashboardPage(
                     modifier = Modifier,
                     event = event,
                     submissionsCount = uiState.submissionsCount,
+                    totalParticipants = uiState.totalParticipants,
                     attendees = uiState.attendees,
                     hasVoted = uiState.hasVoted,
                     hasAnyRestaurantVotes = uiState.hasAnyRestaurantVotes,
@@ -155,6 +157,7 @@ fun HostDashboardPage(
  * @param modifier Optional modifier for layout customization.
  * @param event The event being displayed.
  * @param submissionsCount Number of participant submissions.
+ * @param totalParticipants Total number of expected participants.
  * @param attendees List of participant names who submitted availability.
  * @param hasVoted Whether the user has voted in the current phase.
  * @param hasAnyRestaurantVotes Whether any restaurant votes have been cast.
@@ -173,6 +176,7 @@ fun HostDashboardContent(
     modifier: Modifier = Modifier,
     event: Event,
     submissionsCount: Int,
+    totalParticipants: Int,
     attendees: List<String>,
     hasVoted: Boolean,
     hasAnyRestaurantVotes: Boolean,
@@ -201,7 +205,7 @@ fun HostDashboardContent(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues),
-            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
+            contentPadding = AppPadding.pagePadding,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
         ) {
@@ -256,7 +260,13 @@ fun HostDashboardContent(
                     )
                     Spacer(modifier = Modifier.height(AppSpacing.sm))
                     Text(
-                        text = "Submissions: $submissionsCount",
+                        text = buildAnnotatedString {
+                            append("Submissions: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                                append("$submissionsCount")
+                            }
+                            append(" / $totalParticipants")
+                        },
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge,
                     )
@@ -431,6 +441,7 @@ fun HostDashboardPreview() {
                     hostName = "Julia",
                 ),
             submissionsCount = 4,
+            totalParticipants = 5,
             attendees = listOf("Alice", "Bob", "Diana"),
             hasVoted = false,
             hasAnyRestaurantVotes = false,

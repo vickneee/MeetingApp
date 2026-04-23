@@ -167,47 +167,32 @@ class PlaceViewModel(
             }.collect {}
         }
 
-        // Separate launch — runs concurrently, not blocked by the collect above
+        // Observe availability submissions and restaurant votes to update counts
         viewModelScope.launch {
             if (eventId.isNotEmpty()) {
-                // Observe availability submissions
-                eventRepository.observeSubmissions(eventId).collect { submissions ->
+                val submissionsFlow = eventRepository.observeSubmissions(eventId)
+                val votesFlow = eventRepository.observeRestaurantVotes(eventId)
+
+                combine(submissionsFlow, votesFlow) { submissions, votes ->
+                    val availabilityCount = submissions.size
+                    val votesCount = votes.distinctBy { it.userId }.size
+
                     val currentStatus = _event.value?.status ?: EventStatus.UNKNOWN
-                    val isSecondRound =
-                        currentStatus == EventStatus.COLLECTING_RESTAURANT_VOTES ||
-                            currentStatus == EventStatus.FINALIZED
+                    val isSecondRound = currentStatus == EventStatus.COLLECTING_RESTAURANT_VOTES || 
+                                       currentStatus == EventStatus.FINALIZED
 
-                    if (!isSecondRound) {
-                        _uiState.update { state ->
-                            state.copy(
-                                submissionsCount = submissions.size,
-                                attendees = submissions.map { it.name },
-                            )
-                        }
+                    _uiState.update { state ->
+                        state.copy(
+                            submissionsCount = if (isSecondRound) votesCount else availabilityCount,
+                            totalAvailabilityCount = availabilityCount,
+                            attendees = if (isSecondRound) {
+                                votes.distinctBy { it.userId }.map { it.userName }
+                            } else {
+                                submissions.map { it.name }
+                            }
+                        )
                     }
-                }
-            }
-        }
-
-        // Separate launch — runs concurrently, not blocked by the collect above
-        viewModelScope.launch {
-            if (eventId.isNotEmpty()) {
-                // Observe restaurant votes
-                eventRepository.observeRestaurantVotes(eventId).collect { votes ->
-                    val currentStatus = _event.value?.status ?: EventStatus.UNKNOWN
-                    val isSecondRound =
-                        currentStatus == EventStatus.COLLECTING_RESTAURANT_VOTES ||
-                            currentStatus == EventStatus.FINALIZED
-
-                    if (isSecondRound) {
-                        _uiState.update { state ->
-                            state.copy(
-                                submissionsCount = votes.distinctBy { it.userId }.size,
-                                attendees = votes.distinctBy { it.userId }.map { it.userName },
-                            )
-                        }
-                    }
-                }
+                }.collect {}
             }
         }
     }
@@ -522,9 +507,11 @@ sealed class VoteResultState {
  * UI state for the Place Details screen.
  *
  * @property submissionsCount The number of submissions for this event.
+ * @property totalAvailabilityCount The number of people who shared availability in Round 1.
  * @property attendees A list of participant names.
  */
 data class PlaceUiState(
     val submissionsCount: Int = 0,
+    val totalAvailabilityCount: Int = 0,
     val attendees: List<String> = emptyList(),
 )

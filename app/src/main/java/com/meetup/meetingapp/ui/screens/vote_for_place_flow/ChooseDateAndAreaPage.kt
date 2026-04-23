@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -87,6 +88,7 @@ fun ChooseDateAndAreaPage(
                 ChooseDateAndAreaContent(
                     event = it,
                     submissionsCount = uiState.submissionsCount,
+                    totalParticipants = uiState.totalAvailabilityCount,
                     attendees = uiState.attendees,
                     isLoading = false,
                     onBack = onBack,
@@ -101,6 +103,7 @@ fun ChooseDateAndAreaPage(
                 ChooseDateAndAreaContent(
                     event = it,
                     submissionsCount = uiState.submissionsCount,
+                    totalParticipants = uiState.totalAvailabilityCount,
                     attendees = uiState.attendees,
                     isLoading = false,
                     onBack = onBack,
@@ -116,6 +119,7 @@ fun ChooseDateAndAreaPage(
                 ChooseDateAndAreaContent(
                     event = it,
                     submissionsCount = uiState.submissionsCount,
+                    totalParticipants = uiState.totalAvailabilityCount,
                     attendees = uiState.attendees,
                     isLoading = false,
                     onBack = onBack,
@@ -132,6 +136,7 @@ fun ChooseDateAndAreaPage(
  * @param modifier Modifier.
  * @param event Event data.
  * @param submissionsCount Number of submissions.
+ * @param totalParticipants Total number of participants.
  * @param attendees List of participant names.
  * @param isLoading Whether the content is loading.
  * @param onBack Navigate back.
@@ -145,6 +150,7 @@ fun ChooseDateAndAreaContent(
     modifier: Modifier = Modifier,
     event: Event,
     submissionsCount: Int,
+    totalParticipants: Int,
     attendees: List<String> = emptyList(),
     isLoading: Boolean = false,
     onBack: () -> Unit,
@@ -224,7 +230,15 @@ fun ChooseDateAndAreaContent(
 
                     Spacer(modifier = Modifier.height(AppSpacing.sm))
                     Text(
-                        text = "Submissions: $submissionsCount",
+                        text = buildAnnotatedString {
+                            append("Availability: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                                append("$submissionsCount")
+                            }
+                            if (totalParticipants > 0) {
+                                append(" / $totalParticipants")
+                            }
+                        },
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge,
                     )
@@ -284,7 +298,7 @@ fun ChooseDateAndAreaContent(
                 ) {
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
                         contentPadding = PaddingValues(vertical = AppSpacing.md),
@@ -317,6 +331,7 @@ fun ChooseDateAndAreaPagePreview() {
                 ),
             onBack = {},
             submissionsCount = 2,
+            totalParticipants = 3,
             attendees = listOf("Alice", "Bob"),
             isLoading = false,
             onVoteForRestaurantClick = {},

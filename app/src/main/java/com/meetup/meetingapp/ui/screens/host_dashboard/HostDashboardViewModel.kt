@@ -51,12 +51,14 @@ class HostDashboardViewModel(
                         e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
                             e.status == EventStatus.FINALIZED
 
-                    val count =
-                        if (isSecondRound) {
-                            votes.distinctBy { it.userId }.size
-                        } else {
-                            submissions.size
-                        }
+                    val availabilityCount = submissions.size
+                    val votesCount = votes.distinctBy { it.userId }.size
+
+                    // Logic: 
+                    // In second round (voting): Num is current votes, Denom is total Round 1 submmissions.
+                    // In first round (availability): Num is current submissions, Denom is 0 (or we just hide it).
+                    val count = if (isSecondRound) votesCount else availabilityCount
+                    val total = if (isSecondRound) availabilityCount else 0
 
                     val names =
                         if (isSecondRound) {
@@ -73,6 +75,7 @@ class HostDashboardViewModel(
                             event = eventData,
                             status = e.status,
                             submissionsCount = count,
+                            totalParticipants = total,
                             attendees = names,
                             hasHostSubmittedAvailability = hasAvailability,
                             hasAnyRestaurantVotes = votes.isNotEmpty(),
@@ -190,6 +193,7 @@ class HostDashboardViewModel(
 data class HostDashboardUiState(
     val event: Event? = null,
     val submissionsCount: Int = 0,
+    val totalParticipants: Int = 0,
     val attendees: List<String> = emptyList(),
     val status: EventStatus = EventStatus.UNKNOWN,
     val hasVoted: Boolean = false,

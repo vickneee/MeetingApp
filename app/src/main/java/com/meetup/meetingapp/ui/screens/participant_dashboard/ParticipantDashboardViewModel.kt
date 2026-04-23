@@ -101,12 +101,11 @@ class ParticipantDashboardViewModel(
                         e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
                             e.status == EventStatus.FINALIZED
 
-                    val count =
-                        if (isSecondRound) {
-                            votes.distinctBy { it.userId }.size
-                        } else {
-                            submissions.size
-                        }
+                    val availabilityCount = submissions.size
+                    val votesCount = votes.distinctBy { it.userId }.size
+
+                    val count = if (isSecondRound) votesCount else availabilityCount
+                    val total = if (isSecondRound) availabilityCount else 0
 
                     val names =
                         if (isSecondRound) {
@@ -121,6 +120,7 @@ class ParticipantDashboardViewModel(
                             submissionsCount = count,
                             attendees = names,
                             currentUserName = if (currentName.isNotEmpty()) currentName else it.currentUserName,
+                            totalParticipants = total,
                         )
                     }
 
@@ -172,6 +172,7 @@ class ParticipantDashboardViewModel(
  * @property status Current status of the event.
  * @property hasVoted Whether the current user has voted in the event.
  * @property currentUserName The name of the current user.
+ * @property totalParticipants The total number of participants expected.
  */
 data class ParticipantDashboardUiState(
     val submissionsCount: Int = 0,
@@ -179,4 +180,5 @@ data class ParticipantDashboardUiState(
     val status: EventStatus = EventStatus.UNKNOWN,
     val hasVoted: Boolean = false,
     val currentUserName: String = "",
+    val totalParticipants: Int = 0,
 )

@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.participant_dashboard
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -86,6 +88,7 @@ fun ParticipantDashboardPage(
         ParticipantDashboardContent(
             event = it,
             submissionsCount = uiState.submissionsCount,
+            totalParticipants = uiState.totalParticipants,
             attendees = uiState.attendees,
             currentUserName = uiState.currentUserName,
             onBack = onBack,
@@ -101,6 +104,7 @@ fun ParticipantDashboardPage(
  *
  * @param event The event being displayed.
  * @param submissionsCount Number of participant submissions.
+ * @param totalParticipants Total number of participants.
  * @param onBack Callback to navigate back.
  * @param onVoteForRestaurantClick Callback for navigating to restaurant voting.
  * @param onNavigateToHome Callback for navigating to the home screen.
@@ -113,6 +117,7 @@ fun ParticipantDashboardPage(
 fun ParticipantDashboardContent(
     event: Event,
     submissionsCount: Int,
+    totalParticipants: Int,
     attendees: List<String>,
     currentUserName: String,
     onBack: () -> Unit,
@@ -185,7 +190,15 @@ fun ParticipantDashboardContent(
                 Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 Text(
-                    text = "Submissions: $submissionsCount",
+                    text = buildAnnotatedString {
+                        append("Availability: ")
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                            append("$submissionsCount")
+                        }
+                        if (totalParticipants > 0) {
+                            append(" / $totalParticipants")
+                        }
+                    },
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyLarge,
                 )
@@ -303,7 +316,7 @@ fun ParticipantDashboardContent(
 
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
                         contentPadding = PaddingValues(vertical = AppSpacing.sm),
@@ -336,6 +349,7 @@ fun ParticipantDashboardPreview() {
                     hostName = "Julia",
                 ),
             submissionsCount = 4,
+            totalParticipants = 5,
             attendees = listOf("Alice", "Bob"),
             currentUserName = "Julia",
             onBack = {},
