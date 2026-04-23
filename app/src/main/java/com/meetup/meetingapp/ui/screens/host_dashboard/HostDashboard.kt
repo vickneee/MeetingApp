@@ -111,6 +111,7 @@ fun HostDashboardPage(
         } else {
             uiState.event?.let { event ->
                 HostDashboardContent(
+                    modifier = Modifier,
                     event = event,
                     submissionsCount = uiState.submissionsCount,
                     attendees = uiState.attendees,
@@ -130,6 +131,7 @@ fun HostDashboardPage(
                     hasHostSubmittedAvailability = uiState.hasHostSubmittedAvailability,
                     onFillAvailabilityClick = { onFillAvailability(event.eventCode, event.eventKey) },
                     onNavigateToHome = onNavigateToHome,
+                    isInitialLoading = uiState.isInitialLoading,
                 )
             }
         }
@@ -148,6 +150,7 @@ fun HostDashboardPage(
  * - The event's current status (cannot close again once FIRST_VOTING_CLOSED)
  * - The in-progress state of the close-voting operation
  *
+ * @param modifier Optional modifier for layout customization.
  * @param event The event being displayed.
  * @param submissionsCount Number of participant submissions.
  * @param attendees List of participant names who submitted availability.
@@ -160,11 +163,12 @@ fun HostDashboardPage(
  * @param onNavigateToHome Callback to navigate to the home screen.
  * @param hasHostSubmittedAvailability Whether the host has submitted availability.
  * @param onFillAvailabilityClick Callback to trigger the availability submission.
- * @param modifier Optional modifier for layout customization.
+ * @param isInitialLoading Whether the initial data is still loading.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HostDashboardContent(
+    modifier: Modifier = Modifier,
     event: Event,
     submissionsCount: Int,
     attendees: List<String>,
@@ -178,7 +182,7 @@ fun HostDashboardContent(
     onNavigateToHome: () -> Unit,
     hasHostSubmittedAvailability: Boolean,
     onFillAvailabilityClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    isInitialLoading: Boolean = false,
 ) {
     Scaffold(
         topBar = {
@@ -285,7 +289,7 @@ fun HostDashboardContent(
                 // Close Voting button enabled logic
                 val buttonEnabled =
                     when (event.status) {
-                        EventStatus.COLLECTING_AVAILABILITY -> true
+                        EventStatus.COLLECTING_AVAILABILITY -> submissionsCount > 0
                         EventStatus.RESTAURANT_CANDIDATES_GENERATED -> false
                         EventStatus.COLLECTING_RESTAURANT_VOTES -> hasAnyRestaurantVotes
                         else -> false
