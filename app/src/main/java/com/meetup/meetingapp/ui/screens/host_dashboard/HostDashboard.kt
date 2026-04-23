@@ -257,7 +257,7 @@ fun HostDashboardContent(
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
+
                     Text(
                         text = buildAnnotatedString {
                             append("Place Votes: ")
@@ -276,7 +276,7 @@ fun HostDashboardContent(
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(1.dp))
                 }
             }
 

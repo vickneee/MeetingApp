@@ -196,7 +196,6 @@ fun ParticipantDashboardContent(
                         },
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
 
                     Text(
                         text = buildAnnotatedString {
@@ -216,7 +215,7 @@ fun ParticipantDashboardContent(
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
+                    Spacer(modifier = Modifier.height(1.dp))
                 }
             }
 
@@ -234,7 +233,6 @@ fun ParticipantDashboardContent(
                     if (!hasSubmittedAvailability) {
                         Text(
                             "Please fill your availability.",
-                            color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.bodyLarge,
                         )
                     } else {
@@ -305,13 +303,11 @@ fun ParticipantDashboardContent(
             }
 
             item {
-                Spacer(modifier = Modifier.padding(8.dp))
-
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                     Button(
                         onClick = {

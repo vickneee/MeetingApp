@@ -195,7 +195,7 @@ fun MeetUpDetailContent(
 
                     Text(
                         buildAnnotatedString {
-                            append("Event Name: ")
+                            append("Event Title: ")
                             withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
                                 append(event.eventTitle)
                             }
@@ -254,8 +254,8 @@ fun MeetUpDetailContent(
                     value = participantState.participantName,
                     onValueChange = onNameChange,
                     label = { Text("Enter your name") },
-                    textStyle = MaterialTheme.typography.bodyMedium,
                     singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyMedium,
                     enabled = !isAlreadySubmitted, // Disable if already submitted
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
                     shape = RoundedCornerShape(8.dp),

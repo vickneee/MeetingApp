@@ -150,7 +150,7 @@ fun SubmissionCompleteContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(AppSpacing.xxl))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Text(
                     "Your availability and preferences",
                     style = MaterialTheme.typography.bodyLarge,
@@ -166,7 +166,7 @@ fun SubmissionCompleteContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Text(
                     "Please wait for the host",
                     style = MaterialTheme.typography.bodyLarge,
@@ -182,6 +182,7 @@ fun SubmissionCompleteContent(
             }
 
             item {
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Button(
                     onClick = {
                         val eventId = event?.id ?: return@Button

@@ -172,6 +172,7 @@ fun JoinContent(
                             .fillMaxWidth(AppSize.lg),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyMedium,
                     // enabled = !isAlreadySubmitted, // Disable if already submitted
                     isError = codeError != null,
                     colors =
