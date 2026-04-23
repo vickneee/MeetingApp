@@ -2,12 +2,12 @@ package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -95,7 +95,7 @@ fun PlaceDetailsPage(
         // This calls the new function in viewmodel to fetch data
         viewModel.loadPlaceData(
             placeId = placeId,
-            lat = restaurant?.latitude, // Ensure your Restaurant model has these
+            lat = restaurant?.latitude,
             lng = restaurant?.longitude,
         )
     }
@@ -115,40 +115,44 @@ fun PlaceDetailsPage(
             apiKey = viewModel.apiKey,
         ) ?: ""
 
-    restaurant?.let { r ->
-        PlaceDetailsContent(
-            restaurantDetail = r,
-            openLabel = openLabel ?: "Hours unavailable",
-            priceLabel = priceLabel,
-            photoUrl = photoUrl,
-            distanceLabel = distanceLabel ?: "Calculating distance...", // Real GPS data
-            isVoted = voteState.isVoted,
-            isFinalized = isFinalized,
-            finalTime = event?.finalTime,
-            voteResultState = voteResultState,
-            onBack = if (isFinalized) onNavigateToHome else onBack,
-            onHomeClick = onNavigateToHome,
-            onVoteClick = { viewModel.submitVote(placeId) },
-            onMapsClick = {
-                val encodedAddress = Uri.encode(r.address)
-                val gmmIntentUri = Uri.parse("geo:0,0?q=$encodedAddress")
-                val mapIntent =
-                    Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
-                        setPackage("com.google.android.apps.maps")
+    Crossfade(targetState = restaurant, label = "place_details_fade") { targetRestaurant ->
+        if (targetRestaurant != null) {
+            PlaceDetailsContent(
+                restaurantDetail = targetRestaurant,
+                openLabel = openLabel ?: "Hours unavailable",
+                priceLabel = priceLabel,
+                photoUrl = photoUrl,
+                distanceLabel = distanceLabel ?: "Calculating distance...", // Real GPS data
+                isVoted = voteState.isVoted,
+                isFinalized = isFinalized,
+                finalTime = event?.finalTime,
+                voteResultState = voteResultState,
+                onBack = onBack,
+                onHomeClick = onNavigateToHome,
+                onVoteClick = { viewModel.submitVote(placeId) },
+                onMapsClick = {
+                    val encodedAddress = Uri.encode(targetRestaurant.address)
+                    val gmmIntentUri = Uri.parse("geo:0,0?q=$encodedAddress")
+                    val mapIntent =
+                        Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                            setPackage("com.google.android.apps.maps")
+                        }
+                    try {
+                        context.startActivity(mapIntent)
+                    } catch (_: Exception) {
+                        val webIntent =
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress"),
+                            )
+                        context.startActivity(webIntent)
                     }
-                try {
-                    context.startActivity(mapIntent)
-                } catch (_: Exception) {
-                    val webIntent =
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress"),
-                        )
-                    context.startActivity(webIntent)
-                }
-            },
-        )
-    } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
+                },
+            )
+        } else {
+            LoadingScreen(modifier = Modifier.fillMaxSize())
+        }
+    }
 }
 
 /**
@@ -162,7 +166,7 @@ fun PlaceDetailsPage(
  * @param isFinalized Whether the event has been finalized.
  * @param finalTime The final selected date and time.
  * @param voteResultState The state of the vote result.
- * @param onBack Callback to navigate back (or Home if finalized).
+ * @param onBack Callback to navigate back.
  * @param onHomeClick Callback to navigate to the home screen.
  * @param onVoteClick Callback to handle the vote action.
  * @param onMapsClick Callback to open the restaurant's location on Google Maps.
@@ -188,36 +192,11 @@ fun PlaceDetailsContent(
 ) {
     Scaffold(
         topBar = {
-            if (isFinalized) {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(id = R.string.title_place_details),
-                            fontWeight = FontWeight.Bold,
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onHomeClick) {
-                            Icon(
-                                imageVector = Icons.Default.Home,
-                                contentDescription = "Home",
-                            )
-                        }
-                    },
-                    colors =
-                        TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            titleContentColor = MaterialTheme.colorScheme.onSurface,
-                            navigationIconContentColor = MaterialTheme.colorScheme.primary,
-                        ),
-                )
-            } else {
-                MeetingAppTopAppBar(
-                    title = stringResource(id = R.string.title_place_details),
-                    canNavigateBack = true,
-                    navigateUp = onBack,
-                )
-            }
+            MeetingAppTopAppBar(
+                title = stringResource(id = R.string.title_place_details),
+                canNavigateBack = true,
+                navigateUp = onBack,
+            )
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { paddingValues ->
@@ -327,7 +306,7 @@ fun PlaceDetailsContent(
                                 onClick = onMapsClick,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                                 contentPadding = PaddingValues(AppSpacing.sm),
                             ) {
                                 Text(

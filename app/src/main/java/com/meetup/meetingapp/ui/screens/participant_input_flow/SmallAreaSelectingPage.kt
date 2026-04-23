@@ -111,7 +111,7 @@ fun SmallAreaSelectingContent(
                     .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
         ) {
             item {
                 Text(
@@ -146,7 +146,7 @@ fun SmallAreaSelectingContent(
             item {
                 val isAnySelected = selectedAreas.isNotEmpty()
 
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 Button(
                     onClick = onNext,

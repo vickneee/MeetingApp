@@ -283,13 +283,16 @@ class ParticipantViewModel(
      */
     fun togglePlaceType(placeType: PlaceType) {
         _participantState.update { current ->
-            val updated =
-                if (current.selectedPlaceTypes.contains(placeType)) {
+            val updated = if (current.selectedPlaceTypes.contains(placeType)) {
                     current.selectedPlaceTypes - placeType
                 } else {
                     current.selectedPlaceTypes + placeType
                 }
-            current.copy(selectedPlaceTypes = updated)
+            val isFoodCategoryRequired = updated.any { it != PlaceType.CAFE && it != PlaceType.BAR }
+            current.copy(
+                selectedPlaceTypes = updated,
+                selectedFoodCategories = if (isFoodCategoryRequired) current.selectedFoodCategories else emptyList()
+            )
         }
     }
 
@@ -345,7 +348,10 @@ class ParticipantViewModel(
     private fun observeSubmissions(eventId: String) {
         viewModelScope.launch {
             eventRepository.observeSubmissions(eventId).collect { submissions ->
-                _uiState.update { it.copy(submissionsCount = submissions.size) }
+                _uiState.update { it.copy(
+                    submissionsCount = submissions.size,
+                    attendees = submissions.map { it.name }
+                ) }
             }
         }
     }
@@ -424,5 +430,6 @@ sealed interface SubmitState {
         val submissionsCount: Int = 0,
         val isAlreadySubmitted: Boolean = false,
         val submittedName: String = "",
+        val attendees: List<String> = emptyList(),
     )
 }

@@ -5,13 +5,34 @@ import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -20,13 +41,13 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.theme.AppPadding
@@ -45,22 +66,32 @@ object EventCreatedDestination : NavigationDestination {
 
 /**
  * Event Created Page
- * @param onBack Navigate back
+ * @param onNavigateToHome Navigate to the home screen
  * @param onNavigateToDashboard Navigate to the host dashboard
  * @param onNavigateToAvailability Navigate to the participant availability
  * @param viewModel [EventViewModel] to retrieve generated codes.
+ * @param eventId Optional event ID to load an existing event.
  */
 @Composable
 fun EventCreatedPage(
-    onBack: () -> Unit,
+    onNavigateToHome: () -> Unit,
     onNavigateToDashboard: (String) -> Unit,
     onNavigateToAvailability: (String, String) -> Unit,
     viewModel: EventViewModel,
+    eventId: String? = null,
 ) {
     val eventState by viewModel.eventState.collectAsStateWithLifecycle()
+    val hasHostSubmitted by viewModel.hasHostSubmitted.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
     val coroutineScope = rememberCoroutineScope()
+
+    // Load existing event data if an ID is provided
+    LaunchedEffect(eventId) {
+        if (!eventId.isNullOrEmpty()) {
+            viewModel.loadExistingEvent(eventId)
+        }
+    }
 
     when (eventState) {
         is EventState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -69,7 +100,8 @@ fun EventCreatedPage(
             EventCreatedContent(
                 eventCode = state.eventCode,
                 eventKey = state.eventKey,
-                onBack = onBack,
+                hasHostSubmitted = hasHostSubmitted,
+                onHomeClick = onNavigateToHome,
                 onNavigateToDashboard = { onNavigateToDashboard(state.eventId) },
                 onCopyCode = {
                     coroutineScope.launch {
@@ -113,7 +145,8 @@ fun EventCreatedPage(
  * Event Created Page Content
  * @param eventCode The generated event code
  * @param eventKey The generated event key
- * @param onBack Navigate back
+ * @param hasHostSubmitted Whether the host has already submitted availability
+ * @param onHomeClick Navigate home
  * @param onCopyCode Copy code to clipboard
  * @param onShare Open share sheet
  * @param onFillAvailability Enter availability flow
@@ -125,7 +158,8 @@ fun EventCreatedPage(
 fun EventCreatedContent(
     eventCode: String,
     eventKey: String,
-    onBack: () -> Unit,
+    hasHostSubmitted: Boolean,
+    onHomeClick: () -> Unit,
     onCopyCode: () -> Unit,
     onShare: () -> Unit,
     onFillAvailability: () -> Unit,
@@ -134,10 +168,27 @@ fun EventCreatedContent(
 ) {
     Scaffold(
         topBar = {
-            MeetingAppTopAppBar(
-                title = "Event Created",
-                canNavigateBack = true,
-                navigateUp = onBack,
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.title_event_created),
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onHomeClick) {
+                        Icon(
+                            imageVector = Icons.Default.Home,
+                            contentDescription = "Home",
+                        )
+                    }
+                },
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.primary,
+                    ),
             )
         },
     ) { paddingValues ->
@@ -186,9 +237,11 @@ fun EventCreatedContent(
                     textAlign = TextAlign.Center,
                 )
 
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
+
                 OutlinedButton(
                     onClick = onCopyCode,
-                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
                     contentPadding = PaddingValues(vertical = AppSpacing.md),
@@ -204,12 +257,17 @@ fun EventCreatedContent(
 
                 OutlinedButton(
                     onClick = onShare,
-                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
-                    Icon(Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         "Share",
@@ -218,27 +276,29 @@ fun EventCreatedContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                if (!hasHostSubmitted) {
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
 
-                Button(
-                    onClick = onFillAvailability,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.md),
-                ) {
-                    Text(
-                        "Fill in my availability",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.labelLarge,
-                    )
+                    Button(
+                        onClick = onFillAvailability,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md),
+                    ) {
+                        Text(
+                            "Fill in my availability",
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                 OutlinedButton(
                     onClick = onNavigateToDashboard,
-                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
                     contentPadding = PaddingValues(vertical = AppSpacing.md),
@@ -307,7 +367,8 @@ fun EventCreatedPagePreview() {
         EventCreatedContent(
             eventCode = "A7F9K2",
             eventKey = "83947",
-            onBack = {},
+            hasHostSubmitted = false,
+            onHomeClick = {},
             onNavigateToDashboard = {},
             onCopyCode = {},
             onShare = {},

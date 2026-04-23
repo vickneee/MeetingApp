@@ -49,12 +49,17 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the choose date and area button screen.
+ *
+ * @property route The route for navigation.
+ * @property titleRes The resource ID for the screen title.
+ * @property EVENTIDARG The argument key for the event ID.
+ * @property routeWithArgs The route with the event ID argument.
  */
 object ChooseDateAndAreaDestination : NavigationDestination {
     override val route = "choose_date_and_area"
     override val titleRes = R.string.title_participant_dashboard
-    const val eventIdArg = "eventId"
-    val routeWithArgs = "$route/{$eventIdArg}"
+    const val EVENTIDARG = "eventId"
+    val routeWithArgs = "$route/{$EVENTIDARG}"
 }
 
 /**
@@ -87,6 +92,7 @@ fun ChooseDateAndAreaPage(
                 ChooseDateAndAreaContent(
                     event = it,
                     submissionsCount = uiState.submissionsCount,
+                    totalParticipants = uiState.totalAvailabilityCount,
                     attendees = uiState.attendees,
                     isLoading = false,
                     onBack = onBack,
@@ -101,6 +107,7 @@ fun ChooseDateAndAreaPage(
                 ChooseDateAndAreaContent(
                     event = it,
                     submissionsCount = uiState.submissionsCount,
+                    totalParticipants = uiState.totalAvailabilityCount,
                     attendees = uiState.attendees,
                     isLoading = false,
                     onBack = onBack,
@@ -116,6 +123,7 @@ fun ChooseDateAndAreaPage(
                 ChooseDateAndAreaContent(
                     event = it,
                     submissionsCount = uiState.submissionsCount,
+                    totalParticipants = uiState.totalAvailabilityCount,
                     attendees = uiState.attendees,
                     isLoading = false,
                     onBack = onBack,
@@ -132,6 +140,7 @@ fun ChooseDateAndAreaPage(
  * @param modifier Modifier.
  * @param event Event data.
  * @param submissionsCount Number of submissions.
+ * @param totalParticipants Total number of participants.
  * @param attendees List of participant names.
  * @param isLoading Whether the content is loading.
  * @param onBack Navigate back.
@@ -145,6 +154,7 @@ fun ChooseDateAndAreaContent(
     modifier: Modifier = Modifier,
     event: Event,
     submissionsCount: Int,
+    totalParticipants: Int,
     attendees: List<String> = emptyList(),
     isLoading: Boolean = false,
     onBack: () -> Unit,
@@ -222,9 +232,17 @@ fun ChooseDateAndAreaContent(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
 
-                    Spacer(modifier = Modifier.height(AppSpacing.sm))
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
                     Text(
-                        text = "Submissions: $submissionsCount",
+                        text = buildAnnotatedString {
+                            append("Place Votes: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                                append("$submissionsCount")
+                            }
+                            if (totalParticipants > 0) {
+                                append(" / $totalParticipants")
+                            }
+                        },
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge,
                     )
@@ -284,7 +302,7 @@ fun ChooseDateAndAreaContent(
                 ) {
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
                         contentPadding = PaddingValues(vertical = AppSpacing.md),
@@ -317,6 +335,7 @@ fun ChooseDateAndAreaPagePreview() {
                 ),
             onBack = {},
             submissionsCount = 2,
+            totalParticipants = 3,
             attendees = listOf("Alice", "Bob"),
             isLoading = false,
             onVoteForRestaurantClick = {},

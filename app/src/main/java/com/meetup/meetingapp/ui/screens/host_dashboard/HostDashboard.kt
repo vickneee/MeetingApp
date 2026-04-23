@@ -1,12 +1,26 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -44,8 +58,8 @@ import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 object HostDashboardDestination : NavigationDestination {
     override val route = "host_dashboard"
     override val titleRes = R.string.title_host_dashboard
-    const val eventIdArg = "eventId"
-    val routeWithArgs = "$route/{$eventIdArg}"
+    const val EVENTIDARG = "eventId"
+    val routeWithArgs = "$route/{$EVENTIDARG}"
 }
 
 /**
@@ -53,13 +67,14 @@ object HostDashboardDestination : NavigationDestination {
  *
  * This composable:
  * - Retrieves the HostDashboardViewModel instance.
- * - Collects event data, UI state, and close-voting state from the ViewModel.
- * - Displays a loading screen until the event is available.
+ * - Collects UI state from the ViewModel.
+ * - Displays a loading screen until the initial data is available.
  * - Delegates UI rendering to [HostDashboardContent].
  *
  * @param onBack Callback invoked when the user navigates back.
  * @param onFinalPlanClick Callback invoked when the user clicks on the "Final Plan" button.
  * @param onNavigateToHome Callback invoked when the user navigates to the home screen.
+ * @param onShowEventCodes Callback to navigate to the event created page.
  * @param viewModel The ViewModel providing event and submission data.
  */
 @Composable
@@ -69,15 +84,14 @@ fun HostDashboardPage(
     onFinalPlanClick: (String) -> Unit,
     onFillAvailability: (String, String) -> Unit,
     onNavigateToHome: () -> Unit,
+    onShowEventCodes: () -> Unit,
     viewModel: HostDashboardViewModel =
         viewModel(
             factory = AppViewModelProvider.Factory,
         ),
 ) {
-    val event by viewModel.event.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val closeVotingState by viewModel.closeVotingState.collectAsStateWithLifecycle()
-    val hasHostSubmittedAvailability = uiState.hasHostSubmittedAvailability
 
     // Re-check vote status every time screen resumes
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -93,45 +107,54 @@ fun HostDashboardPage(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    event?.let {
-        HostDashboardContent(
-            event = it,
-            submissionsCount = uiState.submissionsCount,
-            attendees = uiState.attendees,
-            hasAnyRestaurantVotes = uiState.hasAnyRestaurantVotes,
-            onBack = onBack,
-            closeVotingState = closeVotingState,
-            onCloseVotingClick = { status ->
-                if (status == EventStatus.FIRST_VOTING_CLOSED) {
-                    viewModel.closeVoting()
-                } else {
-                    viewModel.updateEventStatus(status)
-                }
-            },
-            onVoteForRestaurantClick = onVoteForRestaurantClick,
-            onFinalPlanClick = onFinalPlanClick,
-            hasHostSubmittedAvailability = hasHostSubmittedAvailability,
-            onFillAvailabilityClick = { onFillAvailability(it.eventCode, it.eventKey) },
-            onNavigateToHome = onNavigateToHome,
-        )
-    } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
+    Crossfade(targetState = uiState.isInitialLoading, label = "dashboard_loading") { isLoading ->
+        if (isLoading) {
+            LoadingScreen(modifier = Modifier.fillMaxSize())
+        } else {
+            uiState.event?.let { event ->
+                HostDashboardContent(
+                    modifier = Modifier,
+                    event = event,
+                    submissionsCount = uiState.submissionsCount,
+                    totalParticipants = uiState.totalParticipants,
+                    attendees = uiState.attendees,
+                    currentUserName = uiState.currentUserName,
+                    hasAnyRestaurantVotes = uiState.hasAnyRestaurantVotes,
+                    onBack = onBack,
+                    closeVotingState = closeVotingState,
+                    onCloseVotingClick = { status ->
+                        if (status == EventStatus.FIRST_VOTING_CLOSED) {
+                            viewModel.closeVoting()
+                        } else {
+                            viewModel.updateEventStatus(status)
+                        }
+                    },
+                    onVoteForRestaurantClick = onVoteForRestaurantClick,
+                    onFinalPlanClick = onFinalPlanClick,
+                    hasHostSubmittedAvailability = uiState.hasHostSubmittedAvailability,
+                    onFillAvailabilityClick = {
+                        onFillAvailability(
+                            event.eventCode,
+                            event.eventKey
+                        )
+                    },
+                    onNavigateToHome = onNavigateToHome,
+                    onShowEventCodes = onShowEventCodes,
+                )
+            }
+        }
+    }
 }
 
 /**
  * Main UI layout for the Host Dashboard screen.
  *
- * This composable displays:
- * - Event metadata (code, title, host, status)
- * - Submission count and attendee list
- * - Actions for voting on restaurants and closing the voting phase
- *
- * The "Close Voting" button is enabled or disabled based on:
- * - The event's current status (cannot close again once FIRST_VOTING_CLOSED)
- * - The in-progress state of the close-voting operation
- *
+ * @param modifier Optional modifier for layout customization.
  * @param event The event being displayed.
  * @param submissionsCount Number of participant submissions.
+ * @param totalParticipants Total number of expected participants.
  * @param attendees List of participant names who submitted availability.
+ * @param currentUserName The name of the current user.
  * @param hasAnyRestaurantVotes Whether any restaurant votes have been cast.
  * @param onBack Callback to navigate back.
  * @param closeVotingState UI state for the close-voting action.
@@ -140,14 +163,17 @@ fun HostDashboardPage(
  * @param onNavigateToHome Callback to navigate to the home screen.
  * @param hasHostSubmittedAvailability Whether the host has submitted availability.
  * @param onFillAvailabilityClick Callback to trigger the availability submission.
- * @param modifier Optional modifier for layout customization.
+ * @param onShowEventCodes Callback to navigate to the event created page.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HostDashboardContent(
+    modifier: Modifier = Modifier,
     event: Event,
     submissionsCount: Int,
+    totalParticipants: Int,
     attendees: List<String>,
+    currentUserName: String,
     hasAnyRestaurantVotes: Boolean,
     onBack: () -> Unit,
     closeVotingState: CloseVotingState,
@@ -157,7 +183,7 @@ fun HostDashboardContent(
     onNavigateToHome: () -> Unit,
     hasHostSubmittedAvailability: Boolean,
     onFillAvailabilityClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    onShowEventCodes: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -174,7 +200,7 @@ fun HostDashboardContent(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues),
-            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
+            contentPadding = AppPadding.pagePadding,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
         ) {
@@ -227,19 +253,132 @@ fun HostDashboardContent(
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Spacer(modifier = Modifier.height(AppSpacing.sm))
-                    Text(
-                        text = "Submissions: $submissionsCount",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
                     Spacer(modifier = Modifier.height(AppSpacing.xxs))
+
+                    if (event.status == EventStatus.COLLECTING_AVAILABILITY) {
+                        Text(
+                            text = buildAnnotatedString {
+                                append("Availability: ")
+                                withStyle(
+                                    SpanStyle(
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                ) {
+                                    append("$submissionsCount")
+                                }
+                            },
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Spacer(modifier = Modifier.height(1.dp))
+                    } else if (totalParticipants > 0) {
+                        Text(
+                            text = buildAnnotatedString {
+                                append("Place Votes: ")
+                                withStyle(
+                                    SpanStyle(
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                ) {
+                                    append("$submissionsCount")
+                                }
+                                append(" / $totalParticipants")
+                            },
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Spacer(modifier = Modifier.height(1.dp))
+                    }
                 }
             }
 
             // List of attendees
             items(attendees) { name ->
                 ParticipantItemRow(name = name, modifier = Modifier.padding(start = 16.dp))
+            }
+
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
+
+                    if (!hasHostSubmittedAvailability) {
+                        Text(
+                            "Please fill your availability.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    } else {
+                        when (event.status) {
+                            EventStatus.COLLECTING_AVAILABILITY -> {
+                                Text(
+                                    "You can start voting now!",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(top = 4.dp),
+                                )
+                            }
+
+                            EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
+                                if (currentUserName.isNotEmpty()) {
+                                    Text(
+                                        text = "Hi, $currentUserName!",
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(bottom = 4.dp),
+                                    )
+                                }
+                                Text(
+                                    text = "You can vote now!",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(bottom = 4.dp),
+                                )
+                                Text(
+                                    text = "Choose all options that suit you.",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+
+                            EventStatus.FINALIZED -> {
+                                if (currentUserName.isNotEmpty()) {
+                                    Text(
+                                        text = "Hi, $currentUserName!",
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(bottom = 4.dp),
+                                    )
+                                }
+                                Text(
+                                    text = "The event has been finalized!",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(bottom = 4.dp),
+                                )
+                                Text(
+                                    "Check the final plan.",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            }
+
+                            else ->
+                                Text(
+                                    "please wait...",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                        }
+                    }
+                }
             }
 
             item {
@@ -264,12 +403,12 @@ fun HostDashboardContent(
                 // Close Voting button enabled logic
                 val buttonEnabled =
                     when (event.status) {
-                        EventStatus.COLLECTING_AVAILABILITY -> true
+                        EventStatus.COLLECTING_AVAILABILITY -> submissionsCount > 0
                         EventStatus.RESTAURANT_CANDIDATES_GENERATED -> false
                         EventStatus.COLLECTING_RESTAURANT_VOTES -> hasAnyRestaurantVotes
                         else -> false
                     } &&
-                        closeVotingState != CloseVotingState.Loading
+                            closeVotingState != CloseVotingState.Loading
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -310,7 +449,7 @@ fun HostDashboardContent(
                                     onCloseVotingClick(it)
                                 }
                             },
-                            enabled = buttonEnabled && nextStatus != null,
+                            enabled = buttonEnabled,
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth(AppSize.lg),
@@ -333,8 +472,8 @@ fun HostDashboardContent(
                             modifier =
                                 Modifier
                                     .fillMaxWidth(AppSize.lg)
-                                    .padding(top = 6.dp),
-                            textAlign = TextAlign.Center,
+                                    .padding(top = 8.dp),
+                            textAlign = TextAlign.Start,
                         )
                     }
 
@@ -352,10 +491,26 @@ fun HostDashboardContent(
                             )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
+                    OutlinedButton(
+                        onClick = onShowEventCodes,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth(AppSize.lg),
+                        contentPadding = PaddingValues(vertical = AppSpacing.md),
+                    ) {
+                        Text(
+                            "Show Event Codes",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
                         contentPadding = PaddingValues(vertical = AppSpacing.md),
@@ -388,7 +543,9 @@ fun HostDashboardPreview() {
                     hostName = "Julia",
                 ),
             submissionsCount = 4,
+            totalParticipants = 5,
             attendees = listOf("Alice", "Bob", "Diana"),
+            currentUserName = "Julia",
             hasAnyRestaurantVotes = false,
             onBack = {},
             closeVotingState = CloseVotingState.Success,
@@ -398,6 +555,7 @@ fun HostDashboardPreview() {
             hasHostSubmittedAvailability = false,
             onFillAvailabilityClick = {},
             onNavigateToHome = {},
+            onShowEventCodes = {},
         )
     }
 }

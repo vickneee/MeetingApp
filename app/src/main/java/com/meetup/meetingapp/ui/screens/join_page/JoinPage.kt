@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -23,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -155,7 +155,7 @@ fun JoinContent(
                         Modifier
                             .fillMaxWidth(AppSize.lg)
                             .padding(bottom = AppSpacing.xxs),
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Start,
@@ -172,6 +172,7 @@ fun JoinContent(
                             .fillMaxWidth(AppSize.lg),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyMedium,
                     // enabled = !isAlreadySubmitted, // Disable if already submitted
                     isError = codeError != null,
                     colors =
@@ -212,7 +213,7 @@ fun JoinContent(
                 OutlinedTextField(
                     value = key,
                     onValueChange = {
-                        onKeyChange(it)
+                        onKeyChange(it.uppercase())
                         // Clear error on type
                     },
                     label = { Text("Enter key") },
@@ -260,14 +261,9 @@ fun JoinContent(
                     )
                 }
                 Spacer(modifier = Modifier.height(AppSpacing.xl))
-                Button(
+                OutlinedButton(
                     onClick = { onEventsClick() },
-                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
-                    colors =
-                        ButtonDefaults.outlinedButtonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.primary,
-                        ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
                     contentPadding = PaddingValues(vertical = AppSpacing.md),

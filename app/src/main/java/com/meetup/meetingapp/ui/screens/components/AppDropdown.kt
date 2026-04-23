@@ -58,6 +58,7 @@ import com.meetup.meetingapp.ui.theme.AppSpacing
  * @param label Label for the dropdown menu.
  * @param instruction Instruction text for the dropdown menu.
  * @param toText Function to convert an option to a display text.
+ * @param enabled Whether the dropdown menu is enabled.
  */
 @SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,6 +70,7 @@ fun <T> AppMultiSelectDropdown(
     label: String,
     instruction: String,
     toText: (T) -> String,
+    enabled: Boolean = true,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }
@@ -162,33 +164,39 @@ fun <T> AppMultiSelectDropdown(
 
         ExposedDropdownMenuBox(
             expanded = expanded,
-            onExpandedChange = { expanded = it },
+            onExpandedChange = { if (enabled) expanded = it },
         ) {
             OutlinedTextField(
                 value = query,
                 onValueChange = {
-                    query = it
-                    expanded = true
+                    if (enabled) {
+                        query = it
+                        expanded = true
+                    }
                 },
-                readOnly = false,
+                readOnly = !enabled,
                 placeholder = { Text(instruction) },
-                trailingIcon = { TrailingIcon(expanded = expanded) },
+                trailingIcon = { TrailingIcon(expanded = expanded && enabled) },
                 colors =
                     OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = if (enabled) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant,
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                         focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
                         unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                     ),
+                enabled = enabled,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                modifier =
-                    Modifier
+                modifier = Modifier
                         .fillMaxWidth(AppSize.lg)
-                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = enabled)
                         .focusRequester(focusRequester),
                 shape = RoundedCornerShape(8.dp),
                 singleLine = true,

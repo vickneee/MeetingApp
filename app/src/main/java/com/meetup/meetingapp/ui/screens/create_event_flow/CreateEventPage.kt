@@ -141,7 +141,7 @@ fun CreateEventContent(
             item {
                 val isAnySelected = placeTypes.isNotEmpty()
 
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 Button(
                     onClick = onCreatedEvent,
