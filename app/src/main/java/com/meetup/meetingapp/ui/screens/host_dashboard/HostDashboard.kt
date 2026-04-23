@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
+import android.R.attr.bottom
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -211,6 +212,26 @@ fun HostDashboardContent(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
+                        text = buildAnnotatedString {
+                            append("Hi, ")
+                            withStyle(SpanStyle(
+                                fontWeight = FontWeight.Bold
+                            )) {
+                                append(currentUserName)
+                            }
+                            append("!")
+                        },
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Normal,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp),
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
+
+                    Text(
                         buildAnnotatedString {
                             append("Event Code: ")
                             withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
@@ -310,7 +331,7 @@ fun HostDashboardContent(
                         Text(
                             "Please fill your availability.",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     } else {
                         when (event.status) {
@@ -318,21 +339,12 @@ fun HostDashboardContent(
                                 Text(
                                     "You can start voting now!",
                                     style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.padding(top = 4.dp),
                                 )
                             }
 
                             EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
-                                if (currentUserName.isNotEmpty()) {
-                                    Text(
-                                        text = "Hi, $currentUserName!",
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.padding(bottom = 4.dp),
-                                    )
-                                }
                                 Text(
                                     text = "You can vote now!",
                                     color = MaterialTheme.colorScheme.onSurface,
@@ -348,15 +360,6 @@ fun HostDashboardContent(
                             }
 
                             EventStatus.FINALIZED -> {
-                                if (currentUserName.isNotEmpty()) {
-                                    Text(
-                                        text = "Hi, $currentUserName!",
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.padding(bottom = 4.dp),
-                                    )
-                                }
                                 Text(
                                     text = "The event has been finalized!",
                                     color = MaterialTheme.colorScheme.onSurface,

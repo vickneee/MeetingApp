@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -158,6 +159,24 @@ fun ParticipantDashboardContent(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
+                        text = buildAnnotatedString {
+                            append("Hi, ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(currentUserName.ifEmpty { "there" })
+                            }
+                            append("!")
+                        },
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Normal,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp),
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
+
+                    Text(
                         buildAnnotatedString {
                             append("Event Code: ")
                             withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
@@ -251,22 +270,13 @@ fun ParticipantDashboardContent(
                         Text(
                             "Please fill your availability.",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     } else {
                         when (event.status) {
                             EventStatus.COLLECTING_AVAILABILITY -> {
-                                if (currentUserName.isNotEmpty()) {
-                                    Text(
-                                        text = "$currentUserName,",
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.padding(bottom = 4.dp),
-                                    )
-                                }
                                 Text(
-                                    "please wait for the host",
+                                    "Please wait for the host",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(top = 4.dp),
@@ -280,15 +290,6 @@ fun ParticipantDashboardContent(
                             }
 
                             EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
-                                if (currentUserName.isNotEmpty()) {
-                                    Text(
-                                        text = "Hi, $currentUserName!",
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.padding(bottom = 4.dp),
-                                    )
-                                }
                                 Text(
                                     text = "You can vote now!",
                                     color = MaterialTheme.colorScheme.onSurface,
@@ -304,15 +305,6 @@ fun ParticipantDashboardContent(
                             }
 
                             EventStatus.FINALIZED -> {
-                                if (currentUserName.isNotEmpty()) {
-                                    Text(
-                                        text = "Hi, $currentUserName!",
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.padding(bottom = 4.dp),
-                                    )
-                                }
                                 Text(
                                     text = "The event has been finalized!",
                                     color = MaterialTheme.colorScheme.onSurface,
