@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.participant_input_flow
 
+import android.R.attr.fontWeight
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -137,7 +138,7 @@ fun SubmissionCompleteContent(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Event Created",
+                        text = stringResource(id = R.string.title_submission_complete),
                         fontWeight = FontWeight.Bold,
                     )
                 },

@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -87,7 +88,7 @@ fun EventCreatedPage(
 
     // Load existing event data if an ID is provided
     LaunchedEffect(eventId) {
-        if (eventId != null && eventId.isNotEmpty()) {
+        if (!eventId.isNullOrEmpty()) {
             viewModel.loadExistingEvent(eventId)
         }
     }
@@ -170,7 +171,7 @@ fun EventCreatedContent(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Event Created",
+                        text = stringResource(id = R.string.title_event_created),
                         fontWeight = FontWeight.Bold,
                     )
                 },
