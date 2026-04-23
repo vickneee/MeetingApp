@@ -347,7 +347,6 @@ fun MeetingAppNavHost(
                 MeetUpDetailPage(
                     onBack = { navController.popBackStack() },
                     viewModel = participantViewModel,
-                    eventCode = EVENTCODEARG,
                     onNavigateToTimeAvailability = {
                         navController.navigate(TimeAvailabilityDestination.route)
                     },

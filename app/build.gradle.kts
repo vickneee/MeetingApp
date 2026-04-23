@@ -7,8 +7,18 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktlint)
 
+    // Static analysis (Detekt)
+    id("io.gitlab.arturbosch.detekt")
+
     // Add the Google services Gradle plugin
     id("com.google.gms.google-services")
+}
+
+detekt {
+    toolVersion = "1.23.8"
+    buildUponDefaultConfig = false
+    allRules = false
+    config.from("$rootDir/detekt.yml")
 }
 
 android {

@@ -119,7 +119,6 @@ fun HostDashboardPage(
                     totalParticipants = uiState.totalParticipants,
                     attendees = uiState.attendees,
                     currentUserName = uiState.currentUserName,
-                    hasVoted = uiState.hasVoted,
                     hasAnyRestaurantVotes = uiState.hasAnyRestaurantVotes,
                     onBack = onBack,
                     closeVotingState = closeVotingState,
@@ -156,7 +155,6 @@ fun HostDashboardPage(
  * @param totalParticipants Total number of expected participants.
  * @param attendees List of participant names who submitted availability.
  * @param currentUserName The name of the current user.
- * @param hasVoted Whether the user has voted in the current phase.
  * @param hasAnyRestaurantVotes Whether any restaurant votes have been cast.
  * @param onBack Callback to navigate back.
  * @param closeVotingState UI state for the close-voting action.
@@ -176,7 +174,6 @@ fun HostDashboardContent(
     totalParticipants: Int,
     attendees: List<String>,
     currentUserName: String,
-    hasVoted: Boolean,
     hasAnyRestaurantVotes: Boolean,
     onBack: () -> Unit,
     closeVotingState: CloseVotingState,
@@ -549,7 +546,6 @@ fun HostDashboardPreview() {
             totalParticipants = 5,
             attendees = listOf("Alice", "Bob", "Diana"),
             currentUserName = "Julia",
-            hasVoted = false,
             hasAnyRestaurantVotes = false,
             onBack = {},
             closeVotingState = CloseVotingState.Success,

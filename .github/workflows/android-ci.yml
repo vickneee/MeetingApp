@@ -32,6 +32,9 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
 
+      - name: Run Detekt
+        run: ./gradlew detekt
+
 #      - name: Lint Code
 #        run: ./gradlew ktlintCheck
 

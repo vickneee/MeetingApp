@@ -992,7 +992,8 @@ class EventRepositoryImp(
      * @throws IllegalArgumentException If the map is empty.
      */
     fun pickWinningPlace(voteCounts: Map<String, Int>): String {
-        if (voteCounts.isEmpty()) throw IllegalArgumentException("No votes found")
+        require(voteCounts.isNotEmpty()) { "No votes found" }
+
 
         val maxVotes = voteCounts.maxOf { it.value }
         val topPlaces = voteCounts.filter { it.value == maxVotes }.keys
@@ -1014,7 +1015,7 @@ class EventRepositoryImp(
      */
     fun pickWinningTime(votes: List<Vote>): DateTime {
         val timings = votes.mapNotNull { it.dateTime }
-        if (timings.isEmpty()) throw IllegalArgumentException("No timings found")
+        require(timings.isNotEmpty()) { "No timings found" }
 
         val grouped = timings.groupBy { it }
         val maxCount = grouped.maxOf { it.value.size }
