@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -117,12 +118,16 @@ class EventViewModel(
                 initialValue = emptyList(),
             )
 
+    private val _isEventsLoading = MutableStateFlow(true)
+    val isEventsLoading = _isEventsLoading.asStateFlow()
+
     /**
      * Synchronizes events from the repository.
      */
     val events: StateFlow<List<Event>> =
         eventRepository
             .getEvents()
+            .onEach { _isEventsLoading.value = false }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
