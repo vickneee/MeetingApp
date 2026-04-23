@@ -1,7 +1,9 @@
 package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,6 +31,7 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
@@ -56,17 +59,24 @@ fun DateAndAreaPage(
     modifier: Modifier = Modifier,
 ) {
     val dateAndAreaState by viewModel.dateAndAreaState.collectAsStateWithLifecycle()
+    val restaurantState by viewModel.restaurantState.collectAsStateWithLifecycle()
 
-    DateAndAreaContent(
-        onBack = onBack,
-        dateLocationOptions = dateAndAreaState.dateLocationOptions,
-        navigateToRestaurantListPage = { timing, location ->
-            // Pass the DateTime object directly to avoid parsing crashes
-            viewModel.setFilter(timing, location)
-            onNavigateToRestaurantListPage()
-        },
-        modifier = modifier,
-    )
+    Crossfade(targetState = restaurantState, label = "date_area_loading") { state ->
+        if (state is RestaurantState.Loading) {
+            LoadingScreen(modifier = Modifier.fillMaxSize())
+        } else {
+            DateAndAreaContent(
+                onBack = onBack,
+                dateLocationOptions = dateAndAreaState.dateLocationOptions,
+                navigateToRestaurantListPage = { timing, location ->
+                    // Pass the DateTime object directly to avoid parsing crashes
+                    viewModel.setFilter(timing, location)
+                    onNavigateToRestaurantListPage()
+                },
+                modifier = modifier,
+            )
+        }
+    }
 }
 
 /**
@@ -94,50 +104,64 @@ fun DateAndAreaContent(
             )
         },
     ) { paddingValues ->
-        LazyColumn(
+        Box(
             modifier =
                 modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues),
-            contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
         ) {
-            item {
-                Text(
-                    "Choose a date, time & area",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier =
-                        Modifier
-                            .padding(bottom = AppSpacing.lg),
-                )
-            }
-            items(dateLocationOptions) { option ->
-                Card(
-                    onClick = { navigateToRestaurantListPage(option.timing, option.location) },
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                        ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                ) {
+            if (dateLocationOptions.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = option.label,
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 20.dp, horizontal = 16.dp),
-                        textAlign = TextAlign.Center,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        text = "No options found.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top,
+                ) {
+                    item {
+                        Text(
+                            "Choose a date, time & area",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier =
+                                Modifier
+                                    .padding(bottom = AppSpacing.lg),
+                        )
+                    }
+                    items(dateLocationOptions) { option ->
+                        Card(
+                            onClick = { navigateToRestaurantListPage(option.timing, option.location) },
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 12.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors =
+                                CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        ) {
+                            Text(
+                                text = option.label,
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 20.dp, horizontal = 16.dp),
+                                textAlign = TextAlign.Center,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
                 }
             }
         }
