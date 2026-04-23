@@ -291,6 +291,19 @@ class EventViewModel(
         _uiState.update { it.copy(timeSlots = current) }
     }
 
+    /**
+     * Removes a time slot from the event.
+     *
+     * @param slot Time slot to remove.
+     */
+    fun removeTimeSlot(slot: TimeSlot) {
+        _uiState.update { current ->
+            current.copy(
+                timeSlots = current.timeSlots - slot,
+            )
+        }
+    }
+
 
     /**
      * Toggles the selection of a country in the UI state.

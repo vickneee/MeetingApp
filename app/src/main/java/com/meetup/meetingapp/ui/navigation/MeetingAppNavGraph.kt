@@ -42,7 +42,6 @@ import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboa
 import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardPage
 import com.meetup.meetingapp.ui.screens.participant_input_flow.AvailabilitySelectingPage
 import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDestination
-import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDestination.EVENTCODEARG
 import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailPage
 import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantViewModel
 import com.meetup.meetingapp.ui.screens.participant_input_flow.PlaceTypeAndKeywordDestination
@@ -453,7 +452,6 @@ fun MeetingAppNavHost(
                     )
 
                 SubmissionCompletePage(
-                    onBack = { navController.popBackStack() },
                     viewModel = participantViewModel,
                     onHomeClick = {
                         navController.navigate(HomeDestination.route)

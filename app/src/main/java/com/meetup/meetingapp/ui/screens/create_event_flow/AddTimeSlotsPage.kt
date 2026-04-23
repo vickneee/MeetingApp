@@ -78,7 +78,7 @@ fun AddTimeSlotsPage(
         modifier = Modifier,
         uiState = uiState,
         onBack = onBack,
-        onRemoveTimeSlot = viewModel::removeTimeSlot,
+        onRemoveTimeSlot = { viewModel.removeTimeSlot(it) },
         navigateToTimeEditPage = navigateToTimeEditPage,
         navigateToAreaSelectingPage = navigateToAreaSelectingPage,
     )
