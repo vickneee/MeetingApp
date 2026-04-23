@@ -105,6 +105,7 @@ class PlaceViewModel(
 
     /** Whether all restaurants have been loaded from Room. */
     private var restaurantsLoaded = false
+    private var isInitialFetchComplete = false
 
     /** UI state for the Place Details screen. */
     private val _uiState = MutableStateFlow(PlaceUiState())
@@ -136,7 +137,6 @@ class PlaceViewModel(
                 if (!restaurantsLoaded && eventRepository.hasRestaurantCandidates(event.id)) {
                     restaurantsLoaded = true
                     getAllRestaurant(event.id)
-                    _restaurantState.value = RestaurantState.Available
 
                     // Update event status to COLLECTING_RESTAURANT_VOTES ONLY if it's currently generated
                     // This prevents finalized events from reverting to "Collecting" status.
@@ -305,6 +305,7 @@ class PlaceViewModel(
                         lat = lat,
                         lng = lng,
                     ).collect { restaurants ->
+                        isInitialFetchComplete = true
                         // 4. Update the StateFlow for the UI
                         _allRestaurants.update { it.copy(allRestaurants = restaurants) }
 
@@ -383,6 +384,14 @@ class PlaceViewModel(
             }
         _dateAndAreaState.value = DateAndAreaState(dateLocationOptions = options)
 
+        // If no valid options remain after filtering, set state to Empty only after initial fetch
+        if (options.isEmpty() && isInitialFetchComplete) {
+            _restaurantState.value = RestaurantState.Empty
+        } else if (options.isNotEmpty()) {
+            _restaurantState.value = RestaurantState.Available
+        }
+
+        // Auto-select first option if none selected
         if (selectedTiming.value == null && options.isNotEmpty()) {
             selectedTiming.value = options.first().timing
             selectedLocation.value = options.first().location
