@@ -1,12 +1,26 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -53,8 +67,8 @@ object HostDashboardDestination : NavigationDestination {
  *
  * This composable:
  * - Retrieves the HostDashboardViewModel instance.
- * - Collects event data, UI state, and close-voting state from the ViewModel.
- * - Displays a loading screen until the event is available.
+ * - Collects UI state from the ViewModel.
+ * - Displays a loading screen until the initial data is available.
  * - Delegates UI rendering to [HostDashboardContent].
  *
  * @param onBack Callback invoked when the user navigates back.
@@ -74,11 +88,8 @@ fun HostDashboardPage(
             factory = AppViewModelProvider.Factory,
         ),
 ) {
-    val event by viewModel.event.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val closeVotingState by viewModel.closeVotingState.collectAsStateWithLifecycle()
-    val hasVoted = uiState.hasVoted
-    val hasHostSubmittedAvailability = uiState.hasHostSubmittedAvailability
 
     // Re-check vote status every time screen resumes
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -94,29 +105,35 @@ fun HostDashboardPage(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    event?.let {
-        HostDashboardContent(
-            event = it,
-            submissionsCount = uiState.submissionsCount,
-            attendees = uiState.attendees,
-            hasVoted = hasVoted,
-            hasAnyRestaurantVotes = uiState.hasAnyRestaurantVotes,
-            onBack = onBack,
-            closeVotingState = closeVotingState,
-            onCloseVotingClick = { status ->
-                if (status == EventStatus.FIRST_VOTING_CLOSED) {
-                    viewModel.closeVoting()
-                } else {
-                    viewModel.updateEventStatus(status)
-                }
-            },
-            onVoteForRestaurantClick = onVoteForRestaurantClick,
-            onFinalPlanClick = onFinalPlanClick,
-            hasHostSubmittedAvailability = hasHostSubmittedAvailability,
-            onFillAvailabilityClick = { onFillAvailability(it.eventCode, it.eventKey) },
-            onNavigateToHome = onNavigateToHome,
-        )
-    } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
+    Crossfade(targetState = uiState.isInitialLoading, label = "dashboard_loading") { isLoading ->
+        if (isLoading) {
+            LoadingScreen(modifier = Modifier.fillMaxSize())
+        } else {
+            uiState.event?.let { event ->
+                HostDashboardContent(
+                    event = event,
+                    submissionsCount = uiState.submissionsCount,
+                    attendees = uiState.attendees,
+                    hasVoted = uiState.hasVoted,
+                    hasAnyRestaurantVotes = uiState.hasAnyRestaurantVotes,
+                    onBack = onBack,
+                    closeVotingState = closeVotingState,
+                    onCloseVotingClick = { status ->
+                        if (status == EventStatus.FIRST_VOTING_CLOSED) {
+                            viewModel.closeVoting()
+                        } else {
+                            viewModel.updateEventStatus(status)
+                        }
+                    },
+                    onVoteForRestaurantClick = onVoteForRestaurantClick,
+                    onFinalPlanClick = onFinalPlanClick,
+                    hasHostSubmittedAvailability = uiState.hasHostSubmittedAvailability,
+                    onFillAvailabilityClick = { onFillAvailability(event.eventCode, event.eventKey) },
+                    onNavigateToHome = onNavigateToHome,
+                )
+            }
+        }
+    }
 }
 
 /**
@@ -337,8 +354,8 @@ fun HostDashboardContent(
                             modifier =
                                 Modifier
                                     .fillMaxWidth(AppSize.lg)
-                                    .padding(top = 6.dp),
-                            textAlign = TextAlign.Center,
+                                    .padding(top = 8.dp),
+                            textAlign = TextAlign.Start,
                         )
                     }
 

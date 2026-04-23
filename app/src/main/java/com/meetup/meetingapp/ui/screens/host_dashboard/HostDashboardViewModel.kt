@@ -24,17 +24,15 @@ class HostDashboardViewModel(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val eventId: String = savedStateHandle["eventId"] ?: ""
-    private val _event = MutableStateFlow<Event?>(null)
-    val event = _event.asStateFlow()
-
-    private val _closeVotingState = MutableStateFlow<CloseVotingState>(CloseVotingState.Idle)
-    val closeVotingState = _closeVotingState.asStateFlow()
-
+    
     private val _uiState =
         MutableStateFlow(
             HostDashboardUiState(
+                event = null,
                 status = EventStatus.UNKNOWN,
                 hasHostSubmittedAvailability = false,
+                hasAnyRestaurantVotes = false,
+                isInitialLoading = true,
             ),
         )
     val uiState = _uiState.asStateFlow()
@@ -48,7 +46,6 @@ class HostDashboardViewModel(
             val votesFlow = eventRepository.observeRestaurantVotes(eventId)
 
             combine(eventFlow, submissionsFlow, votesFlow) { eventData, submissions, votes ->
-                _event.value = eventData
                 eventData?.let { e ->
                     val isSecondRound =
                         e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
@@ -73,10 +70,13 @@ class HostDashboardViewModel(
 
                     _uiState.update { currentState ->
                         currentState.copy(
+                            event = eventData,
                             status = e.status,
                             submissionsCount = count,
                             attendees = names,
                             hasHostSubmittedAvailability = hasAvailability,
+                            hasAnyRestaurantVotes = votes.isNotEmpty(),
+                            isInitialLoading = false, // Data from all flows has arrived
                         )
                     }
 
@@ -88,7 +88,6 @@ class HostDashboardViewModel(
                     }
                     if (isSecondRound) {
                         fetchUserVote()
-                        fetchRestaurantVotesStatus()
                     }
                 }
             }.collect {}
@@ -97,6 +96,7 @@ class HostDashboardViewModel(
 
     fun closeVoting() {
         _closeVotingState.value = CloseVotingState.Loading
+        val currentEvent = uiState.value.event ?: return
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // 1. Aggregate responses
@@ -133,6 +133,9 @@ class HostDashboardViewModel(
         }
     }
 
+    private val _closeVotingState = MutableStateFlow<CloseVotingState>(CloseVotingState.Idle)
+    val closeVotingState = _closeVotingState.asStateFlow()
+
     fun updateEventStatus(status: EventStatus) {
         viewModelScope.launch {
             if (status == EventStatus.FINALIZED) {
@@ -159,7 +162,7 @@ class HostDashboardViewModel(
 
     fun fetchUserVote() {
         viewModelScope.launch(Dispatchers.IO) {
-            val currentEvent = _event.value ?: return@launch
+            val currentEvent = uiState.value.event ?: return@launch
             val hasVoted =
                 eventRepository.hasUserVotedInEvent(
                     eventId = eventId,
@@ -170,16 +173,9 @@ class HostDashboardViewModel(
         }
     }
 
-    fun fetchRestaurantVotesStatus() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val hasVotes = eventRepository.hasAnyRestaurantVotes(eventId)
-            _uiState.update { it.copy(hasAnyRestaurantVotes = hasVotes) }
-        }
-    }
-
     fun checkHostAvailability() {
         viewModelScope.launch {
-            val eventValue = _event.value ?: return@launch
+            val eventValue = uiState.value.event ?: return@launch
             val result =
                 eventRepository.hasUserSubmittedAvailability(
                     eventId = eventValue.id,
@@ -193,12 +189,14 @@ class HostDashboardViewModel(
 }
 
 data class HostDashboardUiState(
+    val event: Event? = null,
     val submissionsCount: Int = 0,
     val attendees: List<String> = emptyList(),
     val status: EventStatus = EventStatus.UNKNOWN,
     val hasVoted: Boolean = false,
     val hasAnyRestaurantVotes: Boolean = false,
     val hasHostSubmittedAvailability: Boolean = false,
+    val isInitialLoading: Boolean = true,
 )
 
 sealed interface CloseVotingState {
