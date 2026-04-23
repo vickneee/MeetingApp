@@ -198,7 +198,7 @@ fun SubmissionCompleteContent(
                     modifier =
                         Modifier
                             .fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         "Go to Dashboard",
