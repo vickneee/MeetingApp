@@ -303,7 +303,7 @@ fun ParticipantDashboardContent(
 
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
                         contentPadding = PaddingValues(vertical = AppSpacing.sm),

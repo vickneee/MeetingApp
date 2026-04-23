@@ -180,7 +180,7 @@ fun AddTimeSlotsPageContent(
                 Spacer(modifier = Modifier.height(AppSpacing.lg))
                 OutlinedButton(
                     onClick = { navigateToTimeEditPage(-1) }, // <- editTimeSlot()
-                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     colors =
                         ButtonDefaults.outlinedButtonColors(
                             contentColor = MaterialTheme.colorScheme.primary,

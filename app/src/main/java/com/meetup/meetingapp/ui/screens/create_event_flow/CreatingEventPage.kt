@@ -264,7 +264,7 @@ fun CreatingEventContent(
 
                 OutlinedButton(
                     onClick = { onOpenDatePicker() },
-                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     colors =
                         ButtonDefaults.outlinedButtonColors(
                             containerColor = Color.Transparent,

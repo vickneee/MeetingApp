@@ -383,7 +383,7 @@ fun HostDashboardContent(
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
                     OutlinedButton(
                         onClick = onShowEventCodes,
-                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
                         contentPadding = PaddingValues(vertical = AppSpacing.md),
@@ -398,7 +398,7 @@ fun HostDashboardContent(
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
                     OutlinedButton(
                         onClick = onNavigateToHome,
-                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),
                         contentPadding = PaddingValues(vertical = AppSpacing.md),

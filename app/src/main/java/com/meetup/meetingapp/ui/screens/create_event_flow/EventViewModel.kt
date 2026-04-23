@@ -2,7 +2,6 @@ package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.DateRange
 import com.meetup.meetingapp.data.model.Event

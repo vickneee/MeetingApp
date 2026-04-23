@@ -306,7 +306,7 @@ fun PlaceDetailsContent(
                                 onClick = onMapsClick,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                                 contentPadding = PaddingValues(AppSpacing.sm),
                             ) {
                                 Text(

@@ -212,7 +212,7 @@ fun JoinContent(
                 OutlinedTextField(
                     value = key,
                     onValueChange = {
-                        onKeyChange(it)
+                        onKeyChange(it.uppercase())
                         // Clear error on type
                     },
                     label = { Text("Enter key") },
@@ -262,7 +262,7 @@ fun JoinContent(
                 Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Button(
                     onClick = { onEventsClick() },
-                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     colors =
                         ButtonDefaults.outlinedButtonColors(
                             containerColor = Color.Transparent,
