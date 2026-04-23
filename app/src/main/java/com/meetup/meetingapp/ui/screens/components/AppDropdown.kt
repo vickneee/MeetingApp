@@ -58,6 +58,7 @@ import com.meetup.meetingapp.ui.theme.AppSpacing
  * @param label Label for the dropdown menu.
  * @param instruction Instruction text for the dropdown menu.
  * @param toText Function to convert an option to a display text.
+ * @param enabled Whether the dropdown menu is enabled.
  */
 @SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
