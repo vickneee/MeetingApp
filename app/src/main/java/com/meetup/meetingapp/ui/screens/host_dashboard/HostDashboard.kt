@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -258,25 +257,43 @@ fun HostDashboardContent(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Spacer(modifier = Modifier.height(AppSpacing.xxs))
-                    Text(
-                        text = buildAnnotatedString {
-                            append("Place Votes: ")
-                            withStyle(
-                                SpanStyle(
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            ) {
-                                append("$submissionsCount")
-                            }
-                            if (totalParticipants > 0) {
+
+                    if (event.status == EventStatus.COLLECTING_AVAILABILITY) {
+                        Text(
+                            text = buildAnnotatedString {
+                                append("Availability: ")
+                                withStyle(
+                                    SpanStyle(
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                ) {
+                                    append("$submissionsCount")
+                                }
+                            },
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Spacer(modifier = Modifier.height(1.dp))
+                    } else if (totalParticipants > 0) {
+                        Text(
+                            text = buildAnnotatedString {
+                                append("Place Votes: ")
+                                withStyle(
+                                    SpanStyle(
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                ) {
+                                    append("$submissionsCount")
+                                }
                                 append(" / $totalParticipants")
-                            }
-                        },
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    Spacer(modifier = Modifier.height(1.dp))
+                            },
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Spacer(modifier = Modifier.height(1.dp))
+                    }
                 }
             }
 
@@ -300,15 +317,24 @@ fun HostDashboardContent(
                     } else {
                         when (event.status) {
                             EventStatus.COLLECTING_AVAILABILITY -> {
+                                if (currentUserName.isNotEmpty()) {
+                                    Text(
+                                        text = "$currentUserName,",
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(bottom = 4.dp),
+                                    )
+                                }
                                 Text(
-                                    "Waiting for host to start",
+                                    "you can start",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(top = 4.dp),
                                 )
                                 Spacer(modifier = Modifier.padding(AppSpacing.xxs))
                                 Text(
-                                    "the place voting...",
+                                    "the place voting now!",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyLarge,
                                 )

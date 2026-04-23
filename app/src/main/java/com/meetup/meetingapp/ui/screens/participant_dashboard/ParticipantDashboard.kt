@@ -213,6 +213,7 @@ fun ParticipantDashboardContent(
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.bodyLarge,
                         )
+                        Spacer(modifier = Modifier.height(1.dp))
                     } else if (totalParticipants > 0) {
                         Text(
                             text = buildAnnotatedString {
@@ -254,15 +255,24 @@ fun ParticipantDashboardContent(
                     } else {
                         when (event.status) {
                             EventStatus.COLLECTING_AVAILABILITY -> {
+                                if (currentUserName.isNotEmpty()) {
+                                    Text(
+                                        text = "$currentUserName,",
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(bottom = 4.dp),
+                                    )
+                                }
                                 Text(
-                                    "Waiting for host to start",
+                                    "please wait for the host",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(top = 4.dp),
                                 )
                                 Spacer(modifier = Modifier.padding(AppSpacing.xxs))
                                 Text(
-                                    "the place voting...",
+                                    "to open place voting.",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyLarge,
                                 )
