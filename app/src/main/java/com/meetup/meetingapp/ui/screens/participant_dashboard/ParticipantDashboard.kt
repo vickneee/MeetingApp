@@ -282,7 +282,7 @@ fun ParticipantDashboardContent(
                             EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
                                 if (currentUserName.isNotEmpty()) {
                                     Text(
-                                        text = "$currentUserName,",
+                                        text = "Hi, $currentUserName!",
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface,
                                         style = MaterialTheme.typography.bodyLarge,
@@ -290,7 +290,7 @@ fun ParticipantDashboardContent(
                                     )
                                 }
                                 Text(
-                                    if (currentUserName.isNotEmpty()) "you can vote now!" else "You can vote now!",
+                                    text = "You can vote now!",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(bottom = 4.dp),
@@ -306,7 +306,7 @@ fun ParticipantDashboardContent(
                             EventStatus.FINALIZED -> {
                                 if (currentUserName.isNotEmpty()) {
                                     Text(
-                                        text = "$currentUserName,",
+                                        text = "Hi, $currentUserName!",
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface,
                                         style = MaterialTheme.typography.bodyLarge,
@@ -314,7 +314,7 @@ fun ParticipantDashboardContent(
                                     )
                                 }
                                 Text(
-                                    if (currentUserName.isNotEmpty()) "the event has been finalized!" else "The event has been finalized!",
+                                    text = "The event has been finalized!",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(bottom = 4.dp),
