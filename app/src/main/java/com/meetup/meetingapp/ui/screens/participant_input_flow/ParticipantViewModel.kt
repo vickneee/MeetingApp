@@ -345,7 +345,10 @@ class ParticipantViewModel(
     private fun observeSubmissions(eventId: String) {
         viewModelScope.launch {
             eventRepository.observeSubmissions(eventId).collect { submissions ->
-                _uiState.update { it.copy(submissionsCount = submissions.size) }
+                _uiState.update { it.copy(
+                    submissionsCount = submissions.size,
+                    attendees = submissions.map { it.name }
+                ) }
             }
         }
     }
@@ -424,5 +427,6 @@ sealed interface SubmitState {
         val submissionsCount: Int = 0,
         val isAlreadySubmitted: Boolean = false,
         val submittedName: String = "",
+        val attendees: List<String> = emptyList(),
     )
 }

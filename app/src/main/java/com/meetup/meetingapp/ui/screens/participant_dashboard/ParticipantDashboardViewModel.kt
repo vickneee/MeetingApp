@@ -40,7 +40,7 @@ class ParticipantDashboardViewModel(
     /**
      * The ID of the event to load.
      */
-    private val eventId: String = savedStateHandle[ParticipantDashboardDestination.eventIdArg] ?: ""
+    private val eventId: String = savedStateHandle[ParticipantDashboardDestination.EVENTIDARG] ?: ""
 
     /**
      * Mutable state flow containing the event data.
@@ -89,24 +89,20 @@ class ParticipantDashboardViewModel(
                         if (e.hostId == userId) {
                             e.hostName
                         } else {
-                            // In Firestore, the participant response document ID is the userId.
-                            // However, observeSubmissions returns a list of ParticipantResponse objects.
-                            // We need to fetch the specific response for the user to be certain,
-                            // but we can also try to find it in the current list if names are unique.
-                            // For now, we'll trigger a side fetch to be safe if it's missing.
-                            ""
+                            submissions.find { it.userId == userId }?.name ?: ""
                         }
 
                     val isSecondRound =
                         e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
                             e.status == EventStatus.FINALIZED
 
-                    val count =
-                        if (isSecondRound) {
-                            votes.distinctBy { it.userId }.size
-                        } else {
-                            submissions.size
-                        }
+                    val availabilityCount = submissions.size
+                    val votesCount = votes.distinctBy { it.userId }.size
+
+                    val count = if (isSecondRound) votesCount else availabilityCount
+                    val total = if (isSecondRound) availabilityCount else 0
+                    
+                    val hasSubmittedAvailability = submissions.any { it.userId == userId }
 
                     val names =
                         if (isSecondRound) {
@@ -121,6 +117,8 @@ class ParticipantDashboardViewModel(
                             submissionsCount = count,
                             attendees = names,
                             currentUserName = if (currentName.isNotEmpty()) currentName else it.currentUserName,
+                            totalParticipants = total,
+                            hasSubmittedAvailability = hasSubmittedAvailability
                         )
                     }
 
@@ -172,6 +170,8 @@ class ParticipantDashboardViewModel(
  * @property status Current status of the event.
  * @property hasVoted Whether the current user has voted in the event.
  * @property currentUserName The name of the current user.
+ * @property totalParticipants The total number of participants expected.
+ * @property hasSubmittedAvailability Whether the current user has submitted availability.
  */
 data class ParticipantDashboardUiState(
     val submissionsCount: Int = 0,
@@ -179,4 +179,6 @@ data class ParticipantDashboardUiState(
     val status: EventStatus = EventStatus.UNKNOWN,
     val hasVoted: Boolean = false,
     val currentUserName: String = "",
+    val totalParticipants: Int = 0,
+    val hasSubmittedAvailability: Boolean = false,
 )

@@ -264,7 +264,7 @@ fun CreatingEventContent(
 
                 OutlinedButton(
                     onClick = { onOpenDatePicker() },
-                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     colors =
                         ButtonDefaults.outlinedButtonColors(
                             containerColor = Color.Transparent,
@@ -279,14 +279,14 @@ fun CreatingEventContent(
                         style = MaterialTheme.typography.labelLarge,
                     )
                 }
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 Button(
                     onClick = { navigateToCreatingEventPage() },
                     enabled = canProceed,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth(AppSize.lg),
-                    contentPadding = PaddingValues(vertical = AppSpacing.sm),
+                    contentPadding = PaddingValues(vertical = AppSpacing.md),
                 ) {
                     Text(
                         text = "Next",

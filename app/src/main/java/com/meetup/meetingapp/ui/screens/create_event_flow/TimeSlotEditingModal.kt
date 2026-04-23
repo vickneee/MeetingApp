@@ -270,7 +270,7 @@ fun EditTimeSlotContent(
             // Validation message
             if (!isValid) {
                 item {
-                    Spacer(modifier = Modifier.height(AppSpacing.xl))
+                    Spacer(modifier = Modifier.height(AppSpacing.lg))
                     Surface(
                         color = MaterialTheme.colorScheme.errorContainer,
                         shape = RoundedCornerShape(8.dp),

@@ -1,6 +1,7 @@
 package com.meetup.meetingapp.ui.screens.event_list_page
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -76,32 +77,50 @@ fun EventsListPage(
             )
         },
     ) { paddingValues ->
-        LazyColumn(
+        Box(
             modifier =
                 modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues),
-            contentPadding =
-                PaddingValues(
-                    start = 32.dp,
-                    end = 32.dp,
-                    top = 32.dp,
-                    bottom = 32.dp,
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            items(sortedEvents) { event ->
-                EventItem(
-                    event = event,
-                    onItemClick = {
-                        if (event.hostId == currentUserId) {
-                            onNavigateToHostDashboard(event.id)
-                        } else {
-                            onNavigateToParticipantDashboard(event.id)
-                        }
-                    },
-                )
+            if (sortedEvents.isEmpty()) {
+                // Show "No events" message if empty
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "No events found.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding =
+                        PaddingValues(
+                            start = 32.dp,
+                            end = 32.dp,
+                            top = 32.dp,
+                            bottom = 32.dp,
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    items(sortedEvents) { event ->
+                        EventItem(
+                            event = event,
+                            onItemClick = {
+                                if (event.hostId == currentUserId) {
+                                    onNavigateToHostDashboard(event.id)
+                                } else {
+                                    onNavigateToParticipantDashboard(event.id)
+                                }
+                            },
+                        )
+                    }
+                }
             }
         }
     }

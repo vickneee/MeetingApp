@@ -123,6 +123,11 @@ fun PlaceTypeAndKeywordContent(
             )
         },
     ) { paddingValues ->
+
+        val isFoodCategoryRequired = participantState.selectedPlaceTypes.any {
+            it != PlaceType.CAFE && it != PlaceType.BAR
+        }
+
         LazyColumn(
             modifier =
                 modifier
@@ -176,8 +181,9 @@ fun PlaceTypeAndKeywordContent(
                     selected = participantState.selectedFoodCategories,
                     onToggle = { onToggleFoodCategory(it) },
                     label = "Food category",
-                    instruction = "Select food category",
+                    instruction = if (isFoodCategoryRequired) "Select food category" else "Not applicable for cafe/bar",
                     toText = { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } },
+                    enabled = isFoodCategoryRequired,
                 )
             }
 
@@ -188,7 +194,7 @@ fun PlaceTypeAndKeywordContent(
                     onClick = onSubmit,
                     enabled =
                         participantState.selectedPlaceTypes.isNotEmpty() &&
-                            participantState.selectedFoodCategories.isNotEmpty(),
+                                (!isFoodCategoryRequired || participantState.selectedFoodCategories.isNotEmpty()),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     modifier =

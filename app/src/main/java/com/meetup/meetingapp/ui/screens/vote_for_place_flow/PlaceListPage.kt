@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -79,17 +80,19 @@ fun PlaceListPage(
     val selectedLocation by viewModel.selectedLocation.collectAsStateWithLifecycle()
     val restaurantState by viewModel.restaurantState.collectAsStateWithLifecycle()
 
-    if (restaurantState is RestaurantState.Loading) {
-        LoadingScreen(modifier = Modifier.fillMaxSize())
-    } else {
-        PlaceListContent(
-            onBack = onBack,
-            placeListState = placeListState,
-            selectedTiming = selectedTiming,
-            selectedLocation = selectedLocation,
-            onNavigateToPlaceDetails = onNavigateToPlaceDetails,
-            modifier = modifier,
-        )
+    Crossfade(targetState = restaurantState, label = "place_list_loading") { state ->
+        if (state is RestaurantState.Loading) {
+            LoadingScreen(modifier = Modifier.fillMaxSize())
+        } else {
+            PlaceListContent(
+                onBack = onBack,
+                placeListState = placeListState,
+                selectedTiming = selectedTiming,
+                selectedLocation = selectedLocation,
+                onNavigateToPlaceDetails = onNavigateToPlaceDetails,
+                modifier = modifier,
+            )
+        }
     }
 }
 

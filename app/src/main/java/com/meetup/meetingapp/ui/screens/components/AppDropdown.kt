@@ -58,6 +58,7 @@ import com.meetup.meetingapp.ui.theme.AppSpacing
  * @param label Label for the dropdown menu.
  * @param instruction Instruction text for the dropdown menu.
  * @param toText Function to convert an option to a display text.
+ * @param enabled Whether the dropdown menu is enabled.
  */
 @SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,6 +70,7 @@ fun <T> AppMultiSelectDropdown(
     label: String,
     instruction: String,
     toText: (T) -> String,
+    enabled: Boolean = true,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }

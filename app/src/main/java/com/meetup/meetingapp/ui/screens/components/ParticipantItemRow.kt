@@ -39,7 +39,7 @@ fun ParticipantItemRow(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 4.dp),
     ) {
         Icon(
             imageVector = Icons.Default.Person,
