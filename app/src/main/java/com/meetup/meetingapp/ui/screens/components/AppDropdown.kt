@@ -69,6 +69,7 @@ fun <T> AppMultiSelectDropdown(
     label: String,
     instruction: String,
     toText: (T) -> String,
+    enabled: Boolean = true,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }

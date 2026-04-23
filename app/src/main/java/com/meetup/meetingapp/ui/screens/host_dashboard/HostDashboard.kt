@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
+import android.R.attr.top
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -318,26 +319,11 @@ fun HostDashboardContent(
                     } else {
                         when (event.status) {
                             EventStatus.COLLECTING_AVAILABILITY -> {
-                                if (currentUserName.isNotEmpty()) {
-                                    Text(
-                                        text = "$currentUserName,",
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.padding(bottom = 4.dp),
-                                    )
-                                }
                                 Text(
-                                    "you can start",
-                                    color = MaterialTheme.colorScheme.onSurface,
+                                    "You can start voting now!",
                                     style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.padding(top = 4.dp),
-                                )
-                                Spacer(modifier = Modifier.padding(AppSpacing.xxs))
-                                Text(
-                                    "the place voting now!",
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.bodyLarge,
                                 )
                             }
 

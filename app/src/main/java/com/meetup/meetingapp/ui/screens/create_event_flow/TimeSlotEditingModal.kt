@@ -301,7 +301,7 @@ fun EditTimeSlotContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Button(
                     onClick = {
                         onSaveTimeSlot(startTime, endTime)
