@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -256,7 +257,7 @@ fun HostDashboardContent(
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
                     Text(
                         text = buildAnnotatedString {
                             append("Place Votes: ")
@@ -291,28 +292,82 @@ fun HostDashboardContent(
                 ) {
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
 
-                    if (event.status == EventStatus.COLLECTING_RESTAURANT_VOTES) {
+                    if (!hasHostSubmittedAvailability) {
+                        Text(
+                            "Please fill your availability.",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    } else {
+                        when (event.status) {
+                            EventStatus.COLLECTING_AVAILABILITY -> {
+                                Text(
+                                    "Waiting for host to start",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(top = 4.dp),
+                                )
+                                Spacer(modifier = Modifier.padding(AppSpacing.xxs))
+                                Text(
+                                    "the place voting...",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            }
 
-                        Text(
-                            text = buildAnnotatedString {
+                            EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
                                 if (currentUserName.isNotEmpty()) {
-                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(currentUserName)
-                                    }
-                                    append(", you can vote now.")
-                                } else {
-                                    append("You can vote now.")
+                                    Text(
+                                        text = "$currentUserName,",
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(bottom = 4.dp),
+                                    )
                                 }
-                            },
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                        Text(
-                            text = "Choose all options that suit you.",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+                                Text(
+                                    if (currentUserName.isNotEmpty()) "you can vote now!" else "You can vote now!",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(bottom = 4.dp),
+                                )
+                                Text(
+                                    text = "Choose all options that suit you.",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+
+                            EventStatus.FINALIZED -> {
+                                if (currentUserName.isNotEmpty()) {
+                                    Text(
+                                        text = "$currentUserName,",
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(bottom = 4.dp),
+                                    )
+                                }
+                                Text(
+                                    if (currentUserName.isNotEmpty()) "the event has been finalized!" else "The event has been finalized!",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(bottom = 4.dp),
+                                )
+                                Text(
+                                    "Check the final plan.",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            }
+
+                            else ->
+                                Text(
+                                    "please wait...",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                        }
                     }
                 }
             }
@@ -344,7 +399,7 @@ fun HostDashboardContent(
                         EventStatus.COLLECTING_RESTAURANT_VOTES -> hasAnyRestaurantVotes
                         else -> false
                     } &&
-                        closeVotingState != CloseVotingState.Loading
+                            closeVotingState != CloseVotingState.Loading
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),

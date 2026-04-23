@@ -282,6 +282,7 @@ fun MeetUpDetailContent(
                 ) {
                     Button(
                         onClick = onNavigateToTimeAvailability,
+                        enabled = participantState.participantName.isNotBlank(),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth(AppSize.lg),

@@ -182,7 +182,7 @@ fun SubmissionCompleteContent(
             }
 
             item {
-                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
                 Button(
                     onClick = {
                         val eventId = event?.id ?: return@Button

@@ -271,6 +271,7 @@ fun JoinContent(
                     Text(
                         text = "Events",
                         style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
                     )
                 }
             }

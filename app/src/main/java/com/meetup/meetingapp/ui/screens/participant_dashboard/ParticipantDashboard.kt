@@ -196,26 +196,42 @@ fun ParticipantDashboardContent(
                         },
                         style = MaterialTheme.typography.bodyLarge,
                     )
-
-                    Text(
-                        text = buildAnnotatedString {
-                            append(if (totalParticipants > 0) "Place Votes: " else "Availability: ")
-                            withStyle(
-                                SpanStyle(
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            ) {
-                                append("$submissionsCount")
-                            }
-                            if (totalParticipants > 0) {
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
+                    if (event.status == EventStatus.COLLECTING_AVAILABILITY) {
+                        Text(
+                            text = buildAnnotatedString {
+                                append("Availability: ")
+                                withStyle(
+                                    SpanStyle(
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                ) {
+                                    append("$submissionsCount")
+                                }
+                            },
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    } else if (totalParticipants > 0) {
+                        Text(
+                            text = buildAnnotatedString {
+                                append("Place Votes: ")
+                                withStyle(
+                                    SpanStyle(
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                ) {
+                                    append("$submissionsCount")
+                                }
                                 append(" / $totalParticipants")
-                            }
-                        },
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    Spacer(modifier = Modifier.height(1.dp))
+                            },
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Spacer(modifier = Modifier.height(1.dp))
+                    }
                 }
             }
 
@@ -253,21 +269,20 @@ fun ParticipantDashboardContent(
                             }
 
                             EventStatus.FIRST_VOTING_CLOSED, EventStatus.COLLECTING_RESTAURANT_VOTES -> {
-
+                                if (currentUserName.isNotEmpty()) {
+                                    Text(
+                                        text = "$currentUserName,",
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(bottom = 4.dp),
+                                    )
+                                }
                                 Text(
-                                    text =
-                                        buildAnnotatedString {
-                                            if (currentUserName.isNotEmpty()) {
-                                                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                                    append(currentUserName)
-                                                }
-                                                append(", you can vote now.")
-                                            } else {
-                                                append("You can vote now.")
-                                            }
-                                        },
+                                    if (currentUserName.isNotEmpty()) "you can vote now!" else "You can vote now!",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(bottom = 4.dp),
                                 )
                                 Text(
                                     text = "Choose all options that suit you.",
@@ -278,10 +293,19 @@ fun ParticipantDashboardContent(
                             }
 
                             EventStatus.FINALIZED -> {
+                                if (currentUserName.isNotEmpty()) {
+                                    Text(
+                                        text = "$currentUserName,",
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(bottom = 4.dp),
+                                    )
+                                }
                                 Text(
-                                    "The event has been finalized!",
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    if (currentUserName.isNotEmpty()) "the event has been finalized!" else "The event has been finalized!",
                                     color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(bottom = 4.dp),
                                 )
                                 Text(
@@ -293,7 +317,7 @@ fun ParticipantDashboardContent(
 
                             else ->
                                 Text(
-                                    "Please wait...",
+                                    "please wait...",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyLarge,
                                 )
