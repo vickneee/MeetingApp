@@ -120,8 +120,9 @@ class EventViewModel(
             )
 
     private val _isEventsLoading = MutableStateFlow(true)
+    val isEventsLoading = _isEventsLoading.asStateFlow()
 
-    private val _hasHostSubmitted = MutableStateFlow(false)
+    private val _hasHostSubmitted = MutableStateFlow<Boolean?>(null)
     val hasHostSubmitted = _hasHostSubmitted.asStateFlow()
 
     /**
@@ -303,7 +304,6 @@ class EventViewModel(
             )
         }
     }
-
 
     /**
      * Toggles the selection of a country in the UI state.

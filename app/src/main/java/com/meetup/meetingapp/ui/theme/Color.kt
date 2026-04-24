@@ -10,7 +10,7 @@ val Green = Color(0xFF00B100)
 
 val GreenLight = Color(0xFF00B100)
 
-val GreenDark = Color(0xFF006D00)
+// val GreenDark = Color(0xFF006D00)
 
 // val BackgroundLight = Color(0xFFF8F9FA)
 val BackgroundLightGreen = Color(0xFFE6F6E6)

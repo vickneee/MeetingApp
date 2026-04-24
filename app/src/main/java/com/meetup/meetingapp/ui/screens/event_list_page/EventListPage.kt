@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.event_list_page
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,6 +36,7 @@ import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
+import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.utils.toEuroDate
 import java.time.LocalDate
 
@@ -66,6 +68,7 @@ fun EventsListPage(
     viewModel: EventViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val events by viewModel.events.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isEventsLoading.collectAsStateWithLifecycle()
     val sortedEvents = events.sortedByDescending { it.createdAt }
 
     Scaffold(
@@ -84,41 +87,45 @@ fun EventsListPage(
                     .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues),
         ) {
-            if (sortedEvents.isEmpty()) {
-                // Show "No events" message if empty
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "No events found.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding =
-                        PaddingValues(
-                            start = 32.dp,
-                            end = 32.dp,
-                            top = 32.dp,
-                            bottom = 32.dp,
-                        ),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    items(sortedEvents) { event ->
-                        EventItem(
-                            event = event,
-                            onItemClick = {
-                                if (event.hostId == currentUserId) {
-                                    onNavigateToHostDashboard(event.id)
-                                } else {
-                                    onNavigateToParticipantDashboard(event.id)
-                                }
-                            },
-                        )
+            Crossfade(targetState = isLoading, label = "event_list_loading") { loading ->
+                if (loading) {
+                    LoadingScreen(modifier = Modifier.fillMaxSize())
+                } else {
+                    if (sortedEvents.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No events found.",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                start = 32.dp,
+                                end = 32.dp,
+                                top = 32.dp,
+                                bottom = 32.dp,
+                            ),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            items(sortedEvents) { event ->
+                                EventItem(
+                                    event = event,
+                                    onItemClick = {
+                                        if (event.hostId == currentUserId) {
+                                            onNavigateToHostDashboard(event.id)
+                                        } else {
+                                            onNavigateToParticipantDashboard(event.id)
+                                        }
+                                    },
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -187,7 +194,10 @@ fun EventsListPagePreview() {
                 status = EventStatus.CREATED,
                 eventTitle = "Team Lunch",
                 hostName = "John Doe",
-                dateRange = DateRange(LocalDate.now().toString(), LocalDate.now().plusDays(7).toString()),
+                dateRange = DateRange(
+                    LocalDate.now().toString(),
+                    LocalDate.now().plusDays(7).toString()
+                ),
             ),
             Event(
                 eventCode = "D1L4P7",
@@ -197,7 +207,10 @@ fun EventsListPagePreview() {
                 status = EventStatus.COLLECTING_AVAILABILITY,
                 eventTitle = "Team Dinner",
                 hostName = "John Doe",
-                dateRange = DateRange(LocalDate.now().toString(), LocalDate.now().plusDays(7).toString()),
+                dateRange = DateRange(
+                    LocalDate.now().toString(),
+                    LocalDate.now().plusDays(7).toString()
+                ),
             ),
         )
 

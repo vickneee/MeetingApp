@@ -1,5 +1,7 @@
 package com.meetup.meetingapp.ui.screens.participant_input_flow
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,16 +29,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
+import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
 /**
  * Navigation destination for the Submission Complete screen.
@@ -68,36 +75,29 @@ fun SubmissionCompletePage(
     modifier: Modifier = Modifier,
 ) {
     val submitState by viewModel.submitState.collectAsStateWithLifecycle()
+    val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
+    val event by viewModel.event.collectAsStateWithLifecycle(null)
 
-    // Handle different submission states
-    when (submitState) {
-        is SubmitState.Idle ->
-            SubmissionCompleteContent(
-                viewModel = viewModel,
-                onHomeClick = onHomeClick,
-                onNavigateToHostDashboard = onNavigateToHostDashboard,
-                onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
-                modifier = modifier,
-            )
+    Crossfade(targetState = submitState, label = "submission_complete_loading") { state ->
+        when (state) {
+            is SubmitState.Idle, is SubmitState.Success ->
+                SubmissionCompleteContent(
+                    isHost = isHost,
+                    eventId = event?.id,
+                    onHomeClick = onHomeClick,
+                    onNavigateToHostDashboard = onNavigateToHostDashboard,
+                    onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
+                    modifier = modifier,
+                )
 
-        is SubmitState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+            is SubmitState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
 
-        is SubmitState.Success ->
-            SubmissionCompleteContent(
-                viewModel = viewModel,
-                onHomeClick = onHomeClick,
-                onNavigateToHostDashboard = onNavigateToHostDashboard,
-                onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
-                modifier = modifier,
-            )
-
-        is SubmitState.Error -> {
-            val state = submitState as SubmitState.Error
-            ErrorScreen(
-                message = state.error.message ?: "Something went wrong",
-                onRetry = { viewModel.submitParticipantInput() },
-                modifier = Modifier.fillMaxSize(),
-            )
+            is SubmitState.Error ->
+                ErrorScreen(
+                    message = state.error.message ?: "Something went wrong",
+                    onRetry = { viewModel.submitParticipantInput() },
+                    modifier = Modifier.fillMaxSize(),
+                )
         }
     }
 }
@@ -108,7 +108,9 @@ fun SubmissionCompletePage(
  * Shows a confirmation message and a button that navigates the user to the
  * event dashboard. The event ID is retrieved from the ViewModel.
  *
- * @param viewModel The [ParticipantViewModel] used to access event data.
+ * @param isHost Whether the current user is a host.
+ * @param eventId The ID of the event.
+ * @param onHomeClick Callback invoked when navigating to the home screen.
  * @param onNavigateToHostDashboard Callback invoked when navigating to the host dashboard.
  * @param onNavigateToParticipantDashboard Callback invoked when navigating to the participant dashboard.
  * @param modifier Modifier for styling.
@@ -116,15 +118,13 @@ fun SubmissionCompletePage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubmissionCompleteContent(
-    viewModel: ParticipantViewModel,
+    isHost: Boolean,
+    eventId: String?,
     onHomeClick: () -> Unit,
     onNavigateToHostDashboard: (String) -> Unit,
     onNavigateToParticipantDashboard: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isHost by viewModel.isHost.collectAsStateWithLifecycle(false)
-    val event by viewModel.event.collectAsStateWithLifecycle(null)
-
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -156,11 +156,20 @@ fun SubmissionCompleteContent(
                 modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(paddingValues)
-                    .padding(horizontal = AppSpacing.lg),
+                    .padding(paddingValues),
+            contentPadding = AppPadding.pagePadding,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+            item {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    contentDescription = "MeetUp Logo",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .padding(bottom = AppSpacing.xl),
+                )
+            }
             item {
                 Text(
                     "Thank you!",
@@ -205,11 +214,11 @@ fun SubmissionCompleteContent(
                 Spacer(modifier = Modifier.height(AppSpacing.xxl))
                 Button(
                     onClick = {
-                        val eventId = event?.id ?: return@Button
+                        val id = eventId ?: return@Button
                         if (isHost) {
-                            onNavigateToHostDashboard(eventId)
+                            onNavigateToHostDashboard(id)
                         } else {
-                            onNavigateToParticipantDashboard(eventId)
+                            onNavigateToParticipantDashboard(id)
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
@@ -226,5 +235,19 @@ fun SubmissionCompleteContent(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SubmissionCompleteContentPreview() {
+    MeetingAppTheme {
+        SubmissionCompleteContent(
+            isHost = false,
+            eventId = "event123",
+            onHomeClick = {},
+            onNavigateToHostDashboard = {},
+            onNavigateToParticipantDashboard = {},
+        )
     }
 }

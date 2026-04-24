@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.participant_input_flow
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -83,30 +84,32 @@ fun MeetUpDetailPage(
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    when (val currentFetchState = fetchState) {
-        is FetchState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
-        is FetchState.Error ->
-            ErrorScreen(
-                message = currentFetchState.message,
-                onRetry = {},
-                modifier = Modifier.fillMaxSize(),
-            )
-
-        is FetchState.Success ->
-            event?.let {
-                MeetUpDetailContent(
-                    event = it,
-                    submissionsCount = uiState.submissionsCount,
-                    attendees = uiState.attendees,
-                    isAlreadySubmitted = uiState.isAlreadySubmitted,
-                    participantState = participantState,
-                    onNameChange = viewModel::updateName,
-                    onBack = onBack,
-                    onHomeClick = onNavigateToHome,
-                    onNavigateToTimeAvailability = onNavigateToTimeAvailability,
-                    modifier = modifier,
+    Crossfade(targetState = fetchState, label = "meetup_detail_loading") { currentFetchState ->
+        when (currentFetchState) {
+            is FetchState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+            is FetchState.Error ->
+                ErrorScreen(
+                    message = currentFetchState.message,
+                    onRetry = {},
+                    modifier = Modifier.fillMaxSize(),
                 )
-            }
+
+            is FetchState.Success ->
+                event?.let {
+                    MeetUpDetailContent(
+                        event = it,
+                        submissionsCount = uiState.submissionsCount,
+                        attendees = uiState.attendees,
+                        isAlreadySubmitted = uiState.isAlreadySubmitted,
+                        participantState = participantState,
+                        onNameChange = viewModel::updateName,
+                        onBack = onBack,
+                        onHomeClick = onNavigateToHome,
+                        onNavigateToTimeAvailability = onNavigateToTimeAvailability,
+                        modifier = modifier,
+                    )
+                }
+        }
     }
 }
 
@@ -210,8 +213,12 @@ fun MeetUpDetailContent(
                     Text(
                         text = buildAnnotatedString {
                             append("Availability: ")
-                            withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold)) {
+                            withStyle(
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            ) {
                                 append("$submissionsCount")
                             }
                         },

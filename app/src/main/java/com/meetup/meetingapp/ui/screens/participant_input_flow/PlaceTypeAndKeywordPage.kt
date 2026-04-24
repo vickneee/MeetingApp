@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.participant_input_flow
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -38,6 +39,7 @@ import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.components.AppMultiSelectDropdown
+import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
@@ -73,19 +75,23 @@ fun PlaceTypeAndKeywordPage(
         ParticipantInputState(),
     )
 
-    event?.let {
-        PlaceTypeAndKeywordContent(
-            event = it,
-            participantState = participantState,
-            onBack = onBack,
-            onTogglePlaceType = { viewModel.togglePlaceType(it) },
-            onToggleFoodCategory = { viewModel.toggleFoodCategory(it) },
-            onSubmit = {
-                viewModel.submitParticipantInput()
-                onNavigateToSubmissionCompletePage()
-            },
-            modifier = modifier,
-        )
+    Crossfade(targetState = event, label = "place_type_loading") { currentEvent ->
+        if (currentEvent == null) {
+            LoadingScreen(modifier = Modifier.fillMaxSize())
+        } else {
+            PlaceTypeAndKeywordContent(
+                event = currentEvent,
+                participantState = participantState,
+                onBack = onBack,
+                onTogglePlaceType = { viewModel.togglePlaceType(it) },
+                onToggleFoodCategory = { viewModel.toggleFoodCategory(it) },
+                onSubmit = {
+                    viewModel.submitParticipantInput()
+                    onNavigateToSubmissionCompletePage()
+                },
+                modifier = modifier,
+            )
+        }
     }
 }
 
@@ -181,7 +187,7 @@ fun PlaceTypeAndKeywordContent(
                     selected = participantState.selectedFoodCategories,
                     onToggle = { onToggleFoodCategory(it) },
                     label = "Food category",
-                    instruction = if (isFoodCategoryRequired) "Select food category" else "Not applicable for cafe/bar",
+                    instruction = if (isFoodCategoryRequired) "Select food category" else "Not for cafe/bar",
                     toText = { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } },
                     enabled = isFoodCategoryRequired,
                 )

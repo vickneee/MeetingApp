@@ -2,6 +2,7 @@ package com.meetup.meetingapp.ui.screens.create_event_flow
 
 import android.content.ClipData
 import android.content.Intent
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -93,50 +94,54 @@ fun EventCreatedPage(
         }
     }
 
-    when (eventState) {
-        is EventState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
-        is EventState.Success -> {
-            val state = eventState as EventState.Success
-            EventCreatedContent(
-                eventCode = state.eventCode,
-                eventKey = state.eventKey,
-                hasHostSubmitted = hasHostSubmitted,
-                onHomeClick = onNavigateToHome,
-                onNavigateToDashboard = { onNavigateToDashboard(state.eventId) },
-                onCopyCode = {
-                    coroutineScope.launch {
-                        clipboard.setClipEntry(
-                            ClipEntry(
-                                ClipData.newPlainText(
-                                    "Event Info",
-                                    "Code: ${state.eventCode} Key: ${state.eventKey}",
+    Crossfade(targetState = eventState, label = "event_created_loading") { state ->
+        when (state) {
+            is EventState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+            is EventState.Success -> {
+                EventCreatedContent(
+                    eventCode = state.eventCode,
+                    eventKey = state.eventKey,
+                    hasHostSubmitted = hasHostSubmitted,
+                    onHomeClick = onNavigateToHome,
+                    onNavigateToDashboard = { onNavigateToDashboard(state.eventId) },
+                    onCopyCode = {
+                        coroutineScope.launch {
+                            clipboard.setClipEntry(
+                                ClipEntry(
+                                    ClipData.newPlainText(
+                                        "Event Info",
+                                        "Code: ${state.eventCode} Key: ${state.eventKey}",
+                                    ),
                                 ),
-                            ),
-                        )
-                    }
-                },
-                onShare = {
-                    val intent =
-                        Intent(Intent.ACTION_SEND).apply {
+                            )
+                        }
+                    },
+                    onShare = {
+                        val intent = Intent(Intent.ACTION_SEND).apply {
                             type = "text/plain"
                             putExtra(
                                 Intent.EXTRA_TEXT,
                                 "Join my event!\nCode: ${state.eventCode}\nKey: ${state.eventKey}",
                             )
                         }
-                    context.startActivity(Intent.createChooser(intent, "Share event"))
-                },
-                onFillAvailability = { onNavigateToAvailability(state.eventCode, state.eventKey) },
-            )
-        }
+                        context.startActivity(Intent.createChooser(intent, "Share event"))
+                    },
+                    onFillAvailability = {
+                        onNavigateToAvailability(
+                            state.eventCode,
+                            state.eventKey
+                        )
+                    },
+                )
+            }
 
-        is EventState.Error -> {
-            val state = eventState as EventState.Error
-            ErrorScreen(
-                message = state.error.message ?: "Something went wrong",
-                onRetry = { viewModel.createEvent() },
-                modifier = Modifier.fillMaxSize(),
-            )
+            is EventState.Error -> {
+                ErrorScreen(
+                    message = state.error.message ?: "Something went wrong",
+                    onRetry = { viewModel.createEvent() },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
         }
     }
 }
@@ -158,7 +163,7 @@ fun EventCreatedPage(
 fun EventCreatedContent(
     eventCode: String,
     eventKey: String,
-    hasHostSubmitted: Boolean,
+    hasHostSubmitted: Boolean?,
     onHomeClick: () -> Unit,
     onCopyCode: () -> Unit,
     onShare: () -> Unit,
@@ -276,7 +281,7 @@ fun EventCreatedContent(
                     )
                 }
 
-                if (!hasHostSubmitted) {
+                if (hasHostSubmitted == false) {
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                     Button(
