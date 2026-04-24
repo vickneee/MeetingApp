@@ -39,6 +39,7 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.create_event_flow.ErrorScreen
 import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
+import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
@@ -155,8 +156,8 @@ fun SubmissionCompleteContent(
                 modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(paddingValues)
-                    .padding(horizontal = AppSpacing.lg),
+                    .padding(paddingValues),
+            contentPadding = AppPadding.pagePadding,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

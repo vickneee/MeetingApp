@@ -187,7 +187,7 @@ fun PlaceTypeAndKeywordContent(
                     selected = participantState.selectedFoodCategories,
                     onToggle = { onToggleFoodCategory(it) },
                     label = "Food category",
-                    instruction = if (isFoodCategoryRequired) "Select food category" else "Not applicable for cafe/bar",
+                    instruction = if (isFoodCategoryRequired) "Select food category" else "Not for cafe/bar",
                     toText = { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } },
                     enabled = isFoodCategoryRequired,
                 )
