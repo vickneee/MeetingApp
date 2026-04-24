@@ -111,7 +111,7 @@ fun HomeScreenContent(
         ) {
             item {
                 Image(
-                    painter = painterResource(id = R.drawable.meetup_logo_rounded_square),
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
                     contentDescription = "MeetUp Logo",
                     modifier = Modifier
                         .size(120.dp)
@@ -127,7 +127,7 @@ fun HomeScreenContent(
                             color = MaterialTheme.colorScheme.primary,
                             shadow =
                                 Shadow(
-                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                                     offset = Offset(0f, 6f),
                                     blurRadius = 7f,
                                 ),

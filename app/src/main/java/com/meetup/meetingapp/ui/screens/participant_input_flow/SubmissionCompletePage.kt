@@ -162,7 +162,7 @@ fun SubmissionCompleteContent(
         ) {
             item {
                 Image(
-                    painter = painterResource(id = R.drawable.meetup_logo_rounded_square),
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
                     contentDescription = "MeetUp Logo",
                     modifier = Modifier
                         .size(120.dp)
