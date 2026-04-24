@@ -64,11 +64,12 @@ fun DateAndAreaPage(
     val restaurantState by viewModel.restaurantState.collectAsStateWithLifecycle()
 
     Crossfade(targetState = restaurantState, label = "date_area_loading") { state ->
-        when {
-            state is RestaurantState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
-            state is RestaurantState.Available && dateAndAreaState.dateLocationOptions.isEmpty() -> {
+        when (state) {
+            is RestaurantState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+            is RestaurantState.Available if dateAndAreaState.dateLocationOptions.isEmpty() -> {
                 LoadingScreen(modifier = Modifier.fillMaxSize())
             }
+
             else -> {
                 DateAndAreaContent(
                     onBack = onBack,
