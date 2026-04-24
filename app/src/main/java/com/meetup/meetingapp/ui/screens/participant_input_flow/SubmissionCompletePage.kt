@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.participant_input_flow
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -69,35 +70,25 @@ fun SubmissionCompletePage(
 ) {
     val submitState by viewModel.submitState.collectAsStateWithLifecycle()
 
-    // Handle different submission states
-    when (submitState) {
-        is SubmitState.Idle ->
-            SubmissionCompleteContent(
-                viewModel = viewModel,
-                onHomeClick = onHomeClick,
-                onNavigateToHostDashboard = onNavigateToHostDashboard,
-                onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
-                modifier = modifier,
-            )
+    Crossfade(targetState = submitState, label = "submission_complete_loading") { state ->
+        when (state) {
+            is SubmitState.Idle, is SubmitState.Success ->
+                SubmissionCompleteContent(
+                    viewModel = viewModel,
+                    onHomeClick = onHomeClick,
+                    onNavigateToHostDashboard = onNavigateToHostDashboard,
+                    onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
+                    modifier = modifier,
+                )
 
-        is SubmitState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+            is SubmitState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
 
-        is SubmitState.Success ->
-            SubmissionCompleteContent(
-                viewModel = viewModel,
-                onHomeClick = onHomeClick,
-                onNavigateToHostDashboard = onNavigateToHostDashboard,
-                onNavigateToParticipantDashboard = onNavigateToParticipantDashboard,
-                modifier = modifier,
-            )
-
-        is SubmitState.Error -> {
-            val state = submitState as SubmitState.Error
-            ErrorScreen(
-                message = state.error.message ?: "Something went wrong",
-                onRetry = { viewModel.submitParticipantInput() },
-                modifier = Modifier.fillMaxSize(),
-            )
+            is SubmitState.Error ->
+                ErrorScreen(
+                    message = state.error.message ?: "Something went wrong",
+                    onRetry = { viewModel.submitParticipantInput() },
+                    modifier = Modifier.fillMaxSize(),
+                )
         }
     }
 }

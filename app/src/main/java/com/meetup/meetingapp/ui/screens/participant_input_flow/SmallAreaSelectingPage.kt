@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.participant_input_flow
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
@@ -59,14 +61,18 @@ fun SmallAreaSelectingPage(
         ParticipantInputState(),
     )
 
-    event?.let {
-        SmallAreaSelectingContent(
-            cityOptions = it.locationOptions.cities,
-            selectedAreas = participantState.selectedLocations,
-            onAreaToggle = { viewModel.toggleLocation(it) },
-            onBack = onBack,
-            onNext = onNext,
-        )
+    Crossfade(targetState = event, label = "small_area_loading") { currentEvent ->
+        if (currentEvent == null) {
+            LoadingScreen(modifier = Modifier.fillMaxSize())
+        } else {
+            SmallAreaSelectingContent(
+                cityOptions = currentEvent.locationOptions.cities,
+                selectedAreas = participantState.selectedLocations,
+                onAreaToggle = { viewModel.toggleLocation(it) },
+                onBack = onBack,
+                onNext = onNext,
+            )
+        }
     }
 }
 

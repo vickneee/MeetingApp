@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.participant_dashboard
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -85,21 +86,25 @@ fun ParticipantDashboardPage(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    event?.let {
-        ParticipantDashboardContent(
-            event = it,
-            submissionsCount = uiState.submissionsCount,
-            totalParticipants = uiState.totalParticipants,
-            attendees = uiState.attendees,
-            currentUserName = uiState.currentUserName,
-            hasSubmittedAvailability = uiState.hasSubmittedAvailability,
-            onBack = onBack,
-            onVoteForRestaurantClick = onVoteForRestaurantClick,
-            onFinalPlanClick = onFinalPlanClick,
-            onNavigateToHome = onNavigateToHome,
-            onFillAvailabilityClick = { onFillAvailability(it.eventCode, it.eventKey) },
-        )
-    } ?: LoadingScreen(modifier = Modifier.fillMaxSize())
+    Crossfade(targetState = event, label = "participant_dashboard_loading") { currentEvent ->
+        if (currentEvent == null) {
+            LoadingScreen(modifier = Modifier.fillMaxSize())
+        } else {
+            ParticipantDashboardContent(
+                event = currentEvent,
+                submissionsCount = uiState.submissionsCount,
+                totalParticipants = uiState.totalParticipants,
+                attendees = uiState.attendees,
+                currentUserName = uiState.currentUserName,
+                hasSubmittedAvailability = uiState.hasSubmittedAvailability,
+                onBack = onBack,
+                onVoteForRestaurantClick = onVoteForRestaurantClick,
+                onFinalPlanClick = onFinalPlanClick,
+                onNavigateToHome = onNavigateToHome,
+                onFillAvailabilityClick = { onFillAvailability(currentEvent.eventCode, currentEvent.eventKey) },
+            )
+        }
+    }
 }
 
 /**

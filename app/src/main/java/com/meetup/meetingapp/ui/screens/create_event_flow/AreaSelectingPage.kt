@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.create_event_flow
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -71,28 +72,29 @@ fun AreaSelectingPage(
     val citiesState by viewModel.citiesState.collectAsState()
     val citiesFetchState by viewModel.citiesFetchState.collectAsState()
 
-    when (citiesFetchState) {
-        is CitiesFetchState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+    Crossfade(targetState = citiesFetchState, label = "area_selecting_loading") { fetchState ->
+        when (fetchState) {
+            is CitiesFetchState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
 
-        is CitiesFetchState.Success ->
-            AreaSelectingContent(
-                onCountryToggle = { viewModel.toggleCountry(it) },
-                selectedCountries = uiState.locations.countries,
-                countryOptions = CountryOption.entries,
-                cityOptions = citiesState,
-                selectedCities = uiState.locations.cities,
-                onCityChange = { viewModel.toggleCity(it) },
-                onBack = onBack,
-                onNextClick = navigateToCreatingEventPage,
-            )
+            is CitiesFetchState.Success ->
+                AreaSelectingContent(
+                    onCountryToggle = { viewModel.toggleCountry(it) },
+                    selectedCountries = uiState.locations.countries,
+                    countryOptions = CountryOption.entries,
+                    cityOptions = citiesState,
+                    selectedCities = uiState.locations.cities,
+                    onCityChange = { viewModel.toggleCity(it) },
+                    onBack = onBack,
+                    onNextClick = navigateToCreatingEventPage,
+                )
 
-        is CitiesFetchState.Error -> {
-            val state = citiesFetchState as CitiesFetchState.Error
-            ErrorScreen(
-                message = state.message,
-                onRetry = { viewModel.observeCities(listOf(CountryOption.Finland)) },
-                modifier = Modifier.fillMaxSize(),
-            )
+            is CitiesFetchState.Error -> {
+                ErrorScreen(
+                    message = fetchState.message,
+                    onRetry = { viewModel.observeCities(listOf(CountryOption.Finland)) },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
         }
     }
 }
