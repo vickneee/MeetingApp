@@ -223,7 +223,6 @@ fun ParticipantDashboardContent(
                                 withStyle(
                                     SpanStyle(
                                         fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
                                     )
                                 ) {
                                     append("$submissionsCount")
@@ -240,12 +239,18 @@ fun ParticipantDashboardContent(
                                 withStyle(
                                     SpanStyle(
                                         fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
                                     )
                                 ) {
                                     append("$submissionsCount")
                                 }
-                                append(" / $totalParticipants")
+                                append(" / ")
+                                withStyle(
+                                    SpanStyle(
+                                        fontWeight = if (submissionsCount == totalParticipants) FontWeight.Bold else FontWeight.Normal,
+                                    )
+                                ) {
+                                    append("$totalParticipants")
+                                }
                             },
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.bodyLarge,
