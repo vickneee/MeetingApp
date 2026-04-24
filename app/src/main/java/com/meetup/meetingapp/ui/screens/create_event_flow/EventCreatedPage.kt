@@ -163,7 +163,7 @@ fun EventCreatedPage(
 fun EventCreatedContent(
     eventCode: String,
     eventKey: String,
-    hasHostSubmitted: Boolean,
+    hasHostSubmitted: Boolean?,
     onHomeClick: () -> Unit,
     onCopyCode: () -> Unit,
     onShare: () -> Unit,
@@ -281,7 +281,7 @@ fun EventCreatedContent(
                     )
                 }
 
-                if (!hasHostSubmitted) {
+                if (hasHostSubmitted == false) {
                     Spacer(modifier = Modifier.height(AppSpacing.lg))
 
                     Button(
