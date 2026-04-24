@@ -2,6 +2,7 @@ package com.meetup.meetingapp.ui.screens.home
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -108,6 +110,15 @@ fun HomeScreenContent(
             verticalArrangement = Arrangement.Center,
         ) {
             item {
+                Image(
+                    painter = painterResource(id = R.drawable.meetup_logo_rounded_square),
+                    contentDescription = "MeetUp Logo",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .padding(bottom = AppSpacing.xl),
+                )
+            }
+            item {
                 Text(
                     text = "MeetUp",
                     style =
@@ -122,7 +133,6 @@ fun HomeScreenContent(
                                 ),
                         ),
                 )
-
                 Spacer(modifier = Modifier.height(AppSpacing.sm))
 
                 Text(
