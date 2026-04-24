@@ -120,6 +120,7 @@ class EventViewModel(
             )
 
     private val _isEventsLoading = MutableStateFlow(true)
+    val isEventsLoading = _isEventsLoading.asStateFlow()
 
     private val _hasHostSubmitted = MutableStateFlow(false)
     val hasHostSubmitted = _hasHostSubmitted.asStateFlow()
