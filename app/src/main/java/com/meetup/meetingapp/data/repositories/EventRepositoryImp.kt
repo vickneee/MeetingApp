@@ -850,6 +850,13 @@ class EventRepositoryImp(
         val lat = event.selectedLocationLat ?: 0.0
         val lng = event.selectedLocationLng ?: 0.0
 
+        val components = event.locationOptions.countries
+            .mapNotNull<String, String> { countryName ->
+                CountryOption.entries.find { it.name == countryName }?.code
+            }
+            .distinct()
+            .joinToString("|") { "country:$it" }
+
         event.locationCandidates.forEach { city ->
             // Generate a matrix of search combinations (City + Type + Category)
             val combinations =
@@ -878,6 +885,7 @@ class EventRepositoryImp(
                         targetTime = targetTime,
                         lat = lat,
                         lng = lng,
+                        components = components.ifEmpty { null },
                     ).onSuccess { restaurants ->
                         // Grab the top result for each query combination to maximize variety
                         restaurants.firstOrNull()?.let { restaurant ->

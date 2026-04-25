@@ -28,6 +28,7 @@ class PlacesRepositoryImp(
         targetTime: DateTime?,
         lat: Double?,
         lng: Double?,
+        components: String?,
     ): Result<List<Restaurant>> {
         return try {
             val hasLocation = lat != null && lng != null && lat != 0.0
@@ -38,6 +39,7 @@ class PlacesRepositoryImp(
                     query = query,
                     location = locationString,
                     radius = if (hasLocation) 10000 else null,
+                    components = components,
                     apiKey = apiKey,
                 )
 

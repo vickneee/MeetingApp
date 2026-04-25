@@ -22,5 +22,6 @@ interface PlacesRepository {
         targetTime: DateTime? = null,
         lat: Double? = null,
         lng: Double? = null,
+        components: String? = null,
     ): Result<List<Restaurant>>
 }

@@ -68,6 +68,7 @@ interface GooglePlacesApiService {
         @Query("query") query: String,
         @Query("location") location: String?,
         @Query("radius") radius: Int?,
+        @Query("components") components: String? = null,
         @Query("key") apiKey: String,
     ): PlacesTextSearchResponse
 
