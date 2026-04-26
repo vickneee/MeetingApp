@@ -286,4 +286,16 @@ interface EventRepository {
         eventId: String,
         userId: String,
     ): Boolean
+
+    /**
+     * Retrieves the participant response for a specific user and event.
+     * @param eventId The ID of the event.
+     * @param targetTime The future meeting time to validate availability.
+     * @return The [hasUserSubmittedAvailability] true if found, null otherwise.
+     * @throws Exception if the synchronization operation fails.
+     */
+    suspend fun getRestaurantsOnce(
+        eventId: String,
+        targetTime: DateTime?,
+        ): List<Restaurant>
 }

@@ -15,6 +15,7 @@ interface PlacesRepository {
      * @param targetTime The future meeting time to validate availability. Defaults to null.
      * @param lat Optional Latitude of the search center. If null or 0.0, location biasing is skipped.
      * @param lng Optional Longitude of the search center. If null or 0.0, location biasing is skipped.
+     * @param components Optional components to filter the search results.
      * @return A [Result] containing a list of [Restaurant] on success.
      */
     suspend fun fetchRestaurants(
@@ -22,5 +23,6 @@ interface PlacesRepository {
         targetTime: DateTime? = null,
         lat: Double? = null,
         lng: Double? = null,
+        components: String? = null,
     ): Result<List<Restaurant>>
 }

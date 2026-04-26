@@ -56,4 +56,28 @@ interface RestaurantDao {
      */
     @Upsert
     suspend fun upsertRestaurants(restaurants: List<RestaurantEntity>)
+
+    /**
+     * Returns a list of all restaurants associated with the given event.
+     *
+     * Behavior:
+     * - Uses Room's @Query to execute the SQL query.
+     * - Ensures local data always matches the latest Firestore snapshot.
+     *
+     * @param eventId The ID of the event whose restaurants should be fetched.
+     */
+    @Query("SELECT * FROM restaurants WHERE eventId = :eventId")
+    suspend fun getRestaurantsOnce(eventId: String): List<RestaurantEntity>
+
+    /**
+     * Returns the number of restaurants associated with the given event.
+     *
+     * Behavior:
+     * - Uses Room's @Query to execute the SQL query.
+     * - Ensures local data always matches the latest Firestore snapshot.
+     *
+     * @param eventId The ID of the event whose restaurant count should be fetched.
+     */
+    @Query("SELECT COUNT(*) FROM restaurants WHERE eventId = :eventId")
+    suspend fun getRestaurantCount(eventId: String): Int
 }

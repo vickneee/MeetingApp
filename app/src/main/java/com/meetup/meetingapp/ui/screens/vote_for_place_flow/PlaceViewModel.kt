@@ -129,27 +129,18 @@ class PlaceViewModel(
             eventRepository.observeEventById(eventId).collect { event ->
                 _event.value = event
                 if (event == null) {
-                    _restaurantState.value = RestaurantState.Loading
                     return@collect
                 }
 
                 // HasCandidates block
-                if (!restaurantsLoaded && eventRepository.hasRestaurantCandidates(event.id)) {
-                    restaurantsLoaded = true
-                    getAllRestaurant(event.id)
-
-                    // Update event status to COLLECTING_RESTAURANT_VOTES ONLY if it's currently generated
-                    // This prevents finalized events from reverting to "Collecting" status.
-                    if (event.status == EventStatus.RESTAURANT_CANDIDATES_GENERATED) {
-                        viewModelScope.launch {
-                            eventRepository.updateEventStatus(
-                                event.id,
-                                EventStatus.COLLECTING_RESTAURANT_VOTES,
-                            )
-                        }
+                if (!restaurantsLoaded) {
+                    restaurantsLoaded = true  // set BEFORE the suspend call to prevent re-entry
+                    if (eventRepository.hasRestaurantCandidates(event.id)) {
+                        getAllRestaurant(event)
+                    } else {
+                        restaurantsLoaded = false  // reset so it retries on next emit
+                        _restaurantState.value = RestaurantState.Empty
                     }
-                } else if (!restaurantsLoaded) {
-                    _restaurantState.value = RestaurantState.Empty
                 }
             }
         }
@@ -263,47 +254,27 @@ class PlaceViewModel(
      * It uses the event's selected location to bias the search and fetches
      * details based on the target meeting time.
      */
-    private fun getAllRestaurant(eventId: String) {
+    private fun getAllRestaurant(event: Event) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // 1. Get the current event to extract the voted city/location coordinates
-                val currentEvent = _event.value
-                if (currentEvent == null) {
-                    Log.e("PlaceViewModel", "Cannot fetch restaurants: Event is null")
-                    return@launch
-                }
+                Log.d("getAllRestaurant", "Starting for event: ${event.id}, lat=${event.selectedLocationLat}, lng=${event.selectedLocationLng}")
 
-                // Extract coordinates from the event object
-                val lat = currentEvent.selectedLocationLat ?: 0.0
-                val lng = currentEvent.selectedLocationLng ?: 0.0
-                val timing = selectedTiming.value
+                val restaurants = eventRepository.getRestaurantsOnce(
+                    eventId = event.id,
+                    targetTime = null,
+                )
 
-                // 2. Sync Firestore data to local Room cache
-                eventRepository.syncRestaurants(eventId)
+                Log.d("getAllRestaurant", "Got ${restaurants.size} restaurants")
 
-                // 3. Fetch from repository using the new signature (Time + Location)
-                // This ensures we save tokens by biasing the search to the correct city
-                eventRepository
-                    .getRestaurants(
-                        eventId = eventId,
-                        targetTime = timing,
-                        lat = lat,
-                        lng = lng,
-                    ).collect { restaurants ->
-                        isInitialFetchComplete = true
-                        // 4. Update the StateFlow for the UI
-                        _allRestaurants.update { it.copy(allRestaurants = restaurants) }
-
-                        // Update the overall state for the UI to handle Loading/Available/Empty
-                        _restaurantState.value =
-                            if (restaurants.isNotEmpty()) {
-                                RestaurantState.Available
-                            } else {
-                                RestaurantState.Empty
-                            }
+                isInitialFetchComplete = true
+                _allRestaurants.value = AllRestaurantState(restaurants)
+                _restaurantState.value =
+                    if (restaurants.isEmpty()) {
+                        RestaurantState.Empty
+                    } else {
+                        RestaurantState.Available(restaurants)
                     }
             } catch (e: Exception) {
-                Log.e("PlaceViewModel", "Failed to fetch restaurants", e)
                 _restaurantState.value = RestaurantState.Error(e)
             }
         }
@@ -368,13 +339,6 @@ class PlaceViewModel(
                 }
             }
         _dateAndAreaState.value = DateAndAreaState(dateLocationOptions = options)
-
-        // If no valid options remain after filtering, set state to Empty only after initial fetch
-        if (options.isEmpty() && isInitialFetchComplete) {
-            _restaurantState.value = RestaurantState.Empty
-        } else if (options.isNotEmpty()) {
-            _restaurantState.value = RestaurantState.Available
-        }
 
         // Auto-select first option if none selected
         if (selectedTiming.value == null && options.isNotEmpty()) {
@@ -476,8 +440,9 @@ data class DateAndAreaState(
  */
 sealed interface RestaurantState {
     object Loading : RestaurantState
-
-    object Available : RestaurantState
+    data class Available(
+        val restaurants: List<Restaurant>
+    ) : RestaurantState
 
     object Empty : RestaurantState
 

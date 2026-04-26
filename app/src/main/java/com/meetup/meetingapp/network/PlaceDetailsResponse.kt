@@ -1,5 +1,8 @@
 package com.meetup.meetingapp.network
 
+import com.google.gson.annotations.SerializedName
+import com.meetup.meetingapp.data.model.AddressComponent
+
 /**
  * Represents the top‑level response object returned by the
  * Google Places **Place Details API**.
@@ -63,4 +66,6 @@ data class PlaceDetailsResult(
     val types: List<String>?,
     val photos: List<PlacePhoto>?,
     val opening_hours: OpeningHours?,
+    @SerializedName("address_components")
+    val addressComponents: List<AddressComponent>?
 )

@@ -94,10 +94,11 @@ fun <T> AppMultiSelectDropdown(
 
     val filteredOptions =
         remember(optionsWithText, query) {
-            if (query.isEmpty()) {
+            val q = query.trim()
+            if (q.isEmpty()) {
                 optionsWithText
             } else {
-                optionsWithText.filter { it.second.contains(query, ignoreCase = true) }
+                optionsWithText.filter { it.second.contains(q, ignoreCase = true) }
             }
         }
 

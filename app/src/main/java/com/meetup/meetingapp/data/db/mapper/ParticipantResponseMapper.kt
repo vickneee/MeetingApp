@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.data.db.mapper
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.meetup.meetingapp.data.db.entities.ParticipantResponseEntity
@@ -22,10 +23,10 @@ object ParticipantResponseMapper {
     fun ParticipantResponseEntity.toDomain(): ParticipantResponse =
         ParticipantResponse(
             name = name,
-            dateTimes = gson.fromJson(dateTimes, object : TypeToken<List<DateTime>>() {}.type),
-            locations = gson.fromJson(locations, object : TypeToken<List<String>>() {}.type),
-            placeTypes = gson.fromJson(placeTypes, object : TypeToken<List<PlaceType>>() {}.type),
-            foodCategories = gson.fromJson(foodCategories, object : TypeToken<List<FoodCategory>>() {}.type),
+            dateTimes = dateTimes.safeFromJson(),
+            locations = locations.toStringList(),
+            placeTypes = placeTypes.safeFromJson(),
+            foodCategories = foodCategories.safeFromJson(),
         )
 
     /**
@@ -45,4 +46,30 @@ object ParticipantResponseMapper {
             placeTypes = gson.toJson(placeTypes),
             foodCategories = gson.toJson(foodCategories),
         )
+
+    private fun String?.toStringList(): List<String> =
+        try {
+            if (this.isNullOrBlank()) emptyList()
+            else gson.fromJson(this, object : TypeToken<List<String>>() {}.type)
+        } catch (_: Exception) {
+            emptyList()
+        }
+
+    private inline fun <reified T> String?.safeFromJson(): T {
+        if (this.isNullOrBlank()) {
+            return when (T::class) {
+                List::class -> emptyList<Any>() as T
+                else -> null as T
+            }
+        }
+        return try {
+            gson.fromJson(this, object : TypeToken<T>() {}.type)
+        } catch (e: Exception) {
+            Log.w("ParticipantResponseMapper", "Failed to parse JSON: $this", e)
+            when (T::class) {
+                List::class -> emptyList<Any>() as T
+                else -> null as T
+            }
+        }
+    }
 }

@@ -560,6 +560,13 @@ class EventRepositoryImp(
      * @return True if at least one restaurant document exists, false otherwise.
      */
     override suspend fun hasRestaurantCandidates(eventId: String): Boolean {
+        // Check Room first (instant)
+        val roomCount = restaurantDao.getRestaurantCount(eventId)
+        if (roomCount > 0) {
+            Log.d("hasRestaurantCandidates", "Found $roomCount in Room")
+            return true
+        }
+        // Fall back to Firestore
         val snapshot =
             db
                 .collection("events")
@@ -568,7 +575,7 @@ class EventRepositoryImp(
                 .limit(1)
                 .get()
                 .await()
-
+        Log.d("hasRestaurantCandidates", "Firestore isEmpty: ${snapshot.isEmpty}")
         return !snapshot.isEmpty
     }
 
@@ -628,6 +635,7 @@ class EventRepositoryImp(
      */
     override suspend fun syncRestaurants(eventId: String): Result<Unit> {
         if (!hasRestaurantCandidates(eventId)) {
+            Log.e("syncRestaurants", "No candidates in Firestore for eventId: $eventId")
             return Result.failure(Exception("No Restaurant information is available"))
         } else {
             try {
@@ -641,10 +649,12 @@ class EventRepositoryImp(
                         .mapNotNull { it.toObject(Restaurant::class.java) }
                         .map { it.toEntity(eventId) }
 
+                Log.d("syncRestaurants", "Fetched ${restaurants.size} from Firestore, upserting to Room")
                 restaurantDao.upsertRestaurants(restaurants)
-
+                Log.d("syncRestaurants", "Upsert complete")
                 return Result.success(Unit)
             } catch (e: Exception) {
+                Log.e("syncRestaurants", "Error", e)
                 return Result.failure(e)
             }
         }
@@ -850,6 +860,16 @@ class EventRepositoryImp(
         val lat = event.selectedLocationLat ?: 0.0
         val lng = event.selectedLocationLng ?: 0.0
 
+        val components = event.locationOptions.countries
+            .mapNotNull<String, String> { countryName ->
+                CountryOption.entries.find { it.name == countryName }?.code
+            }
+            .distinct()
+            .joinToString("|") { "country:$it" }
+
+        Log.d("fetchAndSave", "countries = ${event.locationOptions.countries}")
+        Log.d("fetchAndSave", "components = $components")
+
         event.locationCandidates.forEach { city ->
             // Generate a matrix of search combinations (City + Type + Category)
             val combinations =
@@ -878,6 +898,7 @@ class EventRepositoryImp(
                         targetTime = targetTime,
                         lat = lat,
                         lng = lng,
+                        components = components.ifEmpty { null },
                     ).onSuccess { restaurants ->
                         // Grab the top result for each query combination to maximize variety
                         restaurants.firstOrNull()?.let { restaurant ->
@@ -1238,4 +1259,24 @@ class EventRepositoryImp(
         } catch (_: Exception) {
             false
         }
+
+    /**
+     * Retrieves a list of restaurants for a given location.
+     *
+     * @param eventId The event for which to retrieve restaurants.
+     * @param targetTime The time for which to retrieve restaurants.
+     * @return A [Flow] emitting a list of [Restaurant] objects.
+     */
+    override suspend fun getRestaurantsOnce(
+        eventId: String,
+        targetTime: DateTime?,
+        ): List<Restaurant> {
+        Log.d("getRestaurantsOnce", "Syncing restaurants for eventId: $eventId")
+        // Sync from Firestore into Room first
+        syncRestaurants(eventId)
+        val result = restaurantDao.getRestaurantsOnce(eventId)
+            .map { with(RestaurantMapper) { it.toDomain() } }
+        Log.d("getRestaurantsOnce", "Got ${result.size} restaurants from Room")
+        return result
+    }
 }

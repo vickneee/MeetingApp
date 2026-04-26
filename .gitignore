@@ -13,3 +13,4 @@ local.properties
 # Secret files
 app/src/main/assets/secret.properties
 app/google-services.json
+.idea/deploymentTargetSelector.xml

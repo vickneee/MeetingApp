@@ -215,7 +215,6 @@ fun MeetUpDetailContent(
                             append("Availability: ")
                             withStyle(
                                 SpanStyle(
-                                    color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.Bold
                                 )
                             ) {

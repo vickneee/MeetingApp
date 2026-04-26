@@ -176,7 +176,7 @@ fun AreaSelectingContent(
 
                 AppMultiSelectDropdown(
                     options = countryOptions,
-                    selected = countryOptions.filter { it.name in selectedCountries },
+                    selected = countryOptions.filter { it.code in selectedCountries },
                     onToggle = onCountryToggle,
                     label = "Select Countries",
                     instruction = "Search Countries",
