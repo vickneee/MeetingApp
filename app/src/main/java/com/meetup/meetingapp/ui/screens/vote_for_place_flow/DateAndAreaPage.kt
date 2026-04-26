@@ -33,7 +33,6 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
-import com.meetup.meetingapp.ui.screens.create_event_flow.LoadingScreen
 import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
