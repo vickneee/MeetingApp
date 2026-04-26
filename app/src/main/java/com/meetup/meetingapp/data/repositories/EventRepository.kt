@@ -291,15 +291,11 @@ interface EventRepository {
      * Retrieves the participant response for a specific user and event.
      * @param eventId The ID of the event.
      * @param targetTime The future meeting time to validate availability.
-     * @param lat Latitude of the search center.
-     * @param lng Longitude of the search center.
      * @return The [hasUserSubmittedAvailability] true if found, null otherwise.
      * @throws Exception if the synchronization operation fails.
      */
     suspend fun getRestaurantsOnce(
         eventId: String,
         targetTime: DateTime?,
-        lat: Double,
-        lng: Double,
         ): List<Restaurant>
 }
