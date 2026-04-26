@@ -66,10 +66,6 @@ fun DateAndAreaPage(
     Crossfade(targetState = restaurantState, label = "date_area_loading") { state ->
         when (state) {
             is RestaurantState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
-            is RestaurantState.Available if dateAndAreaState.dateLocationOptions.isEmpty() -> {
-                LoadingScreen(modifier = Modifier.fillMaxSize())
-            }
-
             else -> {
                 DateAndAreaContent(
                     onBack = onBack,
