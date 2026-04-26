@@ -1,7 +1,5 @@
 package com.meetup.meetingapp.data.model
 
-import com.google.gson.annotations.SerializedName
-
 /**
  * Domain model representing a restaurant candidate used in the event voting flow.
  *

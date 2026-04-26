@@ -50,7 +50,7 @@ object ParticipantResponseMapper {
         try {
             if (this.isNullOrBlank()) emptyList()
             else gson.fromJson(this, object : TypeToken<List<String>>() {}.type)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             emptyList()
         }
 
