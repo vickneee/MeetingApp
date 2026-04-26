@@ -17,6 +17,8 @@ class PlacesRepositoryImp(
     private val apiKey: String,
 ) : PlacesRepository {
 
+    private val searchCache = mutableMapOf<String, List<Restaurant>>()
+
     override suspend fun fetchRestaurants(
         query: String,
         targetTime: DateTime?,
@@ -29,6 +31,9 @@ class PlacesRepositoryImp(
 
             val hasLocation = lat != null && lng != null && lat != 0.0
             val locationString = if (hasLocation) "$lat,$lng" else null
+
+            val cacheKey = "$query-$locationString"
+            searchCache[cacheKey]?.let { return Result.success(it) }
 
             // FINLAND FILTER HERE
             val textSearchResponse = api.textSearch(
@@ -45,7 +50,7 @@ class PlacesRepositoryImp(
             // LIMIT API CALLS (VERY IMPORTANT)
             val topPlaces = places
                 .sortedByDescending { it.rating ?: 0.0 }
-                .take(5)
+                .take(3) // Limited for 3
 
             val allowedTypes = setOf("restaurant", "cafe", "bar", "food", "meal_takeaway")
 
@@ -96,7 +101,9 @@ class PlacesRepositoryImp(
                 rating * kotlin.math.ln((reviews + 1).toDouble())
             } ?: return  Result.success(emptyList())
 
-            Result.success(listOf(best))
+            val result = listOf(best)
+            searchCache[cacheKey] = result
+            return Result.success(result)
 
         } catch (e: Exception) {
             Log.e("fetchRestaurants", "Error", e)
