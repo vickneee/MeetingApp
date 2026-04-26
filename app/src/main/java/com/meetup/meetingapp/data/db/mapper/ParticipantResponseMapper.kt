@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.data.db.mapper
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.meetup.meetingapp.data.db.entities.ParticipantResponseEntity
@@ -64,6 +65,7 @@ object ParticipantResponseMapper {
         return try {
             gson.fromJson(this, object : TypeToken<T>() {}.type)
         } catch (e: Exception) {
+            Log.w("ParticipantResponseMapper", "Failed to parse JSON: $this", e)
             when (T::class) {
                 List::class -> emptyList<Any>() as T
                 else -> null as T
