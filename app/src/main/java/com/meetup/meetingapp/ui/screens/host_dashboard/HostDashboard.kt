@@ -402,6 +402,7 @@ fun HostDashboardContent(
                 val nextStatus =
                     when (event.status) {
                         EventStatus.COLLECTING_AVAILABILITY -> EventStatus.FIRST_VOTING_CLOSED
+                        EventStatus.FIRST_VOTING_CLOSED -> EventStatus.FIRST_VOTING_CLOSED  // triggers closeVoting()
                         EventStatus.RESTAURANT_CANDIDATES_GENERATED -> EventStatus.COLLECTING_RESTAURANT_VOTES
                         EventStatus.COLLECTING_RESTAURANT_VOTES -> EventStatus.FINALIZED
                         else -> null
@@ -411,11 +412,11 @@ fun HostDashboardContent(
                 val buttonEnabled =
                     when (event.status) {
                         EventStatus.COLLECTING_AVAILABILITY -> submissionsCount > 0
+                        EventStatus.FIRST_VOTING_CLOSED -> true
                         EventStatus.RESTAURANT_CANDIDATES_GENERATED -> false
                         EventStatus.COLLECTING_RESTAURANT_VOTES -> hasAnyRestaurantVotes
                         else -> false
-                    } &&
-                            closeVotingState != CloseVotingState.Loading
+                    } && closeVotingState != CloseVotingState.Loading
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
