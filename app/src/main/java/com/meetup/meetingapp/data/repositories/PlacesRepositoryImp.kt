@@ -65,7 +65,6 @@ class PlacesRepositoryImp(
                 val countryCode = details.addressComponents
                     ?.firstOrNull { it.types?.contains("country") == true }
                     ?.shortName
-
                 if (countryCode != "FI") return@mapNotNull null
 
                 Restaurant(
@@ -86,20 +85,19 @@ class PlacesRepositoryImp(
             if (restaurants.isEmpty()) {
                 return Result.success(emptyList())
             }
-            val best = restaurants.maxByOrNull {
+
+            // Prefer open restaurants, but fall back to all if none are open
+            val openRestaurants = restaurants.filter { isOpenAtPlannedTime(it, targetTime) }
+            val candidates = openRestaurants.ifEmpty { restaurants }
+
+            val best = candidates.maxByOrNull {
                 val rating = it.rating ?: 0.0
                 val reviews = it.userRatingCount ?: 0
                 rating * kotlin.math.ln((reviews + 1).toDouble())
-            }
-            if (best == null) {
-                return Result.success(emptyList())
-            }
+            } ?: return  Result.success(emptyList())
 
-            // TIME CHECK
-            if (!isOpenAtPlannedTime(best, targetTime)) {
-                return Result.success(emptyList())
-            }
             Result.success(listOf(best))
+
         } catch (e: Exception) {
             Log.e("fetchRestaurants", "Error", e)
             Result.failure(e)
@@ -120,28 +118,6 @@ class PlacesRepositoryImp(
 
     }
 }
-
-///**
-// * Validates if the restaurant is open based on the future target time.
-// */
-//private fun isOpenAtPlannedTime(
-//    restaurant: Restaurant,
-//    targetTime: DateTime?,
-//): Boolean {
-//    // If we don't have a target time, we can't validate, so just return true
-//    if (targetTime == null) return true
-//
-//    if (restaurant.openingHours == null) return true
-//
-//    val plannedDay = targetTime.toDayOfWeekName()
-//    val schedule =
-//        restaurant.openingHours.find {
-//            it.startsWith(plannedDay, ignoreCase = true)
-//        }
-//
-//    // Returns false only if the schedule explicitly says "Closed"
-//    return schedule?.contains("Closed", ignoreCase = true) == false
-//}
 
 /**
  * Converts the DateTime object into a full weekday name (e.g., "Monday").
