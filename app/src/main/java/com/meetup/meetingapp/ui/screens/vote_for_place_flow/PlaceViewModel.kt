@@ -265,45 +265,28 @@ class PlaceViewModel(
      */
     private fun getAllRestaurant(eventId: String) {
         viewModelScope.launch(Dispatchers.IO) {
+
             try {
-                // 1. Get the current event to extract the voted city/location coordinates
-                val currentEvent = _event.value
-                if (currentEvent == null) {
-                    Log.e("PlaceViewModel", "Cannot fetch restaurants: Event is null")
-                    return@launch
-                }
+                val event = _event.value ?: return@launch
+                val lat = event.selectedLocationLat ?: return@launch
+                val lng = event.selectedLocationLng ?: return@launch
+                val timing = selectedTiming.value ?: return@launch
+                val restaurants = eventRepository.getRestaurantsOnce(
+                    eventId,
+                    timing,
+                    lat,
+                    lng
 
-                // Extract coordinates from the event object
-                val lat = currentEvent.selectedLocationLat ?: 0.0
-                val lng = currentEvent.selectedLocationLng ?: 0.0
-                val timing = selectedTiming.value
-
-                // 2. Sync Firestore data to local Room cache
-                eventRepository.syncRestaurants(eventId)
-
-                // 3. Fetch from repository using the new signature (Time + Location)
-                // This ensures we save tokens by biasing the search to the correct city
-                eventRepository
-                    .getRestaurants(
-                        eventId = eventId,
-                        targetTime = timing,
-                        lat = lat,
-                        lng = lng,
-                    ).collect { restaurants ->
-                        isInitialFetchComplete = true
-                        // 4. Update the StateFlow for the UI
-                        _allRestaurants.update { it.copy(allRestaurants = restaurants) }
-
-                        // Update the overall state for the UI to handle Loading/Available/Empty
-                        _restaurantState.value =
-                            if (restaurants.isNotEmpty()) {
-                                RestaurantState.Available
-                            } else {
-                                RestaurantState.Empty
-                            }
+                )
+                isInitialFetchComplete = true
+                _allRestaurants.value = AllRestaurantState(restaurants)
+                _restaurantState.value =
+                    if (restaurants.isEmpty()) {
+                        RestaurantState.Empty
+                    } else {
+                        RestaurantState.Available(restaurants)
                     }
             } catch (e: Exception) {
-                Log.e("PlaceViewModel", "Failed to fetch restaurants", e)
                 _restaurantState.value = RestaurantState.Error(e)
             }
         }
@@ -369,13 +352,15 @@ class PlaceViewModel(
             }
         _dateAndAreaState.value = DateAndAreaState(dateLocationOptions = options)
 
-        // If no valid options remain after filtering, set state to Empty only after initial fetch
-        if (options.isEmpty() && isInitialFetchComplete) {
-            _restaurantState.value = RestaurantState.Empty
-        } else if (options.isNotEmpty()) {
-            _restaurantState.value = RestaurantState.Available
-        }
 
+
+        // Restaurant state handling
+        _restaurantState.value =
+            when {
+                !isInitialFetchComplete -> RestaurantState.Loading
+                allRestaurants.isEmpty() -> RestaurantState.Empty
+                else -> RestaurantState.Available(allRestaurants)
+            }
         // Auto-select first option if none selected
         if (selectedTiming.value == null && options.isNotEmpty()) {
             selectedTiming.value = options.first().timing
@@ -476,8 +461,9 @@ data class DateAndAreaState(
  */
 sealed interface RestaurantState {
     object Loading : RestaurantState
-
-    object Available : RestaurantState
+    data class Available(
+        val restaurants: List<Restaurant>
+    ) : RestaurantState
 
     object Empty : RestaurantState
 

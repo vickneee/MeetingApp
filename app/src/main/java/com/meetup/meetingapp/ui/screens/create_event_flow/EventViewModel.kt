@@ -313,10 +313,10 @@ class EventViewModel(
     fun toggleCountry(country: CountryOption) {
         _uiState.update { current ->
             val updatedCountries =
-                if (current.locations.countries.contains(country.name)) {
-                    current.locations.countries - country.name
+                if (current.locations.countries.contains(country.code)) {
+                    current.locations.countries - country.code
                 } else {
-                    current.locations.countries + country.name
+                    current.locations.countries + country.code
                 }
 
             current.copy(
@@ -329,8 +329,8 @@ class EventViewModel(
 
         // Refresh cities based on all selected countries
         val selectedCountryOptions =
-            _uiState.value.locations.countries.mapNotNull { name ->
-                CountryOption.entries.find { it.name == name }
+            _uiState.value.locations.countries.mapNotNull { code ->
+                CountryOption.entries.find { it.code == code }
             }
         _selectedCountries.value = selectedCountryOptions
     }

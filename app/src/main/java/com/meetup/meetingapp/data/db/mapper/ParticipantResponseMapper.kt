@@ -22,10 +22,10 @@ object ParticipantResponseMapper {
     fun ParticipantResponseEntity.toDomain(): ParticipantResponse =
         ParticipantResponse(
             name = name,
-            dateTimes = gson.fromJson(dateTimes, object : TypeToken<List<DateTime>>() {}.type),
-            locations = gson.fromJson(locations, object : TypeToken<List<String>>() {}.type),
-            placeTypes = gson.fromJson(placeTypes, object : TypeToken<List<PlaceType>>() {}.type),
-            foodCategories = gson.fromJson(foodCategories, object : TypeToken<List<FoodCategory>>() {}.type),
+            dateTimes = dateTimes.safeFromJson(),
+            locations = locations.toStringList(),
+            placeTypes = placeTypes.safeFromJson(),
+            foodCategories = foodCategories.safeFromJson(),
         )
 
     /**
@@ -45,4 +45,29 @@ object ParticipantResponseMapper {
             placeTypes = gson.toJson(placeTypes),
             foodCategories = gson.toJson(foodCategories),
         )
+
+    private fun String?.toStringList(): List<String> =
+        try {
+            if (this.isNullOrBlank()) emptyList()
+            else gson.fromJson(this, object : TypeToken<List<String>>() {}.type)
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+    private inline fun <reified T> String?.safeFromJson(): T {
+        if (this.isNullOrBlank()) {
+            return when (T::class) {
+                List::class -> emptyList<Any>() as T
+                else -> null as T
+            }
+        }
+        return try {
+            gson.fromJson(this, object : TypeToken<T>() {}.type)
+        } catch (e: Exception) {
+            when (T::class) {
+                List::class -> emptyList<Any>() as T
+                else -> null as T
+            }
+        }
+    }
 }

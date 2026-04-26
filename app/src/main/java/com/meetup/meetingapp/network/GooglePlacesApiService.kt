@@ -60,6 +60,7 @@ interface GooglePlacesApiService {
      * search results toward a specific geographic area.
      * @param radius The distance (in meters) within which to bias the search results;
      * works in conjunction with [location] to prioritize local venues.
+     * @param components Optional components to filter the search results.
      * @param apiKey Google Maps Platform API key.
      * @return A parsed [PlacesTextSearchResponse] object.
      */

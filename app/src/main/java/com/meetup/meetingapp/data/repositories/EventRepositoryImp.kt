@@ -857,6 +857,9 @@ class EventRepositoryImp(
             .distinct()
             .joinToString("|") { "country:$it" }
 
+        Log.d("fetchAndSave", "countries = ${event.locationOptions.countries}")
+        Log.d("fetchAndSave", "components = $components")
+
         event.locationCandidates.forEach { city ->
             // Generate a matrix of search combinations (City + Type + Category)
             val combinations =
@@ -1246,4 +1249,14 @@ class EventRepositoryImp(
         } catch (_: Exception) {
             false
         }
+
+    override suspend fun getRestaurantsOnce(
+        eventId: String,
+        targetTime: DateTime?,
+        lat: Double,
+        lng: Double,
+        ): List<Restaurant> {
+        return getRestaurants(eventId, targetTime, lat, lng)
+            .first()
+    }
 }
