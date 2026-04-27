@@ -564,6 +564,7 @@ fun MeetingAppNavHost(
 
                 PlaceListPage(
                     onBack = { navController.popBackStack() },
+                    onEditSelection = { navController.navigate(MeetUpDetailDestination.route) },
                     onNavigateToPlaceDetails = { placeId ->
                         val eventId = parentEntry.arguments?.getString(DateAndAreaPageDestination.EVENTIDARG) ?: ""
                         navController.navigate("${PlaceDetailsDestination.route}/$eventId/$placeId")
