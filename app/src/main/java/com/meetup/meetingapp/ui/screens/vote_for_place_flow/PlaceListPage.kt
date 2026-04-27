@@ -1,5 +1,6 @@
 package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 
+import android.R.attr.fontWeight
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -134,7 +135,7 @@ fun PlaceListContent(
                     .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 if (selectedTiming != null && selectedLocation != null) {
@@ -144,7 +145,7 @@ fun PlaceListContent(
                     ) {
                         Text(
                             text = selectedTiming.toDisplayLabel(),
-                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
@@ -153,7 +154,7 @@ fun PlaceListContent(
 
                         Text(
                             text = selectedLocation,
-                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
                         )

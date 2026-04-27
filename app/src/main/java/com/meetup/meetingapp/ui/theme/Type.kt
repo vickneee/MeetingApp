@@ -18,34 +18,34 @@ val Typography =
         // use: "Create Event", "Events List"
         titleLarge =
             TextStyle(
-                fontSize = 22.sp,
+                fontSize = 21.sp,
                 fontWeight = FontWeight.Bold,
             ),
         // SECTION TITLE
         // use: "Event Title", "Host Name", "Date Range"
         titleMedium =
             TextStyle(
-                fontSize = 20.sp,
+                fontSize = 19.sp,
                 fontWeight = FontWeight.SemiBold,
             ),
         // NORMAL TEXT
         // use: paragraphs, labels, descriptions
         bodyLarge =
             TextStyle(
-                fontSize = 18.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Normal,
             ),
         // SMALL TEXT
         // use: helper text, hints
         bodyMedium =
             TextStyle(
-                fontSize = 16.sp,
+                fontSize = 15.sp,
             ),
         // SMALL TEXT
         // use: helper text, hints
         bodySmall =
             TextStyle(
-                fontSize = 14.sp,
+                fontSize = 13.sp,
             ),
         // BUTTON TEXT
         // use: buttons like "Next", "Create Event"

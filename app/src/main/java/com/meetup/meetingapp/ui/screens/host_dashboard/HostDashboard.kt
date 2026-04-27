@@ -1,5 +1,8 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
+import android.R.attr.bottom
+import android.R.attr.end
+import android.R.attr.top
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -19,6 +22,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -202,20 +206,22 @@ fun HostDashboardContent(
                     .padding(paddingValues),
             contentPadding = AppPadding.pagePadding,
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Column(
-                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    modifier = Modifier.fillMaxWidth(AppSize.xl),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
                         text = buildAnnotatedString {
                             append("Hi, ")
-                            withStyle(SpanStyle(
-                                fontWeight = FontWeight.Bold
-                            )) {
+                            withStyle(
+                                SpanStyle(
+                                    fontWeight = FontWeight.Bold
+                                )
+                            ) {
                                 append(currentUserName)
                             }
                             append("!")
@@ -461,7 +467,7 @@ fun HostDashboardContent(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth(AppSize.lg),
-                            contentPadding = PaddingValues(vertical = AppSpacing.sm),
+                            contentPadding = PaddingValues(vertical = AppSpacing.md),
                         ) {
                             Text(
                                 text = buttonText,

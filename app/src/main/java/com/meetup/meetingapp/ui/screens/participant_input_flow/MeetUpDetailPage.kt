@@ -157,11 +157,11 @@ fun MeetUpDetailContent(
                     .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Column(
-                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    modifier = Modifier.fillMaxWidth(AppSize.xl),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
@@ -240,7 +240,7 @@ fun MeetUpDetailContent(
                     modifier =
                         Modifier
                             .padding(vertical = AppSpacing.xxs)
-                            .fillMaxWidth(AppSize.lg),
+                            .fillMaxWidth(AppSize.xl),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -254,7 +254,7 @@ fun MeetUpDetailContent(
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyMedium,
                     enabled = !isAlreadySubmitted, // Disable if already submitted
-                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    modifier = Modifier.fillMaxWidth(AppSize.xl),
                     shape = RoundedCornerShape(8.dp),
                     colors =
                         OutlinedTextFieldDefaults.colors(

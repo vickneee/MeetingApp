@@ -3,12 +3,14 @@ package com.meetup.meetingapp.ui.screens.create_event_flow
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -148,7 +150,7 @@ fun AreaSelectingContent(
                     .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Text(
@@ -172,6 +174,7 @@ fun AreaSelectingContent(
             }
 
             item {
+                Spacer(modifier = Modifier.fillMaxWidth(AppSize.xl))
                 Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 AppMultiSelectDropdown(

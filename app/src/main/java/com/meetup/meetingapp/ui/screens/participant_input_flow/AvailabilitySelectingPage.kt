@@ -145,7 +145,7 @@ fun AvailabilitySelectingPageContent(
                             .padding(paddingValues),
                     contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top,
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     item {
                         Text(
@@ -166,7 +166,7 @@ fun AvailabilitySelectingPageContent(
                         )
                         Spacer(modifier = Modifier.height(AppSpacing.lg))
                         Column(
-                            horizontalAlignment = Alignment.Start,
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             AppMultiSelectDropdown(
                                 options = allDateTimes,

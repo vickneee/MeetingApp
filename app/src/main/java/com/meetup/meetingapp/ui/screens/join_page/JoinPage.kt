@@ -155,7 +155,7 @@ fun JoinContent(
                     text = "Event Code",
                     modifier =
                         Modifier
-                            .fillMaxWidth(AppSize.lg)
+                            .fillMaxWidth(AppSize.xl)
                             .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
@@ -171,7 +171,7 @@ fun JoinContent(
                     label = { Text("Enter code") },
                     modifier =
                         Modifier
-                            .fillMaxWidth(AppSize.lg),
+                            .fillMaxWidth(AppSize.xl),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyMedium,
@@ -196,7 +196,7 @@ fun JoinContent(
                         style = MaterialTheme.typography.labelSmall,
                         modifier =
                             Modifier
-                                .fillMaxWidth(AppSize.lg)
+                                .fillMaxWidth(AppSize.xl)
                                 .padding(start = 16.dp, top = 4.dp),
                     )
                 }
@@ -205,7 +205,7 @@ fun JoinContent(
                     text = "Event Key",
                     modifier =
                         Modifier
-                            .fillMaxWidth(AppSize.lg)
+                            .fillMaxWidth(AppSize.xl)
                             .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
@@ -221,7 +221,7 @@ fun JoinContent(
                     label = { Text("Enter key") },
                     modifier =
                         Modifier
-                            .fillMaxWidth(AppSize.lg),
+                            .fillMaxWidth(AppSize.xl),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyMedium,
@@ -264,7 +264,7 @@ fun JoinContent(
                         style = MaterialTheme.typography.labelLarge,
                     )
                 }
-                Spacer(modifier = Modifier.height(AppSpacing.xl))
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
                 OutlinedButton(
                     onClick = { onEventsClick() },
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),

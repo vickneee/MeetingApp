@@ -18,7 +18,7 @@ object AppSpacing {
     val md = 14.dp
 
     // section spacing
-    val lg = 20.dp
+    val lg = 18.dp
 
     // big section gap
     val xl = 32.dp
@@ -35,7 +35,7 @@ object AppPadding {
         PaddingValues(
             start = AppSpacing.xl, // 32dp
             end = AppSpacing.xl, // 32dp
-            top = AppSpacing.xxxl, // 56dp
-            bottom = AppSpacing.xxxl, // 56dp
+            top = AppSpacing.xl, // 32dp
+            bottom = AppSpacing.xl, // 32dp
         )
 }

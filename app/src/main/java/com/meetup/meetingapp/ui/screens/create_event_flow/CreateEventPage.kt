@@ -111,7 +111,7 @@ fun CreateEventContent(
             }
             item {
                 Column(
-                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    modifier = Modifier.fillMaxWidth(AppSize.xl),
                 ) {
                     PlaceTypeItem(
                         title = "Restaurant",
