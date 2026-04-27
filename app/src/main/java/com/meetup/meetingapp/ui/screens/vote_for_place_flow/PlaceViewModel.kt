@@ -249,13 +249,6 @@ class PlaceViewModel(
         }
     }
 
-    fun manualRefresh() {
-        val currentEvent = _event.value
-        if (currentEvent != null) {
-            getAllRestaurant(currentEvent, forceRefresh = true)
-        }
-    }
-
     /**
      * Loads all restaurant candidates for the event from the Repository.
      * It uses the event's selected location to bias the search and fetches
