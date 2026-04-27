@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,6 +49,7 @@ import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
+import kotlin.text.ifEmpty
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
@@ -101,6 +103,7 @@ fun MeetUpDetailPage(
                         submissionsCount = uiState.submissionsCount,
                         attendees = uiState.attendees,
                         isAlreadySubmitted = uiState.isAlreadySubmitted,
+                        currentUserName = participantState.participantName,
                         participantState = participantState,
                         onNameChange = viewModel::updateName,
                         onBack = onBack,
@@ -120,6 +123,7 @@ fun MeetUpDetailPage(
  * @param submissionsCount The number of submissions.
  * @param attendees List of participant names.
  * @param isAlreadySubmitted Whether the user has already submitted.
+ * @param currentUserName The name of the current user.
  * @param participantState The participant input state.
  * @param onNameChange Callback to update the participant name.
  * @param onBack Navigate back.
@@ -134,6 +138,7 @@ fun MeetUpDetailContent(
     submissionsCount: Int,
     attendees: List<String>,
     isAlreadySubmitted: Boolean = false,
+    currentUserName: String = "",
     participantState: ParticipantInputState,
     onNameChange: (String) -> Unit,
     onBack: () -> Unit,
@@ -165,6 +170,23 @@ fun MeetUpDetailContent(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    Text(
+                        text = buildAnnotatedString {
+                            append("Hi, ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(currentUserName.ifEmpty { "there" })
+                            }
+                            append("!")
+                        },
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Normal,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp),
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(modifier = Modifier.height(AppSpacing.xxs))
                     Text(
                         buildAnnotatedString {
                             append("Event Code: ")
@@ -286,7 +308,7 @@ fun MeetUpDetailContent(
                         contentPadding = PaddingValues(vertical = AppSpacing.md),
                     ) {
                         Text(
-                            text = if (isAlreadySubmitted) "Edit Your Vote" else "Next",
+                            text = if (isAlreadySubmitted) "Edit Your Availability" else "Next",
                             style = MaterialTheme.typography.labelLarge,
                         )
                     }
@@ -330,6 +352,7 @@ fun MeetUpDetailPreview() {
         MeetUpDetailContent(
             event = sampleEvent,
             isAlreadySubmitted = false,
+            currentUserName = "Julia",
             submissionsCount = 3,
             attendees = listOf("Victoria", "Alice", "Bob"),
             participantState = ParticipantInputState(participantName = "Julia"),
