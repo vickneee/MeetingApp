@@ -203,22 +203,34 @@ fun getOpenLabel(
     timing: DateTime,
 ): String? {
     val day = timing.toLocalDate().dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
-    val hours = restaurant.openingHours?.firstOrNull { it.startsWith(day, ignoreCase = true) } ?: return null
+    // Efficiency: Find the string once.
+    val rawHours = restaurant.openingHours?.firstOrNull {
+        it.startsWith(day, ignoreCase = true)
+    } ?: return null
 
-    // If it's 24 hours, return a friendly label instead of null
-    if (hours.contains("24", ignoreCase = true)) {
+    // Optimization: Fast-path for 24-hour places (Common case for your issue)
+    if (rawHours.contains("24", ignoreCase = true)) {
         return "Open 24 hours"
     }
 
-    // If it's explicitly closed
-    if (hours.contains("Closed", ignoreCase = true)) {
+    // Fast-path for explicitly Closed
+    if (rawHours.contains("Closed", ignoreCase = true)) {
         return "Closed"
     }
 
-    // Try to parse the time range
-    val range = extractTimeRange(hours) ?: return null
+    // Try to parse the time range for pretty formatting (AM/PM)
+    val range = extractTimeRange(rawHours)
 
-    return "${format24ToAmPm(range.first)} – ${format24ToAmPm(range.second)}"
+    return if (range != null) {
+        // Return pretty format: "9:00 AM – 5:00 PM"
+        "${format24ToAmPm(range.first)} – ${format24ToAmPm(range.second)}"
+    } else {
+        // FALLBACK (Optimization): If parsing fails, don't show "Unavailable".
+        // Instead, strip the "Thursday:" prefix and show the raw string from Google.
+        // This ensures the user sees something useful even if the regex missed it.
+        val cleanValue = rawHours.substringAfter(":").trim()
+        cleanValue.ifEmpty { "Hours unavailable" }
+    }
 }
 
 /**
