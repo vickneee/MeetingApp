@@ -1,8 +1,5 @@
 package com.meetup.meetingapp.ui.screens.host_dashboard
 
-import android.R.attr.bottom
-import android.R.attr.end
-import android.R.attr.top
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
