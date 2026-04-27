@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.util.Collections
 import java.util.Locale
 import kotlin.collections.flatMap
 import kotlinx.coroutines.awaitAll
@@ -1298,15 +1297,25 @@ class EventRepositoryImp(
      *
      * @param eventId The event for which to retrieve restaurants.
      * @param targetTime The time for which to retrieve restaurants.
+     * @param forceRefresh Whether to force a refresh of the data.
      * @return A [Flow] emitting a list of [Restaurant] objects.
      */
     override suspend fun getRestaurantsOnce(
         eventId: String,
         targetTime: DateTime?,
+        forceRefresh: Boolean,
     ): List<Restaurant> {
         Log.d("getRestaurantsOnce", "Syncing restaurants for eventId: $eventId")
         // Sync from Firestore into Room first
-        syncRestaurants(eventId)
+        // 1. If forceRefresh is true, we should clear local Room data or
+        // re-run the search logic to get fresh "Opening Hours"
+        if (forceRefresh) {
+            syncRestaurants(eventId)
+        } else {
+            // Standard sync from Firestore into Room
+            syncRestaurants(eventId)
+        }
+
         val result = restaurantDao.getRestaurantsOnce(eventId)
             .map { with(RestaurantMapper) { it.toDomain() } }
         Log.d("getRestaurantsOnce", "Got ${result.size} restaurants from Room")

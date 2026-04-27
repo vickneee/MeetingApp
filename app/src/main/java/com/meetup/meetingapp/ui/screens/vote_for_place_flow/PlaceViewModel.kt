@@ -249,12 +249,19 @@ class PlaceViewModel(
         }
     }
 
+    fun manualRefresh() {
+        val currentEvent = _event.value
+        if (currentEvent != null) {
+            getAllRestaurant(currentEvent, forceRefresh = true)
+        }
+    }
+
     /**
      * Loads all restaurant candidates for the event from the Repository.
      * It uses the event's selected location to bias the search and fetches
      * details based on the target meeting time.
      */
-    private fun getAllRestaurant(event: Event) {
+    private fun getAllRestaurant(event: Event, forceRefresh: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 Log.d("getAllRestaurant", "Starting for event: ${event.id}, lat=${event.selectedLocationLat}, lng=${event.selectedLocationLng}")
@@ -262,6 +269,7 @@ class PlaceViewModel(
                 val restaurants = eventRepository.getRestaurantsOnce(
                     eventId = event.id,
                     targetTime = null,
+                    forceRefresh = forceRefresh,
                 )
 
                 Log.d("getAllRestaurant", "Got ${restaurants.size} restaurants")
@@ -275,6 +283,7 @@ class PlaceViewModel(
                         RestaurantState.Available(restaurants)
                     }
             } catch (e: Exception) {
+                Log.e("getAllRestaurant", "Refresh failed", e)
                 _restaurantState.value = RestaurantState.Error(e)
             }
         }

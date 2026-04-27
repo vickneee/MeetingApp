@@ -165,12 +165,27 @@ fun isRestaurantOpenForTiming(
 ): Boolean {
     val targetDay = timing.toDayAbbrev()
     val hoursList = restaurant.openingHours ?: return true
-    return hoursList.any { hours ->
-        val days = parseDays(hours)
-        if (!days.contains(targetDay)) return@any false
-        val range = extractTimeRange(hours) ?: return@any false
-        hasOverlap(range.first, range.second, timing.timeSlot.start, timing.timeSlot.end)
+
+    // Find the entry for the target day (e.g., "Thursday: Open 24 hours")
+    val dailySchedule = hoursList.find { hours ->
+        parseDays(hours).contains(targetDay)
+    } ?: return true // If day not found, don't hide it
+
+    // Explicitly check for 24-hour availability
+    if (dailySchedule.contains("24", ignoreCase = true)) {
+        return true
     }
+
+    // Explicitly check if it's closed
+    if (dailySchedule.contains("Closed", ignoreCase = true)) {
+        return false
+    }
+
+    // Attempt to parse the time range
+    val range = extractTimeRange(dailySchedule) ?: return true
+
+    // If we have a range, check the actual overlap
+    return hasOverlap(range.first, range.second, timing.timeSlot.start, timing.timeSlot.end)
 }
 
 /**
@@ -188,8 +203,21 @@ fun getOpenLabel(
     timing: DateTime,
 ): String? {
     val day = timing.toLocalDate().dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
-    val hours = restaurant.openingHours?.firstOrNull { it.startsWith(day) } ?: return null
+    val hours = restaurant.openingHours?.firstOrNull { it.startsWith(day, ignoreCase = true) } ?: return null
+
+    // If it's 24 hours, return a friendly label instead of null
+    if (hours.contains("24", ignoreCase = true)) {
+        return "Open 24 hours"
+    }
+
+    // If it's explicitly closed
+    if (hours.contains("Closed", ignoreCase = true)) {
+        return "Closed"
+    }
+
+    // Try to parse the time range
     val range = extractTimeRange(hours) ?: return null
+
     return "${format24ToAmPm(range.first)} – ${format24ToAmPm(range.second)}"
 }
 

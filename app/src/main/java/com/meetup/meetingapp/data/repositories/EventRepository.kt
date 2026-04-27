@@ -291,11 +291,13 @@ interface EventRepository {
      * Retrieves the participant response for a specific user and event.
      * @param eventId The ID of the event.
      * @param targetTime The future meeting time to validate availability.
+     * @param forceRefresh Whether to force a refresh from the remote data source.
      * @return The [hasUserSubmittedAvailability] true if found, null otherwise.
      * @throws Exception if the synchronization operation fails.
      */
     suspend fun getRestaurantsOnce(
         eventId: String,
         targetTime: DateTime?,
+        forceRefresh: Boolean = false,
         ): List<Restaurant>
 }
