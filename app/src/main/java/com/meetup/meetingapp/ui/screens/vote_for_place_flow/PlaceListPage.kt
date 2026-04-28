@@ -102,6 +102,7 @@ fun PlaceListPage(
  * Content for the Place List screen.
  *
  * @param onBack Navigate back.
+ * @param onEditSelection Navigate to the Edit Selection screen.
  * @param placeListState The list of restaurants to display.
  * @param selectedTiming The selected timing.
  * @param selectedLocation The selected location.

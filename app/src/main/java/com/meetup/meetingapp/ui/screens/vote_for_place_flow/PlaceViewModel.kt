@@ -253,8 +253,9 @@ class PlaceViewModel(
      * Loads all restaurant candidates for the event from the Repository.
      * It uses the event's selected location to bias the search and fetches
      * details based on the target meeting time.
+     * @param event The event to load restaurants for.
      */
-    private fun getAllRestaurant(event: Event, forceRefresh: Boolean = false) {
+    private fun getAllRestaurant(event: Event) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 Log.d("getAllRestaurant", "Starting for event: ${event.id}, lat=${event.selectedLocationLat}, lng=${event.selectedLocationLng}")
