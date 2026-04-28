@@ -4,8 +4,10 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Restaurant
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
 import java.time.format.TextStyle
 import java.util.Locale
+import android.util.Log
 
 private const val MINIMUM_OVERLAP_MINUTES = 60
 
@@ -96,12 +98,50 @@ fun extractTimeRange(hours: String): Pair<String, String>? {
 }
 
 /**
- * Converts "9:00 AM" → "09:00" (24-hour format)
+ * Converts "9:00 AM" or "9:00AM" → "09:00" (24-hour format)
  */
 fun convertTo24(time: String): String {
-    val formatter12 = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
+    val flexibleFormatter = DateTimeFormatterBuilder()
+        .parseCaseInsensitive()
+        .appendPattern("h:mm")
+        .optionalStart()
+        .appendLiteral(" ")
+        .optionalEnd()
+        .appendPattern("a")
+        .toFormatter(Locale.ENGLISH)
+
     val formatter24 = DateTimeFormatter.ofPattern("HH:mm")
-    return LocalTime.parse(time.uppercase(), formatter12).format(formatter24)
+
+    return try {
+        val sanitizedTime = time.trim().uppercase()
+        LocalTime.parse(sanitizedTime, flexibleFormatter).format(formatter24)
+    } catch (e: Exception) {
+        Log.w("OpeningHoursUtils", "Failed to convert time: $time", e)
+        "00:00"
+    }
+}
+
+/**
+ * Internal helper to convert any time string (12h or 24h) to minutes since midnight.
+ * This makes hasOverlap much more robust.
+ */
+private fun timeToMinutes(t: String): Int {
+    return try {
+        // If it's 12-hour format (contains AM/PM), convert it first
+        val normalizedTime = if (t.contains(Regex("[AP]M", RegexOption.IGNORE_CASE))) {
+            convertTo24(t)
+        } else {
+            t
+        }
+
+        val parts = normalizedTime.split(":")
+        val hours = parts[0].trim().toInt()
+        val minutes = parts[1].trim().toInt()
+        (hours * 60) + minutes
+    } catch (e: Exception) {
+        Log.w("OpeningHoursUtils", "Failed to parse time to minutes: $t", e)
+        0
+    }
 }
 
 /**
@@ -114,45 +154,27 @@ fun hasOverlap(
     tStartStr: String,
     tEndStr: String,
 ): Boolean {
-    fun toMin(t: String): Int {
-        val p = t.split(":")
-        return (p[0].toInt() * 60) + p[1].toInt()
-    }
+    // Use the new helper to safely get minutes
+    val oStart = timeToMinutes(oStartStr)
+    val oEnd = timeToMinutes(oEndStr)
+    val tStart = timeToMinutes(tStartStr)
+    val tEnd = timeToMinutes(tEndStr)
 
-    // Convert "HH:mm" to minutes from 00:00
-    val oStart = toMin(oStartStr)
-    val oEnd = toMin(oEndStr)
-    val tStart = toMin(tStartStr)
-    val tEnd = toMin(tEndStr)
-
-    // Split an interval into one or two segments on [0, 1440)
-    // If it crosses midnight, it becomes [start, 1440) and [0, end)
-    fun toSegments(
-        start: Int,
-        end: Int,
-    ): List<Pair<Int, Int>> =
-        if (end > start) {
-            listOf(start to end)
-        } else {
-            listOf(start to 1440, 0 to end)
-        }
+    fun toSegments(start: Int, end: Int): List<Pair<Int, Int>> =
+        if (end > start) listOf(start to end)
+        else listOf(start to 1440, 0 to end)
 
     val oSegments = toSegments(oStart, oEnd)
     val tSegments = toSegments(tStart, tEnd)
 
     var maxOverlap = 0
-
-    // Compute maximum overlap between any pair of segments
     for ((os, oe) in oSegments) {
         for ((ts, te) in tSegments) {
             val overlap = minOf(oe, te) - maxOf(os, ts)
-            if (overlap > maxOverlap) {
-                maxOverlap = overlap
-            }
+            if (overlap > maxOverlap) maxOverlap = overlap
         }
     }
 
-    // Require at least 60 minutes of overlap
     return maxOverlap >= MINIMUM_OVERLAP_MINUTES
 }
 
@@ -191,12 +213,6 @@ fun isRestaurantOpenForTiming(
 /**
  * Builds a human‑readable opening hours label for the given restaurant
  * based on the selected timing.
- *
- * Example output: `"10:00 AM – 8:00 PM"`
- *
- * @param restaurant The restaurant whose opening hours should be evaluated.
- * @param timing The selected date/time used to determine the correct weekday.
- * @return A formatted label or null if opening hours are unavailable.
  */
 fun getOpenLabel(
     restaurant: Restaurant,
@@ -235,12 +251,14 @@ fun getOpenLabel(
 
 /**
  * Converts a 24‑hour time string (e.g., `"18:30"`) into a 12‑hour AM/PM format.
- *
- * @param time A time string in `"HH:mm"` format.
- * @return A formatted time string in `"h:mm a"` format.
  */
 fun format24ToAmPm(time: String): String {
     val f24 = DateTimeFormatter.ofPattern("H:mm")
     val f12 = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
-    return LocalTime.parse(time, f24).format(f12)
+    return try {
+        LocalTime.parse(time, f24).format(f12)
+    } catch (e: Exception) {
+        Log.w("OpeningHoursUtils", "Failed to format time: $time", e)
+        time // Fallback to original string if parsing fails
+    }
 }
