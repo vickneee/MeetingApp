@@ -1306,13 +1306,8 @@ class EventRepositoryImp(
         forceRefresh: Boolean,
     ): List<Restaurant> {
         Log.d("getRestaurantsOnce", "Syncing restaurants for eventId: $eventId")
-        // Sync from Firestore into Room first
-        // 1. If forceRefresh is true, we should clear local Room data or
-        // re-run the search logic to get fresh "Opening Hours"
+
         if (forceRefresh) {
-            syncRestaurants(eventId)
-        } else {
-            // Standard sync from Firestore into Room
             syncRestaurants(eventId)
         }
 
