@@ -90,6 +90,15 @@ class HostDashboardViewModel(
                         )
                     }
 
+                    if (e.status == EventStatus.FIRST_VOTING_CLOSED) {
+                        viewModelScope.launch(Dispatchers.IO) {
+                            val hasRestaurants = eventRepository.hasRestaurantCandidates(e.id)
+                            if (!hasRestaurants) {
+                                _uiState.update { it.copy(noPlacesFound = true) }
+                            }
+                        }
+                    }
+
                     // Side effects
                     if (e.status == EventStatus.CREATED) {
                         viewModelScope.launch {
@@ -129,6 +138,9 @@ class HostDashboardViewModel(
                         }.onFailure { error ->
                             withContext(Dispatchers.Main) {
                                 _closeVotingState.value = CloseVotingState.Error(error)
+                                if (error.message?.contains("No places found") == true) {
+                                    _uiState.update { it.copy(noPlacesFound = true) }
+                                }
                             }
                         }
                 } else {
@@ -207,7 +219,8 @@ data class HostDashboardUiState(
     val hasAnyRestaurantVotes: Boolean = false,
     val hasHostSubmittedAvailability: Boolean = false,
     val isInitialLoading: Boolean = true,
-    val currentUserName: String = ""
+    val currentUserName: String = "",
+    val noPlacesFound: Boolean = false,
 )
 
 sealed interface CloseVotingState {

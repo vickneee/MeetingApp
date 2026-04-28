@@ -331,7 +331,7 @@ fun TimeSelectorField(
     textAlign: TextAlign,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(AppSize.lg),
+        modifier = Modifier.fillMaxWidth(AppSize.xl),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Card(

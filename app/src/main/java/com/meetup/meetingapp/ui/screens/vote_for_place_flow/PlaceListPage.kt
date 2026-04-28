@@ -3,7 +3,6 @@ package com.meetup.meetingapp.ui.screens.vote_for_place_flow
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -71,6 +71,7 @@ object PlaceListPageDestination : NavigationDestination {
 @Composable
 fun PlaceListPage(
     onBack: () -> Unit,
+    onEditSelection : () -> Unit,
     viewModel: PlaceViewModel,
     onNavigateToPlaceDetails: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -86,6 +87,7 @@ fun PlaceListPage(
         } else {
             PlaceListContent(
                 onBack = onBack,
+                onEditSelection = onEditSelection,
                 placeListState = placeListState,
                 selectedTiming = selectedTiming,
                 selectedLocation = selectedLocation,
@@ -100,6 +102,7 @@ fun PlaceListPage(
  * Content for the Place List screen.
  *
  * @param onBack Navigate back.
+ * @param onEditSelection Navigate to the Edit Selection screen.
  * @param placeListState The list of restaurants to display.
  * @param selectedTiming The selected timing.
  * @param selectedLocation The selected location.
@@ -111,6 +114,7 @@ fun PlaceListPage(
 @Composable
 fun PlaceListContent(
     onBack: () -> Unit,
+    onEditSelection: () -> Unit,
     placeListState: List<Restaurant>,
     selectedTiming: DateTime?,
     selectedLocation: String?,
@@ -134,7 +138,7 @@ fun PlaceListContent(
                     .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 if (selectedTiming != null && selectedLocation != null) {
@@ -144,7 +148,7 @@ fun PlaceListContent(
                     ) {
                         Text(
                             text = selectedTiming.toDisplayLabel(),
-                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
@@ -153,7 +157,7 @@ fun PlaceListContent(
 
                         Text(
                             text = selectedLocation,
-                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
                         )
@@ -172,18 +176,23 @@ fun PlaceListContent(
 
             if (placeListState.isEmpty()) {
                 item {
-                    Box(
+                    Column(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
                                 .padding(top = 160.dp),
-                        contentAlignment = Alignment.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(AppSpacing.md),
                     ) {
                         Text(
                             text = "No places found for this selection.",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
                         )
+                        Button(onClick = onEditSelection) {
+                            Text(text = stringResource(id = R.string.edit_selection))
+                        }
                     }
                 }
             } else {
@@ -281,6 +290,7 @@ fun PLaceListContentPreview() {
 
     PlaceListContent(
         onBack = {},
+        onEditSelection = {},
         placeListState = sampleOptions,
         selectedTiming = DateTime("2024-04-14", TimeSlot("11:00", "14:00")),
         selectedLocation = "Espoo",

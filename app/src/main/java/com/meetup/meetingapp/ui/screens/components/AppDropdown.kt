@@ -135,7 +135,7 @@ fun <T> AppMultiSelectDropdown(
                     Row(
                         modifier =
                             Modifier
-                                .fillMaxWidth(AppSize.lg)
+                                .fillMaxWidth(AppSize.xl)
                                 .padding(vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -196,7 +196,7 @@ fun <T> AppMultiSelectDropdown(
                 enabled = enabled,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 modifier = Modifier
-                        .fillMaxWidth(AppSize.lg)
+                        .fillMaxWidth(AppSize.xl)
                         .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = enabled)
                         .focusRequester(focusRequester),
                 shape = RoundedCornerShape(8.dp),

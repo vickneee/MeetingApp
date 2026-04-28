@@ -141,7 +141,7 @@ fun AddTimeSlotsPageContent(
                 Row(
                     modifier =
                         Modifier
-                            .fillMaxWidth(AppSize.lg)
+                            .fillMaxWidth(AppSize.xl)
                             .padding(vertical = AppSpacing.xsm),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,

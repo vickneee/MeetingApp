@@ -19,4 +19,5 @@
     <string name="title_event_list_page">Event List</string>
     <string name="title_place_list">Place List</string>
     <string name="title_place_details">Place Details</string>
+    <string name="edit_selection">Edit Selection</string>
 </resources>

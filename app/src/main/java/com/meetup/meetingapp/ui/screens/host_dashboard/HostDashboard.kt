@@ -132,6 +132,7 @@ fun HostDashboardPage(
                     onVoteForRestaurantClick = onVoteForRestaurantClick,
                     onFinalPlanClick = onFinalPlanClick,
                     hasHostSubmittedAvailability = uiState.hasHostSubmittedAvailability,
+                    noPlacesFound = uiState.noPlacesFound,
                     onFillAvailabilityClick = {
                         onFillAvailability(
                             event.eventCode,
@@ -182,6 +183,7 @@ fun HostDashboardContent(
     onCloseVotingClick: (EventStatus) -> Unit,
     onNavigateToHome: () -> Unit,
     hasHostSubmittedAvailability: Boolean,
+    noPlacesFound: Boolean,
     onFillAvailabilityClick: () -> Unit,
     onShowEventCodes: () -> Unit,
 ) {
@@ -202,20 +204,22 @@ fun HostDashboardContent(
                     .padding(paddingValues),
             contentPadding = AppPadding.pagePadding,
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Column(
-                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    modifier = Modifier.fillMaxWidth(AppSize.xl),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
                         text = buildAnnotatedString {
                             append("Hi, ")
-                            withStyle(SpanStyle(
-                                fontWeight = FontWeight.Bold
-                            )) {
+                            withStyle(
+                                SpanStyle(
+                                    fontWeight = FontWeight.Bold
+                                )
+                            ) {
                                 append(currentUserName)
                             }
                             append("!")
@@ -412,7 +416,7 @@ fun HostDashboardContent(
                 val buttonEnabled =
                     when (event.status) {
                         EventStatus.COLLECTING_AVAILABILITY -> submissionsCount > 0
-                        EventStatus.FIRST_VOTING_CLOSED -> true
+                        EventStatus.FIRST_VOTING_CLOSED -> !noPlacesFound
                         EventStatus.RESTAURANT_CANDIDATES_GENERATED -> false
                         EventStatus.COLLECTING_RESTAURANT_VOTES -> hasAnyRestaurantVotes
                         else -> false
@@ -461,7 +465,7 @@ fun HostDashboardContent(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth(AppSize.lg),
-                            contentPadding = PaddingValues(vertical = AppSpacing.sm),
+                            contentPadding = PaddingValues(vertical = AppSpacing.md),
                         ) {
                             Text(
                                 text = buttonText,
@@ -483,6 +487,21 @@ fun HostDashboardContent(
                                     .padding(top = 8.dp),
                             textAlign = TextAlign.Start,
                         )
+                    }
+
+                    if (noPlacesFound) {
+                        Spacer(modifier = Modifier.height(AppSpacing.lg))
+                        Button(
+                            onClick = onFillAvailabilityClick,
+                            modifier = Modifier.fillMaxWidth(AppSize.lg),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(vertical = AppSpacing.md),
+                        ) {
+                            Text(
+                                "Edit My Availability",
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                        }
                     }
 
                     if (!hasHostSubmittedAvailability && event.status == EventStatus.COLLECTING_AVAILABILITY) {
@@ -561,6 +580,7 @@ fun HostDashboardPreview() {
             onVoteForRestaurantClick = {},
             onCloseVotingClick = {},
             hasHostSubmittedAvailability = false,
+            noPlacesFound = false,
             onFillAvailabilityClick = {},
             onNavigateToHome = {},
             onShowEventCodes = {},

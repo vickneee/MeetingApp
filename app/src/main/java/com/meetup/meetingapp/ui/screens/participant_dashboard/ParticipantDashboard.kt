@@ -4,6 +4,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -155,11 +156,11 @@ fun ParticipantDashboardContent(
                     .padding(paddingValues),
             contentPadding = AppPadding.pagePadding,
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Column(
-                    modifier = Modifier.fillMaxWidth(AppSize.lg),
+                    modifier = Modifier.fillMaxWidth(AppSize.xl),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {

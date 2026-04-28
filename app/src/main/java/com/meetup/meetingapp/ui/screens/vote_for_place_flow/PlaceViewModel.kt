@@ -69,7 +69,7 @@ class PlaceViewModel(
     val restaurantDistance: StateFlow<String?> = _restaurantDistance.asStateFlow()
 
     /** Event ID passed from navigation arguments. */
-    private val eventId: String =
+    val eventId: String =
         savedStateHandle[PlaceDetailsDestination.eventIdArg]
             ?: savedStateHandle[DateAndAreaPageDestination.EVENTIDARG] ?: ""
 
@@ -253,6 +253,7 @@ class PlaceViewModel(
      * Loads all restaurant candidates for the event from the Repository.
      * It uses the event's selected location to bias the search and fetches
      * details based on the target meeting time.
+     * @param event The event to load restaurants for.
      */
     private fun getAllRestaurant(event: Event) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -262,6 +263,7 @@ class PlaceViewModel(
                 val restaurants = eventRepository.getRestaurantsOnce(
                     eventId = event.id,
                     targetTime = null,
+                    forceRefresh = true,
                 )
 
                 Log.d("getAllRestaurant", "Got ${restaurants.size} restaurants")
@@ -275,6 +277,7 @@ class PlaceViewModel(
                         RestaurantState.Available(restaurants)
                     }
             } catch (e: Exception) {
+                Log.e("getAllRestaurant", "Refresh failed", e)
                 _restaurantState.value = RestaurantState.Error(e)
             }
         }
@@ -304,6 +307,8 @@ class PlaceViewModel(
 
     /**
      * Updates user-selected filters.
+     * @param timing The selected date and time.
+     * @param location The selected location.
      */
     fun setFilter(
         timing: DateTime,
@@ -311,6 +316,16 @@ class PlaceViewModel(
     ) {
         selectedTiming.value = timing
         selectedLocation.value = location
+    }
+
+    /**
+     * Resets the restaurant state to loading.
+     */
+    fun resetRestaurantState() {
+        restaurantsLoaded = false
+        isInitialFetchComplete = false
+        _restaurantState.value = RestaurantState.Loading
+        _allRestaurants.value = AllRestaurantState()
     }
 
     /**

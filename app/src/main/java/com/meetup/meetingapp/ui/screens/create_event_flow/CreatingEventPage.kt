@@ -165,7 +165,8 @@ fun CreatingEventContent(
             item {
                 Text(
                     text = "Create an Event",
-                    modifier = Modifier.padding(bottom = AppSpacing.xl),
+                    modifier = Modifier
+                        .padding(bottom = AppSpacing.xl),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
@@ -175,7 +176,7 @@ fun CreatingEventContent(
                     text = "Event Title",
                     modifier =
                         Modifier
-                            .fillMaxWidth(AppSize.lg)
+                            .fillMaxWidth(AppSize.xl)
                             .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
@@ -188,7 +189,7 @@ fun CreatingEventContent(
                     label = { Text("Enter title") },
                     modifier =
                         Modifier
-                            .fillMaxWidth(AppSize.lg)
+                            .fillMaxWidth(AppSize.xl)
                             .padding(bottom = AppSpacing.sm),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
@@ -210,7 +211,7 @@ fun CreatingEventContent(
                     text = "Host Name",
                     modifier =
                         Modifier
-                            .fillMaxWidth(AppSize.lg)
+                            .fillMaxWidth(AppSize.xl)
                             .padding(bottom = AppSpacing.xxs),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium,
@@ -223,7 +224,7 @@ fun CreatingEventContent(
                     label = { Text("Enter host name") },
                     modifier =
                         Modifier
-                            .fillMaxWidth(AppSize.lg)
+                            .fillMaxWidth(AppSize.xl)
                             .padding(bottom = AppSpacing.sm),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,

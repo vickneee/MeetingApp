@@ -8,8 +8,8 @@ object AppSize {
     val md = 0.65f
 
     // large width
-    val lg = 0.90f
+    val lg = 0.70f
 
     // huge width
-    val xl = 0.95f
+    val xl = 0.90f
 }

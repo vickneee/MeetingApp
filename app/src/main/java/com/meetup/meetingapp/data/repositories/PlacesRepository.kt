@@ -16,6 +16,7 @@ interface PlacesRepository {
      * @param lat Optional Latitude of the search center. If null or 0.0, location biasing is skipped.
      * @param lng Optional Longitude of the search center. If null or 0.0, location biasing is skipped.
      * @param components Optional components to filter the search results.
+     * @param forceRefresh Whether to force a refresh of the data from the API.
      * @return A [Result] containing a list of [Restaurant] on success.
      */
     suspend fun fetchRestaurants(
@@ -24,5 +25,6 @@ interface PlacesRepository {
         lat: Double? = null,
         lng: Double? = null,
         components: String? = null,
+        forceRefresh: Boolean = false
     ): Result<List<Restaurant>>
 }

@@ -25,6 +25,7 @@ class PlacesRepositoryImp(
         lat: Double?,
         lng: Double?,
         components: String?,
+        forceRefresh: Boolean
     ): Result<List<Restaurant>> {
 
         return try {
@@ -33,7 +34,11 @@ class PlacesRepositoryImp(
             val locationString = if (hasLocation) "$lat,$lng" else null
 
             val cacheKey = "$query-$locationString"
-            searchCache[cacheKey]?.let { return Result.success(it) }
+            if (!forceRefresh) {
+                searchCache[cacheKey]?.let { return Result.success(it) }
+            } else {
+                searchCache.remove(cacheKey)
+            }
 
             // FINLAND FILTER HERE
             val textSearchResponse = api.textSearch(
@@ -115,14 +120,33 @@ class PlacesRepositoryImp(
         restaurant: Restaurant,
         targetTime: DateTime?,
         ): Boolean {
+        // If no target time is set, we don't filter at all
         if (targetTime == null) return true
+
         val hours = restaurant.openingHours ?: return true
         val day = targetTime.toDayOfWeekName()
+
+        // Find the line for today, e.g., "Thursday: Open 24 hours" or "Thursday: 9:00 AM – 11:00 PM"
         val schedule = hours.find {
             it.startsWith(day, ignoreCase = true)
-        }
-        return schedule?.contains("Closed", ignoreCase = true) == false
+        } ?: return true
 
+        // Explicitly check for 24-hour availability
+        if (schedule.contains("Open 24 hours", ignoreCase = true) ||
+            schedule.contains("24/7", ignoreCase = true) ||
+            schedule.contains("24", ignoreCase = true)) {
+            return true
+        }
+
+        // Explicitly check if it's closed
+        if (schedule.contains("Closed", ignoreCase = true)) {
+            return false
+        }
+
+        // Fallback: If we have a schedule string but don't have complex
+        // time-parsing logic yet, we assume it's open if it's not "Closed".
+        // You can add more complex LocalTime parsing here if needed.
+        return true
     }
 }
 

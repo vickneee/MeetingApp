@@ -148,7 +148,7 @@ fun AreaSelectingContent(
                     .padding(paddingValues),
             contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.Center,
         ) {
             item {
                 Text(
@@ -172,6 +172,7 @@ fun AreaSelectingContent(
             }
 
             item {
+                Spacer(modifier = Modifier.fillMaxWidth(AppSize.xl))
                 Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                 AppMultiSelectDropdown(

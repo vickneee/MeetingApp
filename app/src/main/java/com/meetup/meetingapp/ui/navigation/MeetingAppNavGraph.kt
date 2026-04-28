@@ -51,8 +51,8 @@ import com.meetup.meetingapp.ui.screens.participant_input_flow.SmallAreaSelectin
 import com.meetup.meetingapp.ui.screens.participant_input_flow.SubmissionCompleteDestination
 import com.meetup.meetingapp.ui.screens.participant_input_flow.SubmissionCompletePage
 import com.meetup.meetingapp.ui.screens.participant_input_flow.TimeAvailabilityDestination
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPage
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPageDestination
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPageDestination.DateAndAreaPage
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceDetailsDestination
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceDetailsPage
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceListPage
@@ -483,8 +483,8 @@ fun MeetingAppNavHost(
                 onFinalPlanClick = { placeId ->
                     navController.navigate("${PlaceDetailsDestination.route}/$eventId/$placeId")
                 },
-                onFillAvailability = { eventId, eventKey ->
-                    navController.navigate("${MeetUpDetailDestination.route}/$eventId/$eventKey")
+                onFillAvailability = { eventCode, eventKey ->
+                    navController.navigate("${MeetUpDetailDestination.route}/$eventCode/$eventKey")
                 },
                 onNavigateToHome = {
                     navController.navigate(HomeDestination.route)
@@ -509,8 +509,8 @@ fun MeetingAppNavHost(
                 onFinalPlanClick = { placeId ->
                     navController.navigate("${PlaceDetailsDestination.route}/$eventId/$placeId")
                 },
-                onFillAvailability = { eventId, eventKey ->
-                    navController.navigate("${MeetUpDetailDestination.route}/$eventId/$eventKey")
+                onFillAvailability = { eventCode, eventKey ->
+                    navController.navigate("${MeetUpDetailDestination.route}/$eventCode/$eventKey")
                 },
                 onNavigateToHome = {
                     navController.navigate(HomeDestination.route)
@@ -539,8 +539,21 @@ fun MeetingAppNavHost(
                         parentEntry,
                         factory = AppViewModelProvider.Factory,
                     )
+
+                LaunchedEffect(Unit) {
+                    viewModel.resetRestaurantState()
+                }
+
                 DateAndAreaPage(
                     onBack = { navController.popBackStack() },
+                    onEditSelection = {
+                        val event = viewModel.event.value
+                        if (event != null) {
+                            navController.navigate(
+                                "${MeetUpDetailDestination.route}/${event.eventCode}/${event.eventKey}"
+                            )
+                        }
+                    },
                     onNavigateToRestaurantListPage = {
                         navController.navigate(PlaceListPageDestination.route)
                     },
@@ -564,6 +577,14 @@ fun MeetingAppNavHost(
 
                 PlaceListPage(
                     onBack = { navController.popBackStack() },
+                    onEditSelection = {
+                        val event = viewModel.event.value
+                        if (event != null) {
+                            navController.navigate(
+                                "${MeetUpDetailDestination.route}/${event.eventCode}/${event.eventKey}"
+                            )
+                        }
+                    },
                     onNavigateToPlaceDetails = { placeId ->
                         val eventId = parentEntry.arguments?.getString(DateAndAreaPageDestination.EVENTIDARG) ?: ""
                         navController.navigate("${PlaceDetailsDestination.route}/$eventId/$placeId")
