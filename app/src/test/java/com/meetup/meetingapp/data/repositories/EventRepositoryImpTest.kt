@@ -10,6 +10,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import com.meetup.meetingapp.data.db.daos.EventDao
 import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
+import com.meetup.meetingapp.data.db.mapper.FirestoreCityList
+import com.meetup.meetingapp.data.db.mapper.FirestoreCity
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EventRepositoryImpTest {
@@ -17,12 +19,13 @@ class EventRepositoryImpTest {
     val mockDb = mockk<com.google.firebase.firestore.FirebaseFirestore>(relaxed = true)
     private val mockEventDao = mockk<EventDao>(relaxed = true)
     private val mockUserRepo = mockk<UserRepository>(relaxed = true)
+    private val mockCityDao = mockk<com.meetup.meetingapp.data.db.daos.CityDao>(relaxed = true)
 
     private val repo = EventRepositoryImp(
         db = mockDb,
         userRepository = mockUserRepo,
         eventDao = mockEventDao,
-        cityDao = mockk(relaxed = true),
+        cityDao = mockCityDao,
         participantResponseDao = mockk(relaxed = true),
         restaurantDao = mockk(relaxed = true),
         placesRepository = mockk(relaxed = true),
@@ -283,5 +286,54 @@ class EventRepositoryImpTest {
         assertTrue(result.isFailure)
         assertEquals("Network Error", result.exceptionOrNull()?.message)
         coVerify(exactly = 0) { mockEventDao.upsertEvent(any()) }
+    }
+
+    @Test
+    fun `syncCities parses firestore documents and stores cities`() = runTest {
+
+        // --- Firestore mocks ---
+        val mockCollection = mockk<com.google.firebase.firestore.CollectionReference>()
+        val mockQuerySnapshot = mockk<com.google.firebase.firestore.QuerySnapshot>()
+        val mockTask = mockk<com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot>>()
+
+        val doc1 = mockk<com.google.firebase.firestore.DocumentSnapshot>()
+        val ignoredDoc = mockk<com.google.firebase.firestore.DocumentSnapshot>()
+
+        every { mockDb.collection("static_data") } returns mockCollection
+        every { mockCollection.get() } returns mockTask
+
+        mockkStatic("kotlinx.coroutines.tasks.TasksKt")
+        coEvery { mockTask.await() } returns mockQuerySnapshot
+
+        every { mockQuerySnapshot.documents } returns listOf(doc1, ignoredDoc)
+
+        // --- IDs ---
+        every { doc1.id } returns "finland_cities"
+        every { ignoredDoc.id } returns "random_data"
+
+        // --- Firestore data ---
+        val finlandData = FirestoreCityList(
+            items = listOf(
+                FirestoreCity("Helsinki", "helsinki finland"),
+                FirestoreCity("Espoo", "espoo finland")
+            )
+        )
+
+        every { doc1.toObject(FirestoreCityList::class.java) } returns finlandData
+        every { ignoredDoc.toObject(FirestoreCityList::class.java) } returns null
+
+        // --- Act ---
+        repo.syncCities()
+
+        // --- Assert ---
+        coVerify {
+            mockCityDao.upsertCities(match { cities ->
+                cities.size == 2 &&
+                        cities.any { it.name == "Helsinki" && it.country == "Finland" } &&
+                        cities.any { it.name == "Espoo" && it.country == "Finland" }
+            })
+        }
+
+        unmockkStatic("kotlinx.coroutines.tasks.TasksKt")
     }
 }
