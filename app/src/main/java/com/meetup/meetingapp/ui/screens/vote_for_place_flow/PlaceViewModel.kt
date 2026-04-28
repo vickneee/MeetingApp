@@ -89,23 +89,41 @@ class PlaceViewModel(
     private val _dateAndAreaState = MutableStateFlow(DateAndAreaState())
     val dateAndAreaState = _dateAndAreaState.asStateFlow()
 
-    /** Loading state for restaurant candidates */
-    private val _restaurantState = MutableStateFlow<RestaurantState>(RestaurantState.Loading)
-    val restaurantState = _restaurantState.asStateFlow()
-
-    /** User-selected timing filter */
-    val selectedTiming = MutableStateFlow<DateTime?>(null)
-
-    /** User-selected location filter */
-    val selectedLocation = MutableStateFlow<String?>(null)
-
     /** All restaurants loaded from Room */
     private val _allRestaurants = MutableStateFlow(AllRestaurantState())
     val allRestaurants = _allRestaurants.asStateFlow()
 
     /** Whether all restaurants have been loaded from Room. */
     private var restaurantsLoaded = false
-    private var isInitialFetchComplete = false
+    private val _isInitialFetchComplete = MutableStateFlow(false)
+
+    /** Loading state for restaurant candidates */
+    val restaurantState: StateFlow<RestaurantState> = combine(
+        allRestaurants,
+        _isInitialFetchComplete
+    ) { state, isComplete ->
+        when {
+            state.allRestaurants.isNotEmpty() -> {
+                RestaurantState.Available(state.allRestaurants)
+            }
+            isComplete -> {
+                RestaurantState.Empty
+            }
+            else -> {
+                RestaurantState.Loading
+            }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = RestaurantState.Loading
+    )
+
+    /** User-selected timing filter */
+    val selectedTiming = MutableStateFlow<DateTime?>(null)
+
+    /** User-selected location filter */
+    val selectedLocation = MutableStateFlow<String?>(null)
 
     /** UI state for the Place Details screen. */
     private val _uiState = MutableStateFlow(PlaceUiState())
@@ -121,7 +139,6 @@ class PlaceViewModel(
         viewModelScope.launch {
             if (eventId.isEmpty()) {
                 Log.e("PlaceViewModel", "Event ID is missing!")
-                _restaurantState.value = RestaurantState.Error(Exception("Event ID is missing"))
                 return@launch
             }
 
@@ -139,7 +156,6 @@ class PlaceViewModel(
                         getAllRestaurant(event)
                     } else {
                         restaurantsLoaded = false  // reset so it retries on next emit
-                        _restaurantState.value = RestaurantState.Empty
                     }
                 }
             }
@@ -268,17 +284,11 @@ class PlaceViewModel(
 
                 Log.d("getAllRestaurant", "Got ${restaurants.size} restaurants")
 
-                isInitialFetchComplete = true
+                _isInitialFetchComplete.value = true
                 _allRestaurants.value = AllRestaurantState(restaurants)
-                _restaurantState.value =
-                    if (restaurants.isEmpty()) {
-                        RestaurantState.Empty
-                    } else {
-                        RestaurantState.Available(restaurants)
-                    }
             } catch (e: Exception) {
                 Log.e("getAllRestaurant", "Refresh failed", e)
-                _restaurantState.value = RestaurantState.Error(e)
+                _isInitialFetchComplete.value = true // Mark complete so it stops loading
             }
         }
     }
@@ -323,8 +333,8 @@ class PlaceViewModel(
      */
     fun resetRestaurantState() {
         restaurantsLoaded = false
-        isInitialFetchComplete = false
-        _restaurantState.value = RestaurantState.Loading
+        _isInitialFetchComplete.value = false
+        // _restaurantState is not used anymore since we have a derived restaurantState
         _allRestaurants.value = AllRestaurantState()
     }
 
