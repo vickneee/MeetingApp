@@ -39,7 +39,6 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPageDestination.DateAndAreaContent
 import com.meetup.meetingapp.ui.theme.AppPadding
-import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
