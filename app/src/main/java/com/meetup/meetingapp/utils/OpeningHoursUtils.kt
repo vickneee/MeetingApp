@@ -191,7 +191,7 @@ fun isRestaurantOpenForTiming(
     // Find the entry for the target day (e.g., "Thursday: Open 24 hours")
     val dailySchedule = hoursList.find { hours ->
         parseDays(hours).contains(targetDay)
-    } ?: return false // If day not found, don't hide it
+    } ?: return false
 
     // Explicitly check for 24-hour availability
     if (dailySchedule.contains("24", ignoreCase = true)) {
