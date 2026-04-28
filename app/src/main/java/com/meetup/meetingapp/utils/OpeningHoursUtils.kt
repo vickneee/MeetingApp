@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.TextStyle
 import java.util.Locale
+import android.util.Log
 
 private const val MINIMUM_OVERLAP_MINUTES = 60
 
@@ -115,7 +116,7 @@ fun convertTo24(time: String): String {
         val sanitizedTime = time.trim().uppercase()
         LocalTime.parse(sanitizedTime, flexibleFormatter).format(formatter24)
     } catch (e: Exception) {
-        // Fallback to prevent crash; logs could be added here for debugging
+        Log.w("OpeningHoursUtils", "Failed to convert time: $time", e)
         "00:00"
     }
 }
@@ -138,6 +139,7 @@ private fun timeToMinutes(t: String): Int {
         val minutes = parts[1].trim().toInt()
         (hours * 60) + minutes
     } catch (e: Exception) {
+        Log.w("OpeningHoursUtils", "Failed to parse time to minutes: $t", e)
         0
     }
 }
@@ -216,6 +218,7 @@ fun format24ToAmPm(time: String): String {
     return try {
         LocalTime.parse(time, f24).format(f12)
     } catch (e: Exception) {
+        Log.w("OpeningHoursUtils", "Failed to format time: $time", e)
         time // Fallback to original string if parsing fails
     }
 }
