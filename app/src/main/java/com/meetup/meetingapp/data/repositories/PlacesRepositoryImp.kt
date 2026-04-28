@@ -40,12 +40,12 @@ class PlacesRepositoryImp(
                 searchCache.remove(cacheKey)
             }
 
-            // FINLAND FILTER HERE
+            // FINLAND & ALAND FILTER HERE
             val textSearchResponse = api.textSearch(
                 query = query,
                 location = locationString,
                 radius = if (hasLocation) 10000 else null,
-                components = "country:fi",
+                components = "country:fi|country:ax",
                 apiKey = apiKey,
             )
 
@@ -75,7 +75,7 @@ class PlacesRepositoryImp(
                 val countryCode = details.addressComponents
                     ?.firstOrNull { it.types?.contains("country") == true }
                     ?.shortName
-                if (countryCode != "FI") return@mapNotNull null
+                if (countryCode != "FI" && countryCode != "AX") return@mapNotNull null
 
                 Restaurant(
                     placeId = placeId,
