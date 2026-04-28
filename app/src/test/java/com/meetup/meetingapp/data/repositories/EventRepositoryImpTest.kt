@@ -1,26 +1,27 @@
 package com.meetup.meetingapp.data.repositories
 
-
-import com.meetup.meetingapp.data.model.ParticipantResponse
-import com.meetup.meetingapp.data.model.DateTime
-import com.meetup.meetingapp.data.model.TimeSlot
-import com.meetup.meetingapp.data.model.PlaceType
-import com.meetup.meetingapp.data.model.FoodCategory
-import com.meetup.meetingapp.data.model.Event
-import com.meetup.meetingapp.data.model.Vote
-
-import io.mockk.mockk
-
+import com.meetup.meetingapp.data.model.*
+import io.mockk.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import com.meetup.meetingapp.data.db.daos.EventDao
+import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class EventRepositoryImpTest {
 
+    val mockDb = mockk<com.google.firebase.firestore.FirebaseFirestore>(relaxed = true)
+    private val mockEventDao = mockk<EventDao>(relaxed = true)
+    private val mockUserRepo = mockk<UserRepository>(relaxed = true)
+
     private val repo = EventRepositoryImp(
-        db = mockk(relaxed = true),
-        userRepository = mockk(relaxed = true),
-        eventDao = mockk(relaxed = true),
+        db = mockDb,
+        userRepository = mockUserRepo,
+        eventDao = mockEventDao,
         cityDao = mockk(relaxed = true),
         participantResponseDao = mockk(relaxed = true),
         restaurantDao = mockk(relaxed = true),
@@ -232,5 +233,55 @@ class EventRepositoryImpTest {
 
         assertEquals("Unknown", result)
     }
-}
 
+// --- REPOSITORY ACTION TESTS ---
+
+    @Test
+    fun `createEvent success stores to firestore and local database`() = runTest {
+        // 1. Setup nested Firestore mocks
+        val mockCollection = mockk<com.google.firebase.firestore.CollectionReference>(relaxed = true)
+        val mockDoc = mockk<com.google.firebase.firestore.DocumentReference>(relaxed = true)
+        val mockTask = mockk<com.google.android.gms.tasks.Task<Void>>()
+
+        every { mockDb.collection("events") } returns mockCollection
+        every { mockCollection.document() } returns mockDoc
+        every { mockDoc.id } returns "generated_event_id"
+
+        // 2. Mock Coroutine suspension (await)
+        mockkStatic("kotlinx.coroutines.tasks.TasksKt")
+        every { mockDoc.set(any()) } returns mockTask
+        coEvery { mockTask.await() } returns mockk()
+
+        val uiState = EventUiState(eventTitle = "New Meeting", hostName = "Alice")
+
+        // 3. Act
+        val result = repo.createEvent(uiState)
+
+        // 4. Assert
+        assertTrue(result.isSuccess)
+        assertEquals("generated_event_id", result.getOrNull()?.third)
+
+        coVerify { mockDoc.set(any()) }
+        coVerify { mockEventDao.upsertEvent(any()) }
+
+        unmockkStatic("kotlinx.coroutines.tasks.TasksKt")
+    }
+
+    @Test
+    fun `createEvent failure returns failure result`() = runTest {
+        val mockCollection = mockk<com.google.firebase.firestore.CollectionReference>(relaxed = true)
+        val mockDoc = mockk<com.google.firebase.firestore.DocumentReference>(relaxed = true)
+
+        every { mockDb.collection("events") } returns mockCollection
+        every { mockCollection.document() } returns mockDoc
+        every { mockDoc.set(any()) } throws Exception("Network Error")
+
+        val uiState = EventUiState(eventTitle = "Broken Event")
+
+        val result = repo.createEvent(uiState)
+
+        assertTrue(result.isFailure)
+        assertEquals("Network Error", result.exceptionOrNull()?.message)
+        coVerify(exactly = 0) { mockEventDao.upsertEvent(any()) }
+    }
+}
