@@ -19,7 +19,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -133,6 +132,7 @@ fun HostDashboardPage(
                     onVoteForRestaurantClick = onVoteForRestaurantClick,
                     onFinalPlanClick = onFinalPlanClick,
                     hasHostSubmittedAvailability = uiState.hasHostSubmittedAvailability,
+                    noPlacesFound = uiState.noPlacesFound,
                     onFillAvailabilityClick = {
                         onFillAvailability(
                             event.eventCode,
@@ -183,6 +183,7 @@ fun HostDashboardContent(
     onCloseVotingClick: (EventStatus) -> Unit,
     onNavigateToHome: () -> Unit,
     hasHostSubmittedAvailability: Boolean,
+    noPlacesFound: Boolean,
     onFillAvailabilityClick: () -> Unit,
     onShowEventCodes: () -> Unit,
 ) {
@@ -415,7 +416,7 @@ fun HostDashboardContent(
                 val buttonEnabled =
                     when (event.status) {
                         EventStatus.COLLECTING_AVAILABILITY -> submissionsCount > 0
-                        EventStatus.FIRST_VOTING_CLOSED -> true
+                        EventStatus.FIRST_VOTING_CLOSED -> !noPlacesFound
                         EventStatus.RESTAURANT_CANDIDATES_GENERATED -> false
                         EventStatus.COLLECTING_RESTAURANT_VOTES -> hasAnyRestaurantVotes
                         else -> false
@@ -486,6 +487,21 @@ fun HostDashboardContent(
                                     .padding(top = 8.dp),
                             textAlign = TextAlign.Start,
                         )
+                    }
+
+                    if (noPlacesFound) {
+                        Spacer(modifier = Modifier.height(AppSpacing.lg))
+                        Button(
+                            onClick = onFillAvailabilityClick,
+                            modifier = Modifier.fillMaxWidth(AppSize.lg),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(vertical = AppSpacing.md),
+                        ) {
+                            Text(
+                                "Edit My Availability",
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                        }
                     }
 
                     if (!hasHostSubmittedAvailability && event.status == EventStatus.COLLECTING_AVAILABILITY) {
@@ -564,6 +580,7 @@ fun HostDashboardPreview() {
             onVoteForRestaurantClick = {},
             onCloseVotingClick = {},
             hasHostSubmittedAvailability = false,
+            noPlacesFound = false,
             onFillAvailabilityClick = {},
             onNavigateToHome = {},
             onShowEventCodes = {},

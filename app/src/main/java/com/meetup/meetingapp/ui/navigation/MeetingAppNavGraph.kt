@@ -539,6 +539,11 @@ fun MeetingAppNavHost(
                         parentEntry,
                         factory = AppViewModelProvider.Factory,
                     )
+
+                LaunchedEffect(Unit) {
+                    viewModel.resetRestaurantState()
+                }
+
                 DateAndAreaPage(
                     onBack = { navController.popBackStack() },
                     onEditSelection = {

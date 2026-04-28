@@ -39,6 +39,7 @@ import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
 import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPageDestination.DateAndAreaContent
 import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
@@ -72,8 +73,7 @@ object DateAndAreaPageDestination : NavigationDestination {
 
         Crossfade(targetState = restaurantState, label = "date_area_loading") { state ->
             when (state) {
-                is RestaurantState.Loading,
-                is RestaurantState.Empty -> Box(
+                is RestaurantState.Loading -> Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
@@ -95,6 +95,35 @@ object DateAndAreaPageDestination : NavigationDestination {
                             color = Color.White,
                             textAlign = TextAlign.Center,
                         )
+                    }
+                }
+
+                is RestaurantState.Empty -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(AppSpacing.md),
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    ) {
+                        Text(
+                            text = "No places found for your selection.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center,
+                        )
+                        Button(
+                            onClick = onEditSelection,
+                            modifier = Modifier.fillMaxWidth(AppSize.lg),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(vertical = AppSpacing.md),
+                        ) {
+                            Text(
+                                "Edit My Availability",
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                        }
                     }
                 }
 

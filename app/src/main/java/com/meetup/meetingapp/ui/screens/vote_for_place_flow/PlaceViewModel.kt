@@ -262,7 +262,7 @@ class PlaceViewModel(
                 val restaurants = eventRepository.getRestaurantsOnce(
                     eventId = event.id,
                     targetTime = null,
-                    forceRefresh = forceRefresh,
+                    forceRefresh = true,
                 )
 
                 Log.d("getAllRestaurant", "Got ${restaurants.size} restaurants")
@@ -306,6 +306,8 @@ class PlaceViewModel(
 
     /**
      * Updates user-selected filters.
+     * @param timing The selected date and time.
+     * @param location The selected location.
      */
     fun setFilter(
         timing: DateTime,
@@ -313,6 +315,16 @@ class PlaceViewModel(
     ) {
         selectedTiming.value = timing
         selectedLocation.value = location
+    }
+
+    /**
+     * Resets the restaurant state to loading.
+     */
+    fun resetRestaurantState() {
+        restaurantsLoaded = false
+        isInitialFetchComplete = false
+        _restaurantState.value = RestaurantState.Loading
+        _allRestaurants.value = AllRestaurantState()
     }
 
     /**

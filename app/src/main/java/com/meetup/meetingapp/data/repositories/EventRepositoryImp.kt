@@ -950,7 +950,7 @@ class EventRepositoryImp(
                 onFailure = { Result.failure(it) },
             )
         } else {
-            Result.failure(Exception("No restaurants found matching the criteria and timing."))
+            Result.failure(Exception("No places found matching the criteria and timing."))
         }
     }
 
