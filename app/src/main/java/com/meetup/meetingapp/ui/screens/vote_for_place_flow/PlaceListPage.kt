@@ -190,7 +190,7 @@ fun PlaceListContent(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
                         )
-                        Button(onClick = onBack) {
+                        Button(onClick = onEditSelection) {
                             Text(text = stringResource(id = R.string.edit_selection))
                         }
                     }
