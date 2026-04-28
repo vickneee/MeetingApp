@@ -5,12 +5,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,7 +37,9 @@ import com.meetup.meetingapp.MeetingAppTopAppBar
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.ui.navigation.NavigationDestination
+import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPageDestination.DateAndAreaContent
 import com.meetup.meetingapp.ui.theme.AppPadding
+import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
@@ -46,148 +51,178 @@ object DateAndAreaPageDestination : NavigationDestination {
     override val titleRes = R.string.title_date_and_area
     const val EVENTIDARG = "eventId"
     val routeWithArgs = "$route/{$EVENTIDARG}"
-}
 
-/**
- * Top-level composable for the Date & Area selection screen.
- * @param onBack Callback to navigate back.
- * @param viewModel ViewModel for managing state and data.
- * @param onNavigateToRestaurantListPage Callback to navigate to the restaurant list page.
- * @param modifier Modifier for styling.
- */
-@Composable
-fun DateAndAreaPage(
-    onBack: () -> Unit,
-    viewModel: PlaceViewModel,
-    onNavigateToRestaurantListPage: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val dateAndAreaState by viewModel.dateAndAreaState.collectAsStateWithLifecycle()
-    val restaurantState by viewModel.restaurantState.collectAsStateWithLifecycle()
 
-    Crossfade(targetState = restaurantState, label = "date_area_loading") { state ->
-        when (state) {
-            is RestaurantState.Loading,
-            is RestaurantState.Empty -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+    /**
+     * Top-level composable for the Date & Area selection screen.
+     * @param onBack Callback to navigate back.
+     * @param viewModel ViewModel for managing state and data.
+     * @param onNavigateToRestaurantListPage Callback to navigate to the restaurant list page.
+     * @param modifier Modifier for styling.
+     */
+    @Composable
+    fun DateAndAreaPage(
+        onBack: () -> Unit,
+        onEditSelection: () -> Unit,
+        viewModel: PlaceViewModel,
+        onNavigateToRestaurantListPage: () -> Unit,
+        modifier: Modifier = Modifier,
+    ) {
+        val dateAndAreaState by viewModel.dateAndAreaState.collectAsStateWithLifecycle()
+        val restaurantState by viewModel.restaurantState.collectAsStateWithLifecycle()
+
+        Crossfade(targetState = restaurantState, label = "date_area_loading") { state ->
+            when (state) {
+                is RestaurantState.Loading,
+                is RestaurantState.Empty -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    Text(
-                        text = "Finding the best spots for your group...",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 32.dp)
-                    )
-                    Text(
-                        text = "Please be patient! 🙏",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        Text(
+                            text = "Finding the best spots for your group...",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        )
+                        Text(
+                            text = "Please be patient! 🙏",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+
+                else -> {
+                    DateAndAreaContent(
+                        onBack = onBack,
+                        onEditSelection = onEditSelection,
+                        dateLocationOptions = dateAndAreaState.dateLocationOptions,
+                        navigateToRestaurantListPage = { timing, location ->
+                            viewModel.setFilter(timing, location)
+                            onNavigateToRestaurantListPage()
+                        },
+                        modifier = modifier,
                     )
                 }
-            }
-            else -> {
-                DateAndAreaContent(
-                    onBack = onBack,
-                    dateLocationOptions = dateAndAreaState.dateLocationOptions,
-                    navigateToRestaurantListPage = { timing, location ->
-                        viewModel.setFilter(timing, location)
-                        onNavigateToRestaurantListPage()
-                    },
-                    modifier = modifier,
-                )
             }
         }
     }
-}
 
-/**
- * Displays the list of selectable date–time–area combinations.
- * @param onBack Callback to navigate back.
- * @param dateLocationOptions List of available date–time–area combinations.
- * @param navigateToRestaurantListPage Callback to navigate to the restaurant list page.
- * @param modifier Modifier for styling.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DateAndAreaContent(
-    onBack: () -> Unit,
-    dateLocationOptions: List<DateLocationOption>,
-    // Signature updated to accept the DateTime object directly
-    navigateToRestaurantListPage: (DateTime, String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Scaffold(
-        topBar = {
-            MeetingAppTopAppBar(
-                title = stringResource(id = R.string.title_date_and_area),
-                canNavigateBack = true,
-                navigateUp = onBack,
-            )
-        },
-    ) { paddingValues ->
-        Box(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(paddingValues),
-        ) {
-            if (dateLocationOptions.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = "No options found.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    item {
-                        Text(
-                            "Choose a date, time & area",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier =
-                                Modifier
-                                    .padding(bottom = AppSpacing.lg),
-                        )
-                    }
-                    items(dateLocationOptions) { option ->
-                        Card(
-                            onClick = { navigateToRestaurantListPage(option.timing, option.location) },
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 12.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            colors =
-                                CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface,
-                                ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    /**
+     * Displays the list of selectable date–time–area combinations.
+     * @param onBack Callback to navigate back.
+     * @param dateLocationOptions List of available date–time–area combinations.
+     * @param navigateToRestaurantListPage Callback to navigate to the restaurant list page.
+     * @param modifier Modifier for styling.
+     */
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun DateAndAreaContent(
+        onBack: () -> Unit,
+        onEditSelection: () -> Unit,
+        dateLocationOptions: List<DateLocationOption>,
+        // Signature updated to accept the DateTime object directly
+        navigateToRestaurantListPage: (DateTime, String) -> Unit,
+        modifier: Modifier = Modifier,
+    ) {
+        Scaffold(
+            topBar = {
+                MeetingAppTopAppBar(
+                    title = stringResource(id = R.string.title_date_and_area),
+                    canNavigateBack = true,
+                    navigateUp = onBack,
+                )
+            },
+        ) { paddingValues ->
+            Box(
+                modifier =
+                    modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(paddingValues)
+            ) {
+                if (dateLocationOptions.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(AppSpacing.md),
                         ) {
                             Text(
-                                text = option.label,
+                                text = "No options found.",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Button(
+                                onClick = onEditSelection,
+                                shape = RoundedCornerShape(8.dp),
+                                colors =
+                                    ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                    ),
+                                modifier = Modifier.fillMaxWidth(0.55f),
+                                contentPadding = PaddingValues(AppSpacing.md),
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.edit_selection),
+                                    style = MaterialTheme.typography.labelLarge,
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = AppPadding.pagePadding, // Padding values for the entire screen
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        item {
+                            Text(
+                                "Choose a date, time & area",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier =
+                                    Modifier
+                                        .padding(bottom = AppSpacing.lg),
+                            )
+                        }
+                        items(dateLocationOptions) { option ->
+                            Card(
+                                onClick = {
+                                    navigateToRestaurantListPage(
+                                        option.timing,
+                                        option.location
+                                    )
+                                },
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
-                                        .padding(vertical = 20.dp, horizontal = 16.dp),
-                                textAlign = TextAlign.Center,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
+                                        .padding(bottom = 12.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors =
+                                    CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surface,
+                                    ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                            ) {
+                                Text(
+                                    text = option.label,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 20.dp, horizontal = 16.dp),
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
                         }
                     }
                 }
@@ -229,6 +264,7 @@ fun DateAndAreaContentPreview() {
     MeetingAppTheme {
         DateAndAreaContent(
             onBack = {},
+            onEditSelection = {},
             dateLocationOptions = sampleOptions,
             navigateToRestaurantListPage = { _, _ -> },
         )

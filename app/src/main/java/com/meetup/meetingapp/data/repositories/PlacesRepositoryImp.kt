@@ -131,19 +131,19 @@ class PlacesRepositoryImp(
             it.startsWith(day, ignoreCase = true)
         } ?: return true
 
-        // 1. Explicitly check for 24-hour availability
+        // Explicitly check for 24-hour availability
         if (schedule.contains("Open 24 hours", ignoreCase = true) ||
             schedule.contains("24/7", ignoreCase = true) ||
             schedule.contains("24", ignoreCase = true)) {
             return true
         }
 
-        // 2. Explicitly check if it's closed
+        // Explicitly check if it's closed
         if (schedule.contains("Closed", ignoreCase = true)) {
             return false
         }
 
-        // 3. Fallback: If we have a schedule string but don't have complex
+        // Fallback: If we have a schedule string but don't have complex
         // time-parsing logic yet, we assume it's open if it's not "Closed".
         // You can add more complex LocalTime parsing here if needed.
         return true

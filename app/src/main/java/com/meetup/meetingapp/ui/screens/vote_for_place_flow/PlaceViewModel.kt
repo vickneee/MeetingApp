@@ -69,7 +69,7 @@ class PlaceViewModel(
     val restaurantDistance: StateFlow<String?> = _restaurantDistance.asStateFlow()
 
     /** Event ID passed from navigation arguments. */
-    private val eventId: String =
+    val eventId: String =
         savedStateHandle[PlaceDetailsDestination.eventIdArg]
             ?: savedStateHandle[DateAndAreaPageDestination.EVENTIDARG] ?: ""
 
