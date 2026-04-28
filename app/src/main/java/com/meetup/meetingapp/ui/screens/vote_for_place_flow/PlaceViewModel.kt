@@ -324,7 +324,7 @@ class PlaceViewModel(
     fun resetRestaurantState() {
         restaurantsLoaded = false
         isInitialFetchComplete = false
-        _restaurantState.value = RestaurantState.Loading
+        _restaurantState.value = RestaurantState.Idle
         _allRestaurants.value = AllRestaurantState()
     }
 
@@ -454,6 +454,7 @@ data class DateAndAreaState(
  * @property Error Indicates that an error occurred while loading restaurant candidates.
  */
 sealed interface RestaurantState {
+    object Idle : RestaurantState
     object Loading : RestaurantState
     data class Available(
         val restaurants: List<Restaurant>
