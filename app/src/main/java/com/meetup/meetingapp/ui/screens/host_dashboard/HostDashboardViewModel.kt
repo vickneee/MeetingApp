@@ -86,7 +86,8 @@ class HostDashboardViewModel(
                             hasHostSubmittedAvailability = hasAvailability,
                             hasAnyRestaurantVotes = votes.isNotEmpty(),
                             isInitialLoading = false, // Data from all flows has arrived
-                            currentUserName = currentName
+                            currentUserName = currentName,
+                            noPlacesFound = if (e.status != EventStatus.FIRST_VOTING_CLOSED) false else currentState.noPlacesFound,
                         )
                     }
 
