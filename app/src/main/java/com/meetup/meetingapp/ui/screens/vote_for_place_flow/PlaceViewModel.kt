@@ -324,7 +324,7 @@ class PlaceViewModel(
     fun resetRestaurantState() {
         restaurantsLoaded = false
         isInitialFetchComplete = false
-        _restaurantState.value = RestaurantState.Idle
+        _restaurantState.value = RestaurantState.Loading
         _allRestaurants.value = AllRestaurantState()
     }
 
