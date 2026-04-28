@@ -941,7 +941,7 @@ class EventRepositoryImp(
         }
 
         return if (allRestaurants.isNotEmpty()) {
-            // Step 4 & 5: Persist to sub-collection and update the main event status
+            // Persist to sub-collection and update the main event status
             saveAllRestaurants(event.id, allRestaurants).fold(
                 onSuccess = {
                     updateEventStatus(event.id, EventStatus.COLLECTING_RESTAURANT_VOTES)
