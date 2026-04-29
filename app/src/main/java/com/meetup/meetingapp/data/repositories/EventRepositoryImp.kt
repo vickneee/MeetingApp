@@ -23,11 +23,12 @@ import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.model.Vote
-import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
-import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
+import com.meetup.meetingapp.ui.screens.eventcreation.EventUiState
+import com.meetup.meetingapp.ui.screens.participantinput.ParticipantInputState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -36,12 +37,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
 import kotlin.collections.flatMap
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 /**
  * Implementation of [EventRepository] responsible for creating events
@@ -64,7 +64,6 @@ class EventRepositoryImp(
     private val placesRepository: PlacesRepository,
     private val auth: FirebaseAuth,
 ) : EventRepository {
-
     /**
      * Retrieves the UID of the currently authenticated user.
      */
@@ -191,7 +190,7 @@ class EventRepositoryImp(
         val dateTimeCandidates: List<DateTime>,
         val locationCandidates: List<String>,
         val placeTypeCandidates: List<PlaceType>,
-        val foodCategoryCandidates: List<FoodCategory>
+        val foodCategoryCandidates: List<FoodCategory>,
     )
 
     /**
@@ -205,10 +204,7 @@ class EventRepositoryImp(
      * @param responses The list of participant responses to aggregate.
      * @return An [AggregatedCandidates] object containing the top candidates for each category.
      */
-    fun aggregateCandidatesFromResponses(
-        responses: List<ParticipantResponse>
-    ): AggregatedCandidates {
-
+    fun aggregateCandidatesFromResponses(responses: List<ParticipantResponse>): AggregatedCandidates {
         val dateTimeCandidates =
             findTopCandidates(responses.flatMap { it.dateTimes })
 
@@ -225,7 +221,7 @@ class EventRepositoryImp(
             dateTimeCandidates,
             locationCandidates,
             placeTypeCandidates,
-            foodCategoryCandidates
+            foodCategoryCandidates,
         )
     }
 
@@ -386,8 +382,7 @@ class EventRepositoryImp(
      * @param location The location for which to retrieve restaurants.
      * @return A [Flow] emitting a list of [Restaurant] objects.
      */
-    override fun getRestaurantsByLocation(location: String): Flow<List<Restaurant>> =
-        flowOf(emptyList())
+    override fun getRestaurantsByLocation(location: String): Flow<List<Restaurant>> = flowOf(emptyList())
 
     /**
      * Retrieves an event by its ID from the local Room database.
@@ -537,17 +532,19 @@ class EventRepositoryImp(
                             snapshot
                                 ?.documents
                                 ?.mapNotNull { doc ->
-                                    doc.toObject(ParticipantResponse::class.java)
+                                    doc
+                                        .toObject(ParticipantResponse::class.java)
                                         ?.copy(userId = doc.id)
                                 }
                                 ?: emptyList()
                         // Also update Room cache
                         CoroutineScope(Dispatchers.IO).launch {
-                            val entities = responses.map {
-                                with(ParticipantResponseMapper) {
-                                    it.toEntity(eventId)
+                            val entities =
+                                responses.map {
+                                    with(ParticipantResponseMapper) {
+                                        it.toEntity(eventId)
+                                    }
                                 }
-                            }
                             participantResponseDao.upsertResponses(entities)
                         }
                         trySend(responses)
@@ -662,7 +659,7 @@ class EventRepositoryImp(
 
                 Log.d(
                     "syncRestaurants",
-                    "Fetched ${restaurants.size} from Firestore, upserting to Room"
+                    "Fetched ${restaurants.size} from Firestore, upserting to Room",
                 )
                 restaurantDao.upsertRestaurants(restaurants)
                 Log.d("syncRestaurants", "Upsert complete")
@@ -723,15 +720,14 @@ class EventRepositoryImp(
         participantResponse: ParticipantResponse?,
         event: Event?,
         currentUserName: String?,
-        userId: String
-    ): String {
-        return when {
+        userId: String,
+    ): String =
+        when {
             !participantResponse?.name.isNullOrBlank() -> participantResponse.name
             event?.hostId == userId -> event.hostName
             !currentUserName.isNullOrBlank() -> currentUserName
             else -> "Unknown"
         }
-    }
 
     /**
      * Submits a vote for a specific restaurant and date-time within an event.
@@ -761,36 +757,41 @@ class EventRepositoryImp(
         userId: String,
         dateTime: DateTime,
     ): Result<Unit> {
-        val participantResponse = try {
-            db.collection("events")
-                .document(eventId)
-                .collection("participantResponses")
-                .document(userId)
-                .get()
-                .await()
-                .toObject(ParticipantResponse::class.java)
-        } catch (_: Exception) {
-            null
-        }
+        val participantResponse =
+            try {
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("participantResponses")
+                    .document(userId)
+                    .get()
+                    .await()
+                    .toObject(ParticipantResponse::class.java)
+            } catch (_: Exception) {
+                null
+            }
 
-        val eventDoc = try {
-            db.collection("events")
-                .document(eventId)
-                .get()
-                .await()
-                .toObject(Event::class.java)
-        } catch (_: Exception) {
-            null
-        }
+        val eventDoc =
+            try {
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .get()
+                    .await()
+                    .toObject(Event::class.java)
+            } catch (_: Exception) {
+                null
+            }
 
         val currentUserName = auth.currentUser?.displayName
 
-        val userName = resolveUserName(
-            participantResponse = participantResponse,
-            event = eventDoc,
-            currentUserName = currentUserName,
-            userId = userId
-        )
+        val userName =
+            resolveUserName(
+                participantResponse = participantResponse,
+                event = eventDoc,
+                currentUserName = currentUserName,
+                userId = userId,
+            )
 
         val vote =
             Vote(placeId = placeId, dateTime = dateTime, userId = userId, userName = userName)
@@ -878,66 +879,68 @@ class EventRepositoryImp(
 
         // Pass components to fetchRestaurants when multi-country support is needed
         // Currently PlacesRepositoryImp hardcodes "country:fi"
-        val components = event.locationOptions.countries
-            .mapNotNull<String, String> { countryName ->
-                CountryOption.entries.find { it.name == countryName }?.code
-            }
-            .distinct()
-            .joinToString("|") { "country:$it" }
+        val components =
+            event.locationOptions.countries
+                .mapNotNull { countryName ->
+                    CountryOption.entries.find { it.name == countryName }?.code
+                }.distinct()
+                .joinToString("|") { "country:$it" }
 
         coroutineScope {
-            event.locationCandidates.map { city ->
-                async {
-                    // Generate a matrix of search combinations (City + Type + Category)
-                    val combinations =
-                        event.placeTypeCandidates
-                            .flatMap { placeType ->
-                                when (placeType) {
-                                    PlaceType.RESTAURANT -> {
-                                        if (event.foodCategoryCandidates.isEmpty()) {
-                                            listOf(Triple(city, placeType, null))
-                                        } else {
-                                            event.foodCategoryCandidates.map {
-                                                Triple(
-                                                    city,
-                                                    placeType,
-                                                    it
-                                                )
+            event.locationCandidates
+                .map { city ->
+                    async {
+                        // Generate a matrix of search combinations (City + Type + Category)
+                        val combinations =
+                            event.placeTypeCandidates
+                                .flatMap { placeType ->
+                                    when (placeType) {
+                                        PlaceType.RESTAURANT -> {
+                                            if (event.foodCategoryCandidates.isEmpty()) {
+                                                listOf(Triple(city, placeType, null))
+                                            } else {
+                                                event.foodCategoryCandidates.map {
+                                                    Triple(
+                                                        city,
+                                                        placeType,
+                                                        it,
+                                                    )
+                                                }
                                             }
                                         }
+
+                                        PlaceType.CAFE -> listOf(Triple(city, placeType, null))
+                                        PlaceType.BAR -> listOf(Triple(city, placeType, null))
                                     }
+                                }.shuffled()
+                                .take(10) // Limit API usage and keep the list manageable
 
-                                    PlaceType.CAFE -> listOf(Triple(city, placeType, null))
-                                    PlaceType.BAR -> listOf(Triple(city, placeType, null))
-                                }
-                            }.shuffled()
-                            .take(10) // Limit API usage and keep the list manageable
+                        combinations
+                            .map { (city, placeType, foodCategory) ->
+                                async {
+                                    val query = buildSearchQuery(city, placeType, foodCategory)
 
-                    combinations.map { (city, placeType, foodCategory) ->
-                        async {
-                            val query = buildSearchQuery(city, placeType, foodCategory)
-
-                            placesRepository
-                                .fetchRestaurants(
-                                    query = query,
-                                    targetTime = targetTime,
-                                    lat = lat,
-                                    lng = lng,
-                                    components = components.ifEmpty { null },
-                                ).onSuccess { restaurants ->
-                                    // Grab the top result for each query combination to maximize variety
-                                    restaurants.firstOrNull()?.let { restaurant ->
-                                        mutex.withLock {
-                                            if (seen.add(restaurant.placeId)) {
-                                                allRestaurants.add(restaurant.copy(searchLocation = city))
+                                    placesRepository
+                                        .fetchRestaurants(
+                                            query = query,
+                                            targetTime = targetTime,
+                                            lat = lat,
+                                            lng = lng,
+                                            components = components.ifEmpty { null },
+                                        ).onSuccess { restaurants ->
+                                            // Grab the top result for each query combination to maximize variety
+                                            restaurants.firstOrNull()?.let { restaurant ->
+                                                mutex.withLock {
+                                                    if (seen.add(restaurant.placeId)) {
+                                                        allRestaurants.add(restaurant.copy(searchLocation = city))
+                                                    }
+                                                }
                                             }
                                         }
-                                    }
                                 }
-                        }
-                    }.awaitAll()
-                }
-            }.awaitAll()
+                            }.awaitAll()
+                    }
+                }.awaitAll()
         }
 
         return if (allRestaurants.isNotEmpty()) {
@@ -1044,7 +1047,6 @@ class EventRepositoryImp(
      */
     fun pickWinningPlace(voteCounts: Map<String, Int>): String {
         require(voteCounts.isNotEmpty()) { "No votes found" }
-
 
         val maxVotes = voteCounts.maxOf { it.value }
         val topPlaces = voteCounts.filter { it.value == maxVotes }.keys
@@ -1196,7 +1198,8 @@ class EventRepositoryImp(
 
                                         val votes =
                                             voteSnapshot?.documents?.mapNotNull { doc ->
-                                                doc.toObject(Vote::class.java)
+                                                doc
+                                                    .toObject(Vote::class.java)
                                                     ?.copy(placeId = restaurantDoc.id)
                                             } ?: emptyList()
 
@@ -1311,8 +1314,10 @@ class EventRepositoryImp(
             syncRestaurants(eventId)
         }
 
-        val result = restaurantDao.getRestaurantsOnce(eventId)
-            .map { with(RestaurantMapper) { it.toDomain() } }
+        val result =
+            restaurantDao
+                .getRestaurantsOnce(eventId)
+                .map { with(RestaurantMapper) { it.toDomain() } }
         Log.d("getRestaurantsOnce", "Got ${result.size} restaurants from Room")
         return result
     }

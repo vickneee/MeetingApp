@@ -16,7 +16,15 @@ import com.meetup.meetingapp.data.repositories.UserRepositoryImp
 import com.meetup.meetingapp.network.retrofitService
 
 /**
- * Dependency Injection container at the application level.
+ * Dependency Injection container for application‑wide services and repositories.
+ *
+ * This interface defines the core dependencies used throughout the app, including:
+ * - Firestore database access
+ * - Repository implementations for users, events, and Places API
+ * - The Google Places API key loaded from secure storage
+ *
+ * Implementations of this container are responsible for constructing and providing
+ * singleton instances of these dependencies.
  */
 interface AppContainer {
     val userRepository: UserRepository
@@ -27,7 +35,17 @@ interface AppContainer {
 }
 
 /**
- * [AppContainer] implementation that provides instance of repositories
+ * Concrete implementation of [AppContainer] that initializes and provides
+ * application‑level dependencies.
+ *
+ * This container:
+ * - Creates a shared Firestore instance
+ * - Builds Room DAOs through [MeetingAppDatabase]
+ * - Loads the Google Places API key from `secret.properties`
+ * - Provides repository implementations with proper dependency wiring
+ * - Ensures lazy initialization to avoid unnecessary startup cost
+ *
+ * @property context Application context used for database initialization and asset loading.
  */
 class AppDataContainer(
     private val context: Context,
@@ -44,9 +62,14 @@ class AppDataContainer(
     }
 
     /**
-     * Provides the Firestore-based EventRepository implementation.
+     * Provides the Firestore‑backed implementation of [EventRepository].
      *
-     * Note: EventRepository depends on UserRepository, so it is injected here.
+     * This repository depends on:
+     * - Firestore
+     * - Room DAOs
+     * - [UserRepository]
+     * - [PlacesRepository]
+     * - [FirebaseAuth] for current user access
      */
     override val eventRepository: EventRepository by lazy {
         EventRepositoryImp(
@@ -57,13 +80,16 @@ class AppDataContainer(
             MeetingAppDatabase.getDatabase(context).participantResponseDao(),
             MeetingAppDatabase.getDatabase(context).restaurantDao(),
             placesRepository,
-            FirebaseAuth.getInstance()
+            FirebaseAuth.getInstance(),
         )
     }
+
+    /** Lazily loads the Google Places API key from `secret.properties`. */
     override val placesApiKey: String by lazy {
         loadApiKey(context)
     }
 
+    /** Provides the Retrofit‑based implementation of [PlacesRepository]. */
     override val placesRepository: PlacesRepository by lazy {
         PlacesRepositoryImp(
             api = retrofitService,
@@ -71,6 +97,11 @@ class AppDataContainer(
         )
     }
 
+    /**
+     * Loads the Google Places API key from the `secret.properties` file in assets.
+     *
+     * Returns an empty string if loading fails, and logs the error.
+     */
     private fun loadApiKey(context: Context): String =
         try {
             val props = java.util.Properties()

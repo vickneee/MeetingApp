@@ -1,6 +1,8 @@
 package com.meetup.meetingapp.data.db.daos
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Upsert
 import com.meetup.meetingapp.data.db.entities.ParticipantResponseEntity
 import kotlinx.coroutines.flow.Flow
 

@@ -9,7 +9,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.meetup.meetingapp.ui.screens.join_page.JoinContent
+import com.meetup.meetingapp.ui.screens.joinpage.JoinContent
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import io.mockk.confirmVerified
 import io.mockk.mockk
@@ -17,9 +17,7 @@ import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
 
-
 class JoinPageTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -53,7 +51,7 @@ class JoinPageTest {
     fun joinPage_correctSubmission_triggersJoinAction() {
         val onJoinEventClick = mockk<() -> Unit>(relaxed = true)
         val testCode = "ABCDEF"
-        val testKey= "123456"
+        val testKey = "123456"
 
         composeTestRule.setContent {
             MeetingAppTheme {
@@ -71,10 +69,14 @@ class JoinPageTest {
             }
         }
         // Find the button and click it
-        composeTestRule.onNode(
-            hasText("Join Event") and SemanticsMatcher.expectValue(
-                SemanticsProperties.Role, Role.Button)
-        ).performClick()
+        composeTestRule
+            .onNode(
+                hasText("Join Event") and
+                    SemanticsMatcher.expectValue(
+                        SemanticsProperties.Role,
+                        Role.Button,
+                    ),
+            ).performClick()
         // Verify the callback was triggered
         verify(exactly = 1) { onJoinEventClick() }
         confirmVerified(onJoinEventClick)

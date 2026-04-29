@@ -43,7 +43,6 @@ private val LightColorScheme =
         error = errorSoft,
     )
 
-
 @Composable
 fun MeetingAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

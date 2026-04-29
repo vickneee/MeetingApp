@@ -7,8 +7,8 @@ import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.model.Vote
-import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
-import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantInputState
+import com.meetup.meetingapp.ui.screens.eventcreation.EventUiState
+import com.meetup.meetingapp.ui.screens.participantinput.ParticipantInputState
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -299,5 +299,5 @@ interface EventRepository {
         eventId: String,
         targetTime: DateTime?,
         forceRefresh: Boolean = false,
-        ): List<Restaurant>
+    ): List<Restaurant>
 }

@@ -13,7 +13,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasPackage
 import com.meetup.meetingapp.data.model.Restaurant
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceDetailsContent
+import com.meetup.meetingapp.ui.screens.placevote.PlaceDetailsContent
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import org.hamcrest.Matchers.allOf
 import org.junit.After

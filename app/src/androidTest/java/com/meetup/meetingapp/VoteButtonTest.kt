@@ -8,37 +8,35 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.meetup.meetingapp.data.model.Restaurant
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceDetailsContent
+import com.meetup.meetingapp.ui.screens.placevote.PlaceDetailsContent
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import junit.framework.TestCase.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
-fun hasRole(role: Role): SemanticsMatcher {
-    return SemanticsMatcher("Expected role: $role") {
+fun hasRole(role: Role): SemanticsMatcher =
+    SemanticsMatcher("Expected role: $role") {
         it.config.getOrNull(SemanticsProperties.Role) == role
     }
-}
 
 class VoteButtonTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
     private val testAddress = "123 Test St, Helsinki"
-    private val fakeRestaurant = Restaurant(
-        placeId = "123",
-        name = "Test Cafe",
-        rating = 4.5,
-        userRatingCount = 10,
-        address = testAddress,
-        types = listOf("Cafe"),
-        priceLevel = 1,
-        photoReference = ""
-    )
+    private val fakeRestaurant =
+        Restaurant(
+            placeId = "123",
+            name = "Test Cafe",
+            rating = 4.5,
+            userRatingCount = 10,
+            address = testAddress,
+            types = listOf("Cafe"),
+            priceLevel = 1,
+            photoReference = "",
+        )
 
     @Test
     fun whenNotVoted_buttonShowsVoteText_andIsEnabled() {
@@ -57,7 +55,7 @@ class VoteButtonTest {
                     onBack = {},
                     onHomeClick = {},
                     onVoteClick = {},
-                    onMapsClick = {}
+                    onMapsClick = {},
                 )
             }
         }
@@ -85,7 +83,7 @@ class VoteButtonTest {
                     onBack = {},
                     onHomeClick = {},
                     onVoteClick = {},
-                    onMapsClick = {}
+                    onMapsClick = {},
                 )
             }
         }
@@ -115,7 +113,7 @@ class VoteButtonTest {
                     onBack = {},
                     onHomeClick = {},
                     onVoteClick = { voteClicked = true },
-                    onMapsClick = {}
+                    onMapsClick = {},
                 )
             }
         }

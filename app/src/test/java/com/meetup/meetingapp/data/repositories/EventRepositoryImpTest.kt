@@ -1,64 +1,78 @@
 package com.meetup.meetingapp.data.repositories
 
-import com.meetup.meetingapp.data.model.*
-import io.mockk.*
+import com.meetup.meetingapp.data.db.daos.EventDao
+import com.meetup.meetingapp.data.db.mapper.FirestoreCity
+import com.meetup.meetingapp.data.db.mapper.FirestoreCityList
+import com.meetup.meetingapp.data.model.DateTime
+import com.meetup.meetingapp.data.model.Event
+import com.meetup.meetingapp.data.model.FoodCategory
+import com.meetup.meetingapp.data.model.ParticipantResponse
+import com.meetup.meetingapp.data.model.PlaceType
+import com.meetup.meetingapp.data.model.TimeSlot
+import com.meetup.meetingapp.data.model.Vote
+import com.meetup.meetingapp.ui.screens.eventcreation.EventUiState
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.test.runTest
-import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import com.meetup.meetingapp.data.db.daos.EventDao
-import com.meetup.meetingapp.ui.screens.create_event_flow.EventUiState
-import com.meetup.meetingapp.data.db.mapper.FirestoreCityList
-import com.meetup.meetingapp.data.db.mapper.FirestoreCity
+import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EventRepositoryImpTest {
-
     val mockDb = mockk<com.google.firebase.firestore.FirebaseFirestore>(relaxed = true)
     private val mockEventDao = mockk<EventDao>(relaxed = true)
     private val mockUserRepo = mockk<UserRepository>(relaxed = true)
     private val mockCityDao = mockk<com.meetup.meetingapp.data.db.daos.CityDao>(relaxed = true)
 
-    private val repo = EventRepositoryImp(
-        db = mockDb,
-        userRepository = mockUserRepo,
-        eventDao = mockEventDao,
-        cityDao = mockCityDao,
-        participantResponseDao = mockk(relaxed = true),
-        restaurantDao = mockk(relaxed = true),
-        placesRepository = mockk(relaxed = true),
-        auth = mockk(relaxed = true)
-    )
+    private val repo =
+        EventRepositoryImp(
+            db = mockDb,
+            userRepository = mockUserRepo,
+            eventDao = mockEventDao,
+            cityDao = mockCityDao,
+            participantResponseDao = mockk(relaxed = true),
+            restaurantDao = mockk(relaxed = true),
+            placesRepository = mockk(relaxed = true),
+            auth = mockk(relaxed = true),
+        )
 
     @Test
     fun `returns majority candidates for all categories`() {
-        val responses = listOf(
-            ParticipantResponse(
-                dateTimes = listOf(
-                    DateTime("2026-04-23", TimeSlot("11:00", "13:00")),
-                    DateTime("2026-04-24", TimeSlot("13:00", "16:00"))
+        val responses =
+            listOf(
+                ParticipantResponse(
+                    dateTimes =
+                        listOf(
+                            DateTime("2026-04-23", TimeSlot("11:00", "13:00")),
+                            DateTime("2026-04-24", TimeSlot("13:00", "16:00")),
+                        ),
+                    locations = listOf("Helsinki", "Vantaa"),
+                    placeTypes = listOf(PlaceType.RESTAURANT),
+                    foodCategories = listOf(FoodCategory.SUSHI, FoodCategory.STEAK),
                 ),
-                locations = listOf("Helsinki", "Vantaa"),
-                placeTypes = listOf(PlaceType.RESTAURANT),
-                foodCategories = listOf(FoodCategory.SUSHI, FoodCategory.STEAK)
-            ),
-            ParticipantResponse(
-                dateTimes = listOf(
-                    DateTime("2026-04-23", TimeSlot("11:00", "13:00"))
+                ParticipantResponse(
+                    dateTimes =
+                        listOf(
+                            DateTime("2026-04-23", TimeSlot("11:00", "13:00")),
+                        ),
+                    locations = listOf("Helsinki", "Espoo"),
+                    placeTypes = listOf(PlaceType.RESTAURANT, PlaceType.CAFE),
+                    foodCategories = listOf(FoodCategory.STEAK),
                 ),
-                locations = listOf("Helsinki", "Espoo"),
-                placeTypes = listOf(PlaceType.RESTAURANT, PlaceType.CAFE),
-                foodCategories = listOf(FoodCategory.STEAK)
             )
-        )
 
         val result = repo.aggregateCandidatesFromResponses(responses)
 
         assertEquals(
             listOf(DateTime("2026-04-23", TimeSlot("11:00", "13:00"))),
-            result.dateTimeCandidates
+            result.dateTimeCandidates,
         )
         assertEquals(listOf("Helsinki"), result.locationCandidates)
         assertEquals(listOf(PlaceType.RESTAURANT), result.placeTypeCandidates)
@@ -67,29 +81,30 @@ class EventRepositoryImpTest {
 
     @Test
     fun `returns all top candidates when counts are tied`() {
-        val responses = listOf(
-            ParticipantResponse(
-                dateTimes = listOf(DateTime("2026-04-23", TimeSlot("11:00", "13:00"))),
-                locations = listOf("Helsinki"),
-                placeTypes = listOf(PlaceType.RESTAURANT),
-                foodCategories = listOf(FoodCategory.SUSHI)
-            ),
-            ParticipantResponse(
-                dateTimes = listOf(DateTime("2026-04-24", TimeSlot("13:00", "16:00"))),
-                locations = listOf("Espoo"),
-                placeTypes = listOf(PlaceType.CAFE),
-                foodCategories = listOf(FoodCategory.STEAK)
+        val responses =
+            listOf(
+                ParticipantResponse(
+                    dateTimes = listOf(DateTime("2026-04-23", TimeSlot("11:00", "13:00"))),
+                    locations = listOf("Helsinki"),
+                    placeTypes = listOf(PlaceType.RESTAURANT),
+                    foodCategories = listOf(FoodCategory.SUSHI),
+                ),
+                ParticipantResponse(
+                    dateTimes = listOf(DateTime("2026-04-24", TimeSlot("13:00", "16:00"))),
+                    locations = listOf("Espoo"),
+                    placeTypes = listOf(PlaceType.CAFE),
+                    foodCategories = listOf(FoodCategory.STEAK),
+                ),
             )
-        )
 
         val result = repo.aggregateCandidatesFromResponses(responses)
 
         assertEquals(
             listOf(
                 DateTime("2026-04-23", TimeSlot("11:00", "13:00")),
-                DateTime("2026-04-24", TimeSlot("13:00", "16:00"))
+                DateTime("2026-04-24", TimeSlot("13:00", "16:00")),
             ),
-            result.dateTimeCandidates
+            result.dateTimeCandidates,
         )
         assertEquals(listOf("Helsinki", "Espoo"), result.locationCandidates)
         assertEquals(listOf(PlaceType.RESTAURANT, PlaceType.CAFE), result.placeTypeCandidates)
@@ -98,20 +113,21 @@ class EventRepositoryImpTest {
 
     @Test
     fun `returns candidates from single participant`() {
-        val responses = listOf(
-            ParticipantResponse(
-                dateTimes = listOf(DateTime("2026-04-23", TimeSlot("11:00", "13:00"))),
-                locations = listOf("Helsinki"),
-                placeTypes = listOf(PlaceType.RESTAURANT),
-                foodCategories = listOf(FoodCategory.SUSHI)
+        val responses =
+            listOf(
+                ParticipantResponse(
+                    dateTimes = listOf(DateTime("2026-04-23", TimeSlot("11:00", "13:00"))),
+                    locations = listOf("Helsinki"),
+                    placeTypes = listOf(PlaceType.RESTAURANT),
+                    foodCategories = listOf(FoodCategory.SUSHI),
+                ),
             )
-        )
 
         val result = repo.aggregateCandidatesFromResponses(responses)
 
         assertEquals(
             listOf(DateTime("2026-04-23", TimeSlot("11:00", "13:00"))),
-            result.dateTimeCandidates
+            result.dateTimeCandidates,
         )
         assertEquals(listOf("Helsinki"), result.locationCandidates)
         assertEquals(listOf(PlaceType.RESTAURANT), result.placeTypeCandidates)
@@ -138,18 +154,18 @@ class EventRepositoryImpTest {
         repo.pickWinningPlace(emptyMap())
     }
 
-
     @Test
     fun `pickWinningTime returns the clear winner`() {
         val t1 = DateTime("2026-04-23", TimeSlot("11:00", "13:00"))
         val t2 = DateTime("2026-04-24", TimeSlot("13:00", "16:00"))
 
-        val votes = listOf(
-            Vote(dateTime = t1),
-            Vote(dateTime = t1),
-            Vote(dateTime = t1),
-            Vote(dateTime = t2)
-        )
+        val votes =
+            listOf(
+                Vote(dateTime = t1),
+                Vote(dateTime = t1),
+                Vote(dateTime = t1),
+                Vote(dateTime = t2),
+            )
 
         repeat(10) {
             val result = repo.pickWinningTime(votes)
@@ -157,18 +173,18 @@ class EventRepositoryImpTest {
         }
     }
 
-
     @Test
     fun `pickWinningTime returns one of tied times`() {
         val t1 = DateTime("2026-04-23", TimeSlot("11:00", "13:00"))
         val t2 = DateTime("2026-04-24", TimeSlot("13:00", "16:00"))
 
-        val votes = listOf(
-            Vote(dateTime = t1),
-            Vote(dateTime = t1),
-            Vote(dateTime = t2),
-            Vote(dateTime = t2)
-        )
+        val votes =
+            listOf(
+                Vote(dateTime = t1),
+                Vote(dateTime = t1),
+                Vote(dateTime = t2),
+                Vote(dateTime = t2),
+            )
 
         val results = (1..20).map { repo.pickWinningTime(votes) }
         assertTrue(results.all { it == t1 || it == t2 })
@@ -184,12 +200,13 @@ class EventRepositoryImpTest {
         val response = ParticipantResponse(name = "Alice", userId = "user1")
         val event = Event(hostId = "host1", hostName = "HostUser")
 
-        val result = repo.resolveUserName(
-            participantResponse = response,
-            event = event,
-            currentUserName = null,
-            userId = "user1"
-        )
+        val result =
+            repo.resolveUserName(
+                participantResponse = response,
+                event = event,
+                currentUserName = null,
+                userId = "user1",
+            )
 
         assertEquals("Alice", result)
     }
@@ -199,12 +216,13 @@ class EventRepositoryImpTest {
         val response = ParticipantResponse(name = "", userId = "host1")
         val event = Event(hostId = "host1", hostName = "HostUser")
 
-        val result = repo.resolveUserName(
-            participantResponse = response,
-            event = event,
-            currentUserName = null,
-            userId = "host1"
-        )
+        val result =
+            repo.resolveUserName(
+                participantResponse = response,
+                event = event,
+                currentUserName = null,
+                userId = "host1",
+            )
 
         assertEquals("HostUser", result)
     }
@@ -213,12 +231,13 @@ class EventRepositoryImpTest {
     fun `resolveUserName returns currentUserName when participant and host names unavailable`() {
         val event = Event(hostId = "host1", hostName = "HostUser")
 
-        val result = repo.resolveUserName(
-            participantResponse = null,
-            event = event,
-            currentUserName = "FirebaseUser",
-            userId = "user1"
-        )
+        val result =
+            repo.resolveUserName(
+                participantResponse = null,
+                event = event,
+                currentUserName = "FirebaseUser",
+                userId = "user1",
+            )
 
         assertEquals("FirebaseUser", result)
     }
@@ -227,12 +246,13 @@ class EventRepositoryImpTest {
     fun `resolveUserName returns Unknown when no name sources available`() {
         val event = Event(hostId = "host1", hostName = "HostUser")
 
-        val result = repo.resolveUserName(
-            participantResponse = null,
-            event = event,
-            currentUserName = null,
-            userId = "user1"
-        )
+        val result =
+            repo.resolveUserName(
+                participantResponse = null,
+                event = event,
+                currentUserName = null,
+                userId = "user1",
+            )
 
         assertEquals("Unknown", result)
     }
@@ -240,100 +260,106 @@ class EventRepositoryImpTest {
 // --- REPOSITORY ACTION TESTS ---
 
     @Test
-    fun `createEvent success stores to firestore and local database`() = runTest {
-        // 1. Setup nested Firestore mocks
-        val mockCollection = mockk<com.google.firebase.firestore.CollectionReference>(relaxed = true)
-        val mockDoc = mockk<com.google.firebase.firestore.DocumentReference>(relaxed = true)
-        val mockTask = mockk<com.google.android.gms.tasks.Task<Void>>()
+    fun `createEvent success stores to firestore and local database`() =
+        runTest {
+            // 1. Setup nested Firestore mocks
+            val mockCollection = mockk<com.google.firebase.firestore.CollectionReference>(relaxed = true)
+            val mockDoc = mockk<com.google.firebase.firestore.DocumentReference>(relaxed = true)
+            val mockTask = mockk<com.google.android.gms.tasks.Task<Void>>()
 
-        every { mockDb.collection("events") } returns mockCollection
-        every { mockCollection.document() } returns mockDoc
-        every { mockDoc.id } returns "generated_event_id"
+            every { mockDb.collection("events") } returns mockCollection
+            every { mockCollection.document() } returns mockDoc
+            every { mockDoc.id } returns "generated_event_id"
 
-        // 2. Mock Coroutine suspension (await)
-        mockkStatic("kotlinx.coroutines.tasks.TasksKt")
-        every { mockDoc.set(any()) } returns mockTask
-        coEvery { mockTask.await() } returns mockk()
+            // 2. Mock Coroutine suspension (await)
+            mockkStatic("kotlinx.coroutines.tasks.TasksKt")
+            every { mockDoc.set(any()) } returns mockTask
+            coEvery { mockTask.await() } returns mockk()
 
-        val uiState = EventUiState(eventTitle = "New Meeting", hostName = "Alice")
+            val uiState = EventUiState(eventTitle = "New Meeting", hostName = "Alice")
 
-        // 3. Act
-        val result = repo.createEvent(uiState)
+            // 3. Act
+            val result = repo.createEvent(uiState)
 
-        // 4. Assert
-        assertTrue(result.isSuccess)
-        assertEquals("generated_event_id", result.getOrNull()?.third)
+            // 4. Assert
+            assertTrue(result.isSuccess)
+            assertEquals("generated_event_id", result.getOrNull()?.third)
 
-        coVerify { mockDoc.set(any()) }
-        coVerify { mockEventDao.upsertEvent(any()) }
+            coVerify { mockDoc.set(any()) }
+            coVerify { mockEventDao.upsertEvent(any()) }
 
-        unmockkStatic("kotlinx.coroutines.tasks.TasksKt")
-    }
-
-    @Test
-    fun `createEvent failure returns failure result`() = runTest {
-        val mockCollection = mockk<com.google.firebase.firestore.CollectionReference>(relaxed = true)
-        val mockDoc = mockk<com.google.firebase.firestore.DocumentReference>(relaxed = true)
-
-        every { mockDb.collection("events") } returns mockCollection
-        every { mockCollection.document() } returns mockDoc
-        every { mockDoc.set(any()) } throws Exception("Network Error")
-
-        val uiState = EventUiState(eventTitle = "Broken Event")
-
-        val result = repo.createEvent(uiState)
-
-        assertTrue(result.isFailure)
-        assertEquals("Network Error", result.exceptionOrNull()?.message)
-        coVerify(exactly = 0) { mockEventDao.upsertEvent(any()) }
-    }
-
-    @Test
-    fun `syncCities parses firestore documents and stores cities`() = runTest {
-
-        // --- Firestore mocks ---
-        val mockCollection = mockk<com.google.firebase.firestore.CollectionReference>()
-        val mockQuerySnapshot = mockk<com.google.firebase.firestore.QuerySnapshot>()
-        val mockTask = mockk<com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot>>()
-
-        val doc1 = mockk<com.google.firebase.firestore.DocumentSnapshot>()
-        val ignoredDoc = mockk<com.google.firebase.firestore.DocumentSnapshot>()
-
-        every { mockDb.collection("static_data") } returns mockCollection
-        every { mockCollection.get() } returns mockTask
-
-        mockkStatic("kotlinx.coroutines.tasks.TasksKt")
-        coEvery { mockTask.await() } returns mockQuerySnapshot
-
-        every { mockQuerySnapshot.documents } returns listOf(doc1, ignoredDoc)
-
-        // --- IDs ---
-        every { doc1.id } returns "finland_cities"
-        every { ignoredDoc.id } returns "random_data"
-
-        // --- Firestore data ---
-        val finlandData = FirestoreCityList(
-            items = listOf(
-                FirestoreCity("Helsinki", "helsinki finland"),
-                FirestoreCity("Espoo", "espoo finland")
-            )
-        )
-
-        every { doc1.toObject(FirestoreCityList::class.java) } returns finlandData
-        every { ignoredDoc.toObject(FirestoreCityList::class.java) } returns null
-
-        // --- Act ---
-        repo.syncCities()
-
-        // --- Assert ---
-        coVerify {
-            mockCityDao.upsertCities(match { cities ->
-                cities.size == 2 &&
-                        cities.any { it.name == "Helsinki" && it.country == "Finland" } &&
-                        cities.any { it.name == "Espoo" && it.country == "Finland" }
-            })
+            unmockkStatic("kotlinx.coroutines.tasks.TasksKt")
         }
 
-        unmockkStatic("kotlinx.coroutines.tasks.TasksKt")
-    }
+    @Test
+    fun `createEvent failure returns failure result`() =
+        runTest {
+            val mockCollection = mockk<com.google.firebase.firestore.CollectionReference>(relaxed = true)
+            val mockDoc = mockk<com.google.firebase.firestore.DocumentReference>(relaxed = true)
+
+            every { mockDb.collection("events") } returns mockCollection
+            every { mockCollection.document() } returns mockDoc
+            every { mockDoc.set(any()) } throws Exception("Network Error")
+
+            val uiState = EventUiState(eventTitle = "Broken Event")
+
+            val result = repo.createEvent(uiState)
+
+            assertTrue(result.isFailure)
+            assertEquals("Network Error", result.exceptionOrNull()?.message)
+            coVerify(exactly = 0) { mockEventDao.upsertEvent(any()) }
+        }
+
+    @Test
+    fun `syncCities parses firestore documents and stores cities`() =
+        runTest {
+            // --- Firestore mocks ---
+            val mockCollection = mockk<com.google.firebase.firestore.CollectionReference>()
+            val mockQuerySnapshot = mockk<com.google.firebase.firestore.QuerySnapshot>()
+            val mockTask = mockk<com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot>>()
+
+            val doc1 = mockk<com.google.firebase.firestore.DocumentSnapshot>()
+            val ignoredDoc = mockk<com.google.firebase.firestore.DocumentSnapshot>()
+
+            every { mockDb.collection("static_data") } returns mockCollection
+            every { mockCollection.get() } returns mockTask
+
+            mockkStatic("kotlinx.coroutines.tasks.TasksKt")
+            coEvery { mockTask.await() } returns mockQuerySnapshot
+
+            every { mockQuerySnapshot.documents } returns listOf(doc1, ignoredDoc)
+
+            // --- IDs ---
+            every { doc1.id } returns "finland_cities"
+            every { ignoredDoc.id } returns "random_data"
+
+            // --- Firestore data ---
+            val finlandData =
+                FirestoreCityList(
+                    items =
+                        listOf(
+                            FirestoreCity("Helsinki", "helsinki finland"),
+                            FirestoreCity("Espoo", "espoo finland"),
+                        ),
+                )
+
+            every { doc1.toObject(FirestoreCityList::class.java) } returns finlandData
+            every { ignoredDoc.toObject(FirestoreCityList::class.java) } returns null
+
+            // --- Act ---
+            repo.syncCities()
+
+            // --- Assert ---
+            coVerify {
+                mockCityDao.upsertCities(
+                    match { cities ->
+                        cities.size == 2 &&
+                            cities.any { it.name == "Helsinki" && it.country == "Finland" } &&
+                            cities.any { it.name == "Espoo" && it.country == "Finland" }
+                    },
+                )
+            }
+
+            unmockkStatic("kotlinx.coroutines.tasks.TasksKt")
+        }
 }

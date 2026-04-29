@@ -113,9 +113,10 @@ fun HomeScreenContent(
                 Image(
                     painter = painterResource(id = R.drawable.ic_launcher_foreground),
                     contentDescription = "MeetUp Logo",
-                    modifier = Modifier
-                        .size(120.dp)
-                        .padding(bottom = AppSpacing.xl),
+                    modifier =
+                        Modifier
+                            .size(120.dp)
+                            .padding(bottom = AppSpacing.xl),
                 )
             }
             item {

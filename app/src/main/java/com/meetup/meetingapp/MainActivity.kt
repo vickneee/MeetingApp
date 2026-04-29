@@ -11,6 +11,21 @@ import com.meetup.meetingapp.ui.AppViewModelProvider
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 
+/**
+ * Main entry point of the MeetingApp.
+ *
+ * Responsibilities:
+ * - Requests location permissions on launch (fine + coarse)
+ * - Initializes [HomeViewModel] and triggers default‑country detection when permission is granted
+ * - Sets up the app’s Compose UI and theme
+ *
+ * The activity uses `registerForActivityResult` to request permissions before
+ * rendering the UI. If the user grants either fine or coarse location access,
+ * the ViewModel begins resolving the user's country using GPS + Geocoder.
+ *
+ * This activity hosts the root composable [MeetingApp], which contains the
+ * navigation graph and all top‑level screens.
+ */
 class MainActivity : ComponentActivity() {
     private val homeViewModel: HomeViewModel by viewModels { AppViewModelProvider.Factory }
 

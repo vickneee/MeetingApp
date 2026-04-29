@@ -1,5 +1,7 @@
 package com.meetup.meetingapp.network
 
+import com.google.gson.annotations.SerializedName
+
 /**
  * Represents the top‑level response object returned by the
  * Google Places **Text Search API**.
@@ -46,24 +48,28 @@ data class PlacesTextSearchResponse(
  *   "geometry": { "location": { "lat": 60.17, "lng": 24.94 } }
  * }
  *
- * @property place_id Unique Google Places ID for the place.
+ * @property placeId Unique Google Places ID for the place.
  * @property name Display name of the place.
- * @property formatted_address Full formatted address string.
+ * @property formattedAddress Full formatted address string.
  * @property geometry Geographic coordinates (lat/lng).
  * @property rating Average user rating (0.0–5.0).
- * @property user_ratings_total Total number of user reviews.
- * @property price_level Google price level (0–4).
+ * @property userRatingsTotal: Total number of user reviews.
+ * @property priceLevel Google price level (0–4).
  * @property types List of Google Places types describing the place.
  * @property photos List of photo metadata objects (not actual images).
  */
 data class PlaceItem(
-    val place_id: String?,
+    @SerializedName("place_id")
+    val placeId: String?,
     val name: String?,
-    val formatted_address: String?,
+    @SerializedName("formatted_address")
+    val formattedAddress: String?,
     val geometry: Geometry?,
     val rating: Double?,
-    val user_ratings_total: Int?,
-    val price_level: Int?,
+    @SerializedName("user_ratings_total")
+    val userRatingsTotal: Int?,
+    @SerializedName("price_level")
+    val priceLevel: Int?,
     val types: List<String>?,
     val photos: List<PlacePhoto>?,
 )

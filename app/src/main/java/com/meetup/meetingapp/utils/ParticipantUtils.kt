@@ -2,8 +2,8 @@ package com.meetup.meetingapp.utils
 
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
-import com.meetup.meetingapp.ui.screens.participant_input_flow.DateAvailability
-import com.meetup.meetingapp.ui.screens.participant_input_flow.UiTimeSlot
+import com.meetup.meetingapp.ui.screens.participantinput.DateAvailability
+import com.meetup.meetingapp.ui.screens.participantinput.UiTimeSlot
 
 /**
  * Generates a flattened list of all available date and time slot combinations for an event.

@@ -6,7 +6,7 @@ import com.meetup.meetingapp.data.db.entities.CityEntity
 /**
  * Represents a city in the Firestore database.
  * @property name The name of the city.
- * @property search_query The search query associated with the city.
+ * @property searchQuery The search query associated with the city.
  * @constructor Creates a new instance of the FirestoreCity object.
  */
 data class FirestoreCity(
@@ -15,7 +15,7 @@ data class FirestoreCity(
     var name: String = "",
     @get:PropertyName("search_query")
     @set:PropertyName("search_query")
-    var search_query: String = "",
+    var searchQuery: String = "",
 )
 
 /**
@@ -37,7 +37,7 @@ object CityMapper {
     fun FirestoreCity.toEntity(country: String) =
         CityEntity(
             name = name,
-            searchQuery = search_query,
+            searchQuery = searchQuery,
             country = country,
         )
 }
