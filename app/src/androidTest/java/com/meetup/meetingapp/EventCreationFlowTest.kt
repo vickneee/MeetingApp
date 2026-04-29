@@ -5,31 +5,27 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.printToLog
 import androidx.navigation.compose.rememberNavController
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.firebase.firestore.FirebaseFirestore
 import com.meetup.meetingapp.data.AppContainer
 import com.meetup.meetingapp.data.repositories.EventRepository
 import com.meetup.meetingapp.data.repositories.PlacesRepository
 import com.meetup.meetingapp.data.repositories.UserRepository
 import com.meetup.meetingapp.ui.navigation.MeetingAppNavHost
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
-import com.google.firebase.firestore.FirebaseFirestore
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
-import net.bytebuddy.matcher.ElementMatchers.returns
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class EventCreationFlowTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -41,18 +37,18 @@ class EventCreationFlowTest {
         // 1. Get the application instance
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val app = instrumentation.targetContext.applicationContext as MeetingApplication
-        
+
         // 2. Create mocks
         mockEventRepository = mockk(relaxed = true)
         mockUserRepository = mockk(relaxed = true)
-        
+
         // 3. Define mock behavior for the repository
         every { mockEventRepository.getCitiesByCountry(any()) } returns flowOf(listOf("Helsinki", "Tampere", "Espoo"))
         every { mockEventRepository.getEvents() } returns flowOf(emptyList())
         every { mockEventRepository.getEventById(any()) } returns flowOf(null)
         every { mockEventRepository.observeEventById(any()) } returns flowOf(null)
         coEvery { mockEventRepository.hasUserSubmittedAvailability(any(), any()) } returns false
-        
+
         // 4. Mock the event creation response
         coEvery { mockEventRepository.createEvent(any()) } answers {
 //            returns Result.success(Triple("ABCDEF", "12345", "test_event_id"))
@@ -60,13 +56,14 @@ class EventCreationFlowTest {
         }
 
         // 5. Replace the real container with a test container providing mocks
-        app.container = object : AppContainer {
-            override val userRepository = mockUserRepository
-            override val eventRepository = mockEventRepository
-            override val placesRepository = mockk<PlacesRepository>(relaxed = true)
-            override val db = mockk<FirebaseFirestore>(relaxed = true)
-            override val placesApiKey = "test_api_key"
-        }
+        app.container =
+            object : AppContainer {
+                override val userRepository = mockUserRepository
+                override val eventRepository = mockEventRepository
+                override val placesRepository = mockk<PlacesRepository>(relaxed = true)
+                override val db = mockk<FirebaseFirestore>(relaxed = true)
+                override val placesApiKey = "test_api_key"
+            }
     }
 
     @Test
@@ -104,17 +101,19 @@ class EventCreationFlowTest {
         composeTestRule.onNodeWithText("Choose Meeting Location").assertIsDisplayed()
 
         // Select country finland
-        composeTestRule.onNodeWithText("Search Countries")
+        composeTestRule
+            .onNodeWithText("Search Countries")
             .performScrollTo()
             .performClick()
 
         composeTestRule.onNodeWithText("Finland").performClick()
 
         // Search and select Helsinki
-        composeTestRule.onNodeWithText("Type city's name")
+        composeTestRule
+            .onNodeWithText("Type city's name")
             .performScrollTo()
             .performClick()
-        
+
         composeTestRule.onNodeWithText("Helsinki").performClick()
         composeTestRule.onNodeWithText("Next").performClick()
 
@@ -122,8 +121,6 @@ class EventCreationFlowTest {
         composeTestRule.onNodeWithText("Choose Place Type").assertIsDisplayed()
         composeTestRule.onNodeWithText("Restaurant").performClick()
         composeTestRule.onNodeWithText("Create Event").performClick()
-
-
         // 6. EventCreatedPage (Success)
         // Wait for the success screen to appear by checking for the mocked event code
 //        composeTestRule.onRoot().printToLog("DEBUG_TREE")
