@@ -10,16 +10,15 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ParticipantUtilsTest {
-
-    private fun createMockEvent(): Event {
-        return Event(
+    private fun createMockEvent(): Event =
+        Event(
             dateRange = DateRange("2026-04-23", "2026-04-24"),
-            timeSlots = listOf(
-                TimeSlot("09:00", "10:00"),
-                TimeSlot("10:00", "11:00")
-            )
+            timeSlots =
+                listOf(
+                    TimeSlot("09:00", "10:00"),
+                    TimeSlot("10:00", "11:00"),
+                ),
         )
-    }
 
     @Test
     fun buildAllAvailableDateTimes_isCorrect() {
@@ -31,9 +30,10 @@ class ParticipantUtilsTest {
     @Test
     fun buildDateAvailability_selectionCheck() {
         val event = createMockEvent()
-        val selected = listOf(
-            DateTime("2026-04-23", event.timeSlots[0])
-        )
+        val selected =
+            listOf(
+                DateTime("2026-04-23", event.timeSlots[0]),
+            )
 
         val result = buildDateAvailability(event, selected)
         val day1 = result.find { it.date == "2026-04-23" }

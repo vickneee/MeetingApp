@@ -8,13 +8,13 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.android.gms.location.LocationServices
 import com.meetup.meetingapp.MeetingApplication
-import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
+import com.meetup.meetingapp.ui.screens.eventcreation.EventViewModel
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
-import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardViewModel
-import com.meetup.meetingapp.ui.screens.join_page.JoinViewModel
-import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardViewModel
-import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantViewModel
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
+import com.meetup.meetingapp.ui.screens.hostdashboard.HostDashboardViewModel
+import com.meetup.meetingapp.ui.screens.joinpage.JoinViewModel
+import com.meetup.meetingapp.ui.screens.participantdashboard.ParticipantDashboardViewModel
+import com.meetup.meetingapp.ui.screens.participantinput.ParticipantViewModel
+import com.meetup.meetingapp.ui.screens.placevote.PlaceViewModel
 import java.util.Locale
 
 /**

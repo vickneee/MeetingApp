@@ -19,13 +19,37 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.meetup.meetingapp.ui.navigation.MeetingAppNavHost
 
+/**
+ * Root composable of the MeetingApp.
+ *
+ * This function initializes the app‑wide [NavHostController] and delegates
+ * navigation graph setup to [MeetingAppNavHost]. It serves as the entry point
+ * for all screens rendered in the Compose hierarchy.
+ *
+ * @param navController Optional controller for navigation. A new one is created
+ *                      by default using [rememberNavController].
+ */
 @Composable
 fun MeetingApp(navController: NavHostController = rememberNavController()) {
     MeetingAppNavHost(navController = navController)
 }
 
 /**
- * App bar to display title and conditionally display the back navigation.
+ * App bar used across the MeetingApp to display a centered title and,
+ * optionally, a back navigation button.
+ *
+ * This top app bar:
+ * - Shows a title in the center
+ * - Displays a back arrow when [canNavigateBack] is true
+ * - Supports scroll behaviors for collapsing toolbars
+ * - Allows customizing window insets (default: status bars)
+ *
+ * @param title The text displayed in the center of the app bar.
+ * @param canNavigateBack Whether the back button should be shown.
+ * @param modifier Optional [Modifier] for styling or layout adjustments.
+ * @param scrollBehavior Optional scroll behavior for Material 3 top app bars.
+ * @param windowInsets Insets applied to the app bar (default: status bars).
+ * @param navigateUp Callback invoked when the back button is pressed.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

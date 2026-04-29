@@ -1,5 +1,7 @@
 package com.meetup.meetingapp.network
 
+import com.google.gson.annotations.SerializedName
+
 /**
  * Represents the opening hours section returned by the Google Places API.
  *
@@ -11,9 +13,10 @@ package com.meetup.meetingapp.network
  * This raw text is later parsed in the ViewModel to determine whether a
  * restaurant is open during a selected time slot.
  *
- * @property weekday_text A list of formatted opening‑hours strings, or null if
+ * @property weekdayText A list of formatted opening‑hours strings, or null if
  *                        the API does not provide opening hours for the place.
  */
 data class OpeningHours(
-    val weekday_text: List<String>?,
+    @SerializedName("weekday_text")
+    val weekdayText: List<String>?,
 )

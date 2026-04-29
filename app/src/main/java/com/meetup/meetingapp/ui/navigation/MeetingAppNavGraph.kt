@@ -15,72 +15,94 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.meetup.meetingapp.ui.AppViewModelProvider
-import com.meetup.meetingapp.ui.screens.create_event_flow.AddTimeSlotsPage
-import com.meetup.meetingapp.ui.screens.create_event_flow.AreaSelectingDestination
-import com.meetup.meetingapp.ui.screens.create_event_flow.AreaSelectingPage
-import com.meetup.meetingapp.ui.screens.create_event_flow.CreateEventDestination
-import com.meetup.meetingapp.ui.screens.create_event_flow.CreateEventPage
-import com.meetup.meetingapp.ui.screens.create_event_flow.CreatingEventPage
-import com.meetup.meetingapp.ui.screens.create_event_flow.CreatingEventPageDestination
-import com.meetup.meetingapp.ui.screens.create_event_flow.EditTimeSlotDestination
-import com.meetup.meetingapp.ui.screens.create_event_flow.EditTimeSlotScreen
-import com.meetup.meetingapp.ui.screens.create_event_flow.EventCreatedDestination
-import com.meetup.meetingapp.ui.screens.create_event_flow.EventCreatedPage
-import com.meetup.meetingapp.ui.screens.create_event_flow.EventViewModel
-import com.meetup.meetingapp.ui.screens.create_event_flow.TimeSlotsSelectingPageDestination
-import com.meetup.meetingapp.ui.screens.event_list_page.EventListDestination
-import com.meetup.meetingapp.ui.screens.event_list_page.EventsListPage
+import com.meetup.meetingapp.ui.screens.eventcreation.AddTimeSlotsPage
+import com.meetup.meetingapp.ui.screens.eventcreation.AreaSelectingDestination
+import com.meetup.meetingapp.ui.screens.eventcreation.AreaSelectingPage
+import com.meetup.meetingapp.ui.screens.eventcreation.CreateEventDestination
+import com.meetup.meetingapp.ui.screens.eventcreation.CreateEventPage
+import com.meetup.meetingapp.ui.screens.eventcreation.CreatingEventPage
+import com.meetup.meetingapp.ui.screens.eventcreation.CreatingEventPageDestination
+import com.meetup.meetingapp.ui.screens.eventcreation.EditTimeSlotDestination
+import com.meetup.meetingapp.ui.screens.eventcreation.EditTimeSlotScreen
+import com.meetup.meetingapp.ui.screens.eventcreation.EventCreatedDestination
+import com.meetup.meetingapp.ui.screens.eventcreation.EventCreatedPage
+import com.meetup.meetingapp.ui.screens.eventcreation.EventViewModel
+import com.meetup.meetingapp.ui.screens.eventcreation.TimeSlotsSelectingPageDestination
+import com.meetup.meetingapp.ui.screens.eventlist.EventListDestination
+import com.meetup.meetingapp.ui.screens.eventlist.EventsListPage
 import com.meetup.meetingapp.ui.screens.home.HomeDestination
 import com.meetup.meetingapp.ui.screens.home.HomeScreen
 import com.meetup.meetingapp.ui.screens.home.HomeViewModel
-import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardDestination
-import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardPage
-import com.meetup.meetingapp.ui.screens.host_dashboard.HostDashboardViewModel
-import com.meetup.meetingapp.ui.screens.join_page.JoinDestination
-import com.meetup.meetingapp.ui.screens.join_page.JoinPage
-import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardDestination
-import com.meetup.meetingapp.ui.screens.participant_dashboard.ParticipantDashboardPage
-import com.meetup.meetingapp.ui.screens.participant_input_flow.AvailabilitySelectingPage
-import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailDestination
-import com.meetup.meetingapp.ui.screens.participant_input_flow.MeetUpDetailPage
-import com.meetup.meetingapp.ui.screens.participant_input_flow.ParticipantViewModel
-import com.meetup.meetingapp.ui.screens.participant_input_flow.PlaceTypeAndKeywordDestination
-import com.meetup.meetingapp.ui.screens.participant_input_flow.PlaceTypeAndKeywordPage
-import com.meetup.meetingapp.ui.screens.participant_input_flow.SmallAreaSelectingDestination
-import com.meetup.meetingapp.ui.screens.participant_input_flow.SmallAreaSelectingPage
-import com.meetup.meetingapp.ui.screens.participant_input_flow.SubmissionCompleteDestination
-import com.meetup.meetingapp.ui.screens.participant_input_flow.SubmissionCompletePage
-import com.meetup.meetingapp.ui.screens.participant_input_flow.TimeAvailabilityDestination
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPageDestination
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.DateAndAreaPageDestination.DateAndAreaPage
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceDetailsDestination
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceDetailsPage
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceListPage
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceListPageDestination
-import com.meetup.meetingapp.ui.screens.vote_for_place_flow.PlaceViewModel
+import com.meetup.meetingapp.ui.screens.hostdashboard.HostDashboardDestination
+import com.meetup.meetingapp.ui.screens.hostdashboard.HostDashboardPage
+import com.meetup.meetingapp.ui.screens.hostdashboard.HostDashboardViewModel
+import com.meetup.meetingapp.ui.screens.joinpage.JoinDestination
+import com.meetup.meetingapp.ui.screens.joinpage.JoinPage
+import com.meetup.meetingapp.ui.screens.participantdashboard.ParticipantDashboardDestination
+import com.meetup.meetingapp.ui.screens.participantdashboard.ParticipantDashboardPage
+import com.meetup.meetingapp.ui.screens.participantinput.AvailabilitySelectingPage
+import com.meetup.meetingapp.ui.screens.participantinput.MeetUpDetailDestination
+import com.meetup.meetingapp.ui.screens.participantinput.MeetUpDetailPage
+import com.meetup.meetingapp.ui.screens.participantinput.ParticipantViewModel
+import com.meetup.meetingapp.ui.screens.participantinput.PlaceTypeAndKeywordDestination
+import com.meetup.meetingapp.ui.screens.participantinput.PlaceTypeAndKeywordPage
+import com.meetup.meetingapp.ui.screens.participantinput.SmallAreaSelectingDestination
+import com.meetup.meetingapp.ui.screens.participantinput.SmallAreaSelectingPage
+import com.meetup.meetingapp.ui.screens.participantinput.SubmissionCompleteDestination
+import com.meetup.meetingapp.ui.screens.participantinput.SubmissionCompletePage
+import com.meetup.meetingapp.ui.screens.participantinput.TimeAvailabilityDestination
+import com.meetup.meetingapp.ui.screens.placevote.DateAndAreaPageDestination
+import com.meetup.meetingapp.ui.screens.placevote.DateAndAreaPageDestination.DateAndAreaPage
+import com.meetup.meetingapp.ui.screens.placevote.PlaceDetailsDestination
+import com.meetup.meetingapp.ui.screens.placevote.PlaceDetailsPage
+import com.meetup.meetingapp.ui.screens.placevote.PlaceListPage
+import com.meetup.meetingapp.ui.screens.placevote.PlaceListPageDestination
+import com.meetup.meetingapp.ui.screens.placevote.PlaceViewModel
 
 /**
- * Main navigation graph for the MeetingApp.
+ * Defines the full navigation graph for the MeetingApp.
  *
- * This NavHost defines all top‑level destinations and the nested navigation graph
- * used for the event‑creation flow.
+ * This file configures:
  *
- * Structure:
- * - Home
- * - Create or Join
- * - Event Creation Flow (nested graph)
- *      - CreateCreatingEventPage
- *      - CreateEventButtonPage
- *      - EventCreatedPage
- * - Host Dashboard
+ * 1. **Top‑level destinations**
+ *    - Home
+ *    - Join Event
+ *    - Event List
+ *    - Host Dashboard
+ *    - Participant Dashboard
  *
- * The event creation flow shares a single EventViewModel instance across
- * all three screens by scoping the ViewModel to the \"event_creation_graph\"
- * navigation graph. This ensures that user input is preserved across screens.
+ * 2. **Nested navigation graphs**
+ *    - `event_creation_graph`
+ *         → All event‑creation screens share a single [EventViewModel]
+ *    - `participant-input`
+ *         → All participant‑input screens share a single [ParticipantViewModel]
+ *    - `vote-for-place`
+ *         → All place‑voting screens share a single [PlaceViewModel]
  *
- * @param navController The NavController used to navigate between screens.
- * @param modifier Optional modifier for layout adjustments.
+ * 3. **Shared ViewModel scoping**
+ *    ViewModels are scoped to their respective navigation graphs using:
+ *
+ *        navController.getBackStackEntry(graphRoute)
+ *
+ *    This ensures that:
+ *    - User input persists across multiple screens
+ *    - State is not lost when navigating forward/backward
+ *    - Each flow (event creation, participant input, voting) maintains its own state
+ *
+ * 4. **Animated transitions**
+ *    All navigation transitions use fade‑in / fade‑out animations for a smoother UX.
+ *
+ * 5. **Deep‑link‑like argument passing**
+ *    Several destinations accept dynamic arguments such as:
+ *    - `eventId`
+ *    - `eventCode`
+ *    - `eventKey`
+ *    - `placeId`
+ *
+ * Overall, this file acts as the central routing map for the entire application,
+ * defining how users move between screens and how shared state is preserved.
  */
+
 @Composable
 fun MeetingAppNavHost(
     navController: NavHostController,
@@ -133,8 +155,25 @@ fun MeetingAppNavHost(
         }
 
         /**
-         * Nested navigation graph for the event creation flow.
-         * All screens inside this graph share the same EventViewModel instance.
+         * Nested navigation graph for the event‑creation flow.
+         *
+         * All screens inside this graph share a single [EventViewModel] instance.
+         * The ViewModel is scoped to this graph using:
+         *
+         *     navController.getBackStackEntry("event_creation_graph")
+         *
+         * This ensures that:
+         * - User input (time slots, area, event settings) persists across screens
+         * - State is not lost when navigating forward/backward
+         * - The event creation process behaves as a single multi‑step form
+         *
+         * Screens included:
+         * - CreatingEventPage
+         * - AddTimeSlotsPage
+         * - EditTimeSlotScreen
+         * - AreaSelectingPage
+         * - CreateEventPage
+         * - EventCreatedPage
          */
         navigation(
             startDestination = CreatingEventPageDestination.route,
@@ -292,10 +331,10 @@ fun MeetingAppNavHost(
                     onNavigateToAvailability = { eventCode, eventKey ->
                         navController.navigate("${MeetUpDetailDestination.route}/$eventCode/$eventKey")
                     },
-                    eventId = eventId
+                    eventId = eventId,
                 )
             }
-            
+
             // Fallback for direct navigation from CreateEventPage
             composable(EventCreatedDestination.route) { backStackEntry ->
                 val parentEntry =
@@ -323,7 +362,21 @@ fun MeetingAppNavHost(
 
         /**
          * Nested navigation graph for the participant input flow.
-         * All screens inside this graph share the same ParticipantViewModel instance.
+         *
+         * All screens inside this graph share a single [ParticipantViewModel] instance.
+         * The ViewModel is scoped to this graph using:
+         *
+         *     navController.getBackStackEntry("participant-input")
+         *
+         * This allows the participant’s selections (availability, cities, place types)
+         * to persist across multiple steps without being lost.
+         *
+         * Screens included:
+         * - MeetUpDetailPage
+         * - AvailabilitySelectingPage
+         * - SmallAreaSelectingPage
+         * - PlaceTypeAndKeywordPage
+         * - SubmissionCompletePage
          */
         navigation(
             startDestination = MeetUpDetailDestination.routeWithArgs,
@@ -351,7 +404,7 @@ fun MeetingAppNavHost(
                     },
                     onNavigateToHome = {
                         navController.navigate(HomeDestination.route)
-                    }
+                    },
                 )
             }
 
@@ -476,7 +529,7 @@ fun MeetingAppNavHost(
                     factory = AppViewModelProvider.Factory,
                 )
             val eventId =
-                backStackEntry.arguments?.getString(HostDashboardDestination.EVENTIDARG) ?: ""
+                backStackEntry.arguments?.getString(HostDashboardDestination.EVENT_ID_ARG) ?: ""
             HostDashboardPage(
                 onBack = { navController.popBackStack() },
                 onVoteForRestaurantClick = { navController.navigate("${DateAndAreaPageDestination.route}/$eventId") },
@@ -502,7 +555,7 @@ fun MeetingAppNavHost(
         composable(ParticipantDashboardDestination.routeWithArgs) { backStackEntry ->
             val eventId =
                 backStackEntry.arguments
-                    ?.getString(ParticipantDashboardDestination.EVENTIDARG) ?: ""
+                    ?.getString(ParticipantDashboardDestination.EVENT_ID_ARG) ?: ""
             ParticipantDashboardPage(
                 onBack = { navController.popBackStack() },
                 onVoteForRestaurantClick = { navController.navigate("${DateAndAreaPageDestination.route}/$eventId") },
@@ -519,8 +572,22 @@ fun MeetingAppNavHost(
         }
 
         /**
-         * Nested navigation graph for the participant input flow.
-         * All screens inside this graph share the same PlaceViewModel instance.
+         * Nested navigation graph for the place‑voting flow.
+         *
+         * All screens inside this graph share a single [PlaceViewModel] instance.
+         * The ViewModel is scoped to this graph using:
+         *
+         *     navController.getBackStackEntry("vote-for-place")
+         *
+         * This ensures that:
+         * - The selected date/area persists across screens
+         * - The restaurant list and selected place remain consistent
+         * - The voting flow behaves as a unified multi‑step process
+         *
+         * Screens included:
+         * - DateAndAreaPage
+         * - PlaceListPage
+         * - PlaceDetailsPage
          */
         navigation(
             startDestination = DateAndAreaPageDestination.routeWithArgs,
@@ -546,7 +613,7 @@ fun MeetingAppNavHost(
                         val event = viewModel.event.value
                         if (event != null) {
                             navController.navigate(
-                                "${MeetUpDetailDestination.route}/${event.eventCode}/${event.eventKey}"
+                                "${MeetUpDetailDestination.route}/${event.eventCode}/${event.eventKey}",
                             )
                         }
                     },
@@ -577,12 +644,12 @@ fun MeetingAppNavHost(
                         val event = viewModel.event.value
                         if (event != null) {
                             navController.navigate(
-                                "${MeetUpDetailDestination.route}/${event.eventCode}/${event.eventKey}"
+                                "${MeetUpDetailDestination.route}/${event.eventCode}/${event.eventKey}",
                             )
                         }
                     },
                     onNavigateToPlaceDetails = { placeId ->
-                        val eventId = parentEntry.arguments?.getString(DateAndAreaPageDestination.EVENTIDARG) ?: ""
+                        val eventId = parentEntry.arguments?.getString(DateAndAreaPageDestination.EVENT_ID_ARG) ?: ""
                         navController.navigate("${PlaceDetailsDestination.route}/$eventId/$placeId")
                     },
                     viewModel = viewModel,
@@ -595,7 +662,7 @@ fun MeetingAppNavHost(
             composable(PlaceDetailsDestination.routeWithArgs) { backStackEntry ->
 
                 val placeId =
-                    backStackEntry.arguments?.getString(PlaceDetailsDestination.placeIdArg)
+                    backStackEntry.arguments?.getString(PlaceDetailsDestination.PLACE_ID_ARG)
                         ?: ""
 
                 val parentEntry =

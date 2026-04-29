@@ -18,7 +18,7 @@ private const val BASE_URL = "https://maps.googleapis.com/maps/api/"
  *  - Uses Gson for JSON serialization/deserialization.
  *  - BASE_URL must end with a trailing slash for Retrofit to resolve endpoints correctly.
  */
-val retrofit =
+val retrofit: Retrofit =
     Retrofit
         .Builder()
         .baseUrl(BASE_URL)

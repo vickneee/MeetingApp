@@ -13,7 +13,22 @@ import kotlinx.coroutines.launch
 
 /**
  * ViewModel for the Home screen.
+ *
+ * Responsibilities:
+ * - Handles anonymous Firebase Authentication on app launch
+ * - Exposes the current user ID as a StateFlow
+ * - Determines the user's default country using GPS + Geocoder
+ * - Saves the detected country to the [UserRepository]
+ *
+ * This ViewModel initializes immediately by attempting to sign in anonymously.
+ * Once authenticated, it triggers a one‑time location lookup to infer the user's
+ * country and store it for later use in event creation and filtering.
+ *
+ * @property userRepository Repository used to sync and update user data.
+ * @property fusedLocationClient Client for retrieving the device's last known location.
+ * @property geocoder Used to convert coordinates into a human‑readable country name.
  */
+@Suppress("DEPRECATION")
 class HomeViewModel(
     private val userRepository: UserRepository,
     private val fusedLocationClient: com.google.android.gms.location.FusedLocationProviderClient,
@@ -21,10 +36,12 @@ class HomeViewModel(
 ) : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
 
-    private val _homeUiState = MutableStateFlow(HomeUiState())
+    private val homeUiState = MutableStateFlow(HomeUiState())
 
     /**
-     * The current user ID.
+     * The current Firebase user ID.
+     *
+     * Updated after successful anonymous sign‑in.
      */
     private val _currentUserId = MutableStateFlow(auth.currentUser?.uid ?: "")
     val currentUserId: StateFlow<String> = _currentUserId.asStateFlow()
@@ -36,6 +53,9 @@ class HomeViewModel(
 
     /**
      * Signs in anonymously using Firebase Authentication.
+     *
+     * - If already signed in, immediately initializes the default country.
+     * - On first‑time sign‑in, syncs the user with the repository.
      */
     fun signInAnonymously() {
         Log.d("Auth", "signInAnonymously called, currentUser: ${auth.currentUser?.uid}")
@@ -69,13 +89,22 @@ class HomeViewModel(
 //    }
 
     /**
-     * Attempts to fetch location once, determine country, and save it to the repository.
+     * Attempts to determine the user's country using GPS coordinates.
+     *
+     * Steps:
+     * 1. Fetches the current coordinates using [fusedLocationClient].
+     * 2. Uses [geocoder] to resolve the country name.
+     * 3. Saves the detected country to the [UserRepository].
+     * 4. Updates the UI state with a terminal‑style status message.
+     *
+     * If GPS is unavailable or geocoding fails, the UI state is updated with
+     * an appropriate fallback message.
      */
     fun initDefaultCountry() {
         viewModelScope.launch {
             try {
                 // Update UI state to show the terminal is working
-                _homeUiState.update { it.copy(detectedCountry = "ESTABLISHING_UPLINK...") }
+                homeUiState.update { it.copy(detectedCountry = "ESTABLISHING_UPLINK...") }
 
                 val coords =
                     com.meetup.meetingapp.data.location
@@ -90,25 +119,28 @@ class HomeViewModel(
                         userRepository.saveDefaultCountry(countryName)
 
                         // Update the UI state with the "Terminal" text in Uppercase
-                        _homeUiState.update { currentState ->
+                        homeUiState.update { currentState ->
                             currentState.copy(detectedCountry = countryName.uppercase())
                         }
 
                         Log.d("Location", "Default country set to: $countryName")
                     }
                 } else {
-                    _homeUiState.update { it.copy(detectedCountry = "GPS_SIGNAL_OFFLINE") }
+                    homeUiState.update { it.copy(detectedCountry = "GPS_SIGNAL_OFFLINE") }
                 }
             } catch (e: Exception) {
                 Log.e("Location", "Failed to determine country: ${e.message}")
-                _homeUiState.update { it.copy(detectedCountry = "ERROR_GEOLOC_FAILED") }
+                homeUiState.update { it.copy(detectedCountry = "ERROR_GEOLOC_FAILED") }
             }
         }
     }
 }
 
 /**
- * Ui State for HomeScreen
+ * UI state for the Home screen.
+ *
+ * @property message Optional message for status or debugging.
+ * @property detectedCountry The detected country name or a terminal‑style status string.
  */
 data class HomeUiState(
     val message: String = "",

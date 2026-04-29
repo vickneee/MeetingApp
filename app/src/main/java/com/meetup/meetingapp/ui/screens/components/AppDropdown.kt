@@ -181,7 +181,12 @@ fun <T> AppMultiSelectDropdown(
                 colors =
                     OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = if (enabled) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor =
+                            if (enabled) {
+                                MaterialTheme.colorScheme.surface
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            },
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                         focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
@@ -195,7 +200,8 @@ fun <T> AppMultiSelectDropdown(
                     ),
                 enabled = enabled,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                modifier = Modifier
+                modifier =
+                    Modifier
                         .fillMaxWidth(AppSize.xl)
                         .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = enabled)
                         .focusRequester(focusRequester),

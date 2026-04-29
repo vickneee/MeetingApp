@@ -6,16 +6,17 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
-
 class RestaurantUtilsTest {
-
     @ParameterizedTest
     @CsvSource(
         "0, €",
         "1, €€",
-        "2, €€€"
+        "2, €€€",
     )
-    fun `formatPriceLevel returns correct number of Euro signs for valid levels`(level: Int, expected: String) {
+    fun `formatPriceLevel returns correct number of Euro signs for valid levels`(
+        level: Int,
+        expected: String,
+    ) {
         val result = formatPriceLevel(level)
         assertEquals(expected, result)
     }

@@ -25,6 +25,6 @@ interface PlacesRepository {
         lat: Double? = null,
         lng: Double? = null,
         components: String? = null,
-        forceRefresh: Boolean = false
+        forceRefresh: Boolean = false,
     ): Result<List<Restaurant>>
 }

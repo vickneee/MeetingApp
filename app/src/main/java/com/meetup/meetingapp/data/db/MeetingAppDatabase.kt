@@ -19,9 +19,22 @@ import com.meetup.meetingapp.data.db.entities.UserEntity
 
 /**
  * The Room database for the Meeting App.
- * This class defines the database configuration and serves as the
- * access point for the underlying storage.
- * @constructor Creates a new instance of the MeetingAppDatabase.
+ *
+ * This database stores all persistent application data, including:
+ * - Events and their availability information
+ * - Users and authentication‑related metadata
+ * - Cities used for location selection
+ * - Restaurants fetched from external APIs
+ * - Participant responses for voting and availability
+ *
+ * The database:
+ * - Defines all Room entities used by the app
+ * - Exposes DAO accessors for each data type
+ * - Uses a singleton pattern to ensure a single shared instance
+ * - Applies `fallbackToDestructiveMigration` to reset the schema when incompatible
+ *   migrations occur (useful during development)
+ *
+ * @constructor Not intended to be created manually. Use [getDatabase] to obtain the singleton instance.
  */
 @Database(
     entities = [EventEntity::class, UserEntity::class, CityEntity::class, ParticipantResponseEntity::class, RestaurantEntity::class],
@@ -42,11 +55,21 @@ abstract class MeetingAppDatabase : RoomDatabase() {
 
     companion object {
         @Volatile
-        private var INSTANCE: MeetingAppDatabase? = null
+        private var instance: MeetingAppDatabase? = null
 
+        /**
+         * Returns the singleton instance of [MeetingAppDatabase].
+         *
+         * Uses double‑checked locking to ensure thread‑safe initialization.
+         * The database is built with:
+         * - Application context (to avoid leaking Activity)
+         * - `fallbackToDestructiveMigration` for development convenience
+         *
+         * @param context The application context.
+         */
         fun getDatabase(context: Context): MeetingAppDatabase =
-            INSTANCE ?: synchronized(this) {
-                val instance =
+            instance ?: synchronized(this) {
+                val newInstance =
                     Room
                         .databaseBuilder(
                             context.applicationContext,
@@ -54,8 +77,8 @@ abstract class MeetingAppDatabase : RoomDatabase() {
                             "meeting_app",
                         ).fallbackToDestructiveMigration(dropAllTables = true)
                         .build()
-                INSTANCE = instance
-                instance
+                instance = newInstance
+                newInstance
             }
     }
 }
