@@ -14,6 +14,7 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
 import com.meetup.meetingapp.worker.makeSubmissionReminderNotification
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -194,6 +195,16 @@ class ParticipantDashboardViewModel(
      * Fetches the user's vote status for the current event.
      */
     fun fetchUserVote() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentEvent = _event.value ?: return@launch
+            val hasVoted =
+                eventRepository.hasUserVotedInEvent(
+                    eventId = eventId,
+                    userId = userId,
+                    timings = currentEvent.dateTimeCandidates,
+                )
+            _uiState.update { it.copy(hasVoted = hasVoted) }
+        }
     }
 }
 
