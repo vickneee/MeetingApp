@@ -5,7 +5,6 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.worker.SubmissionRemainderWorker
 
 /**

@@ -1,7 +1,5 @@
 package com.meetup.meetingapp.data.repositories
 
-import com.meetup.meetingapp.data.model.Event
-
 /**
  * Repository interface for managing background submission checks.
  */
