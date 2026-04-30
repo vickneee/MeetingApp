@@ -35,8 +35,8 @@ jobs:
       - name: Run Detekt
         run: ./gradlew detekt
 
-      - name: Lint Code
-        run: ./gradlew ktlintCheck
-
       - name: Format Code
         run: ./gradlew ktlintFormat
+
+      - name: Lint Code
+        run: ./gradlew ktlintCheck
