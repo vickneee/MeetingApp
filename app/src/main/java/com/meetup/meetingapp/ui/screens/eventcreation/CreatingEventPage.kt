@@ -108,14 +108,17 @@ fun CreatingEventPage(
     /**
      * Modal for selecting a date range.
      */
+    val closeModal = { showModal = false }
     if (showModal) {
         CustomDateRangePickerModal(
-            onDismiss = { showModal = false },
+            onDismiss = closeModal,
             onSave = { range ->
                 viewModel.updateDateRange(range.first, range.second)
-                showModal = false
-            },
+                closeModal()
+            }
+
         )
+
     }
 }
 

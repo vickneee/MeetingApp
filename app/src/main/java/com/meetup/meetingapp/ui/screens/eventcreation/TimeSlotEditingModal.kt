@@ -38,7 +38,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -54,6 +53,7 @@ import com.meetup.meetingapp.ui.theme.AppPadding
 import com.meetup.meetingapp.ui.theme.AppSize
 import com.meetup.meetingapp.ui.theme.AppSpacing
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
+import java.util.Locale
 
 /**
  * Navigation destination for the Edit Time Slot screen.
@@ -64,9 +64,11 @@ object EditTimeSlotDestination : NavigationDestination {
 }
 
 private fun toMinutes(time: String): Int {
-    val parts = time.split(":")
-    return parts[0].toInt() * 60 + parts[1].toInt()
+    val hours = time.substringBefore(":").toIntOrNull() ?: 0
+    val minutes = time.substringAfter(":").toIntOrNull() ?: 0
+    return hours * 60 + minutes
 }
+
 
 /**
  * Edit Time Slot Page
@@ -87,24 +89,31 @@ fun EditTimeSlotScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    var startTime by remember {
+    val startTime = remember {
         mutableStateOf(
             if (index >= 0) uiState.timeSlots[index].start else "13:00",
         )
     }
-    var endTime by remember {
+    val endTime = remember {
         mutableStateOf(
             if (index >= 0) uiState.timeSlots[index].end else "16:00",
         )
     }
-    var showPickerType by remember { mutableStateOf<String?>(null) }
+    val showPickerType = remember { mutableStateOf<String?>(null) }
 
     EditTimeSlotContent(
         modifier = Modifier,
-        startTime = startTime,
-        endTime = endTime,
-        onStartTimeClick = { showPickerType = "start" },
-        onEndTimeClick = { showPickerType = "end" },
+        startTime = startTime.value,
+        endTime = endTime.value,
+        showPickerType = showPickerType.value,
+        onStartTimeClick = { showPickerType.value = "start" },
+        onEndTimeClick = { showPickerType.value = "end" },
+        onDismissPicker = { showPickerType.value = null },
+        onConfirmTime = { formattedTime ->
+            if (showPickerType.value == "start") startTime.value = formattedTime
+            else endTime.value = formattedTime
+            showPickerType.value = null
+        },
         onBack = onBack,
         onSaveTimeSlot = { start, end ->
             if (index >= 0) {
@@ -116,23 +125,31 @@ fun EditTimeSlotScreen(
         navigateToTimeSlotsSelectingPage = navigateToTimeSlotsSelectingPage,
     )
 
-    // Handle Time Picker Dialog
-    if (showPickerType != null) {
-        AdvancedTimePicker(
-            initialHour = if (showPickerType == "start") startTime.split(":")[0].toInt() else endTime.split(":")[0].toInt(),
-            initialMinute = if (showPickerType == "start") startTime.split(":")[1].toInt() else endTime.split(":")[1].toInt(),
-            onConfirm = { state ->
-                val formattedTime = "%02d:%02d".format(state.hour, state.minute)
-                if (showPickerType == "start") {
-                    startTime = formattedTime
-                } else if (showPickerType == "end") {
-                    endTime = formattedTime
-                }
-                showPickerType = null
-            },
-            onDismiss = { showPickerType = null },
-        )
-    }
+//    // Handle Time Picker Dialog
+//    if (showPickerType != null) {
+//        val timeToEdit = if (showPickerType == "start") startTime else endTime
+//
+//        AdvancedTimePicker(
+//            initialHour = timeToEdit.substringBefore(":").toIntOrNull() ?: 0,
+//            initialMinute = timeToEdit.substringAfter(":").toIntOrNull() ?: 0,
+//            onConfirm = { state ->
+//                // Use the core String.format with Locale to satisfy Lint
+//                val formattedTime = String.format(
+//                    Locale.US,
+//                    "%02d:%02d",
+//                    state.hour,
+//                    state.minute
+//                )
+//                if (showPickerType == "start") {
+//                    startTime = formattedTime
+//                } else {
+//                    endTime = formattedTime
+//                }
+//                showPickerType = null
+//            },
+//            onDismiss = { showPickerType = null }
+//        )
+//    }
 }
 
 /**
@@ -165,8 +182,11 @@ fun AdvancedTimePicker(
  * Edit Time Slot Content
  * @param startTime Start time of the event.
  * @param endTime End time of the event.
+ * @param showPickerType Type of the time picker to show.
  * @param onStartTimeClick Callback to show the start time picker.
  * @param onEndTimeClick Callback to show the end time picker.
+ * @param onDismissPicker Callback to dismiss the time picker.
+ * @param onConfirmTime Callback to confirm the selected time.
  * @param onBack Navigate back to the previous screen.
  * @param onSaveTimeSlot Callback to save the time slot.
  * @param navigateToTimeSlotsSelectingPage Callback to navigate to the Time Slots Selecting Page.
@@ -177,13 +197,21 @@ fun AdvancedTimePicker(
 fun EditTimeSlotContent(
     startTime: String,
     endTime: String,
+    showPickerType: String?,
     onStartTimeClick: () -> Unit,
     onEndTimeClick: () -> Unit,
+    onDismissPicker: () -> Unit,
+    onConfirmTime: (String) -> Unit,
     onBack: () -> Unit,
     onSaveTimeSlot: (String, String) -> Unit,
     navigateToTimeSlotsSelectingPage: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // Calculate the total minutes for validation
+    val startTotal = toMinutes(startTime)
+    val endTotal = toMinutes(endTime)
+    val isValid = endTotal - startTotal >= 60
+
     Scaffold(
         topBar = {
             MeetingAppTopAppBar(
@@ -193,6 +221,20 @@ fun EditTimeSlotContent(
             )
         },
     ) { paddingValues ->
+        val timeToEdit = if (showPickerType == "start") startTime else endTime
+
+        if (showPickerType != null) {
+            AdvancedTimePicker(
+                initialHour = timeToEdit.substringBefore(":").toIntOrNull() ?: 0,
+                initialMinute = timeToEdit.substringAfter(":").toIntOrNull() ?: 0,
+                onConfirm = { state ->
+                    val formatted = String.format(Locale.US, "%02d:%02d", state.hour, state.minute)
+                    onConfirmTime(formatted)
+                },
+                onDismiss = onDismissPicker
+            )
+        }
+
         LazyColumn(
             modifier =
                 modifier
@@ -248,12 +290,6 @@ fun EditTimeSlotContent(
                     textAlign = TextAlign.Start,
                 )
             }
-            // Calculate minutes
-            val startTotal = toMinutes(startTime)
-            val endTotal = toMinutes(endTime)
-
-            // Require at least 1 hour
-            val isValid = endTotal - startTotal >= 60
 
             // Validation message
             if (!isValid) {
@@ -400,6 +436,9 @@ fun EditTimeSlotScreenPreview() {
             EditTimeSlotContent(
                 startTime = "00:00",
                 endTime = "00:00",
+                showPickerType = null,
+                onDismissPicker = {},
+                onConfirmTime = {},
                 onStartTimeClick = {},
                 onEndTimeClick = {},
                 onBack = {},
