@@ -99,9 +99,11 @@ object AppViewModelProvider {
              * Initializer for ParticipantDashboardViewModel
              */
             initializer {
+                val app = meetingApplication()
                 ParticipantDashboardViewModel(
-                    meetingApplication().container.eventRepository,
-                    this.createSavedStateHandle(),
+                    application = app,
+                    eventRepository = app.container.eventRepository,
+                    savedStateHandle = this.createSavedStateHandle(),
                 )
             }
         }
