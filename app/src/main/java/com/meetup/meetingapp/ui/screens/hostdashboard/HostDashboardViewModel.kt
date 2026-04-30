@@ -53,14 +53,13 @@ class HostDashboardViewModel(
 
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
+    private var lastScheduledVoteCount = -1
+
     init {
         viewModelScope.launch {
             val eventFlow = eventRepository.observeEventById(eventId)
             val submissionsFlow = eventRepository.observeSubmissions(eventId)
             val votesFlow = eventRepository.observeRestaurantVotes(eventId)
-
-            // Track previous vote count to only schedule when a new vote arrives
-            var lastVoteCount = -1
 
             combine(eventFlow, submissionsFlow, votesFlow) { eventData, submissions, votes ->
                 eventData?.let { e ->
@@ -128,8 +127,11 @@ class HostDashboardViewModel(
                         fetchUserVote()
                     }
 
-                    if (e.status == EventStatus.COLLECTING_RESTAURANT_VOTES && votesCount != lastVoteCount)  {
-                        lastVoteCount = votesCount
+                    if (e.status == EventStatus.COLLECTING_RESTAURANT_VOTES
+                        && votesCount != lastScheduledVoteCount
+                        && votesCount >= availabilityCount  // Only meaningful once everyone voted
+                    ) {
+                        lastScheduledVoteCount = votesCount
                         submissionRepository.scheduleSubmissionCheck(e.id)
                     }
                 }
