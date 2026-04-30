@@ -2,8 +2,10 @@ package com.meetup.meetingapp.worker
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresPermission
+import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.meetup.meetingapp.MeetingApplication
@@ -18,34 +20,50 @@ class SubmissionRemainderWorker(
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
 
-    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun doWork(): Result {
-        val eventId = inputData.getString(KEY_EVENT_ID) ?: return Result.failure()
-        Log.d(TAG, "doWork started — eventId: $eventId")
+        try {
+            val eventId = inputData.getString(KEY_EVENT_ID) ?: return Result.failure()
+            Log.d(TAG, "doWork started — eventId: $eventId")
 
-        val repository = (applicationContext as MeetingApplication).container.eventRepository
-        Log.d(TAG, "Checking if all submitted for event: $eventId")
+            val app = applicationContext as? MeetingApplication
+            if (app?.container == null) {
+                Log.e(TAG, "Container not initialized — retrying")
+                return Result.retry()
+            }
 
-        val allSubmitted = repository.isAllSubmitted(eventId)
-        Log.d(TAG, "allSubmitted: $allSubmitted")
+            val repository = app.container.eventRepository
+            val allSubmitted = repository.isAllSubmitted(eventId)
+            Log.d(TAG, "allSubmitted: $allSubmitted")
 
-        if (allSubmitted) {
-            Log.d(TAG, "All submitted — firing notification")
-            makeSubmissionReminderNotification(
-                applicationContext.getString(R.string.time_to_close_voting),
-                applicationContext
-            )
+            if (allSubmitted) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                    ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    Log.d(TAG, "All submitted — firing notification")
+                    makeSubmissionReminderNotification(
+                        applicationContext.getString(R.string.time_to_close_voting),
+                        applicationContext
+                    )
+                } else {
+                    Log.w(TAG, "POST_NOTIFICATIONS permission not granted — skipping")
+                }
+            } else {
+                Log.d(TAG, "Not all submitted yet — no notification")
+            }
+
+            return Result.success()
+
+        } catch (e: Throwable) {
+            Log.e(TAG, "doWork crashed", e)  // ← this will show the real error
+            return Result.failure()
         }
-        else {
-            Log.d(TAG, "Not all submitted yet — no notification")
-        }
-
-
-        return Result.success()
     }
 
     companion object {
         const val KEY_EVENT_ID = "KEY_EVENT_ID"
-        private const val TAG = "SubmissionWorker"
+        private const val TAG = "SubmissionRemainderWorker"
     }
 }
