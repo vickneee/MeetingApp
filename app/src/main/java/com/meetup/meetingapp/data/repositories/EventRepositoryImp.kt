@@ -1337,24 +1337,40 @@ class EventRepositoryImp(
                 .get()
                 .await()
 
-            val votesSnapshot = db
+            val submissionsCount = submissionsSnapshot.size()
+            if (submissionsCount == 0) return false
+
+            val voterIds = mutableSetOf<String>()
+
+            // Iterate through restaurants to count votes
+            val restaurantsSnapshot = db
                 .collection("events")
                 .document(eventId)
-                .collection("restaurantVotes")
+                .collection("restaurants")
                 .get()
                 .await()
 
-            val submissionsCount = submissionsSnapshot.size()
-            val votesCount = votesSnapshot.documents
-                .mapNotNull { it.getString("userId") }
-                .distinct()
-                .size
+            for (restaurantDoc in restaurantsSnapshot.documents) {
+                val votesSnapshot = db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("restaurants")
+                    .document(restaurantDoc.id)
+                    .collection("votes")
+                    .get()
+                    .await()
+
+                votesSnapshot.documents.forEach { voteDoc ->
+                    voteDoc.getString("userId")?.let { voterIds.add(it) }
+                }
+            }
+
+            val uniqueVotersCount = voterIds.size
 
             // same logic as ViewModel
-            votesCount == submissionsCount && submissionsCount > 0
+            uniqueVotersCount == submissionsCount
         } catch (_: Exception) {
             false
-
         }
     }
 }
