@@ -61,6 +61,7 @@ object AppViewModelProvider {
             initializer {
                 HostDashboardViewModel(
                     meetingApplication().container.eventRepository,
+                    meetingApplication().container.submissionRepository,
                     this.createSavedStateHandle(),
                 )
             }

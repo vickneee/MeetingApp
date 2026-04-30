@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
+import com.meetup.meetingapp.data.repositories.SubmissionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +22,7 @@ import kotlinx.coroutines.withContext
  */
 class HostDashboardViewModel(
     private val eventRepository: EventRepository,
+    private val submissionRepository: SubmissionRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val eventId: String = savedStateHandle["eventId"] ?: ""
@@ -44,6 +46,9 @@ class HostDashboardViewModel(
             val eventFlow = eventRepository.observeEventById(eventId)
             val submissionsFlow = eventRepository.observeSubmissions(eventId)
             val votesFlow = eventRepository.observeRestaurantVotes(eventId)
+
+            // Track previous vote count to only schedule when a new vote arrives
+            var lastVoteCount = -1
 
             combine(eventFlow, submissionsFlow, votesFlow) { eventData, submissions, votes ->
                 eventData?.let { e ->
@@ -109,6 +114,11 @@ class HostDashboardViewModel(
                     }
                     if (isSecondRound) {
                         fetchUserVote()
+                    }
+
+                    if (e.status == EventStatus.COLLECTING_RESTAURANT_VOTES && votesCount != lastVoteCount)  {
+                        lastVoteCount = votesCount
+                        submissionRepository.scheduleSubmissionCheck(e.id)
                     }
                 }
             }.collect {}

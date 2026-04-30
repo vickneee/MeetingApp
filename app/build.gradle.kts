@@ -92,6 +92,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.androidx.room.compiler)
 
     // Navigation version in libs versions.toml

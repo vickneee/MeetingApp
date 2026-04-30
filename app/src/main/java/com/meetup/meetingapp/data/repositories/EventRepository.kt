@@ -300,4 +300,12 @@ interface EventRepository {
         targetTime: DateTime?,
         forceRefresh: Boolean = false,
     ): List<Restaurant>
+
+    /**
+     * Checks if all participant responses have been submitted for the given event.
+     *
+     * @param eventId The ID of the event to check.
+     * @return `true` if all participant responses have been submitted, `false` otherwise.
+     */
+    suspend fun isAllSubmitted(eventId: String): Boolean
 }
