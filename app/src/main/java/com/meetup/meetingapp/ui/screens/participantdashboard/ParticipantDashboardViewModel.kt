@@ -123,6 +123,7 @@ class ParticipantDashboardViewModel(
                     val total = if (isSecondRound) availabilityCount else 0
 
                     val hasSubmittedAvailability = submissions.any { it.userId == userId }
+                    val hasVoted = votes.any { it.userId == userId }
 
                     val names =
                         if (isSecondRound) {
@@ -139,6 +140,7 @@ class ParticipantDashboardViewModel(
                             currentUserName = currentName.ifEmpty { it.currentUserName },
                             totalParticipants = total,
                             hasSubmittedAvailability = hasSubmittedAvailability,
+                            hasVoted = hasVoted,
                         )
                     }
 
