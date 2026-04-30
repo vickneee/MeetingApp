@@ -72,7 +72,9 @@ object HostDashboardDestination : NavigationDestination {
  * - Delegates UI rendering to [HostDashboardContent].
  *
  * @param onBack Callback invoked when the user navigates back.
+ * @param onVoteForRestaurantClick Callback invoked when the user clicks on the "Vote for Restaurant" button.
  * @param onFinalPlanClick Callback invoked when the user clicks on the "Final Plan" button.
+ * @param onFillAvailability Callback invoked when the user clicks on the "Fill Availability" button.
  * @param onNavigateToHome Callback invoked when the user navigates to the home screen.
  * @param onShowEventCodes Callback to navigate to the event created page.
  * @param viewModel The ViewModel providing event and submission data.
