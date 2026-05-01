@@ -14,6 +14,7 @@ import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
+import com.meetup.meetingapp.worker.makeEventFinalizedNotification
 import com.meetup.meetingapp.worker.makeSubmissionReminderNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -105,6 +106,15 @@ class ParticipantDashboardViewModel(
                     ) {
                         triggerPlaceVotingNotification()
                     }
+
+                    // Notification Logic: Detect transition to Finalized
+                    if (lastStatus != null &&
+                        lastStatus != EventStatus.FINALIZED &&
+                        e.status == EventStatus.FINALIZED
+                    ) {
+                        triggerEventFinalizedNotification()
+                    }
+
                     lastStatus = e.status
 
                     val currentName =
@@ -172,6 +182,21 @@ class ParticipantDashboardViewModel(
                 title = NOTIFICATION_TITLE_PARTICIPANTS,
                 message = context.getString(R.string.place_voting_started),
                 context,
+            )
+        }
+    }
+
+    /**
+     * Fires a local notification notifying the host that the event has been finalized.
+     */
+    private fun triggerEventFinalizedNotification() {
+        val context = getApplication<Application>().applicationContext
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        ) {
+            makeEventFinalizedNotification(
+                message = context.getString(R.string.event_finalized_message),
+                context = context
             )
         }
     }

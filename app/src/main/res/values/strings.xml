@@ -22,4 +22,5 @@
     <string name="edit_selection">Edit Your Selection</string>
     <string name="time_to_close_voting">All participants have submitted! \nTime to close place voting!</string>
     <string name="place_voting_started">Place voting has started! \nOpen the app to vote for your favorite spot.</string>
+    <string name="event_finalized_message">Your meeting has been finalized! \nOpen the app to see the details.</string>
 </resources>

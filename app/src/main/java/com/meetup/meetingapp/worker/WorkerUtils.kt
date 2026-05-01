@@ -26,6 +26,11 @@ import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.meetup.meetingapp.CHANNEL_ID
+import com.meetup.meetingapp.EVENT_CHANNEL_ID
+import com.meetup.meetingapp.EVENT_FINALIZED_CHANNEL_DESCRIPTION
+import com.meetup.meetingapp.EVENT_FINALIZED_CHANNEL_NAME
+import com.meetup.meetingapp.EVENT_FINALIZED_NOTIFICATION_TITLE
+import com.meetup.meetingapp.EVENT_NOTIFICATION_ID
 import com.meetup.meetingapp.MainActivity
 import com.meetup.meetingapp.NOTIFICATION_ID
 import com.meetup.meetingapp.R
@@ -85,4 +90,35 @@ fun createPendingIntent(appContext: Context): PendingIntent {
         intent,
         flags
     )
+}
+
+@RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+fun makeEventFinalizedNotification(
+    message: String,
+    context: Context
+) {
+    val importance = NotificationManager.IMPORTANCE_HIGH
+    val channel = NotificationChannel(
+        EVENT_CHANNEL_ID,
+        EVENT_FINALIZED_CHANNEL_NAME,
+        importance
+    )
+    channel.description = EVENT_FINALIZED_CHANNEL_DESCRIPTION
+
+    val notificationManager =
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+    notificationManager?.createNotificationChannel(channel)
+
+    val pendingIntent = createPendingIntent(context)
+
+    val builder = NotificationCompat.Builder(context, EVENT_CHANNEL_ID)
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
+        .setContentTitle(EVENT_FINALIZED_NOTIFICATION_TITLE)
+        .setContentText(message)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setVibrate(LongArray(0))
+        .setContentIntent(pendingIntent)
+        .setAutoCancel(true)
+
+    NotificationManagerCompat.from(context).notify(EVENT_NOTIFICATION_ID, builder.build())
 }

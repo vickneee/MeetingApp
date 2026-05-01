@@ -59,7 +59,9 @@ object AppViewModelProvider {
              * Initializer for HostDashboardViewModel
              */
             initializer {
+                val app = meetingApplication()
                 HostDashboardViewModel(
+                    application = app,
                     meetingApplication().container.eventRepository,
                     meetingApplication().container.submissionRepository,
                     this.createSavedStateHandle(),
@@ -113,4 +115,5 @@ object AppViewModelProvider {
  * Extension function to queries for [android.app.Application] object and returns an instance of
  * [MeetingApplication].
  */
-fun CreationExtras.meetingApplication(): MeetingApplication = (this[AndroidViewModelFactory.APPLICATION_KEY] as MeetingApplication)
+fun CreationExtras.meetingApplication(): MeetingApplication =
+    (this[AndroidViewModelFactory.APPLICATION_KEY] as MeetingApplication)

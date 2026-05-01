@@ -31,12 +31,11 @@ const val CHANNEL_ID = "VERBOSE_NOTIFICATION"
 const val NOTIFICATION_ID = 1
 
 // Submission notification titles
-val NOTIFICATION_TITLE_HOST: CharSequence = "Time to Close Voting!"
+val NOTIFICATION_TITLE_HOST: CharSequence = "Time to Close Place Voting!"
 
 val NOTIFICATION_TITLE_PARTICIPANTS: CharSequence = "Time to Vote!"
 
 // Event Finalized Notification Channel constants
-
 // Name of Notification Channel for event finalization
 val EVENT_FINALIZED_CHANNEL_NAME: CharSequence = "Event Updates"
 
@@ -51,7 +50,6 @@ const val EVENT_CHANNEL_ID = "EVENT_FINALIZED_NOTIFICATION"
 
 // Unique ID for the finalized notification (must be different from NOTIFICATION_ID)
 const val EVENT_NOTIFICATION_ID = 2
-
 
 // Request code for pending intent
 const val REQUEST_CODE = 0

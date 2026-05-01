@@ -1,13 +1,20 @@
 package com.meetup.meetingapp.ui.screens.hostdashboard
 
+import android.Manifest
+import android.app.Application
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
 import com.meetup.meetingapp.data.repositories.SubmissionRepository
+import com.meetup.meetingapp.worker.makeEventFinalizedNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +29,7 @@ import kotlinx.coroutines.withContext
  *
  * This ViewModel is responsible for managing the state of the Host Dashboard screen,
  *
+ * @property application The application context.
  * @property eventRepository The repository for managing events.
  * @property submissionRepository The repository for managing submissions.
  * @property savedStateHandle A handle to saved state, used for passing arguments.
@@ -33,10 +41,11 @@ import kotlinx.coroutines.withContext
  * @property _closeVotingState Mutable state flow for the close voting operation.
  */
 class HostDashboardViewModel(
+    application: Application,
     private val eventRepository: EventRepository,
     private val submissionRepository: SubmissionRepository,
     savedStateHandle: SavedStateHandle,
-) : ViewModel() {
+) : AndroidViewModel(application) {
     private val eventId: String = savedStateHandle["eventId"] ?: ""
 
     private val _uiState =
@@ -65,7 +74,7 @@ class HostDashboardViewModel(
                 eventData?.let { e ->
                     val isSecondRound =
                         e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
-                            e.status == EventStatus.FINALIZED
+                                e.status == EventStatus.FINALIZED
 
                     val availabilityCount = submissions.size
                     val votesCount = votes.distinctBy { it.userId }.size
@@ -91,7 +100,8 @@ class HostDashboardViewModel(
                         }
 
                     // Check if host has submitted availability in the first round
-                    val hasAvailability = submissions.any { it.userId == currentUserId || it.name == e.hostName }
+                    val hasAvailability =
+                        submissions.any { it.userId == currentUserId || it.name == e.hostName }
 
                     _uiState.update { currentState ->
                         currentState.copy(
@@ -120,7 +130,10 @@ class HostDashboardViewModel(
                     // Side effects
                     if (e.status == EventStatus.CREATED) {
                         viewModelScope.launch {
-                            eventRepository.updateEventStatus(e.id, EventStatus.COLLECTING_AVAILABILITY)
+                            eventRepository.updateEventStatus(
+                                e.id,
+                                EventStatus.COLLECTING_AVAILABILITY
+                            )
                         }
                     }
                     if (isSecondRound) {
@@ -208,6 +221,7 @@ class HostDashboardViewModel(
                         .onSuccess {
                             withContext(Dispatchers.Main) {
                                 _closeVotingState.value = CloseVotingState.Success
+                                triggerEventFinalizedNotification()
                             }
                         }.onFailure { e ->
                             withContext(Dispatchers.Main) {
@@ -256,6 +270,24 @@ class HostDashboardViewModel(
             _uiState.update {
                 it.copy(hasHostSubmittedAvailability = result)
             }
+        }
+    }
+
+    /**
+     * Fires a local notification notifying the host that the event has been finalized.
+     */
+    private fun triggerEventFinalizedNotification() {
+        val context = getApplication<Application>().applicationContext
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            makeEventFinalizedNotification(
+                message = context.getString(R.string.event_finalized_message),
+                context = context
+            )
         }
     }
 }
