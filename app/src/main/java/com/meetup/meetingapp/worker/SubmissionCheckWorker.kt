@@ -50,7 +50,7 @@ class SubmissionCheckWorker(
             }
 
             return Result.success()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return Result.failure()
         }
     }
