@@ -169,8 +169,7 @@ class EventViewModel(
         _eventState.value = EventState.Loading
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val(eventCode, eventKey, eventId) = eventRepository.createEvent(uiState.value).getOrThrow()
-
+                val(eventCode, eventKey, eventId) = eventRepository.createEvent(uiState.value)
                 withContext(Dispatchers.Main) {
                     _eventState.value = EventState.Success(eventCode, eventKey, eventId)
                     _hasHostSubmitted.value = false

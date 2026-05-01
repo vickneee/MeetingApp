@@ -63,6 +63,8 @@ import kotlinx.coroutines.launch
 object EventCreatedDestination : NavigationDestination {
     override val route = "event_created"
     override val titleRes = R.string.title_event_created
+    const val EVENT_ID_ARG = "eventId"
+    val routeWithArgs = "$route/{$EVENT_ID_ARG}"
 }
 
 /**

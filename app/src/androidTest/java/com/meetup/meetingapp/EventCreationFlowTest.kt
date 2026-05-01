@@ -5,15 +5,19 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.printToLog
 import androidx.navigation.compose.rememberNavController
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.firebase.firestore.FirebaseFirestore
 import com.meetup.meetingapp.data.AppContainer
+import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.repositories.EventRepository
 import com.meetup.meetingapp.data.repositories.PlacesRepository
+import com.meetup.meetingapp.data.repositories.SubmissionRepository
 import com.meetup.meetingapp.data.repositories.UserRepository
 import com.meetup.meetingapp.ui.navigation.MeetingAppNavHost
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
@@ -42,18 +46,29 @@ class EventCreationFlowTest {
         mockEventRepository = mockk(relaxed = true)
         mockUserRepository = mockk(relaxed = true)
 
+        val testEvent = Event(
+            id = "test_event_id",
+            eventCode = "ABCDEF",
+            eventKey = "12345",
+            hostName = "Bobby",
+            hostId = "test_user_id"
+        )
+
         // 3. Define mock behavior for the repository
         every { mockEventRepository.getCitiesByCountry(any()) } returns flowOf(listOf("Helsinki", "Tampere", "Espoo"))
         every { mockEventRepository.getEvents() } returns flowOf(emptyList())
-        every { mockEventRepository.getEventById(any()) } returns flowOf(null)
-        every { mockEventRepository.observeEventById(any()) } returns flowOf(null)
+        every { mockEventRepository.getEventById(any()) } returns flowOf(testEvent)
+        every { mockEventRepository.observeEventById(any()) } returns flowOf(testEvent)
         coEvery { mockEventRepository.hasUserSubmittedAvailability(any(), any()) } returns false
 
+        // 3.1 Mock the event creation response
+        coEvery { mockEventRepository.syncCities() } returns Unit
+        coEvery { mockEventRepository.syncEventById(any()) } returns Unit
+        coEvery { mockEventRepository.aggregateParticipantResponses(any()) } returns Result.success(Unit)
+
         // 4. Mock the event creation response
-        coEvery { mockEventRepository.createEvent(any()) } answers {
-//            returns Result.success(Triple("ABCDEF", "12345", "test_event_id"))
-            Result.success(Triple("ABCDEF", "12345", "test_event_id"))
-        }
+        coEvery { mockEventRepository.createEvent(any()) } returns
+                Triple("ABCDEF", "12345", "test_event_id")
 
         // 5. Replace the real container with a test container providing mocks
         app.container =
@@ -61,6 +76,7 @@ class EventCreationFlowTest {
                 override val userRepository = mockUserRepository
                 override val eventRepository = mockEventRepository
                 override val placesRepository = mockk<PlacesRepository>(relaxed = true)
+                override val submissionRepository = mockk<SubmissionRepository>(relaxed = true)
                 override val db = mockk<FirebaseFirestore>(relaxed = true)
                 override val placesApiKey = "test_api_key"
             }
@@ -121,16 +137,19 @@ class EventCreationFlowTest {
         composeTestRule.onNodeWithText("Choose Place Type").assertIsDisplayed()
         composeTestRule.onNodeWithText("Restaurant").performClick()
         composeTestRule.onNodeWithText("Create Event").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onRoot().printToLog("AFTER_CREATE")
+
         // 6. EventCreatedPage (Success)
         // Wait for the success screen to appear by checking for the mocked event code
-//        composeTestRule.onRoot().printToLog("DEBUG_TREE")
-//        composeTestRule.waitUntil(timeoutMillis = 10000) {
-//            composeTestRule.onAllNodesWithText("Event Created").fetchSemanticsNodes().isNotEmpty()
-//        }
-//
-//        composeTestRule.onNodeWithText("Event Created").assertIsDisplayed()
-//        composeTestRule.onNodeWithText("ABCDEF", substring = true).assertIsDisplayed()
-//        composeTestRule.onNodeWithText("12345").assertIsDisplayed()
-//        composeTestRule.onNodeWithText("Your Event Code").assertIsDisplayed()
+        // composeTestRule.onRoot().printToLog("DEBUG_TREE")
+        composeTestRule.waitUntil(timeoutMillis = 10000) {
+            composeTestRule.onAllNodesWithText("Event Created").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeTestRule.onNodeWithText("Event Created").assertIsDisplayed()
+        composeTestRule.onNodeWithText("ABCDEF", substring = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("12345").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Your Event Code").assertIsDisplayed()
     }
 }
