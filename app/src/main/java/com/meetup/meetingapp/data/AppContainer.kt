@@ -11,8 +11,10 @@ import com.meetup.meetingapp.data.repositories.EventRepository
 import com.meetup.meetingapp.data.repositories.EventRepositoryImp
 import com.meetup.meetingapp.data.repositories.PlacesRepository
 import com.meetup.meetingapp.data.repositories.PlacesRepositoryImp
+import com.meetup.meetingapp.data.repositories.SubmissionRepository
 import com.meetup.meetingapp.data.repositories.UserRepository
 import com.meetup.meetingapp.data.repositories.UserRepositoryImp
+import com.meetup.meetingapp.data.repositories.SubmissionRepositoryImp
 import com.meetup.meetingapp.network.retrofitService
 
 /**
@@ -30,6 +32,7 @@ interface AppContainer {
     val userRepository: UserRepository
     val eventRepository: EventRepository
     val placesRepository: PlacesRepository
+    val submissionRepository: SubmissionRepository
     val db: FirebaseFirestore
     val placesApiKey: String
 }
@@ -95,6 +98,11 @@ class AppDataContainer(
             api = retrofitService,
             apiKey = placesApiKey,
         )
+    }
+
+    /** Provides the WorkManager-based implementation of [SubmissionRepository]. */
+    override val submissionRepository: SubmissionRepository by lazy {
+        SubmissionRepositoryImp(context)
     }
 
     /**

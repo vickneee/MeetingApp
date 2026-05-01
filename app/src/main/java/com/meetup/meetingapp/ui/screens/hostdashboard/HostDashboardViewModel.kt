@@ -1,12 +1,20 @@
 package com.meetup.meetingapp.ui.screens.hostdashboard
 
+import android.Manifest
+import android.app.Application
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
+import com.meetup.meetingapp.data.repositories.SubmissionRepository
+import com.meetup.meetingapp.utils.makeEventFinalizedNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,11 +26,26 @@ import kotlinx.coroutines.withContext
 
 /**
  * ViewModel for the Host Dashboard screen.
+ *
+ * This ViewModel is responsible for managing the state of the Host Dashboard screen,
+ *
+ * @property application The application context.
+ * @property eventRepository The repository for managing events.
+ * @property submissionRepository The repository for managing submissions.
+ * @property savedStateHandle A handle to saved state, used for passing arguments.
+ * @property eventId The ID of the event to display.
+ * @property uiState The current state of the UI.
+ * @property currentUserId The ID of the current user.
+ *
+ * @property closeVotingState The current state of the close voting operation.
+ * @property _closeVotingState Mutable state flow for the close voting operation.
  */
 class HostDashboardViewModel(
+    application: Application,
     private val eventRepository: EventRepository,
+    private val submissionRepository: SubmissionRepository,
     savedStateHandle: SavedStateHandle,
-) : ViewModel() {
+) : AndroidViewModel(application) {
     private val eventId: String = savedStateHandle["eventId"] ?: ""
 
     private val _uiState =
@@ -39,6 +62,8 @@ class HostDashboardViewModel(
 
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
+    private var lastScheduledVoteCount = -1
+
     init {
         viewModelScope.launch {
             val eventFlow = eventRepository.observeEventById(eventId)
@@ -49,7 +74,7 @@ class HostDashboardViewModel(
                 eventData?.let { e ->
                     val isSecondRound =
                         e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
-                            e.status == EventStatus.FINALIZED
+                                e.status == EventStatus.FINALIZED
 
                     val availabilityCount = submissions.size
                     val votesCount = votes.distinctBy { it.userId }.size
@@ -75,7 +100,8 @@ class HostDashboardViewModel(
                         }
 
                     // Check if host has submitted availability in the first round
-                    val hasAvailability = submissions.any { it.userId == currentUserId || it.name == e.hostName }
+                    val hasAvailability =
+                        submissions.any { it.userId == currentUserId || it.name == e.hostName }
 
                     _uiState.update { currentState ->
                         currentState.copy(
@@ -104,17 +130,38 @@ class HostDashboardViewModel(
                     // Side effects
                     if (e.status == EventStatus.CREATED) {
                         viewModelScope.launch {
-                            eventRepository.updateEventStatus(e.id, EventStatus.COLLECTING_AVAILABILITY)
+                            eventRepository.updateEventStatus(
+                                e.id,
+                                EventStatus.COLLECTING_AVAILABILITY
+                            )
                         }
                     }
                     if (isSecondRound) {
                         fetchUserVote()
+                    }
+
+                    // Schedule submission check if all votes are submitted
+                    if (e.status == EventStatus.COLLECTING_RESTAURANT_VOTES
+                        && votesCount != lastScheduledVoteCount
+                        && votesCount >= availabilityCount  // Only meaningful once everyone voted
+                    ) {
+                        lastScheduledVoteCount = votesCount
+                        // Schedule submission check after all votes are submitted
+                        submissionRepository.scheduleSubmissionCheck(e.id)
                     }
                 }
             }.collect {}
         }
     }
 
+    /**
+     * Initiates the close voting process.
+     *
+     * This method triggers the close voting operation, which includes:
+     * - Aggregating participant responses.
+     * - Syncing the event data.
+     * - Fetching and handling restaurant data.
+     */
     fun closeVoting() {
         _closeVotingState.value = CloseVotingState.Loading
         viewModelScope.launch(Dispatchers.IO) {
@@ -159,6 +206,11 @@ class HostDashboardViewModel(
     private val _closeVotingState = MutableStateFlow<CloseVotingState>(CloseVotingState.Idle)
     val closeVotingState = _closeVotingState.asStateFlow()
 
+    /**
+     * Updates the event status.
+     *
+     * This method is used to update the status of the event.
+     */
     fun updateEventStatus(status: EventStatus) {
         viewModelScope.launch {
             if (status == EventStatus.FINALIZED) {
@@ -169,6 +221,7 @@ class HostDashboardViewModel(
                         .onSuccess {
                             withContext(Dispatchers.Main) {
                                 _closeVotingState.value = CloseVotingState.Success
+                                triggerEventFinalizedNotification()
                             }
                         }.onFailure { e ->
                             withContext(Dispatchers.Main) {
@@ -183,6 +236,11 @@ class HostDashboardViewModel(
         }
     }
 
+    /**
+     * Fetches the user's vote status.
+     *
+     * This method is used to check if the current user has voted in the event.
+     */
     fun fetchUserVote() {
         viewModelScope.launch(Dispatchers.IO) {
             val currentEvent = uiState.value.event ?: return@launch
@@ -196,6 +254,11 @@ class HostDashboardViewModel(
         }
     }
 
+    /**
+     * Checks if the host has submitted availability.
+     *
+     * This method is used to check if the host has submitted availability.
+     */
     fun checkHostAvailability() {
         viewModelScope.launch {
             val eventValue = uiState.value.event ?: return@launch
@@ -209,8 +272,40 @@ class HostDashboardViewModel(
             }
         }
     }
+
+    /**
+     * Fires a local notification notifying the host that the event has been finalized.
+     */
+    private fun triggerEventFinalizedNotification() {
+        val context = getApplication<Application>().applicationContext
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            makeEventFinalizedNotification(
+                message = context.getString(R.string.event_finalized_message),
+                context = context
+            )
+        }
+    }
 }
 
+/**
+ * Represents the UI state of the Host Dashboard screen.
+ * @property event The event data.
+ * @property submissionsCount The number of submissions.
+ * @property totalParticipants The total number of participants.
+ * @property attendees A list of attendee names.
+ * @property status The current event status.
+ * @property hasVoted Whether the current user has voted.
+ * @property hasAnyRestaurantVotes Whether any restaurant votes have been submitted.
+ * @property hasHostSubmittedAvailability Whether the host has submitted availability.
+ * @property isInitialLoading Whether data is still loading.
+ * @property currentUserName The name of the current user.
+ * @property noPlacesFound Whether no places were found.
+ */
 data class HostDashboardUiState(
     val event: Event? = null,
     val submissionsCount: Int = 0,
@@ -225,6 +320,15 @@ data class HostDashboardUiState(
     val noPlacesFound: Boolean = false,
 )
 
+/**
+ * Represents the state of the close voting operation.
+ * This sealed interface defines four possible states:
+ * - Idle: No operation is in progress.
+ * - Loading: A close voting operation is in progress.
+ * - Success: The close voting operation was successful.
+ * - Error: An error occurred during the close voting operation.
+ * @property error The error that occurred, if any.
+ */
 sealed interface CloseVotingState {
     object Idle : CloseVotingState
 

@@ -1321,4 +1321,56 @@ class EventRepositoryImp(
         Log.d("getRestaurantsOnce", "Got ${result.size} restaurants from Room")
         return result
     }
+
+    /**
+     * Checks if all participants have submitted vote for the given event.
+     *
+     * @param eventId The ID of the event to check.
+     * @return `true` if all participants have submitted vote, `false` otherwise.
+     */
+    override suspend fun isAllSubmitted(eventId: String): Boolean {
+        return try {
+            val submissionsSnapshot = db
+                .collection("events")
+                .document(eventId)
+                .collection("participantResponses")
+                .get()
+                .await()
+
+            val submissionsCount = submissionsSnapshot.size()
+            if (submissionsCount == 0) return false
+
+            val voterIds = mutableSetOf<String>()
+
+            // Iterate through restaurants to count votes
+            val restaurantsSnapshot = db
+                .collection("events")
+                .document(eventId)
+                .collection("restaurants")
+                .get()
+                .await()
+
+            for (restaurantDoc in restaurantsSnapshot.documents) {
+                val votesSnapshot = db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("restaurants")
+                    .document(restaurantDoc.id)
+                    .collection("votes")
+                    .get()
+                    .await()
+
+                votesSnapshot.documents.forEach { voteDoc ->
+                    voteDoc.getString("userId")?.let { voterIds.add(it) }
+                }
+            }
+
+            val uniqueVotersCount = voterIds.size
+
+            // same logic as ViewModel
+            uniqueVotersCount == submissionsCount
+        } catch (_: Exception) {
+            false
+        }
+    }
 }

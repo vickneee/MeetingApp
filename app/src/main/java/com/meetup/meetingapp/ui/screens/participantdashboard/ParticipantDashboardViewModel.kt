@@ -1,12 +1,22 @@
 package com.meetup.meetingapp.ui.screens.participantdashboard
 
+import android.Manifest
+import android.app.Application
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.meetup.meetingapp.NOTIFICATION_TITLE_PARTICIPANTS
+import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
+import com.meetup.meetingapp.utils.makeEventFinalizedNotification
+import com.meetup.meetingapp.utils.makeSubmissionReminderNotification
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +33,9 @@ import kotlinx.coroutines.launch
  * - Observing real-time updates to the event from Firestore (via the repository).
  * - Syncing participant submissions from Firestore into the local Room database.
  * - Exposing UI state such as submission count, attendee names, and event status.
+ * - Firing a local notification when the host starts the Place Voting round.
  *
+ * @param application The application context for accessing resources and permissions.
  * @param eventRepository Repository providing access to event and submission data.
  * @param savedStateHandle Used to retrieve the navigation argument `eventId`.
  * @property eventId The ID of the event to load.
@@ -34,9 +46,10 @@ import kotlinx.coroutines.launch
  * @property viewModelScope Coroutine scope associated with the ViewModel.
  */
 class ParticipantDashboardViewModel(
+    application: Application,
     private val eventRepository: EventRepository,
     savedStateHandle: SavedStateHandle,
-) : ViewModel() {
+) : AndroidViewModel(application) {
     /**
      * The ID of the event to load.
      */
@@ -67,6 +80,9 @@ class ParticipantDashboardViewModel(
      */
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
+    /** Tracks the previous event status to detect transitions. */
+    private var lastStatus: EventStatus? = null
+
     /**
      * Initializes the ViewModel by:
      * 1. Observing the event from Firestore and updating the Room cache.
@@ -83,8 +99,24 @@ class ParticipantDashboardViewModel(
                 _event.value = eventData
 
                 eventData?.let { e ->
-                    // 1. Identify current user's name reactively from either the event (if host)
-                    // or from the list of participant submissions.
+                    // Notification Logic: Detect transition to Place Voting
+                    if (lastStatus != null &&
+                        lastStatus != EventStatus.COLLECTING_RESTAURANT_VOTES &&
+                        e.status == EventStatus.COLLECTING_RESTAURANT_VOTES
+                    ) {
+                        triggerPlaceVotingNotification()
+                    }
+
+                    // Notification Logic: Detect transition to Finalized
+                    if (lastStatus != null &&
+                        lastStatus != EventStatus.FINALIZED &&
+                        e.status == EventStatus.FINALIZED
+                    ) {
+                        triggerEventFinalizedNotification()
+                    }
+
+                    lastStatus = e.status
+
                     val currentName =
                         if (e.hostId == userId) {
                             e.hostName
@@ -103,6 +135,7 @@ class ParticipantDashboardViewModel(
                     val total = if (isSecondRound) availabilityCount else 0
 
                     val hasSubmittedAvailability = submissions.any { it.userId == userId }
+                    val hasVoted = votes.any { it.userId == userId }
 
                     val names =
                         if (isSecondRound) {
@@ -119,6 +152,7 @@ class ParticipantDashboardViewModel(
                             currentUserName = currentName.ifEmpty { it.currentUserName },
                             totalParticipants = total,
                             hasSubmittedAvailability = hasSubmittedAvailability,
+                            hasVoted = hasVoted,
                         )
                     }
 
@@ -134,6 +168,37 @@ class ParticipantDashboardViewModel(
 
         // Background fetch for user name to ensure it's available for "You can now vote"
         fetchCurrentUserName()
+    }
+
+    /**
+     * Fires a local notification notifying the participant that voting has started.
+     */
+    private fun triggerPlaceVotingNotification() {
+        val context = getApplication<Application>().applicationContext
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        ) {
+            makeSubmissionReminderNotification(
+                title = NOTIFICATION_TITLE_PARTICIPANTS,
+                message = context.getString(R.string.place_voting_started),
+                context,
+            )
+        }
+    }
+
+    /**
+     * Fires a local notification notifying the host that the event has been finalized.
+     */
+    private fun triggerEventFinalizedNotification() {
+        val context = getApplication<Application>().applicationContext
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        ) {
+            makeEventFinalizedNotification(
+                message = context.getString(R.string.event_finalized_message),
+                context = context
+            )
+        }
     }
 
     /**
@@ -157,8 +222,16 @@ class ParticipantDashboardViewModel(
      * Fetches the user's vote status for the current event.
      */
     fun fetchUserVote() {
-        // Removed logic that sets hasVoted boolean to false once a vote is detected,
-        // because we now allow multiple votes in the restaurant phase.
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentEvent = _event.value ?: return@launch
+            val hasVoted =
+                eventRepository.hasUserVotedInEvent(
+                    eventId = eventId,
+                    userId = userId,
+                    timings = currentEvent.dateTimeCandidates,
+                )
+            _uiState.update { it.copy(hasVoted = hasVoted) }
+        }
     }
 }
 
