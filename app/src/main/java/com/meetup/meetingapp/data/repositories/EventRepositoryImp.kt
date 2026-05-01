@@ -117,21 +117,17 @@ class EventRepositoryImp(
                 placeTypeOptions = eventValues.placeTypes,
             )
 
-        try {
-            // Store the event document in Firestore.
-            docRef.set(event).await()
+        // Store the event document in Firestore.
+        docRef.set(event).await()
 
-            //  Save to Room
-            with(EventMapper) { eventDao.upsertEvent(event.toEntity()) }
+        //  Save to Room
+        with(EventMapper) { eventDao.upsertEvent(event.toEntity()) }
 
-            // After successful creation, update the host's created event list.
-            userRepository.addCreatedEvent(eventId = eventId, uid = uid)
+        // After successful creation, update the host's created event list.
+        userRepository.addCreatedEvent(eventId = eventId, uid = uid)
 
-            // Return the generated eventCode, eventKey and eventId.
-            return Triple(eventCode, eventKey, eventId)
-        } catch (e: Exception) {
-            throw e  // re-throw, ViewModel's try/catch handles it
-        }
+        // Return the generated eventCode, eventKey and eventId.
+        return Triple(eventCode, eventKey, eventId)
     }
 
     /**
