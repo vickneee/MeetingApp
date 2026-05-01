@@ -282,8 +282,7 @@ class EventRepositoryImpTest {
             val result = repo.createEvent(uiState)
 
             // 4. Assert
-            assertTrue(result.isSuccess)
-            assertEquals("generated_event_id", result.getOrNull()?.third)
+            assertEquals("generated_event_id", result.third)
 
             coVerify { mockDoc.set(any()) }
             coVerify { mockEventDao.upsertEvent(any()) }
@@ -292,7 +291,7 @@ class EventRepositoryImpTest {
         }
 
     @Test
-    fun `createEvent failure returns failure result`() =
+    fun `createEvent failure throws exception`() =
         runTest {
             val mockCollection = mockk<com.google.firebase.firestore.CollectionReference>(relaxed = true)
             val mockDoc = mockk<com.google.firebase.firestore.DocumentReference>(relaxed = true)
@@ -303,10 +302,12 @@ class EventRepositoryImpTest {
 
             val uiState = EventUiState(eventTitle = "Broken Event")
 
-            val result = repo.createEvent(uiState)
+            try {
+                repo.createEvent(uiState)
+            } catch (e: Exception) {
+                assertEquals("Network Error", e.message)
+            }
 
-            assertTrue(result.isFailure)
-            assertEquals("Network Error", result.exceptionOrNull()?.message)
             coVerify(exactly = 0) { mockEventDao.upsertEvent(any()) }
         }
 

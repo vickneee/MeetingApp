@@ -79,7 +79,7 @@ class EventRepositoryImp(
      * @return A [Result] containing a triple of (eventCode, eventKey, eventId) on success,
      * or an error on failure.
      */
-    override suspend fun createEvent(eventValues: EventUiState): Result<Triple<String, String, String>> {
+    override suspend fun createEvent(eventValues: EventUiState): Triple<String, String, String> {
         // Create a new document reference with an auto-generated ID.
         val docRef = db.collection("events").document()
         val eventId = docRef.id
@@ -100,7 +100,7 @@ class EventRepositoryImp(
                 .joinToString("")
 
         // Ensure the user is logged in before creating an event.
-        val uid = uid ?: return Result.failure(Exception("User is not logged in"))
+        val uid = uid ?: throw Exception("User is not logged in")
 
         // Build the Event object to be stored in Firestore.
         val event =
@@ -117,22 +117,17 @@ class EventRepositoryImp(
                 placeTypeOptions = eventValues.placeTypes,
             )
 
-        try {
-            // Store the event document in Firestore.
-            docRef.set(event).await()
+        // Store the event document in Firestore.
+        docRef.set(event).await()
 
-            //  Save to Room
-            with(EventMapper) { eventDao.upsertEvent(event.toEntity()) }
+        //  Save to Room
+        with(EventMapper) { eventDao.upsertEvent(event.toEntity()) }
 
-            // After successful creation, update the host's created event list.
-            userRepository.addCreatedEvent(eventId = eventId, uid = uid)
+        // After successful creation, update the host's created event list.
+        userRepository.addCreatedEvent(eventId = eventId, uid = uid)
 
-            // Return the generated eventCode, eventKey and eventId.
-            return Result.success(Triple(eventCode, eventKey, eventId))
-        } catch (e: Exception) {
-            // Return the error if any Firestore operation fails.
-            return Result.failure(e)
-        }
+        // Return the generated eventCode, eventKey and eventId.
+        return Triple(eventCode, eventKey, eventId)
     }
 
     /**

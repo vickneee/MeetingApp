@@ -59,10 +59,17 @@ import kotlinx.coroutines.launch
 
 /**
  * Navigation destination for the Event Created screen.
+ *
+ * @property route The route for the screen.
+ * @property titleRes The resource ID for the title of the screen.
+ * @property EVENT_ID_ARG The argument key for the event ID.
+ * @property routeWithArgs The route with the event ID argument.
  */
 object EventCreatedDestination : NavigationDestination {
     override val route = "event_created"
     override val titleRes = R.string.title_event_created
+    const val EVENT_ID_ARG = "eventId"
+    val routeWithArgs = "$route/{$EVENT_ID_ARG}"
 }
 
 /**

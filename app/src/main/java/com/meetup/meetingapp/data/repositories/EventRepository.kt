@@ -26,7 +26,7 @@ interface EventRepository {
      * @return A [Result] containing a triple of (eventCode, eventKey, eventId) on success,
      * or an error on failure.
      */
-    suspend fun createEvent(eventValues: EventUiState): Result<Triple<String, String, String>>
+    suspend fun createEvent(eventValues: EventUiState): Triple<String, String, String>
 
     /**
      * Stores the participant's availability and preferences in Firestore.

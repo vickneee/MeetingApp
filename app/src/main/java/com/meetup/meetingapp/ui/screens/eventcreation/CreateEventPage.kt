@@ -25,8 +25,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -60,23 +64,28 @@ object CreateEventDestination : NavigationDestination {
 fun CreateEventPage(
     onBack: () -> Unit,
     viewModel: EventViewModel,
-    onCreatedEvent: () -> Unit,
+    onCreatedEvent: (String) -> Unit, // Use String as the event ID type
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val eventState by viewModel.eventState.collectAsState()
+    var hasNavigated by remember { mutableStateOf(false) }
+
+    LaunchedEffect(eventState) {
+        if (eventState is EventState.Success && !hasNavigated) {
+            hasNavigated = true
+            onCreatedEvent((eventState as EventState.Success).eventId)
+        }
+    }
 
     CreateEventContent(
         placeTypes = uiState.placeTypes,
         onPlaceTypeToggle = { type, selected ->
-            if (selected) {
-                viewModel.addPlaceType(type)
-            } else {
-                viewModel.removePlaceType(type)
-            }
+            if (selected) viewModel.addPlaceType(type)
+            else viewModel.removePlaceType(type)
         },
         onBack = onBack,
         onCreatedEvent = {
-            viewModel.createEvent()
-            onCreatedEvent()
+            viewModel.createEvent()  // Just trigger, navigation handled above
         },
     )
 }
