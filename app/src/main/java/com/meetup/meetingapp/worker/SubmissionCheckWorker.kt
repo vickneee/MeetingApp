@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.meetup.meetingapp.MeetingApplication
+import com.meetup.meetingapp.NOTIFICATION_TITLE_HOST
 import com.meetup.meetingapp.R
 
 /**
@@ -26,14 +27,11 @@ class SubmissionCheckWorker(
     override suspend fun doWork(): Result {
         try {
             val eventId = inputData.getString("eventId") ?: return Result.failure()
-            Log.d(TAG, "doWork started for eventId: $eventId")
 
             val app = applicationContext as? MeetingApplication
             val repository = app?.container?.eventRepository ?: return Result.failure()
 
             val allSubmitted = repository.isAllSubmitted(eventId)
-            Log.d(TAG, "isAllSubmitted: $allSubmitted")
-
             if (allSubmitted) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                     ContextCompat.checkSelfPermission(
@@ -42,17 +40,17 @@ class SubmissionCheckWorker(
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
                     makeSubmissionReminderNotification(
-                        applicationContext.getString(R.string.time_to_close_voting),
+                        title = NOTIFICATION_TITLE_HOST,
+                        message = applicationContext.getString(R.string.time_to_close_voting),
                         applicationContext
                     )
                 } else {
-                    Log.w(TAG, "POST_NOTIFICATIONS permission not granted — skipping notification")
+                    Log.d(TAG, "Notification permission not granted")
                 }
             }
 
             return Result.success()
         } catch (e: Exception) {
-            Log.e(TAG, "Error in SubmissionCheckWorker", e)
             return Result.failure()
         }
     }

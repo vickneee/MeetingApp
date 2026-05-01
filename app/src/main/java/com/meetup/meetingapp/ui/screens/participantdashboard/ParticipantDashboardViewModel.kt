@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.meetup.meetingapp.NOTIFICATION_TITLE_PARTICIPANTS
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
@@ -168,7 +169,8 @@ class ParticipantDashboardViewModel(
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         ) {
             makeSubmissionReminderNotification(
-                context.getString(R.string.place_voting_started),
+                title = NOTIFICATION_TITLE_PARTICIPANTS,
+                message = context.getString(R.string.place_voting_started),
                 context,
             )
         }

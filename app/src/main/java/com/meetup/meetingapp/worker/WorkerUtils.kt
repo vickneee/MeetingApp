@@ -28,7 +28,6 @@ import androidx.core.app.NotificationManagerCompat
 import com.meetup.meetingapp.CHANNEL_ID
 import com.meetup.meetingapp.MainActivity
 import com.meetup.meetingapp.NOTIFICATION_ID
-import com.meetup.meetingapp.NOTIFICATION_TITLE
 import com.meetup.meetingapp.R
 import com.meetup.meetingapp.REQUEST_CODE
 import com.meetup.meetingapp.VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION
@@ -37,6 +36,7 @@ import kotlin.jvm.java
 
 @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 fun makeSubmissionReminderNotification(
+    title: CharSequence,
     message: String,
     context: Context
 ) {
@@ -59,7 +59,7 @@ fun makeSubmissionReminderNotification(
 
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
         .setSmallIcon(R.drawable.ic_launcher_foreground)
-        .setContentTitle(NOTIFICATION_TITLE)
+        .setContentTitle(title)
         .setContentText(message)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setVibrate(LongArray(0))

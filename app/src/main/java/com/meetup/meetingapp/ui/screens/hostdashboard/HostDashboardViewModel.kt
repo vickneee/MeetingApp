@@ -127,11 +127,13 @@ class HostDashboardViewModel(
                         fetchUserVote()
                     }
 
+                    // Schedule submission check if all votes are submitted
                     if (e.status == EventStatus.COLLECTING_RESTAURANT_VOTES
                         && votesCount != lastScheduledVoteCount
                         && votesCount >= availabilityCount  // Only meaningful once everyone voted
                     ) {
                         lastScheduledVoteCount = votesCount
+                        // Schedule submission check after all votes are submitted
                         submissionRepository.scheduleSubmissionCheck(e.id)
                     }
                 }

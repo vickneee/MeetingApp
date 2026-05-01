@@ -20,6 +20,6 @@
     <string name="title_place_list">Place List</string>
     <string name="title_place_details">Place Details</string>
     <string name="edit_selection">Edit Your Selection</string>
-    <string name="time_to_close_voting">All participants are submitting. Time to close Place Voting!</string>
-    <string name="place_voting_started">Place voting has started! Open the app to vote for your favorite spot.</string>
+    <string name="time_to_close_voting">All participants have submitted! \nTime to close place voting!</string>
+    <string name="place_voting_started">Place voting has started! \nOpen the app to vote for your favorite spot.</string>
 </resources>
