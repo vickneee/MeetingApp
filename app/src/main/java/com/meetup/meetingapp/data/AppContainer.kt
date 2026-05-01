@@ -14,7 +14,7 @@ import com.meetup.meetingapp.data.repositories.PlacesRepositoryImp
 import com.meetup.meetingapp.data.repositories.SubmissionRepository
 import com.meetup.meetingapp.data.repositories.UserRepository
 import com.meetup.meetingapp.data.repositories.UserRepositoryImp
-import com.meetup.meetingapp.data.repositories.WorkManagerSubmissionRepository
+import com.meetup.meetingapp.data.repositories.SubmissionRepositoryImp
 import com.meetup.meetingapp.network.retrofitService
 
 /**
@@ -102,7 +102,7 @@ class AppDataContainer(
 
     /** Provides the WorkManager-based implementation of [SubmissionRepository]. */
     override val submissionRepository: SubmissionRepository by lazy {
-        WorkManagerSubmissionRepository(context)
+        SubmissionRepositoryImp(context)
     }
 
     /**

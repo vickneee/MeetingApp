@@ -11,6 +11,7 @@ import androidx.work.WorkerParameters
 import com.meetup.meetingapp.MeetingApplication
 import com.meetup.meetingapp.NOTIFICATION_TITLE_HOST
 import com.meetup.meetingapp.R
+import com.meetup.meetingapp.utils.makeSubmissionReminderNotification
 
 /**
  * Worker that checks if all participants have submitted their input for an event.

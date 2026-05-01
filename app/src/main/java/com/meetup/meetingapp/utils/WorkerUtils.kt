@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.meetup.meetingapp.worker
+package com.meetup.meetingapp.utils
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -39,6 +39,15 @@ import com.meetup.meetingapp.VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION
 import com.meetup.meetingapp.VERBOSE_NOTIFICATION_CHANNEL_NAME
 import kotlin.jvm.java
 
+/**
+ * Makes a notification to remind the user to submit their availability.
+ *
+ * @param title The title of the notification.
+ * @param message The content of the notification.
+ * @param context The application context.
+ *
+ * @see makeSubmissionReminderNotification for more information.
+ */
 @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 fun makeSubmissionReminderNotification(
     title: CharSequence,
@@ -74,6 +83,12 @@ fun makeSubmissionReminderNotification(
     NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder.build())
 }
 
+/**
+ * Creates a PendingIntent for launching the MainActivity.
+ *
+ * @param appContext The application context.
+ * @return A PendingIntent for the MainActivity.
+ */
 fun createPendingIntent(appContext: Context): PendingIntent {
     val intent = Intent(appContext, MainActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -92,6 +107,14 @@ fun createPendingIntent(appContext: Context): PendingIntent {
     )
 }
 
+/**
+ * Makes a notification to inform the user that the event has been finalized.
+ *
+ * @param message The content of the notification.
+ * @param context The application context.
+ *
+ * @see makeEventFinalizedNotification for more information.
+ */
 @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 fun makeEventFinalizedNotification(
     message: String,

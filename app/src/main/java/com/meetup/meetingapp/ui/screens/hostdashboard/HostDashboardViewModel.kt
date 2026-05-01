@@ -14,7 +14,7 @@ import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.repositories.EventRepository
 import com.meetup.meetingapp.data.repositories.SubmissionRepository
-import com.meetup.meetingapp.worker.makeEventFinalizedNotification
+import com.meetup.meetingapp.utils.makeEventFinalizedNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
