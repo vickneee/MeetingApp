@@ -39,6 +39,7 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 - **Google Places Integration**: Search and view details for restaurants and venues, including photos and opening hours.
 - **Location Awareness**: Automatic distance calculation from your current location to venues using GPS.
 - **Real-time Sync**: Powered by Firebase Firestore for seamless multi-user collaboration.
+- **Notifications**: Users are notified when the host starts voting, when all participants have voted, and when the results are finalized.
 - **Offline Support**: Local caching with Room database.
 
 ---
@@ -49,6 +50,7 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 - **Networking**: Retrofit & OkHttp
 - **Database**: Room (Local), Firebase Firestore (Cloud)
 - **Authentication**: Firebase Anonymous Auth
+- **Notifications**: Firebase Cloud Messaging (FCM) & WorkManager
 - **Static Analysis**: Detekt & Ktlint
 - **Documentation**: Dokka (V2)
 
@@ -75,7 +77,7 @@ git clone https://github.com/vickneee/MeetingApp.git
 
 3. **Google Places API**:
    - Go to the [Google Cloud Console](https://console.cloud.google.com/).
-   - Enable the **Places API (New)** for your project.
+   - Enable the **Places API** for your project.
    - Create an API Key.
    - Copy `app/src/main/assets/secret.properties.example` to `app/src/main/assets/secret.properties`.
    - Replace `KEY_HERE` with your actual API key:
