@@ -30,7 +30,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
+        run: ./gradlew test
 
       - name: Run Detekt
         run: ./gradlew detekt

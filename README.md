@@ -76,24 +76,26 @@ git clone https://github.com/vickneee/MeetingApp.git
    - Open the project in Android Studio and run the app using the run configuration on an emulator or connected device.
     **Note:** Testing on a physical Android device is recommended.
 
-### Building from Source
+## Testing
 
-To build the project from the command line:
-```bash
-./gradlew assembleDebug
-```
 To run unit tests:
 ```bash
+# Run unit tests
 ./gradlew test
 ```
 To run static analysis and formatting:
 ```bash
+# Run static analysis
 ./gradlew detekt
 
+# Run formatting
 ./gradlew ktlintFormat
 
+# Run linting
 ./gradlew ktlintCheck
 ```
+
+**Note**: Tests are also run automatically on every push and merge to 'main' via GitHub Actions. The CI pipeline runs detekt, ktlint, and unit tests.
 
 ## Sensors & Permissions
 The app uses the following device capabilities:
@@ -101,7 +103,7 @@ The app uses the following device capabilities:
 - **Notifications**: Used to notify host and participants when an event is finalized or when updates occur.
 - **Internet**: Required for Firebase real-time sync and Google Places data.
 
-Ensure you grant **Location** and **Notification** permissions when prompted to enable the full collaborative experience.
+**Note**: Ensure you grant **Location** and **Notification** permissions when prompted to enable the full collaborative experience.
 
 ## Documentation & Code Style
 - **Code Style**: [KTLINT.md](./KTLINT.md)
