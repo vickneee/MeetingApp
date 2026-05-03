@@ -101,6 +101,14 @@ To run unit tests:
 # Run unit tests
 ./gradlew test
 ```
+
+To run integration and UI tests (requires an emulator or physical device):
+
+```bash
+# Run integration tests
+./gradlew connectedAndroidTest
+```
+
 To run static analysis and formatting:
 ```bash
 # Run static analysis
