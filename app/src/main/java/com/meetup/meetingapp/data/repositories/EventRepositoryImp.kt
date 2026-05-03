@@ -1325,12 +1325,13 @@ class EventRepositoryImp(
      */
     override suspend fun isAllSubmitted(eventId: String): Boolean {
         return try {
-            val submissionsSnapshot = db
-                .collection("events")
-                .document(eventId)
-                .collection("participantResponses")
-                .get()
-                .await()
+            val submissionsSnapshot =
+                db
+                    .collection("events")
+                    .document(eventId)
+                    .collection("participantResponses")
+                    .get()
+                    .await()
 
             val submissionsCount = submissionsSnapshot.size()
             if (submissionsCount == 0) return false
@@ -1338,22 +1339,24 @@ class EventRepositoryImp(
             val voterIds = mutableSetOf<String>()
 
             // Iterate through restaurants to count votes
-            val restaurantsSnapshot = db
-                .collection("events")
-                .document(eventId)
-                .collection("restaurants")
-                .get()
-                .await()
-
-            for (restaurantDoc in restaurantsSnapshot.documents) {
-                val votesSnapshot = db
+            val restaurantsSnapshot =
+                db
                     .collection("events")
                     .document(eventId)
                     .collection("restaurants")
-                    .document(restaurantDoc.id)
-                    .collection("votes")
                     .get()
                     .await()
+
+            for (restaurantDoc in restaurantsSnapshot.documents) {
+                val votesSnapshot =
+                    db
+                        .collection("events")
+                        .document(eventId)
+                        .collection("restaurants")
+                        .document(restaurantDoc.id)
+                        .collection("votes")
+                        .get()
+                        .await()
 
                 votesSnapshot.documents.forEach { voteDoc ->
                     voteDoc.getString("userId")?.let { voterIds.add(it) }

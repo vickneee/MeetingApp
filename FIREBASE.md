@@ -26,6 +26,14 @@ Follow these steps to connect Firebase to the Android app.
 
 app/google-services.json
 
+NB!
+Add the file to root-level .gitignore:
+
+```kotlin
+// .gitignore
+app/google-services.json
+```
+
 ---
 ### 4. Add Firebase SDK to Project
 
@@ -76,7 +84,8 @@ After adding dependencies to build.gradle.kts and gradle folder in libs.versions
 
 Next steps:
 
-Continue to console
+Continue to Firebase Cloud console:
+https://console.firebase.google.com/
 
 ---
 ### 5. Enable Authentication (Anonymous)

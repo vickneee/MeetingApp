@@ -12,9 +12,9 @@ import com.meetup.meetingapp.data.repositories.EventRepositoryImp
 import com.meetup.meetingapp.data.repositories.PlacesRepository
 import com.meetup.meetingapp.data.repositories.PlacesRepositoryImp
 import com.meetup.meetingapp.data.repositories.SubmissionRepository
+import com.meetup.meetingapp.data.repositories.SubmissionRepositoryImp
 import com.meetup.meetingapp.data.repositories.UserRepository
 import com.meetup.meetingapp.data.repositories.UserRepositoryImp
-import com.meetup.meetingapp.data.repositories.SubmissionRepositoryImp
 import com.meetup.meetingapp.network.retrofitService
 
 /**

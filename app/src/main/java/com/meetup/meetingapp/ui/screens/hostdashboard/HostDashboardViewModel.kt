@@ -74,7 +74,7 @@ class HostDashboardViewModel(
                 eventData?.let { e ->
                     val isSecondRound =
                         e.status == EventStatus.COLLECTING_RESTAURANT_VOTES ||
-                                e.status == EventStatus.FINALIZED
+                            e.status == EventStatus.FINALIZED
 
                     val availabilityCount = submissions.size
                     val votesCount = votes.distinctBy { it.userId }.size
@@ -132,7 +132,7 @@ class HostDashboardViewModel(
                         viewModelScope.launch {
                             eventRepository.updateEventStatus(
                                 e.id,
-                                EventStatus.COLLECTING_AVAILABILITY
+                                EventStatus.COLLECTING_AVAILABILITY,
                             )
                         }
                     }
@@ -141,9 +141,9 @@ class HostDashboardViewModel(
                     }
 
                     // Schedule submission check if all votes are submitted
-                    if (e.status == EventStatus.COLLECTING_RESTAURANT_VOTES
-                        && votesCount != lastScheduledVoteCount
-                        && votesCount >= availabilityCount  // Only meaningful once everyone voted
+                    if (e.status == EventStatus.COLLECTING_RESTAURANT_VOTES &&
+                        votesCount != lastScheduledVoteCount &&
+                        votesCount >= availabilityCount // Only meaningful once everyone voted
                     ) {
                         lastScheduledVoteCount = votesCount
                         // Schedule submission check after all votes are submitted
@@ -281,12 +281,12 @@ class HostDashboardViewModel(
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
             ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.POST_NOTIFICATIONS
+                Manifest.permission.POST_NOTIFICATIONS,
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             makeEventFinalizedNotification(
                 message = context.getString(R.string.event_finalized_message),
-                context = context
+                context = context,
             )
         }
     }
