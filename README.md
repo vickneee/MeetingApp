@@ -12,10 +12,13 @@ Users can create event plans for a group, where participants can:
 
 The goal is to make group decision-making simple and fast, so everyone can agree on when and where to meet.
 
+---
+
 ## Screenshots
 |                    Home Screen                    |                    Create Event                     |                    Event Created                     |
 |:-------------------------------------------------:|:---------------------------------------------------:|:----------------------------------------------------:|
 | <img src="docs/screenshots/home.png" width="250"> | <img src="docs/screenshots/create.png" width="250"> | <img src="docs/screenshots/created.png" width="250"> |
+
 
 |                    Participant Screen                    |                    Host Screen                    |                       Event List                        |
 |:--------------------------------------------------------:|:-------------------------------------------------:|:-------------------------------------------------------:|
@@ -27,6 +30,7 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 |:-------------------------------------------------------:|:-------------------------------------------------:|:------------------------------------------------------:|
 | <img src="docs/screenshots/place_list.png" width="250"> | <img src="docs/screenshots/vote.png" width="250"> | <img src="docs/screenshots/finalized.png" width="250"> |
 
+---
 
 ## Features
 
@@ -38,6 +42,8 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 - **Real-time Sync**: Powered by Firebase Firestore for seamless multi-user collaboration.
 - **Offline Support**: Local caching with Room database.
 
+---
+
 ## Tech Stack
 - **UI**: Jetpack Compose (100% Kotlin)
 - **Navigation**: Jetpack Compose Navigation
@@ -47,6 +53,8 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 - **Static Analysis**: Detekt & Ktlint
 - **Documentation**: Dokka (V2)
 
+---
+
 ## Setup
 
 ### Prerequisites
@@ -54,7 +62,7 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 - JDK 17
 - Android emulator or device running API 26+
 
-1. Clone the repository
+1. **Clone the repository**:
 
 ```sh
 git clone https://github.com/vickneee/MeetingApp.git
@@ -80,6 +88,8 @@ git clone https://github.com/vickneee/MeetingApp.git
    - Open the project in Android Studio and run the app using the run configuration on an emulator or connected device.
     **Note:** Testing on a physical Android device is recommended.
 
+--- 
+
 ## Testing
 
 To run unit tests:
@@ -101,6 +111,8 @@ To run static analysis and formatting:
 
 **Note**: Tests are also run automatically on every push and merge to 'main' via GitHub Actions. The CI pipeline runs detekt, ktlint, and unit tests.
 
+---
+
 ## Sensors & Permissions
 The app uses the following device capabilities:
 - **Location (GPS)**: Core sensor used to calculate the distance between you and the proposed meeting places.
@@ -108,6 +120,8 @@ The app uses the following device capabilities:
 - **Internet**: Required for Firebase real-time sync and Google Places data.
 
 **Note**: Ensure you grant **Location** and **Notification** permissions when prompted to enable the full collaborative experience.
+
+---
 
 ## Documentation & Code Style
 - **Code Style**: [KTLINT.md](./KTLINT.md)
@@ -120,6 +134,8 @@ The app uses the following device capabilities:
 
   Open the link:
   [Dokka Documentation - Coming]()
+
+---
 
 ## License
 This project is developed for academic purposes as part of mobile application development project course.
