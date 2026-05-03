@@ -13,14 +13,18 @@ Users can create event plans for a group, where participants can:
 The goal is to make group decision-making simple and fast, so everyone can agree on when and where to meet.
 
 ## Screenshots
-| Home Screen |              Event Create              |             Event Created             |
-| :---: |:--------------------------------------:|:-------------------------------------:|
-| ![Home](docs/screenshots/home.png) | ![Create](docs/screenshots/create.png) | ![Vote](docs/screenshots/created.png) |
+| Home Screen |              Create Event              |              Event Created               |
+| :---: |:--------------------------------------:|:----------------------------------------:|
+| ![Home](docs/screenshots/home.png) | ![Create](docs/screenshots/create.png) | ![Created](docs/screenshots/created.png) |
 
-|            Participant Screen             |             Host Screen              | Voting |
-|:-----------------------------------------:|:------------------------------------:| :---: |
-| ![Home](docs/screenshots/participant.png) | ![Create](docs/screenshots/host.png) | ![Vote](docs/screenshots/vote.png) |
+|                Participant Screen                |            Host Screen             |                   Event List                   |
+|:------------------------------------------------:|:----------------------------------:|:----------------------------------------------:|
+| ![Participant](docs/screenshots/participant.png) | ![Host](docs/screenshots/host.png) | ![Event List](docs/screenshots/event_list.png) |
 
+|                   Place List                   |               Voting               |                  Finalized                   |
+|:----------------------------------------------:|:----------------------------------:|:--------------------------------------------:|
+| ![Place List](docs/screenshots/place_list.png) | ![Host](docs/screenshots/vote.png) | ![Finalized](docs/screenshots/finalized.png) |
+|                                                |                                    |                                              |
 ## Features
 - **Event Creation**: Host can create events and invite others via unique codes.
 - **Management Dashboards**: Dedicated Host and Participant views to track event status, voting progress, and final results.
