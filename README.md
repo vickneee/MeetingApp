@@ -13,19 +13,23 @@ Users can create event plans for a group, where participants can:
 The goal is to make group decision-making simple and fast, so everyone can agree on when and where to meet.
 
 ## Screenshots
-| Home Screen |              Create Event              |              Event Created               |
-| :---: |:--------------------------------------:|:----------------------------------------:|
-| ![Home](docs/screenshots/home.png) | ![Create](docs/screenshots/create.png) | ![Created](docs/screenshots/created.png) |
+|                    Home Screen                    |                    Create Event                     |                    Event Created                     |
+|:-------------------------------------------------:|:---------------------------------------------------:|:----------------------------------------------------:|
+| <img src="docs/screenshots/home.png" width="250"> | <img src="docs/screenshots/create.png" width="250"> | <img src="docs/screenshots/created.png" width="250"> |
 
-|                Participant Screen                |            Host Screen             |                   Event List                   |
-|:------------------------------------------------:|:----------------------------------:|:----------------------------------------------:|
-| ![Participant](docs/screenshots/participant.png) | ![Host](docs/screenshots/host.png) | ![Event List](docs/screenshots/event_list.png) |
+|                    Participant Screen                    |                    Host Screen                    |                       Event List                        |
+|:--------------------------------------------------------:|:-------------------------------------------------:|:-------------------------------------------------------:|
+| <img src="docs/screenshots/participant.png" width="250"> | <img src="docs/screenshots/host.png" width="250"> | <img src="docs/screenshots/event_list.png" width="250"> |
+|                                                          |                                                   |                                                         |
 
-|                   Place List                   |               Voting               |                  Finalized                   |
-|:----------------------------------------------:|:----------------------------------:|:--------------------------------------------:|
-| ![Place List](docs/screenshots/place_list.png) | ![Host](docs/screenshots/vote.png) | ![Finalized](docs/screenshots/finalized.png) |
-|                                                |                                    |                                              |
+
+|                       Place List                        |                      Voting                       |                       Finalized                        |
+|:-------------------------------------------------------:|:-------------------------------------------------:|:------------------------------------------------------:|
+| <img src="docs/screenshots/place_list.png" width="250"> | <img src="docs/screenshots/vote.png" width="250"> | <img src="docs/screenshots/finalized.png" width="250"> |
+
+
 ## Features
+
 - **Event Creation**: Host can create events and invite others via unique codes.
 - **Management Dashboards**: Dedicated Host and Participant views to track event status, voting progress, and final results.
 - **Collaborative Voting**: Participants vote for their preferred time slots and locations.
