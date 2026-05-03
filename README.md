@@ -23,7 +23,6 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 |                    Participant Screen                    |                    Host Screen                    |                       Event List                        |
 |:--------------------------------------------------------:|:-------------------------------------------------:|:-------------------------------------------------------:|
 | <img src="docs/screenshots/participant.png" width="250"> | <img src="docs/screenshots/host.png" width="250"> | <img src="docs/screenshots/event_list.png" width="250"> |
-|                                                          |                                                   |                                                         |
 
 
 |                       Place List                        |                      Voting                       |                       Finalized                        |
@@ -69,24 +68,27 @@ git clone https://github.com/vickneee/MeetingApp.git
 ```
 
 2. **Firebase Setup**:
-    - Follow the detailed [Firebase Setup Guide](./FIREBASE.md) to add your `google-services.json`.
-    - **Note:** Ensure `app/google-services.json` is ignored by git to keep your project keys private.
+   - Follow the detailed [Firebase Setup Guide](./FIREBASE.md) to add your `google-services.json`.
+   
+   **Note:** Ensure `app/google-services.json` is ignored by git to keep your project keys private.
+ 
 
 3. **Google Places API**:
-    - Go to the [Google Cloud Console](https://console.cloud.google.com/).
-    - Enable the **Places API (New)** for your project.
-    - Create an API Key.
-    - Copy `app/src/main/assets/secret.properties.example` to `app/src/main/assets/secret.properties`.
-    - Replace `KEY_HERE` with your actual API key:
-      ```properties
-      PLACES_API_KEY=YOUR_ACTUAL_API_KEY_HERE
-      ```
-    - **Note**: Ensure `app/src/main/assets/secret.properties` is ignored by git to keep your project keys private.
+   - Go to the [Google Cloud Console](https://console.cloud.google.com/).
+   - Enable the **Places API (New)** for your project.
+   - Create an API Key.
+   - Copy `app/src/main/assets/secret.properties.example` to `app/src/main/assets/secret.properties`.
+   - Replace `KEY_HERE` with your actual API key:
+     ```properties
+     PLACES_API_KEY=YOUR_ACTUAL_API_KEY_HERE
+     ```
+   
+   **Note**: Ensure `app/src/main/assets/secret.properties` is ignored by git to keep your project keys private.
 
 4. **Run**:
-
    - Open the project in Android Studio and run the app using the run configuration on an emulator or connected device.
-    **Note:** Testing on a physical Android device is recommended.
+   
+   **Note:** Testing on a physical Android device is recommended.
 
 --- 
 
@@ -109,7 +111,7 @@ To run static analysis and formatting:
 ./gradlew ktlintCheck
 ```
 
-**Note**: Tests are also run automatically on every push and merge to 'main' via GitHub Actions. The CI pipeline runs detekt, ktlint, and unit tests.
+**Note**: Detekt, ktlint, and unit tests are automatically run on every push and merge to `main` via GitHub Actions.
 
 ---
 
