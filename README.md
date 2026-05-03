@@ -50,11 +50,17 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 - JDK 17
 - Android emulator or device running API 26+
 
-1. **Firebase Setup**:
+1. Clone the repository
+
+```sh
+git clone https://github.com/vickneee/MeetingApp.git
+```
+
+2. **Firebase Setup**:
     - Follow the detailed [Firebase Setup Guide](./FIREBASE.md) to add your `google-services.json`.
     - **Note:** Ensure `app/google-services.json` is ignored by git to keep your project keys private.
 
-2. **Google Places API**:
+3. **Google Places API**:
     - Go to the [Google Cloud Console](https://console.cloud.google.com/).
     - Enable the **Places API (New)** for your project.
     - Create an API Key.
@@ -63,6 +69,12 @@ The goal is to make group decision-making simple and fast, so everyone can agree
       ```properties
       PLACES_API_KEY=YOUR_ACTUAL_API_KEY_HERE
       ```
+    - **Note**: Ensure `app/src/main/assets/secret.properties` is ignored by git to keep your project keys private.
+
+4. **Run**:
+
+   - Open the project in Android Studio and run the app using the run configuration on an emulator or connected device.
+    **Note:** Testing on a physical Android device is recommended.
 
 ### Building from Source
 
