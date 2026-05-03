@@ -45,12 +45,14 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 ---
 
 ## Tech Stack
-- **UI**: Jetpack Compose (100% Kotlin)
+- **UI**: Jetpack Compose + Material 3 (100% Kotlin)
 - **Navigation**: Jetpack Compose Navigation
-- **Networking**: Retrofit & OkHttp
+- **Networking**: Retrofit & OkHttp, Gson for JSON
 - **Database**: Room (Local), Firebase Firestore (Cloud)
 - **Authentication**: Firebase Anonymous Auth
-- **Notifications**: Firebase Cloud Messaging (FCM) & WorkManager
+- **Image Loading**: Coil 3 
+- **API Integration**: Google Places API
+- **Notifications**: Local Notifications via WorkManager
 - **Static Analysis**: Detekt & Ktlint
 - **Documentation**: Dokka (V2)
 
@@ -73,7 +75,6 @@ git clone https://github.com/vickneee/MeetingApp.git
    - Follow the detailed [Firebase Setup Guide](./FIREBASE.md) to add your `google-services.json`.
    
    **Note:** Ensure `app/google-services.json` is ignored by git to keep your project keys private.
- 
 
 3. **Google Places API**:
    - Go to the [Google Cloud Console](https://console.cloud.google.com/).
@@ -102,10 +103,10 @@ To run unit tests:
 ./gradlew test
 ```
 
-To run integration and UI tests (requires an emulator or physical device):
+To run instrumented UI tests (requires an emulator or physical device):
 
 ```bash
-# Run integration tests
+# Run instrumented UI tests
 ./gradlew connectedAndroidTest
 ```
 
