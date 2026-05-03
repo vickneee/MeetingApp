@@ -13,9 +13,13 @@ Users can create event plans for a group, where participants can:
 The goal is to make group decision-making simple and fast, so everyone can agree on when and where to meet.
 
 ## Screenshots
-| Home Screen |              Event Created              | Voting |
-| :---: |:---------------------------------------:| :---: |
-| ![Home](docs/screenshots/home.png) | ![Create](docs/screenshots/created.png) | ![Vote](docs/screenshots/vote.png) |
+| Home Screen |              Event Create              |             Event Created             |
+| :---: |:--------------------------------------:|:-------------------------------------:|
+| ![Home](docs/screenshots/home.png) | ![Create](docs/screenshots/create.png) | ![Vote](docs/screenshots/created.png) |
+
+|            Participant Screen             |             Host Screen              | Voting |
+|:-----------------------------------------:|:------------------------------------:| :---: |
+| ![Home](docs/screenshots/participant.png) | ![Create](docs/screenshots/host.png) | ![Vote](docs/screenshots/vote.png) |
 
 ## Features
 - **Event Creation**: Host can create events and invite others via unique codes.
@@ -93,7 +97,7 @@ Ensure you grant **Location** and **Notification** permissions when prompted to 
   The documentation will be generated in `app/build/dokka/html`.
 
   Open the link:
-    - http://localhost:63342/Meeting%20App/build/dokka/html/index.html?_ijt=g24paelrrp0tnerfnjfskevt7d&_ij_reload=RELOAD_ON_SAVE
+  [Dokka Documentation - Coming]()
 
 ## License
 This project is developed for academic purposes as part of mobile application development project course.
