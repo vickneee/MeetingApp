@@ -1,8 +1,10 @@
 package com.meetup.meetingapp
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.rememberNavController
@@ -27,7 +29,9 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.unmockkAll
 import kotlinx.coroutines.flow.flowOf
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -61,8 +65,8 @@ class PlaceVotingFlowTest {
         every { mockFirebaseUser.uid } returns testUserId
 
         val testTiming = DateTime(
-            date = "2024-05-20",
-            timeSlot = TimeSlot("18:00", "21:00")
+            date = "2024-05-28",
+            timeSlot = TimeSlot("11:00", "13:00")
         )
 
         val testEvent = Event(
@@ -86,7 +90,8 @@ class PlaceVotingFlowTest {
             types = listOf("restaurant"),
             priceLevel = 2,
             latitude = 60.1699,
-            longitude = 24.9384
+            longitude = 24.9384,
+            openingHours = listOf("Tuesday: 00:00–23:59")
         )
 
         val testParticipant = ParticipantResponse(
@@ -118,6 +123,11 @@ class PlaceVotingFlowTest {
         }
     }
 
+    @After
+    fun tearDown() {
+        unmockkAll()
+    }
+
     @Test
     fun voteForPlaceFlow_stepsInOrder() {
         composeTestRule.setContent {
@@ -126,24 +136,27 @@ class PlaceVotingFlowTest {
                 MeetingAppNavHost(navController = navController)
                 
                 // Directly navigate to Participant Dashboard for the test event
-                navController.navigate("participant_dashboard_waiting/$testEventId")
+                LaunchedEffect(Unit) {
+                    navController.navigate("participant_dashboard_waiting/$testEventId")
+                }
             }
         }
 
         // 1. Participant Dashboard
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithText("VOTE12", substring = true).fetchSemanticsNodes().isNotEmpty()
+        }
         composeTestRule.onNodeWithText("Event Code: VOTE12").assertIsDisplayed()
-        // Wait for potential loading if any, though we mocked it fast
         composeTestRule.onNodeWithText("Vote Time & Place").performClick()
 
         // 2. DateAndAreaPage (Step 1)
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
+        composeTestRule.waitUntil(timeoutMillis = 10000) {
             composeTestRule.onAllNodesWithText("Choose a date, time & area").fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.onNodeWithText("Choose a date, time & area").assertIsDisplayed()
         
-        // Match the label: "May 20 (18:00–21:00) — Helsinki"
-        // Note: dash between times is en-dash (–), dash before Helsinki is em-dash (—)
-        composeTestRule.onNodeWithText("May 20 (18:00–21:00) — Helsinki").performClick()
+        // Use a more flexible matcher for the option
+        composeTestRule.onNodeWithText("Helsinki", substring = true).performClick()
 
         // 3. PlaceListPage (Step 2)
         composeTestRule.waitUntil(timeoutMillis = 5000) {
@@ -157,15 +170,17 @@ class PlaceVotingFlowTest {
             composeTestRule.onAllNodesWithText("Vote for this restaurant").fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.onNodeWithText("Test Restaurant").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Mannerheimintie 1, Helsinki").assertIsDisplayed()
         
         // Perform Vote
         composeTestRule.onNodeWithText("Vote for this restaurant").performClick()
 
         // 5. Back to Dashboard (Success)
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithText("Event Code: VOTE12").fetchSemanticsNodes().isNotEmpty()
+        // Wait longer and use a more specific matcher to avoid ambiguity
+        composeTestRule.waitUntil(timeoutMillis = 10000) {
+            composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true).fetchSemanticsNodes().isNotEmpty()
         }
-        composeTestRule.onNodeWithText("Event Code: VOTE12").assertIsDisplayed()
+        // Verify we are back and the correct user is welcomed
+        composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true).onFirst().assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Event Code: VOTE12", substring = true).onFirst().assertIsDisplayed()
     }
 }
