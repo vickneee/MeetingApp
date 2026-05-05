@@ -448,4 +448,44 @@ class EventRepositoryImpTest {
         assertTrue(result.isFailure)
         assertEquals("Firestore Error", result.exceptionOrNull()?.message)
     }
+
+    @Test
+    fun `findTopCandidates logic handles a clear winner`() {
+        // Mock data where "Helsinki" appears twice, "Espoo" once
+        val locations = listOf("Helsinki", "Helsinki", "Espoo")
+
+        // aggregateCandidatesFromResponses uses findTopCandidates internally
+        val responses = locations.map { loc ->
+            ParticipantResponse(locations = listOf(loc))
+        }
+
+        val result = repo.aggregateCandidatesFromResponses(responses)
+
+        assertEquals(listOf("Helsinki"), result.locationCandidates)
+    }
+
+    @Test
+    fun `findTopCandidates logic handles a tie`() {
+        // Tie between Helsinki and Espoo
+        val locations = listOf("Helsinki", "Espoo")
+
+        val responses = locations.map { loc ->
+            ParticipantResponse(locations = listOf(loc))
+        }
+
+        val result = repo.aggregateCandidatesFromResponses(responses)
+
+        // Should contain both because they both have a count of 1
+        assertEquals(2, result.locationCandidates.size)
+        assertTrue(result.locationCandidates.contains("Helsinki"))
+        assertTrue(result.locationCandidates.contains("Espoo"))
+    }
+
+    @Test
+    fun `findTopCandidates logic handles empty input`() {
+        val result = repo.aggregateCandidatesFromResponses(emptyList())
+
+        assertTrue(result.locationCandidates.isEmpty())
+        assertTrue(result.dateTimeCandidates.isEmpty())
+    }
 }
