@@ -219,6 +219,7 @@ class PlaceViewModel(
         lat: Double?,
         lng: Double?,
     ) {
+        _voteResultState.value = null // Reset previous result state
         fetchUserVote(placeId)
         updateDistanceToRestaurant(lat, lng)
     }
