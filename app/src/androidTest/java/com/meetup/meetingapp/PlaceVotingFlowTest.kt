@@ -63,86 +63,82 @@ class PlaceVotingFlowTest {
 
         // Workaround for MockK issues with suspend functions returning Result value class.
         // Implementing the methods in an anonymous object avoids dynamic proxy issues with value classes.
-        mockEventRepository = object : EventRepository by baseMockRepository {
-            override suspend fun getUserVote(
-                eventId: String,
-                placeId: String,
-                userId: String,
-                dateTime: DateTime
-            ): Result<Boolean> = Result.success(false)
+        mockEventRepository =
+            object : EventRepository by baseMockRepository {
+                override suspend fun getUserVote(
+                    eventId: String,
+                    placeId: String,
+                    userId: String,
+                    dateTime: DateTime,
+                ): Result<Boolean> = Result.success(false)
 
-            override suspend fun submitVote(
-                eventId: String,
-                placeId: String,
-                userId: String,
-                dateTime: DateTime
-            ): Result<Unit> = Result.success(Unit)
+                override suspend fun submitVote(
+                    eventId: String,
+                    placeId: String,
+                    userId: String,
+                    dateTime: DateTime,
+                ): Result<Unit> = Result.success(Unit)
 
-            override suspend fun createParticipantAvailability(
-                participantInput: ParticipantInputState
-            ): Result<Unit> = Result.success(Unit)
+                override suspend fun createParticipantAvailability(participantInput: ParticipantInputState): Result<Unit> =
+                    Result.success(Unit)
 
-            override suspend fun aggregateParticipantResponses(
-                eventId: String,
-            ): Result<Unit> = Result.success(Unit)
+                override suspend fun aggregateParticipantResponses(eventId: String): Result<Unit> = Result.success(Unit)
 
-            override suspend fun aggregateRestaurantVotes(
-                eventId: String
-            ): Result<Unit> = Result.success(Unit)
+                override suspend fun aggregateRestaurantVotes(eventId: String): Result<Unit> = Result.success(Unit)
 
-            override suspend fun saveAllRestaurants(
-                eventId: String,
-                restaurants: List<Restaurant>
-            ): Result<Unit> = Result.success(Unit)
+                override suspend fun saveAllRestaurants(
+                    eventId: String,
+                    restaurants: List<Restaurant>,
+                ): Result<Unit> = Result.success(Unit)
 
-            override suspend fun syncRestaurants(
-                eventId: String
-            ): Result<Unit> = Result.success(Unit)
+                override suspend fun syncRestaurants(eventId: String): Result<Unit> = Result.success(Unit)
 
-            override suspend fun fetchAndSaveRestaurants(
-                event: Event
-            ): Result<Unit> = Result.success(Unit)
-        }
+                override suspend fun fetchAndSaveRestaurants(event: Event): Result<Unit> = Result.success(Unit)
+            }
 
         mockkStatic(FirebaseAuth::class)
         every { FirebaseAuth.getInstance() } returns mockFirebaseAuth
         every { mockFirebaseAuth.currentUser } returns mockFirebaseUser
         every { mockFirebaseUser.uid } returns testUserId
 
-        val testTiming = DateTime(
-            date = "2024-05-28",
-            timeSlot = TimeSlot("11:00", "13:00")
-        )
+        val testTiming =
+            DateTime(
+                date = "2024-05-28",
+                timeSlot = TimeSlot("11:00", "13:00"),
+            )
 
-        val testEvent = Event(
-            id = testEventId,
-            eventCode = "VOTE12",
-            eventKey = "key123",
-            eventTitle = "Voting Dinner",
-            hostName = "Alice",
-            hostId = "host_id",
-            status = EventStatus.COLLECTING_RESTAURANT_VOTES,
-            dateTimeCandidates = listOf(testTiming),
-            locationCandidates = listOf("Helsinki")
-        )
+        val testEvent =
+            Event(
+                id = testEventId,
+                eventCode = "VOTE12",
+                eventKey = "key123",
+                eventTitle = "Voting Dinner",
+                hostName = "Alice",
+                hostId = "host_id",
+                status = EventStatus.COLLECTING_RESTAURANT_VOTES,
+                dateTimeCandidates = listOf(testTiming),
+                locationCandidates = listOf("Helsinki"),
+            )
 
-        val testRestaurant = Restaurant(
-            placeId = testRestaurantId,
-            name = "Test Restaurant",
-            rating = 4.8,
-            userRatingCount = 100,
-            address = "Mannerheimintie 1, Helsinki",
-            types = listOf("restaurant"),
-            priceLevel = 2,
-            latitude = 60.1699,
-            longitude = 24.9384,
-            openingHours = listOf("Tuesday: 00:00–23:59")
-        )
+        val testRestaurant =
+            Restaurant(
+                placeId = testRestaurantId,
+                name = "Test Restaurant",
+                rating = 4.8,
+                userRatingCount = 100,
+                address = "Mannerheimintie 1, Helsinki",
+                types = listOf("restaurant"),
+                priceLevel = 2,
+                latitude = 60.1699,
+                longitude = 24.9384,
+                openingHours = listOf("Tuesday: 00:00–23:59"),
+            )
 
-        val testParticipant = ParticipantResponse(
-            userId = testUserId,
-            name = "Bobby"
-        )
+        val testParticipant =
+            ParticipantResponse(
+                userId = testUserId,
+                name = "Bobby",
+            )
 
         // Mock behaviors on the base delegate
         every { baseMockRepository.observeEventById(testEventId) } returns flowOf(testEvent)
@@ -151,21 +147,37 @@ class PlaceVotingFlowTest {
         coEvery {
             baseMockRepository.getRestaurantsOnce(testEventId, any(), any())
         } returns listOf(testRestaurant)
-        every { baseMockRepository.observeSubmissions(testEventId) } returns flowOf(listOf(testParticipant))
+        every { baseMockRepository.observeSubmissions(testEventId) } returns
+            flowOf(
+                listOf(
+                    testParticipant,
+                ),
+            )
         every { baseMockRepository.observeRestaurantVotes(testEventId) } returns flowOf(emptyList())
-        coEvery { baseMockRepository.hasUserSubmittedAvailability(testEventId, testUserId) } returns true
-        coEvery { baseMockRepository.getParticipantResponse(testEventId, testUserId) } returns testParticipant
+        coEvery {
+            baseMockRepository.hasUserSubmittedAvailability(
+                testEventId,
+                testUserId,
+            )
+        } returns true
+        coEvery {
+            baseMockRepository.getParticipantResponse(
+                testEventId,
+                testUserId,
+            )
+        } returns testParticipant
         coEvery { baseMockRepository.hasUserVotedInEvent(any(), any(), any()) } returns false
 
         // Replace app container
-        app.container = object : AppContainer {
-            override val userRepository = mockUserRepository
-            override val eventRepository = mockEventRepository
-            override val placesRepository = mockk<PlacesRepository>(relaxed = true)
-            override val submissionRepository = mockk<SubmissionRepository>(relaxed = true)
-            override val db = mockk<FirebaseFirestore>(relaxed = true)
-            override val placesApiKey = "test_api_key"
-        }
+        app.container =
+            object : AppContainer {
+                override val userRepository = mockUserRepository
+                override val eventRepository = mockEventRepository
+                override val placesRepository = mockk<PlacesRepository>(relaxed = true)
+                override val submissionRepository = mockk<SubmissionRepository>(relaxed = true)
+                override val db = mockk<FirebaseFirestore>(relaxed = true)
+                override val placesApiKey = "test_api_key"
+            }
     }
 
     @After
@@ -189,16 +201,20 @@ class PlaceVotingFlowTest {
 
         // 1. Participant Dashboard
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithText("VOTE12", substring = true)
-                .fetchSemanticsNodes().isNotEmpty()
+            composeTestRule
+                .onAllNodesWithText("VOTE12", substring = true)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
         }
         composeTestRule.onNodeWithText("Event Code: VOTE12").assertIsDisplayed()
         composeTestRule.onNodeWithText("Vote Time & Place").performClick()
 
         // 2. DateAndAreaPage (Step 1)
         composeTestRule.waitUntil(timeoutMillis = 10000) {
-            composeTestRule.onAllNodesWithText("Choose a date, time & area")
-                .fetchSemanticsNodes().isNotEmpty()
+            composeTestRule
+                .onAllNodesWithText("Choose a date, time & area")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
         }
         composeTestRule.onNodeWithText("Choose a date, time & area").assertIsDisplayed()
 
@@ -207,16 +223,20 @@ class PlaceVotingFlowTest {
 
         // 3. PlaceListPage (Step 2)
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithText("Test Restaurant")
-                .fetchSemanticsNodes().isNotEmpty()
+            composeTestRule
+                .onAllNodesWithText("Test Restaurant")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
         }
         composeTestRule.onNodeWithText("Test Restaurant").assertIsDisplayed()
         composeTestRule.onNodeWithText("Test Restaurant").performClick()
 
         // 4. PlaceDetailsPage (Step 3)
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithText("Vote for this restaurant")
-                .fetchSemanticsNodes().isNotEmpty()
+            composeTestRule
+                .onAllNodesWithText("Vote for this restaurant")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
         }
         composeTestRule.onNodeWithText("Test Restaurant").assertIsDisplayed()
 
@@ -226,12 +246,20 @@ class PlaceVotingFlowTest {
         // 5. Back to Dashboard (Success)
         // Wait for the navigation to complete and the dashboard to show the welcome message
         composeTestRule.waitUntil(timeoutMillis = 20000) {
-            composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true)
-                .fetchSemanticsNodes().isNotEmpty()
+            composeTestRule
+                .onAllNodesWithText("Hi, Bobby!", substring = true)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
         }
 
         // Verify we are back and the correct user is welcomed
-        composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true).onFirst().assertIsDisplayed()
-        composeTestRule.onAllNodesWithText("Event Code: VOTE12", substring = true).onFirst().assertIsDisplayed()
+        composeTestRule
+            .onAllNodesWithText("Hi, Bobby!", substring = true)
+            .onFirst()
+            .assertIsDisplayed()
+        composeTestRule
+            .onAllNodesWithText("Event Code: VOTE12", substring = true)
+            .onFirst()
+            .assertIsDisplayed()
     }
 }

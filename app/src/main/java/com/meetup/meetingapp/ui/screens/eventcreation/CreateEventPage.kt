@@ -80,12 +80,15 @@ fun CreateEventPage(
     CreateEventContent(
         placeTypes = uiState.placeTypes,
         onPlaceTypeToggle = { type, selected ->
-            if (selected) viewModel.addPlaceType(type)
-            else viewModel.removePlaceType(type)
+            if (selected) {
+                viewModel.addPlaceType(type)
+            } else {
+                viewModel.removePlaceType(type)
+            }
         },
         onBack = onBack,
         onCreatedEvent = {
-            viewModel.createEvent()  // Just trigger, navigation handled above
+            viewModel.createEvent() // Just trigger, navigation handled above
         },
     )
 }

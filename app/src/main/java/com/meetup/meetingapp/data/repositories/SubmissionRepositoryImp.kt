@@ -14,7 +14,9 @@ import com.meetup.meetingapp.worker.SubmissionCheckWorker
  *
  * [WorkManager] based implementation of [SubmissionRepository].
  */
-class SubmissionRepositoryImp(context: Context) : SubmissionRepository {
+class SubmissionRepositoryImp(
+    context: Context,
+) : SubmissionRepository {
     private val workManager = WorkManager.getInstance(context)
 
     /**
@@ -26,14 +28,15 @@ class SubmissionRepositoryImp(context: Context) : SubmissionRepository {
      * @see SubmissionCheckWorker for more information.
      */
     override fun scheduleSubmissionCheck(eventId: String) {
-        val workRequest = OneTimeWorkRequestBuilder<SubmissionCheckWorker>()
-            .setInputData(workDataOf("eventId" to eventId))
-            .build()
+        val workRequest =
+            OneTimeWorkRequestBuilder<SubmissionCheckWorker>()
+                .setInputData(workDataOf("eventId" to eventId))
+                .build()
 
         workManager.enqueueUniqueWork(
             "submission_check_$eventId", // unique name per event
             ExistingWorkPolicy.KEEP, // ignore new requests if one is already running
-            workRequest
+            workRequest,
         )
     }
 }

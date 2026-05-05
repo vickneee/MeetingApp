@@ -52,16 +52,17 @@ import kotlin.jvm.java
 fun makeSubmissionReminderNotification(
     title: CharSequence,
     message: String,
-    context: Context
+    context: Context,
 ) {
     // Create the NotificationChannel, but only on API 26+ because
     // the NotificationChannel class is new and not in the support library
     val importance = NotificationManager.IMPORTANCE_HIGH
-    val channel = NotificationChannel(
-        CHANNEL_ID,
-        VERBOSE_NOTIFICATION_CHANNEL_NAME,
-        importance
-    )
+    val channel =
+        NotificationChannel(
+            CHANNEL_ID,
+            VERBOSE_NOTIFICATION_CHANNEL_NAME,
+            importance,
+        )
     channel.description = VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION
 
     val notificationManager =
@@ -71,14 +72,16 @@ fun makeSubmissionReminderNotification(
 
     val pendingIntent: PendingIntent = createPendingIntent(context)
 
-    val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_launcher_foreground)
-        .setContentTitle(title)
-        .setContentText(message)
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
-        .setVibrate(LongArray(0))
-        .setContentIntent(pendingIntent)
-        .setAutoCancel(true)
+    val builder =
+        NotificationCompat
+            .Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVibrate(LongArray(0))
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
 
     NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder.build())
 }
@@ -90,9 +93,10 @@ fun makeSubmissionReminderNotification(
  * @return A PendingIntent for the MainActivity.
  */
 fun createPendingIntent(appContext: Context): PendingIntent {
-    val intent = Intent(appContext, MainActivity::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-    }
+    val intent =
+        Intent(appContext, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
 
     // Flag to detect unsafe launches of intents for Android 12 and higher
     // to improve platform security
@@ -103,7 +107,7 @@ fun createPendingIntent(appContext: Context): PendingIntent {
         appContext,
         REQUEST_CODE,
         intent,
-        flags
+        flags,
     )
 }
 
@@ -118,14 +122,15 @@ fun createPendingIntent(appContext: Context): PendingIntent {
 @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 fun makeEventFinalizedNotification(
     message: String,
-    context: Context
+    context: Context,
 ) {
     val importance = NotificationManager.IMPORTANCE_HIGH
-    val channel = NotificationChannel(
-        EVENT_CHANNEL_ID,
-        EVENT_FINALIZED_CHANNEL_NAME,
-        importance
-    )
+    val channel =
+        NotificationChannel(
+            EVENT_CHANNEL_ID,
+            EVENT_FINALIZED_CHANNEL_NAME,
+            importance,
+        )
     channel.description = EVENT_FINALIZED_CHANNEL_DESCRIPTION
 
     val notificationManager =
@@ -134,14 +139,16 @@ fun makeEventFinalizedNotification(
 
     val pendingIntent = createPendingIntent(context)
 
-    val builder = NotificationCompat.Builder(context, EVENT_CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_launcher_foreground)
-        .setContentTitle(EVENT_FINALIZED_NOTIFICATION_TITLE)
-        .setContentText(message)
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
-        .setVibrate(LongArray(0))
-        .setContentIntent(pendingIntent)
-        .setAutoCancel(true)
+    val builder =
+        NotificationCompat
+            .Builder(context, EVENT_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(EVENT_FINALIZED_NOTIFICATION_TITLE)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVibrate(LongArray(0))
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
 
     NotificationManagerCompat.from(context).notify(EVENT_NOTIFICATION_ID, builder.build())
 }
