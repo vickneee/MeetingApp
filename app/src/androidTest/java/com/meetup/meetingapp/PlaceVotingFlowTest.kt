@@ -82,22 +82,26 @@ class PlaceVotingFlowTest {
                 participantInput: ParticipantInputState
             ): Result<Unit> = Result.success(Unit)
 
-            override suspend fun aggregateParticipantResponses(eventId: String): Result<Unit> =
-                Result.success(Unit)
+            override suspend fun aggregateParticipantResponses(
+                eventId: String
+            ): Result<Unit> = Result.success(Unit)
 
-            override suspend fun aggregateRestaurantVotes(eventId: String): Result<Unit> =
-                Result.success(Unit)
+            override suspend fun aggregateRestaurantVotes(
+                eventId: String
+            ): Result<Unit> = Result.success(Unit)
 
             override suspend fun saveAllRestaurants(
                 eventId: String,
                 restaurants: List<Restaurant>
             ): Result<Unit> = Result.success(Unit)
 
-            override suspend fun syncRestaurants(eventId: String): Result<Unit> =
-                Result.success(Unit)
+            override suspend fun syncRestaurants(
+                eventId: String
+            ): Result<Unit> = Result.success(Unit)
 
-            override suspend fun fetchAndSaveRestaurants(event: Event): Result<Unit> =
-                Result.success(Unit)
+            override suspend fun fetchAndSaveRestaurants(
+                event: Event
+            ): Result<Unit> = Result.success(Unit)
         }
 
         mockkStatic(FirebaseAuth::class)
@@ -144,7 +148,9 @@ class PlaceVotingFlowTest {
         every { baseMockRepository.observeEventById(testEventId) } returns flowOf(testEvent)
         every { baseMockRepository.getEventById(testEventId) } returns flowOf(testEvent)
         coEvery { baseMockRepository.hasRestaurantCandidates(testEventId) } returns true
-        coEvery { baseMockRepository.getRestaurantsOnce(testEventId, any(), any()) } returns listOf(testRestaurant)
+        coEvery {
+            baseMockRepository.getRestaurantsOnce(testEventId, any(), any())
+        } returns listOf(testRestaurant)
         every { baseMockRepository.observeSubmissions(testEventId) } returns flowOf(listOf(testParticipant))
         every { baseMockRepository.observeRestaurantVotes(testEventId) } returns flowOf(emptyList())
         coEvery { baseMockRepository.hasUserSubmittedAvailability(testEventId, testUserId) } returns true
@@ -183,14 +189,16 @@ class PlaceVotingFlowTest {
 
         // 1. Participant Dashboard
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithText("VOTE12", substring = true).fetchSemanticsNodes().isNotEmpty()
+            composeTestRule.onAllNodesWithText("VOTE12", substring = true)
+                .fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.onNodeWithText("Event Code: VOTE12").assertIsDisplayed()
         composeTestRule.onNodeWithText("Vote Time & Place").performClick()
 
         // 2. DateAndAreaPage (Step 1)
         composeTestRule.waitUntil(timeoutMillis = 10000) {
-            composeTestRule.onAllNodesWithText("Choose a date, time & area").fetchSemanticsNodes().isNotEmpty()
+            composeTestRule.onAllNodesWithText("Choose a date, time & area")
+                .fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.onNodeWithText("Choose a date, time & area").assertIsDisplayed()
 
@@ -199,14 +207,16 @@ class PlaceVotingFlowTest {
 
         // 3. PlaceListPage (Step 2)
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithText("Test Restaurant").fetchSemanticsNodes().isNotEmpty()
+            composeTestRule.onAllNodesWithText("Test Restaurant")
+                .fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.onNodeWithText("Test Restaurant").assertIsDisplayed()
         composeTestRule.onNodeWithText("Test Restaurant").performClick()
 
         // 4. PlaceDetailsPage (Step 3)
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithText("Vote for this restaurant").fetchSemanticsNodes().isNotEmpty()
+            composeTestRule.onAllNodesWithText("Vote for this restaurant")
+                .fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.onNodeWithText("Test Restaurant").assertIsDisplayed()
 
@@ -216,11 +226,14 @@ class PlaceVotingFlowTest {
         // 5. Back to Dashboard (Success)
         // Wait for the navigation to complete and the dashboard to show the welcome message
         composeTestRule.waitUntil(timeoutMillis = 20000) {
-            composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true).fetchSemanticsNodes().isNotEmpty()
+            composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true)
+                .fetchSemanticsNodes().isNotEmpty()
         }
 
         // Verify we are back and the correct user is welcomed
-        composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true).onFirst().assertIsDisplayed()
-        composeTestRule.onAllNodesWithText("Event Code: VOTE12", substring = true).onFirst().assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true)
+            .onFirst().assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Event Code: VOTE12", substring = true)
+            .onFirst().assertIsDisplayed()
     }
 }
