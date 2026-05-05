@@ -69,7 +69,6 @@ private fun toMinutes(time: String): Int {
     return hours * 60 + minutes
 }
 
-
 /**
  * Edit Time Slot Page
  *
@@ -89,16 +88,18 @@ fun EditTimeSlotScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    val startTime = remember {
-        mutableStateOf(
-            if (index >= 0) uiState.timeSlots[index].start else "13:00",
-        )
-    }
-    val endTime = remember {
-        mutableStateOf(
-            if (index >= 0) uiState.timeSlots[index].end else "16:00",
-        )
-    }
+    val startTime =
+        remember {
+            mutableStateOf(
+                if (index >= 0) uiState.timeSlots[index].start else "13:00",
+            )
+        }
+    val endTime =
+        remember {
+            mutableStateOf(
+                if (index >= 0) uiState.timeSlots[index].end else "16:00",
+            )
+        }
     val showPickerType = remember { mutableStateOf<String?>(null) }
 
     EditTimeSlotContent(
@@ -110,8 +111,11 @@ fun EditTimeSlotScreen(
         onEndTimeClick = { showPickerType.value = "end" },
         onDismissPicker = { showPickerType.value = null },
         onConfirmTime = { formattedTime ->
-            if (showPickerType.value == "start") startTime.value = formattedTime
-            else endTime.value = formattedTime
+            if (showPickerType.value == "start") {
+                startTime.value = formattedTime
+            } else {
+                endTime.value = formattedTime
+            }
             showPickerType.value = null
         },
         onBack = onBack,
@@ -231,7 +235,7 @@ fun EditTimeSlotContent(
                     val formatted = String.format(Locale.US, "%02d:%02d", state.hour, state.minute)
                     onConfirmTime(formatted)
                 },
-                onDismiss = onDismissPicker
+                onDismiss = onDismissPicker,
             )
         }
 

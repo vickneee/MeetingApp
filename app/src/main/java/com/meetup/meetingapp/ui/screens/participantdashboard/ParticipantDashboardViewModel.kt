@@ -196,7 +196,7 @@ class ParticipantDashboardViewModel(
         ) {
             makeEventFinalizedNotification(
                 message = context.getString(R.string.event_finalized_message),
-                context = context
+                context = context,
             )
         }
     }

@@ -46,13 +46,14 @@ class EventCreationFlowTest {
         mockEventRepository = mockk(relaxed = true)
         mockUserRepository = mockk(relaxed = true)
 
-        val testEvent = Event(
-            id = "test_event_id",
-            eventCode = "ABCDEF",
-            eventKey = "12345",
-            hostName = "Bobby",
-            hostId = "test_user_id"
-        )
+        val testEvent =
+            Event(
+                id = "test_event_id",
+                eventCode = "ABCDEF",
+                eventKey = "12345",
+                hostName = "Bobby",
+                hostId = "test_user_id",
+            )
 
         // 3. Define mock behavior for the repository
         every { mockEventRepository.getCitiesByCountry(any()) } returns flowOf(listOf("Helsinki", "Tampere", "Espoo"))
@@ -68,7 +69,7 @@ class EventCreationFlowTest {
 
         // 4. Mock the event creation response
         coEvery { mockEventRepository.createEvent(any()) } returns
-                Triple("ABCDEF", "12345", "test_event_id")
+            Triple("ABCDEF", "12345", "test_event_id")
 
         // 5. Replace the real container with a test container providing mocks
         app.container =

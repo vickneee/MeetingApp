@@ -22,9 +22,8 @@ import com.meetup.meetingapp.utils.makeSubmissionReminderNotification
  */
 class SubmissionCheckWorker(
     context: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
 ) : CoroutineWorker(context, workerParams) {
-
     override suspend fun doWork(): Result {
         try {
             val eventId = inputData.getString("eventId") ?: return Result.failure()
@@ -37,13 +36,13 @@ class SubmissionCheckWorker(
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                     ContextCompat.checkSelfPermission(
                         applicationContext,
-                        Manifest.permission.POST_NOTIFICATIONS
+                        Manifest.permission.POST_NOTIFICATIONS,
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
                     makeSubmissionReminderNotification(
                         title = NOTIFICATION_TITLE_HOST,
                         message = applicationContext.getString(R.string.time_to_close_voting),
-                        applicationContext
+                        applicationContext,
                     )
                 } else {
                     Log.d(TAG, "Notification permission not granted")

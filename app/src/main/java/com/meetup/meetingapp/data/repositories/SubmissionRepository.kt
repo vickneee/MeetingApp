@@ -4,7 +4,6 @@ package com.meetup.meetingapp.data.repositories
  * Repository interface for managing background submission checks.
  */
 interface SubmissionRepository {
-
     /**
      * Schedules a background WorkManager task to check if all participants
      * have submitted for the given event.

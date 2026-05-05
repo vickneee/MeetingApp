@@ -115,10 +115,8 @@ fun CreatingEventPage(
             onSave = { range ->
                 viewModel.updateDateRange(range.first, range.second)
                 closeModal()
-            }
-
+            },
         )
-
     }
 }
 
