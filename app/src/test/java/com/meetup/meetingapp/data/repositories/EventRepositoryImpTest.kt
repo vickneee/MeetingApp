@@ -11,8 +11,10 @@ import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.model.Vote
 import com.meetup.meetingapp.ui.screens.eventcreation.EventUiState
+import com.meetup.meetingapp.ui.screens.participantinput.ParticipantInputState
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.verify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -30,6 +32,7 @@ class EventRepositoryImpTest {
     private val mockEventDao = mockk<EventDao>(relaxed = true)
     private val mockUserRepo = mockk<UserRepository>(relaxed = true)
     private val mockCityDao = mockk<com.meetup.meetingapp.data.db.daos.CityDao>(relaxed = true)
+    private val mockAuth = mockk<com.google.firebase.auth.FirebaseAuth>(relaxed = true)
 
     private val repo =
         EventRepositoryImp(
@@ -40,7 +43,7 @@ class EventRepositoryImpTest {
             participantResponseDao = mockk(relaxed = true),
             restaurantDao = mockk(relaxed = true),
             placesRepository = mockk(relaxed = true),
-            auth = mockk(relaxed = true),
+            auth = mockAuth,
         )
 
     @Test
@@ -363,4 +366,86 @@ class EventRepositoryImpTest {
 
             unmockkStatic("kotlinx.coroutines.tasks.TasksKt")
         }
+
+    @Test
+    fun `createParticipantAvailability success stores response to firestore`() = runTest {
+        // 1. Setup Auth
+        val mockUser = mockk<com.google.firebase.auth.FirebaseUser>()
+        every { mockAuth.currentUser } returns mockUser
+        every { mockUser.uid } returns "test_user_456"
+
+        // 2. Setup Task Mock
+        val mockTask = mockk<com.google.android.gms.tasks.Task<Void>>(relaxed = true)
+        mockkStatic("kotlinx.coroutines.tasks.TasksKt")
+
+        // Force the task to appear completed immediately
+        every { mockTask.isComplete } returns true
+        every { mockTask.isSuccessful } returns true
+        coEvery { mockTask.await() } returns mockk<Void>()
+
+        // 3. THE "DEEP MOCK": Catch the chain regardless of exact path calls
+        // This mocks db.collection(...).document(...).collection(...).document(...).set(...)
+        every {
+            mockDb.collection(any())
+                .document(any())
+                .collection(any())
+                .document(any())
+                .set(any())
+        } returns mockTask
+
+        val input = ParticipantInputState(
+            eventId = "event_abc",
+            participantName = "Bob",
+            selectedLocations = listOf("Helsinki")
+        )
+
+        // 4. Act
+        val result = repo.createParticipantAvailability(input)
+
+        // 5. Assert
+        assertTrue("Error message: ${result.exceptionOrNull()?.message}", result.isSuccess)
+
+        unmockkStatic("kotlinx.coroutines.tasks.TasksKt")
+    }
+
+    @Test
+    fun `createParticipantAvailability returns failure when user not logged in`() = runTest {
+        // Mock current user as null
+        every { mockAuth.currentUser } returns null
+
+        val input = ParticipantInputState(
+            eventId = "any_id",
+            participantName = "Bob"
+        )
+
+        // Act
+        val result = repo.createParticipantAvailability(input)
+
+        // Assert
+        assertTrue("Result should be failure", result.isFailure)
+        assertEquals("User is not logged in", result.exceptionOrNull()?.message)
+
+        // Verify Firestore was never called
+        verify(exactly = 0) { mockDb.collection(any()) }
+    }
+
+    @Test
+    fun `createParticipantAvailability returns failure when firestore fails`() = runTest {
+        // Setup Auth
+        val mockUser = mockk<com.google.firebase.auth.FirebaseUser>()
+        every { mockAuth.currentUser } returns mockUser
+        every { mockUser.uid } returns "test_user_456"
+
+        // Mock firestore to throw exception
+        every { mockDb.collection(any()) } throws Exception("Firestore Error")
+
+        val input = ParticipantInputState(eventId = "id", participantName = "Bob")
+
+        // Act
+        val result = repo.createParticipantAvailability(input)
+
+        // Assert
+        assertTrue(result.isFailure)
+        assertEquals("Firestore Error", result.exceptionOrNull()?.message)
+    }
 }
