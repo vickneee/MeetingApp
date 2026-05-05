@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>EventRepositoryImp</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    Meeting App
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":app/release">release</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":app/release"
+                                       data-filter=":app/release"/>
+                                <span class="checkbox--icon"></span>
+                                release
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    Meeting App
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="Meeting App::com.meetup.meetingapp.data.repositories/EventRepositoryImp///PointingToDeclaration//-865142711">
+  <div class="breadcrumbs"><a href="../../../index.html">Meeting App</a><span class="delimiter">/</span><a href="../index.html">com.meetup.meetingapp.data.repositories</a><span class="delimiter">/</span><span class="current">EventRepositoryImp</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Event</span><wbr></wbr><span>Repository</span><wbr></wbr><span><span>Imp</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">EventRepositoryImp</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">db<span class="token operator">: </span><span data-unresolved-link="com.google.firebase.firestore/FirebaseFirestore///PointingToDeclaration/">FirebaseFirestore</span><span class="token punctuation">, </span></span><span class="parameter ">userRepository<span class="token operator">: </span><a href="../-user-repository/index.html">UserRepository</a><span class="token punctuation">, </span></span><span class="parameter ">eventDao<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.db.daos/-event-dao/index.html">EventDao</a><span class="token punctuation">, </span></span><span class="parameter ">cityDao<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.db.daos/-city-dao/index.html">CityDao</a><span class="token punctuation">, </span></span><span class="parameter ">participantResponseDao<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.db.daos/-participant-response-dao/index.html">ParticipantResponseDao</a><span class="token punctuation">, </span></span><span class="parameter ">restaurantDao<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.db.daos/-restaurant-dao/index.html">RestaurantDao</a><span class="token punctuation">, </span></span><span class="parameter ">placesRepository<span class="token operator">: </span><a href="../-places-repository/index.html">PlacesRepository</a><span class="token punctuation">, </span></span><span class="parameter ">auth<span class="token operator">: </span><span data-unresolved-link="com.google.firebase.auth/FirebaseAuth///PointingToDeclaration/">FirebaseAuth</span></span></span><span class="token punctuation">)</span> : <a href="../-event-repository/index.html">EventRepository</a></div><p class="paragraph">Implementation of <a href="../-event-repository/index.html">EventRepository</a> responsible for creating events and storing them in Cloud Firestore.</p><p class="paragraph">This class also coordinates with <a href="../-user-repository/index.html">UserRepository</a> to update the host's created event list after a successful event creation.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="tableheader">Constructors</h2>
+        <div class="table"><a data-name="391306586%2FConstructors%2F-865142711" anchor-label="EventRepositoryImp" id="391306586%2FConstructors%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-togglable="CONSTRUCTOR" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-event-repository-imp.html"><span>Event</span><wbr></wbr><span>Repository</span><wbr></wbr><span><span>Imp</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="391306586%2FConstructors%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">db<span class="token operator">: </span><span data-unresolved-link="com.google.firebase.firestore/FirebaseFirestore///PointingToDeclaration/">FirebaseFirestore</span><span class="token punctuation">, </span></span><span class="parameter ">userRepository<span class="token operator">: </span><a href="../-user-repository/index.html">UserRepository</a><span class="token punctuation">, </span></span><span class="parameter ">eventDao<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.db.daos/-event-dao/index.html">EventDao</a><span class="token punctuation">, </span></span><span class="parameter ">cityDao<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.db.daos/-city-dao/index.html">CityDao</a><span class="token punctuation">, </span></span><span class="parameter ">participantResponseDao<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.db.daos/-participant-response-dao/index.html">ParticipantResponseDao</a><span class="token punctuation">, </span></span><span class="parameter ">restaurantDao<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.db.daos/-restaurant-dao/index.html">RestaurantDao</a><span class="token punctuation">, </span></span><span class="parameter ">placesRepository<span class="token operator">: </span><a href="../-places-repository/index.html">PlacesRepository</a><span class="token punctuation">, </span></span><span class="parameter ">auth<span class="token operator">: </span><span data-unresolved-link="com.google.firebase.auth/FirebaseAuth///PointingToDeclaration/">FirebaseAuth</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="TYPE">
+        <h2 class="tableheader">Types</h2>
+        <div class="table"><a data-name="368606786%2FClasslikes%2F-865142711" anchor-label="AggregatedCandidates" id="368606786%2FClasslikes%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-aggregated-candidates/index.html"><span>Aggregated</span><wbr></wbr><span><span>Candidates</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="368606786%2FClasslikes%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-aggregated-candidates/index.html">AggregatedCandidates</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>dateTimeCandidates<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-date-time/index.html">DateTime</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>locationCandidates<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>placeTypeCandidates<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-place-type/index.html">PlaceType</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>foodCategoryCandidates<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-food-category/index.html">FoodCategory</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="1785144807%2FFunctions%2F-865142711" anchor-label="aggregateCandidatesFromResponses" id="1785144807%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="aggregate-candidates-from-responses.html"><span>aggregate</span><wbr></wbr><span>Candidates</span><wbr></wbr><span>From</span><wbr></wbr><span><span>Responses</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1785144807%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">fun </span><a href="aggregate-candidates-from-responses.html"><span class="token function">aggregateCandidatesFromResponses</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">responses<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-participant-response/index.html">ParticipantResponse</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-aggregated-candidates/index.html">EventRepositoryImp.AggregatedCandidates</a></div><div class="brief "><p class="paragraph">Computes the top‑voted candidates for each category from a list of participant responses.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-450340150%2FFunctions%2F-865142711" anchor-label="aggregateParticipantResponses" id="-450340150%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="aggregate-participant-responses.html"><span>aggregate</span><wbr></wbr><span>Participant</span><wbr></wbr><span><span>Responses</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-450340150%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="aggregate-participant-responses.html"><span class="token function">aggregateParticipantResponses</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-result/index.html">Result</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Fetches all participant responses for the given event, aggregates their selections, and updates the event document with the majority‑voted candidates.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1842409681%2FFunctions%2F-865142711" anchor-label="aggregateRestaurantVotes" id="-1842409681%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="aggregate-restaurant-votes.html"><span>aggregate</span><wbr></wbr><span>Restaurant</span><wbr></wbr><span><span>Votes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1842409681%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="aggregate-restaurant-votes.html"><span class="token function">aggregateRestaurantVotes</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-result/index.html">Result</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Aggregates restaurant votes for the given event and updates the event document with the final selected place and time.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-233858472%2FFunctions%2F-865142711" anchor-label="createEvent" id="-233858472%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="create-event.html"><span>create</span><wbr></wbr><span><span>Event</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-233858472%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="create-event.html"><span class="token function">createEvent</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventValues<span class="token operator">: </span><a href="../../com.meetup.meetingapp.ui.screens.eventcreation/-event-ui-state/index.html">EventUiState</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-triple/index.html">Triple</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Creates a new event in Firestore and returns the generated event code and event key.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2032589951%2FFunctions%2F-865142711" anchor-label="createParticipantAvailability" id="-2032589951%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="create-participant-availability.html"><span>create</span><wbr></wbr><span>Participant</span><wbr></wbr><span><span>Availability</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2032589951%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="create-participant-availability.html"><span class="token function">createParticipantAvailability</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">participantInput<span class="token operator">: </span><a href="../../com.meetup.meetingapp.ui.screens.participantinput/-participant-input-state/index.html">ParticipantInputState</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-result/index.html">Result</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Stores the participant's availability and preferences in Firestore.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-232424382%2FFunctions%2F-865142711" anchor-label="fetchAndSaveRestaurants" id="-232424382%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="fetch-and-save-restaurants.html"><span>fetch</span><wbr></wbr><span>And</span><wbr></wbr><span>Save</span><wbr></wbr><span><span>Restaurants</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-232424382%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="fetch-and-save-restaurants.html"><span class="token function">fetchAndSaveRestaurants</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">event<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.model/-event/index.html">Event</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-result/index.html">Result</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Orchestrates the discovery of restaurant candidates based on participant preferences.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1536500503%2FFunctions%2F-865142711" anchor-label="getCitiesByCountry" id="1536500503%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-cities-by-country.html"><span>get</span><wbr></wbr><span>Cities</span><wbr></wbr><span>By</span><wbr></wbr><span><span>Country</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1536500503%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-cities-by-country.html"><span class="token function">getCitiesByCountry</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">country<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.model/-country-option/index.html">CountryOption</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Retrieves a list of cities from the local Room database.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1332540760%2FFunctions%2F-865142711" anchor-label="getEventByEventCode" id="1332540760%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-event-by-event-code.html"><span>get</span><wbr></wbr><span>Event</span><wbr></wbr><span>By</span><wbr></wbr><span>Event</span><wbr></wbr><span><span>Code</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1332540760%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-event-by-event-code.html"><span class="token function">getEventByEventCode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventCode<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-event/index.html">Event</a><span class="token operator">?</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Retrieves an event by its event code from the local Room database.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1469061640%2FFunctions%2F-865142711" anchor-label="getEventById" id="-1469061640%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-event-by-id.html"><span>get</span><wbr></wbr><span>Event</span><wbr></wbr><span>By</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1469061640%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-event-by-id.html"><span class="token function">getEventById</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-event/index.html">Event</a><span class="token operator">?</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Retrieves an event by its ID from the local Room database.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="287214537%2FFunctions%2F-865142711" anchor-label="getEvents" id="287214537%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-events.html"><span>get</span><wbr></wbr><span><span>Events</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="287214537%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-events.html"><span class="token function">getEvents</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-event/index.html">Event</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Retrieves a list of events from the local Room database.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1491193253%2FFunctions%2F-865142711" anchor-label="getParticipantResponse" id="1491193253%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-participant-response.html"><span>get</span><wbr></wbr><span>Participant</span><wbr></wbr><span><span>Response</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1491193253%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="get-participant-response.html"><span class="token function">getParticipantResponse</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">userId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.model/-participant-response/index.html">ParticipantResponse</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">Retrieves the participant response for a specific user and event.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1557757059%2FFunctions%2F-865142711" anchor-label="getRestaurants" id="1557757059%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-restaurants.html"><span>get</span><wbr></wbr><span><span>Restaurants</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1557757059%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-restaurants.html"><span class="token function">getRestaurants</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">targetTime<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.model/-date-time/index.html">DateTime</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">lat<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-double/index.html">Double</a><span class="token operator"> = </span><span class="token constant">0.0</span><span class="token punctuation">, </span></span><span class="parameter ">lng<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-double/index.html">Double</a><span class="token operator"> = </span><span class="token constant">0.0</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-restaurant/index.html">Restaurant</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Retrieves a reactive stream of restaurants associated with a specific event.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1638911758%2FFunctions%2F-865142711" anchor-label="getRestaurantsByLocation" id="1638911758%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-restaurants-by-location.html"><span>get</span><wbr></wbr><span>Restaurants</span><wbr></wbr><span>By</span><wbr></wbr><span><span>Location</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1638911758%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-restaurants-by-location.html"><span class="token function">getRestaurantsByLocation</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">location<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-restaurant/index.html">Restaurant</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Retrieves a list of restaurants for a given location.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1667599628%2FFunctions%2F-865142711" anchor-label="getRestaurantsOnce" id="1667599628%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-restaurants-once.html"><span>get</span><wbr></wbr><span>Restaurants</span><wbr></wbr><span><span>Once</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1667599628%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="get-restaurants-once.html"><span class="token function">getRestaurantsOnce</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">targetTime<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.model/-date-time/index.html">DateTime</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">forceRefresh<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-restaurant/index.html">Restaurant</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Retrieves a list of restaurants for a given location.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="328248137%2FFunctions%2F-865142711" anchor-label="getUserVote" id="328248137%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-user-vote.html"><span>get</span><wbr></wbr><span>User</span><wbr></wbr><span><span>Vote</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="328248137%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="get-user-vote.html"><span class="token function">getUserVote</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">placeId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">userId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">dateTime<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.model/-date-time/index.html">DateTime</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-result/index.html">Result</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Checks whether the user has already submitted a vote for the given restaurant and time slot.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="468679238%2FFunctions%2F-865142711" anchor-label="hasAnyRestaurantVotes" id="468679238%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="has-any-restaurant-votes.html"><span>has</span><wbr></wbr><span>Any</span><wbr></wbr><span>Restaurant</span><wbr></wbr><span><span>Votes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="468679238%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="has-any-restaurant-votes.html"><span class="token function">hasAnyRestaurantVotes</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Checks if there are any restaurant votes for the given event.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1309894963%2FFunctions%2F-865142711" anchor-label="hasRestaurantCandidates" id="1309894963%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="has-restaurant-candidates.html"><span>has</span><wbr></wbr><span>Restaurant</span><wbr></wbr><span><span>Candidates</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1309894963%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="has-restaurant-candidates.html"><span class="token function">hasRestaurantCandidates</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Checks whether the event already has at least one restaurant candidate stored in Firestore.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1991753224%2FFunctions%2F-865142711" anchor-label="hasUserSubmittedAvailability" id="-1991753224%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="has-user-submitted-availability.html"><span>has</span><wbr></wbr><span>User</span><wbr></wbr><span>Submitted</span><wbr></wbr><span><span>Availability</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1991753224%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="has-user-submitted-availability.html"><span class="token function">hasUserSubmittedAvailability</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">userId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Checks if the user has submitted availability for the given event.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="492945493%2FFunctions%2F-865142711" anchor-label="hasUserVotedInEvent" id="492945493%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="has-user-voted-in-event.html"><span>has</span><wbr></wbr><span>User</span><wbr></wbr><span>Voted</span><wbr></wbr><span>In</span><wbr></wbr><span><span>Event</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="492945493%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="has-user-voted-in-event.html"><span class="token function">hasUserVotedInEvent</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">userId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">timings<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-date-time/index.html">DateTime</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Retrieves a list of restaurants for a given location.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-906614650%2FFunctions%2F-865142711" anchor-label="isAllSubmitted" id="-906614650%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-all-submitted.html"><span>is</span><wbr></wbr><span>All</span><wbr></wbr><span><span>Submitted</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-906614650%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="is-all-submitted.html"><span class="token function">isAllSubmitted</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Checks if all participants have submitted vote for the given event.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="975020530%2FFunctions%2F-865142711" anchor-label="observeEventById" id="975020530%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="observe-event-by-id.html"><span>observe</span><wbr></wbr><span>Event</span><wbr></wbr><span>By</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="975020530%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="observe-event-by-id.html"><span class="token function">observeEventById</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-event/index.html">Event</a><span class="token operator">?</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Retrieves an event by its ID from Firestore and updates the local Room database.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1392098207%2FFunctions%2F-865142711" anchor-label="observeParticipantResponse" id="1392098207%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="observe-participant-response.html"><span>observe</span><wbr></wbr><span>Participant</span><wbr></wbr><span><span>Response</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1392098207%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="observe-participant-response.html"><span class="token function">observeParticipantResponse</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">userId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-participant-response/index.html">ParticipantResponse</a><span class="token operator">?</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Observes the participant response for a specific user and event in real-time.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2014540110%2FFunctions%2F-865142711" anchor-label="observeRestaurantVotes" id="-2014540110%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="observe-restaurant-votes.html"><span>observe</span><wbr></wbr><span>Restaurant</span><wbr></wbr><span><span>Votes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2014540110%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="observe-restaurant-votes.html"><span class="token function">observeRestaurantVotes</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-vote/index.html">Vote</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Observes restaurant votes for the given event and returns a list of <a href="../../com.meetup.meetingapp.data.model/-vote/index.html">Vote</a> objects.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1876917005%2FFunctions%2F-865142711" anchor-label="observeSubmissions" id="1876917005%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="observe-submissions.html"><span>observe</span><wbr></wbr><span><span>Submissions</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1876917005%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="observe-submissions.html"><span class="token function">observeSubmissions</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-participant-response/index.html">ParticipantResponse</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Retrieves participant responses from Firestore and updates the local Room database.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-592191550%2FFunctions%2F-865142711" anchor-label="pickWinningPlace" id="-592191550%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="pick-winning-place.html"><span>pick</span><wbr></wbr><span>Winning</span><wbr></wbr><span><span>Place</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-592191550%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">fun </span><a href="pick-winning-place.html"><span class="token function">pickWinningPlace</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">voteCounts<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph">Determines the winning placeId based on vote counts.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="798788946%2FFunctions%2F-865142711" anchor-label="pickWinningTime" id="798788946%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="pick-winning-time.html"><span>pick</span><wbr></wbr><span>Winning</span><wbr></wbr><span><span>Time</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="798788946%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">fun </span><a href="pick-winning-time.html"><span class="token function">pickWinningTime</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">votes<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-vote/index.html">Vote</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.model/-date-time/index.html">DateTime</a></div><div class="brief "><p class="paragraph">Determines the winning DateTime from a list of votes.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1861165628%2FFunctions%2F-865142711" anchor-label="resolveUserName" id="-1861165628%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="resolve-user-name.html"><span>resolve</span><wbr></wbr><span>User</span><wbr></wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1861165628%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">fun </span><a href="resolve-user-name.html"><span class="token function">resolveUserName</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">participantResponse<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.model/-participant-response/index.html">ParticipantResponse</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">event<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.model/-event/index.html">Event</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">currentUserName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">userId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph">Resolves the appropriate display name for a user when submitting a vote.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-659219372%2FFunctions%2F-865142711" anchor-label="saveAllRestaurants" id="-659219372%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="save-all-restaurants.html"><span>save</span><wbr></wbr><span>All</span><wbr></wbr><span><span>Restaurants</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-659219372%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="save-all-restaurants.html"><span class="token function">saveAllRestaurants</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">restaurants<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../com.meetup.meetingapp.data.model/-restaurant/index.html">Restaurant</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-result/index.html">Result</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Persists discovered restaurants as individual documents within a sub-collection.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="862327094%2FFunctions%2F-865142711" anchor-label="submitVote" id="862327094%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="submit-vote.html"><span>submit</span><wbr></wbr><span><span>Vote</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="862327094%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="submit-vote.html"><span class="token function">submitVote</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">placeId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">userId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">dateTime<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.model/-date-time/index.html">DateTime</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-result/index.html">Result</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Submits a vote for a specific restaurant and date-time within an event.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1611882654%2FFunctions%2F-865142711" anchor-label="syncCities" id="1611882654%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="sync-cities.html"><span>sync</span><wbr></wbr><span><span>Cities</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1611882654%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="sync-cities.html"><span class="token function">syncCities</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Retrieves a list of cities from the local Room database.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-369706368%2FFunctions%2F-865142711" anchor-label="syncEventByEventCodeAndKey" id="-369706368%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="sync-event-by-event-code-and-key.html"><span>sync</span><wbr></wbr><span>Event</span><wbr></wbr><span>By</span><wbr></wbr><span>Event</span><wbr></wbr><span>Code</span><wbr></wbr><span>And</span><wbr></wbr><span><span>Key</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-369706368%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="sync-event-by-event-code-and-key.html"><span class="token function">syncEventByEventCodeAndKey</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventCode<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">eventKey<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Retrieves an event by its event code and key from Firestore and updates the local Room database.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-593423107%2FFunctions%2F-865142711" anchor-label="syncEventById" id="-593423107%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="sync-event-by-id.html"><span>sync</span><wbr></wbr><span>Event</span><wbr></wbr><span>By</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-593423107%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="sync-event-by-id.html"><span class="token function">syncEventById</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Retrieves an event by its ID from the local Room database.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-788846009%2FFunctions%2F-865142711" anchor-label="syncRestaurants" id="-788846009%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="sync-restaurants.html"><span>sync</span><wbr></wbr><span><span>Restaurants</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-788846009%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="sync-restaurants.html"><span class="token function">syncRestaurants</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-result/index.html">Result</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Synchronizes restaurant candidates from Firestore into the local Room database.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1218625916%2FFunctions%2F-865142711" anchor-label="updateEventStatus" id="-1218625916%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="update-event-status.html"><span>update</span><wbr></wbr><span>Event</span><wbr></wbr><span><span>Status</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1218625916%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="update-event-status.html"><span class="token function">updateEventStatus</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">newStatus<span class="token operator">: </span><a href="../../com.meetup.meetingapp.data.model/-event-status/index.html">EventStatus</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Updates the status of an event in the database.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2026 Copyright</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

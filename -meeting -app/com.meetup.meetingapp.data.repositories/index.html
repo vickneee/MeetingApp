@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>com.meetup.meetingapp.data.repositories</title>
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer="defer"></script>
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../index.html" tabindex="1">
+                    Meeting App
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":app/release">release</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":app/release"
+                                       data-filter=":app/release"/>
+                                <span class="checkbox--icon"></span>
+                                release
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    Meeting App
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="package" id="content" pageIds="Meeting App::com.meetup.meetingapp.data.repositories////PointingToDeclaration//-865142711">
+  <div class="breadcrumbs"><a href="../../index.html">Meeting App</a><span class="delimiter">/</span><span class="current">com.meetup.meetingapp.data.repositories</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button><button class="section-tab" data-togglable="FUNCTION,EXTENSION_FUNCTION">Functions</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="tableheader">Types</h2>
+        <div class="table"><a data-name="599313209%2FClasslikes%2F-865142711" anchor-label="EventRepository" id="599313209%2FClasslikes%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-event-repository/index.html"><span>Event</span><wbr></wbr><span><span>Repository</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="599313209%2FClasslikes%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-event-repository/index.html">EventRepository</a></div><div class="brief "><p class="paragraph">Repository interface for managing event and participant-related operations.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1556282877%2FClasslikes%2F-865142711" anchor-label="EventRepositoryImp" id="1556282877%2FClasslikes%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-event-repository-imp/index.html"><span>Event</span><wbr></wbr><span>Repository</span><wbr></wbr><span><span>Imp</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1556282877%2FClasslikes%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="-event-repository-imp/index.html">EventRepositoryImp</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">db<span class="token operator">: </span><span data-unresolved-link="com.google.firebase.firestore/FirebaseFirestore///PointingToDeclaration/">FirebaseFirestore</span><span class="token punctuation">, </span></span><span class="parameter ">userRepository<span class="token operator">: </span><a href="-user-repository/index.html">UserRepository</a><span class="token punctuation">, </span></span><span class="parameter ">eventDao<span class="token operator">: </span><a href="../com.meetup.meetingapp.data.db.daos/-event-dao/index.html">EventDao</a><span class="token punctuation">, </span></span><span class="parameter ">cityDao<span class="token operator">: </span><a href="../com.meetup.meetingapp.data.db.daos/-city-dao/index.html">CityDao</a><span class="token punctuation">, </span></span><span class="parameter ">participantResponseDao<span class="token operator">: </span><a href="../com.meetup.meetingapp.data.db.daos/-participant-response-dao/index.html">ParticipantResponseDao</a><span class="token punctuation">, </span></span><span class="parameter ">restaurantDao<span class="token operator">: </span><a href="../com.meetup.meetingapp.data.db.daos/-restaurant-dao/index.html">RestaurantDao</a><span class="token punctuation">, </span></span><span class="parameter ">placesRepository<span class="token operator">: </span><a href="-places-repository/index.html">PlacesRepository</a><span class="token punctuation">, </span></span><span class="parameter ">auth<span class="token operator">: </span><span data-unresolved-link="com.google.firebase.auth/FirebaseAuth///PointingToDeclaration/">FirebaseAuth</span></span></span><span class="token punctuation">)</span> : <a href="-event-repository/index.html">EventRepository</a></div><div class="brief "><p class="paragraph">Implementation of <a href="-event-repository/index.html">EventRepository</a> responsible for creating events and storing them in Cloud Firestore.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-816974417%2FClasslikes%2F-865142711" anchor-label="PlacesRepository" id="-816974417%2FClasslikes%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-places-repository/index.html"><span>Places</span><wbr></wbr><span><span>Repository</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-816974417%2FClasslikes%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-places-repository/index.html">PlacesRepository</a></div><div class="brief "><p class="paragraph">Repository interface for fetching restaurant data from external sources, primarily the Google Places API.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1604634681%2FClasslikes%2F-865142711" anchor-label="PlacesRepositoryImp" id="-1604634681%2FClasslikes%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-places-repository-imp/index.html"><span>Places</span><wbr></wbr><span>Repository</span><wbr></wbr><span><span>Imp</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1604634681%2FClasslikes%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="-places-repository-imp/index.html">PlacesRepositoryImp</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">api<span class="token operator">: </span><a href="../com.meetup.meetingapp.network/-google-places-api-service/index.html">GooglePlacesApiService</a><span class="token punctuation">, </span></span><span class="parameter ">apiKey<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span> : <a href="-places-repository/index.html">PlacesRepository</a></div><div class="brief "><p class="paragraph">Concrete implementation of <a href="-places-repository/index.html">PlacesRepository</a> that fetches restaurant data from the Google Places API using Retrofit.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2068297553%2FClasslikes%2F-865142711" anchor-label="SubmissionRepository" id="-2068297553%2FClasslikes%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-submission-repository/index.html"><span>Submission</span><wbr></wbr><span><span>Repository</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2068297553%2FClasslikes%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-submission-repository/index.html">SubmissionRepository</a></div><div class="brief "><p class="paragraph">Repository interface for managing background submission checks.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="543950023%2FClasslikes%2F-865142711" anchor-label="SubmissionRepositoryImp" id="543950023%2FClasslikes%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-submission-repository-imp/index.html"><span>Submission</span><wbr></wbr><span>Repository</span><wbr></wbr><span><span>Imp</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="543950023%2FClasslikes%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="-submission-repository-imp/index.html">SubmissionRepositoryImp</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/content/Context.html">Context</a></span></span><span class="token punctuation">)</span> : <a href="-submission-repository/index.html">SubmissionRepository</a></div><div class="brief "><p class="paragraph">Repository implementation for managing background submission checks.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-864110896%2FClasslikes%2F-865142711" anchor-label="UserRepository" id="-864110896%2FClasslikes%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-user-repository/index.html"><span>User</span><wbr></wbr><span><span>Repository</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-864110896%2FClasslikes%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-user-repository/index.html">UserRepository</a></div><div class="brief "><p class="paragraph">Repository interface for managing user-related operations.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1393174778%2FClasslikes%2F-865142711" anchor-label="UserRepositoryImp" id="-1393174778%2FClasslikes%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-user-repository-imp/index.html"><span>User</span><wbr></wbr><span>Repository</span><wbr></wbr><span><span>Imp</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1393174778%2FClasslikes%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="-user-repository-imp/index.html">UserRepositoryImp</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">db<span class="token operator">: </span><span data-unresolved-link="com.google.firebase.firestore/FirebaseFirestore///PointingToDeclaration/">FirebaseFirestore</span><span class="token punctuation">, </span></span><span class="parameter ">userDao<span class="token operator">: </span><a href="../com.meetup.meetingapp.data.db.daos/-user-dao/index.html">UserDao</a></span></span><span class="token punctuation">)</span> : <a href="-user-repository/index.html">UserRepository</a></div><div class="brief "><p class="paragraph">Implementation of <a href="-user-repository/index.html">UserRepository</a> responsible for managing user-related operations in Cloud Firestore.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="EXTENSION_FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="-1241449714%2FFunctions%2F-865142711" anchor-label="toDayOfWeekName" id="-1241449714%2FFunctions%2F-865142711" data-filterable-set=":app/release"></a>
+          <div class="table-row table-row_content" data-filterable-current=":app/release" data-filterable-set=":app/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="to-day-of-week-name.html"><span>to</span><wbr></wbr><span>Day</span><wbr></wbr><span>Of</span><wbr></wbr><span>Week</span><wbr></wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1241449714%2FFunctions%2F-865142711"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app/release"><div class="symbol monospace"><span class="token keyword">fun </span><a href="../com.meetup.meetingapp.data.model/-date-time/index.html">DateTime</a><span class="token punctuation">.</span><a href="to-day-of-week-name.html"><span class="token function">toDayOfWeekName</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph">Converts a <a href="../com.meetup.meetingapp.data.model/-date-time/index.html">DateTime</a> into a full weekday name (e.g., &quot;Monday&quot;).</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2026 Copyright</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
