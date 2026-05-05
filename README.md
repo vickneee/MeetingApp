@@ -15,19 +15,18 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 ---
 
 ## Screenshots
-|                    Home Screen                    |                    Create Event                     |                    Event Created                     |
-|:-------------------------------------------------:|:---------------------------------------------------:|:----------------------------------------------------:|
-| <img src="docs/screenshots/home.png" width="200"> | <img src="docs/screenshots/create.png" width="200"> | <img src="docs/screenshots/created.png" width="200"> |
 
+| Home Screen | Create Event | Event Created | Event List |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/home.png" width="160"> | <img src="docs/screenshots/create.png" width="160"> | <img src="docs/screenshots/created.png" width="160"> | <img src="docs/screenshots/event_list.png" width="160"> |
 
-|                    Participant Screen                    |                    Host Screen                    |                       Event List                        |
-|:--------------------------------------------------------:|:-------------------------------------------------:|:-------------------------------------------------------:|
-| <img src="docs/screenshots/participant.png" width="200"> | <img src="docs/screenshots/host.png" width="200"> | <img src="docs/screenshots/event_list.png" width="200"> |
+| Participant Screen | Host Screen | Place List | Voting Screen |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/participant.png" width="160"> | <img src="docs/screenshots/host.png" width="160"> | <img src="docs/screenshots/place_list.png" width="160"> | <img src="docs/screenshots/vote.png" width="160"> |
 
-
-|                       Place List                        |                      Voting                       |                       Finalized                        |
-|:-------------------------------------------------------:|:-------------------------------------------------:|:------------------------------------------------------:|
-| <img src="docs/screenshots/place_list.png" width="200"> | <img src="docs/screenshots/vote.png" width="200"> | <img src="docs/screenshots/finalized.png" width="200"> |
+| Event Finalized |
+|:---:|
+| <img src="docs/screenshots/finalized.png" width="160"> |
 
 ---
 
