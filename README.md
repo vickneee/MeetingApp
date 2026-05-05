@@ -15,19 +15,14 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 ---
 
 ## Screenshots
-|                    Home Screen                    |                    Create Event                     |                    Event Created                     |
-|:-------------------------------------------------:|:---------------------------------------------------:|:----------------------------------------------------:|
-| <img src="docs/screenshots/home.png" width="250"> | <img src="docs/screenshots/create.png" width="250"> | <img src="docs/screenshots/created.png" width="250"> |
 
+| Home Screen | Create Event | Event Created | Event List | Participant Screen |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/home.png" width="150"> | <img src="docs/screenshots/create.png" width="150"> | <img src="docs/screenshots/created.png" width="150"> | <img src="docs/screenshots/event_list.png" width="150"> | <img src="docs/screenshots/participant.png" width="150"> |
 
-|                    Participant Screen                    |                    Host Screen                    |                       Event List                        |
-|:--------------------------------------------------------:|:-------------------------------------------------:|:-------------------------------------------------------:|
-| <img src="docs/screenshots/participant.png" width="250"> | <img src="docs/screenshots/host.png" width="250"> | <img src="docs/screenshots/event_list.png" width="250"> |
-
-
-|                       Place List                        |                      Voting                       |                       Finalized                        |
-|:-------------------------------------------------------:|:-------------------------------------------------:|:------------------------------------------------------:|
-| <img src="docs/screenshots/place_list.png" width="250"> | <img src="docs/screenshots/vote.png" width="250"> | <img src="docs/screenshots/finalized.png" width="250"> |
+| Host Screen | Place List | Voting Screen | Event Finalized | |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/host.png" width="150"> | <img src="docs/screenshots/place_list.png" width="150"> | <img src="docs/screenshots/vote.png" width="150"> | <img src="docs/screenshots/finalized.png" width="150"> | |
 
 ---
 
@@ -35,6 +30,7 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 You can watch the demo video on YouTube:
 [https://youtu.be/Wv6ErIDPG68](https://youtu.be/Wv6ErIDPG68)
 
+---
 
 ## Features
 
@@ -60,6 +56,33 @@ You can watch the demo video on YouTube:
 - **Static Analysis**: Detekt & Ktlint
 - **Kotlin Documentation**: Dokka
 - **API Integration**: Google Places API
+
+---
+
+## Code Architecture
+
+The project follows a clean, layered architecture to ensure separation of concerns and maintainability:
+
+```text
+app/src/main/java/com/meetup/meetingapp/
+├── data/               # Data Layer: Repositories and Data Sources
+│   ├── db/             # Local Room Database (DAOs, Entities, Mappers)
+│   ├── model/          # Domain Models and Data Classes
+│   ├── repositories/   # Repository Pattern Implementations
+│   └── AppContainer.kt # Dependency Injection / Service Locator
+├── network/            # Network Layer: Retrofit API Services (Google Places)
+├── ui/                 # UI Layer: Jetpack Compose
+│   ├── navigation/     # Navigation Graph and Route Definitions
+│   ├── screens/        # Feature-based Composables and ViewModels
+│   ├── theme/          # Material 3 Theme, Typography, and Colors
+│   └── AppViewModelProvider.kt # ViewModels Factory
+├── utils/              # Common Utilities (Formatting, Calculations)
+├── worker/             # Background Tasks using WorkManager 
+├── Constants.kt        # Global Application Constants
+├── MainActivity.kt     # Main Entry Activity (Single Activity)
+├── MeetingApp.kt       # Root Composable and NavHost Setup
+└── MeetingApplication.kt # Application Class & Dependency Initialization
+```
 
 ---
 
