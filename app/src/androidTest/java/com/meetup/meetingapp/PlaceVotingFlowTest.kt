@@ -231,9 +231,7 @@ class PlaceVotingFlowTest {
         }
 
         // Verify we are back and the correct user is welcomed
-        composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true)
-            .onFirst().assertIsDisplayed()
-        composeTestRule.onAllNodesWithText("Event Code: VOTE12", substring = true)
-            .onFirst().assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true).onFirst().assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Event Code: VOTE12", substring = true).onFirst().assertIsDisplayed()
     }
 }
