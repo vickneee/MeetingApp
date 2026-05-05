@@ -9,7 +9,6 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.navigation.compose.rememberNavController
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.firebase.firestore.FirebaseFirestore
-import com.meetup.meetingapp.MeetingApplication
 import com.meetup.meetingapp.data.AppContainer
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
@@ -52,6 +51,7 @@ class HostDashboardButtonNavigationTest {
         // Default mock setup for repositories
         every { mockEventRepository.getEvents() } returns flowOf(emptyList())
         every { mockEventRepository.observeEventById(any()) } returns flowOf(null)
+        every { mockEventRepository.getEventById(any()) } returns flowOf(null)
         every { mockEventRepository.observeSubmissions(any()) } returns flowOf(emptyList())
         every { mockEventRepository.observeRestaurantVotes(any()) } returns flowOf(emptyList())
         coEvery { mockEventRepository.hasUserSubmittedAvailability(any(), any()) } returns true
@@ -70,6 +70,7 @@ class HostDashboardButtonNavigationTest {
 
     private fun setupDashboard(event: Event, hasSubmittedAvailability: Boolean = true) {
         every { mockEventRepository.observeEventById(event.id) } returns flowOf(event)
+        every { mockEventRepository.getEventById(event.id) } returns flowOf(event)
         every { mockEventRepository.getEventByEventCode(event.eventCode) } returns flowOf(event)
         coEvery { mockEventRepository.hasUserSubmittedAvailability(event.id, any()) } returns hasSubmittedAvailability
 
@@ -105,7 +106,8 @@ class HostDashboardButtonNavigationTest {
         val testRestaurant = Restaurant(
             placeId = "res123",
             name = "Test Restaurant",
-            address = "Helsinki Center"
+            address = "Helsinki Center",
+            openingHours = listOf("Tuesday: Open 24 hours")
         )
 
         coEvery { mockEventRepository.hasRestaurantCandidates(testEvent.id) } returns true
@@ -144,7 +146,8 @@ class HostDashboardButtonNavigationTest {
             name = "Test Restaurant",
             address = "123 Test St",
             rating = 4.5,
-            userRatingCount = 100
+            userRatingCount = 100,
+            openingHours = listOf("Tuesday: Open 24 hours")
         )
 
         coEvery { mockEventRepository.hasRestaurantCandidates(testEvent.id) } returns true
