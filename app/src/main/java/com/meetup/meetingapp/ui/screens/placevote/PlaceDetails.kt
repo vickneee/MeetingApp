@@ -62,6 +62,8 @@ import com.meetup.meetingapp.utils.buildPhotoUrl
 import com.meetup.meetingapp.utils.formatPriceLevel
 import com.meetup.meetingapp.utils.getOpenLabel
 import com.meetup.meetingapp.utils.toEuroDate
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 
 /**
  * Navigation destination for the Participant MeetUp Detail screen.
@@ -119,7 +121,9 @@ fun PlaceDetailsPage(
     // Handle navigation after successful vote
     LaunchedEffect(voteResultState) {
         if (voteResultState is VoteResultState.VoteSuccess) {
-            val currentEvent = event ?: return@LaunchedEffect
+            // Ensure we have the event data before navigating.
+            // If the composition state 'event' is null, we wait for the first non-null emission from the flow.
+            val currentEvent = event ?: viewModel.event.filterNotNull().first()
             val currentUserId = viewModel.userId
 
             if (currentEvent.hostId == currentUserId) {

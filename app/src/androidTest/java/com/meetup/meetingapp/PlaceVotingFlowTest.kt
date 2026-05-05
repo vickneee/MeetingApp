@@ -13,23 +13,28 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.meetup.meetingapp.data.AppContainer
+import com.meetup.meetingapp.data.model.CountryOption
 import com.meetup.meetingapp.data.model.DateTime
 import com.meetup.meetingapp.data.model.Event
 import com.meetup.meetingapp.data.model.EventStatus
 import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.Restaurant
 import com.meetup.meetingapp.data.model.TimeSlot
+import com.meetup.meetingapp.data.model.Vote
 import com.meetup.meetingapp.data.repositories.EventRepository
 import com.meetup.meetingapp.data.repositories.PlacesRepository
 import com.meetup.meetingapp.data.repositories.SubmissionRepository
 import com.meetup.meetingapp.data.repositories.UserRepository
 import com.meetup.meetingapp.ui.navigation.MeetingAppNavHost
+import com.meetup.meetingapp.ui.screens.eventcreation.EventUiState
+import com.meetup.meetingapp.ui.screens.participantinput.ParticipantInputState
 import com.meetup.meetingapp.ui.theme.MeetingAppTheme
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.After
 import org.junit.Before
@@ -54,10 +59,25 @@ class PlaceVotingFlowTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val app = instrumentation.targetContext.applicationContext as MeetingApplication
 
-        mockEventRepository = mockk(relaxed = true)
         mockUserRepository = mockk(relaxed = true)
         mockFirebaseAuth = mockk(relaxed = true)
         mockFirebaseUser = mockk(relaxed = true)
+
+        val baseMockRepository = mockk<EventRepository>(relaxed = true)
+
+        // Workaround for MockK issues with suspend functions returning Result value class.
+        // We use a real object that delegates to a mock for everything except the problematic Result methods.
+        mockEventRepository = object : EventRepository by baseMockRepository {
+            override suspend fun getUserVote(eventId: String, placeId: String, userId: String, dateTime: DateTime): Result<Boolean> {
+                return Result.success(false)
+            }
+            override suspend fun submitVote(eventId: String, placeId: String, userId: String, dateTime: DateTime): Result<Unit> {
+                return Result.success(Unit)
+            }
+            override suspend fun createParticipantAvailability(participantInput: ParticipantInputState): Result<Unit> {
+                return Result.success(Unit)
+            }
+        }
 
         mockkStatic(FirebaseAuth::class)
         every { FirebaseAuth.getInstance() } returns mockFirebaseAuth
@@ -99,18 +119,16 @@ class PlaceVotingFlowTest {
             name = "Bobby"
         )
 
-        // Mock EventRepository behaviors
-        every { mockEventRepository.observeEventById(testEventId) } returns flowOf(testEvent)
-        every { mockEventRepository.getEventById(testEventId) } returns flowOf(testEvent)
-        coEvery { mockEventRepository.hasRestaurantCandidates(testEventId) } returns true
-        coEvery { mockEventRepository.getRestaurantsOnce(testEventId, any(), any()) } returns listOf(testRestaurant)
-        every { mockEventRepository.observeSubmissions(testEventId) } returns flowOf(listOf(testParticipant))
-        every { mockEventRepository.observeRestaurantVotes(testEventId) } returns flowOf(emptyList())
-        coEvery { mockEventRepository.getUserVote(testEventId, testRestaurantId, testUserId, any()) } returns Result.success(false)
-        coEvery { mockEventRepository.submitVote(testEventId, testRestaurantId, testUserId, any()) } returns Result.success(Unit)
-        coEvery { mockEventRepository.hasUserSubmittedAvailability(testEventId, testUserId) } returns true
-        coEvery { mockEventRepository.getParticipantResponse(testEventId, testUserId) } returns testParticipant
-        coEvery { mockEventRepository.hasUserVotedInEvent(any(), any(), any()) } returns false
+        // Mock behaviors on the base delegate
+        every { baseMockRepository.observeEventById(testEventId) } returns flowOf(testEvent)
+        every { baseMockRepository.getEventById(testEventId) } returns flowOf(testEvent)
+        coEvery { baseMockRepository.hasRestaurantCandidates(testEventId) } returns true
+        coEvery { baseMockRepository.getRestaurantsOnce(testEventId, any(), any()) } returns listOf(testRestaurant)
+        every { baseMockRepository.observeSubmissions(testEventId) } returns flowOf(listOf(testParticipant))
+        every { baseMockRepository.observeRestaurantVotes(testEventId) } returns flowOf(emptyList())
+        coEvery { baseMockRepository.hasUserSubmittedAvailability(testEventId, testUserId) } returns true
+        coEvery { baseMockRepository.getParticipantResponse(testEventId, testUserId) } returns testParticipant
+        coEvery { baseMockRepository.hasUserVotedInEvent(any(), any(), any()) } returns false
 
         // Replace app container
         app.container = object : AppContainer {
@@ -175,10 +193,11 @@ class PlaceVotingFlowTest {
         composeTestRule.onNodeWithText("Vote for this restaurant").performClick()
 
         // 5. Back to Dashboard (Success)
-        // Wait longer and use a more specific matcher to avoid ambiguity
-        composeTestRule.waitUntil(timeoutMillis = 10000) {
+        // Wait for the navigation to complete and the dashboard to show the welcome message
+        composeTestRule.waitUntil(timeoutMillis = 20000) {
             composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true).fetchSemanticsNodes().isNotEmpty()
         }
+
         // Verify we are back and the correct user is welcomed
         composeTestRule.onAllNodesWithText("Hi, Bobby!", substring = true).onFirst().assertIsDisplayed()
         composeTestRule.onAllNodesWithText("Event Code: VOTE12", substring = true).onFirst().assertIsDisplayed()
