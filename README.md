@@ -50,11 +50,11 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 - **Networking**: Retrofit & OkHttp, Gson for JSON
 - **Database**: Room (Local), Firebase Firestore (Cloud)
 - **Authentication**: Firebase Anonymous Auth
-- **Image Loading**: Coil 3 
-- **API Integration**: Google Places API
+- **Image Loading**: Coil 3
 - **Notifications**: Local Notifications via WorkManager
 - **Static Analysis**: Detekt & Ktlint
-- **Documentation**: Dokka (V2)
+- **Kotlin Documentation**: Dokka
+- **API Integration**: Google Places API
 
 ---
 
