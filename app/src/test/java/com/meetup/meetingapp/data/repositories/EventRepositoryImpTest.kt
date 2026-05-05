@@ -10,6 +10,8 @@ import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.model.Vote
+import com.meetup.meetingapp.data.model.EventStatus
+import com.meetup.meetingapp.data.model.LocationOption
 import com.meetup.meetingapp.ui.screens.eventcreation.EventUiState
 import com.meetup.meetingapp.ui.screens.participantinput.ParticipantInputState
 import io.mockk.coEvery
@@ -17,6 +19,7 @@ import io.mockk.coVerify
 import io.mockk.verify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,6 +31,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EventRepositoryImpTest {
+    private val mockPlacesRepo = mockk<PlacesRepository>(relaxed = true)
     val mockDb = mockk<com.google.firebase.firestore.FirebaseFirestore>(relaxed = true)
     private val mockEventDao = mockk<EventDao>(relaxed = true)
     private val mockUserRepo = mockk<UserRepository>(relaxed = true)
@@ -42,7 +46,7 @@ class EventRepositoryImpTest {
             cityDao = mockCityDao,
             participantResponseDao = mockk(relaxed = true),
             restaurantDao = mockk(relaxed = true),
-            placesRepository = mockk(relaxed = true),
+            placesRepository = mockPlacesRepo,
             auth = mockAuth,
         )
 
@@ -488,4 +492,67 @@ class EventRepositoryImpTest {
         assertTrue(result.locationCandidates.isEmpty())
         assertTrue(result.dateTimeCandidates.isEmpty())
     }
+
+    @Test
+    fun `fetchAndSaveRestaurants successfully processes results`() = runTest {
+        // 1. Arrange
+        val event = createTestEvent(id = "event_001")
+
+        // We create a spy of the real repository
+        val spyRepo = spyk(repo)
+
+        // Mock the external Places API via our class-level mock reference
+        coEvery {
+            mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any())
+        } returns Result.success(listOf(mockk(relaxed = true) {
+            every { placeId } returns "mock_place_id"
+        }))
+
+        // 2. Mock the interface methods called within fetchAndSaveRestaurants
+        // Since these are in the interface, we can call them directly on the spy
+        coEvery { spyRepo.saveAllRestaurants(any(), any()) } returns Result.success(Unit)
+        coEvery { spyRepo.updateEventStatus(any(), any()) } returns Unit // Match the return type in interface
+
+        // 3. Act
+        val result = spyRepo.fetchAndSaveRestaurants(event)
+
+        // 4. Assert
+        assertTrue("Orchestration should succeed", result.isSuccess)
+
+        // Verify that the status transition and save logic were triggered
+        coVerify { spyRepo.saveAllRestaurants("event_001", any()) }
+        coVerify { spyRepo.updateEventStatus("event_001", EventStatus.COLLECTING_RESTAURANT_VOTES) }
+    }
+
+    @Test
+    fun `fetchAndSaveRestaurants returns failure when no restaurants are found`() = runTest {
+        // 1. Arrange
+        val event = createTestEvent(id = "event_empty")
+
+        coEvery {
+            mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any())
+        } returns Result.success(emptyList())
+
+        // 2. Act
+        val result = repo.fetchAndSaveRestaurants(event)
+
+        // 3. Assert
+        assertTrue("Result should be failure when API returns nothing", result.isFailure)
+        assertEquals("No places found matching the criteria and timing.", result.exceptionOrNull()?.message)
+    }
+
+    private fun createTestEvent(id: String) = Event(
+        id = id,
+        locationCandidates = listOf("Helsinki"),
+        placeTypeCandidates = listOf(PlaceType.RESTAURANT),
+        // Use the Enum directly instead of a String
+        foodCategoryCandidates = listOf(FoodCategory.PIZZA),
+        dateTimeCandidates = emptyList(),
+        selectedLocationLat = 60.1699,
+        selectedLocationLng = 24.9384,
+        // Use LocationOption (singular) to match your data class
+        locationOptions = LocationOption(
+            countries = listOf("FINLAND")
+        )
+    )
 }
