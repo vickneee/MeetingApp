@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   test:
     name: Run Unit Tests
@@ -40,3 +49,29 @@ jobs:
 
       - name: Lint Code
         run: ./gradlew ktlintCheck
+
+      - name: Build docs
+        run: ./gradlew dokkaGenerate --no-daemon
+
+      - name: Debug - List build output
+        run: find . -path "*/dokka*" -type d | head -30
+
+      - name: Debug - list dokka html contents
+        run: ls -la ./app/build/dokka/html/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./app/build/dokka/html
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
