@@ -31,6 +31,11 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 
 ---
 
+## Demo Video
+You can watch the demo video on YouTube:
+[https://youtu.be/Wv6ErIDPG68](https://youtu.be/Wv6ErIDPG68)
+
+
 ## Features
 
 - **Event Creation**: Host can create events and invite others via unique codes.
