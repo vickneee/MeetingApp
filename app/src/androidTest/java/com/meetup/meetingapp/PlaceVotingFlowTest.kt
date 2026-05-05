@@ -62,17 +62,42 @@ class PlaceVotingFlowTest {
         val baseMockRepository = mockk<EventRepository>(relaxed = true)
 
         // Workaround for MockK issues with suspend functions returning Result value class.
-        // We use a real object that delegates to a mock for everything except the problematic Result methods.
+        // Implementing the methods in an anonymous object avoids dynamic proxy issues with value classes.
         mockEventRepository = object : EventRepository by baseMockRepository {
-            override suspend fun getUserVote(eventId: String, placeId: String, userId: String, dateTime: DateTime): Result<Boolean> {
-                return Result.success(false)
-            }
-            override suspend fun submitVote(eventId: String, placeId: String, userId: String, dateTime: DateTime): Result<Unit> {
-                return Result.success(Unit)
-            }
-            override suspend fun createParticipantAvailability(participantInput: ParticipantInputState): Result<Unit> {
-                return Result.success(Unit)
-            }
+            override suspend fun getUserVote(
+                eventId: String,
+                placeId: String,
+                userId: String,
+                dateTime: DateTime
+            ): Result<Boolean> = Result.success(false)
+
+            override suspend fun submitVote(
+                eventId: String,
+                placeId: String,
+                userId: String,
+                dateTime: DateTime
+            ): Result<Unit> = Result.success(Unit)
+
+            override suspend fun createParticipantAvailability(
+                participantInput: ParticipantInputState
+            ): Result<Unit> = Result.success(Unit)
+
+            override suspend fun aggregateParticipantResponses(eventId: String): Result<Unit> =
+                Result.success(Unit)
+
+            override suspend fun aggregateRestaurantVotes(eventId: String): Result<Unit> =
+                Result.success(Unit)
+
+            override suspend fun saveAllRestaurants(
+                eventId: String,
+                restaurants: List<Restaurant>
+            ): Result<Unit> = Result.success(Unit)
+
+            override suspend fun syncRestaurants(eventId: String): Result<Unit> =
+                Result.success(Unit)
+
+            override suspend fun fetchAndSaveRestaurants(event: Event): Result<Unit> =
+                Result.success(Unit)
         }
 
         mockkStatic(FirebaseAuth::class)
@@ -148,7 +173,7 @@ class PlaceVotingFlowTest {
             MeetingAppTheme {
                 val navController = rememberNavController()
                 MeetingAppNavHost(navController = navController)
-                
+
                 // Directly navigate to Participant Dashboard for the test event
                 LaunchedEffect(Unit) {
                     navController.navigate("participant_dashboard_waiting/$testEventId")
@@ -168,7 +193,7 @@ class PlaceVotingFlowTest {
             composeTestRule.onAllNodesWithText("Choose a date, time & area").fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.onNodeWithText("Choose a date, time & area").assertIsDisplayed()
-        
+
         // Use a more flexible matcher for the option
         composeTestRule.onNodeWithText("Helsinki", substring = true).performClick()
 
@@ -184,7 +209,7 @@ class PlaceVotingFlowTest {
             composeTestRule.onAllNodesWithText("Vote for this restaurant").fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.onNodeWithText("Test Restaurant").assertIsDisplayed()
-        
+
         // Perform Vote
         composeTestRule.onNodeWithText("Vote for this restaurant").performClick()
 
