@@ -541,6 +541,56 @@ class EventRepositoryImpTest {
         assertEquals("No places found matching the criteria and timing.", result.exceptionOrNull()?.message)
     }
 
+    @Test
+    fun `fetchAndSaveRestaurants returns failure when coordinates are missing`() = runTest {
+        // 1. Arrange
+        val event = createTestEvent(id = "event_null_coordinates").copy(
+            selectedLocationLat = null,
+            selectedLocationLng = null
+        )
+
+        coEvery {
+            mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any())
+        } returns Result.failure(Exception("Coordinates missing"))
+
+        // 2. Act
+        val result = repo.fetchAndSaveRestaurants(event)
+
+        // 3. Assert
+        assertTrue(result.isFailure)
+    }
+
+    @Test
+    fun `fetchAndSaveRestaurants returns custom generic failure when API call fails`() = runTest {
+        val event = createTestEvent(id = "event_api_fail")
+
+        coEvery {
+            mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any())
+        } returns Result.failure(Exception("Any random network error"))
+
+        val result = repo.fetchAndSaveRestaurants(event)
+
+        assertTrue(result.isFailure)
+        assertEquals("No places found matching the criteria and timing.", result.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun `fetchAndSaveRestaurants completes all required steps`() = runTest {
+        val event = createTestEvent(id = "event_001")
+        val spyRepo = spyk(repo)
+
+        coEvery { mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any()) } returns
+                Result.success(listOf(mockk(relaxed = true)))
+        coEvery { spyRepo.saveAllRestaurants(any(), any()) } returns Result.success(Unit)
+        coEvery { spyRepo.updateEventStatus(any(), any()) } returns Unit
+
+        spyRepo.fetchAndSaveRestaurants(event)
+
+        coVerify(atLeast = 1) { mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { spyRepo.saveAllRestaurants(event.id, any()) }
+        coVerify(exactly = 1) { spyRepo.updateEventStatus(event.id, EventStatus.COLLECTING_RESTAURANT_VOTES) }
+    }
+
     private fun createTestEvent(id: String) = Event(
         id = id,
         locationCandidates = listOf("Helsinki"),
