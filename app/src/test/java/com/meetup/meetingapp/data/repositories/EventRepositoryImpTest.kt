@@ -10,11 +10,16 @@ import com.meetup.meetingapp.data.model.ParticipantResponse
 import com.meetup.meetingapp.data.model.PlaceType
 import com.meetup.meetingapp.data.model.TimeSlot
 import com.meetup.meetingapp.data.model.Vote
+import com.meetup.meetingapp.data.model.EventStatus
+import com.meetup.meetingapp.data.model.LocationOption
 import com.meetup.meetingapp.ui.screens.eventcreation.EventUiState
+import com.meetup.meetingapp.ui.screens.participantinput.ParticipantInputState
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.verify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,10 +31,12 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EventRepositoryImpTest {
+    private val mockPlacesRepo = mockk<PlacesRepository>(relaxed = true)
     val mockDb = mockk<com.google.firebase.firestore.FirebaseFirestore>(relaxed = true)
     private val mockEventDao = mockk<EventDao>(relaxed = true)
     private val mockUserRepo = mockk<UserRepository>(relaxed = true)
     private val mockCityDao = mockk<com.meetup.meetingapp.data.db.daos.CityDao>(relaxed = true)
+    private val mockAuth = mockk<com.google.firebase.auth.FirebaseAuth>(relaxed = true)
 
     private val repo =
         EventRepositoryImp(
@@ -39,8 +46,8 @@ class EventRepositoryImpTest {
             cityDao = mockCityDao,
             participantResponseDao = mockk(relaxed = true),
             restaurantDao = mockk(relaxed = true),
-            placesRepository = mockk(relaxed = true),
-            auth = mockk(relaxed = true),
+            placesRepository = mockPlacesRepo,
+            auth = mockAuth,
         )
 
     @Test
@@ -363,4 +370,239 @@ class EventRepositoryImpTest {
 
             unmockkStatic("kotlinx.coroutines.tasks.TasksKt")
         }
+
+    @Test
+    fun `createParticipantAvailability success stores response to firestore`() = runTest {
+        // 1. Setup Auth
+        val mockUser = mockk<com.google.firebase.auth.FirebaseUser>()
+        every { mockAuth.currentUser } returns mockUser
+        every { mockUser.uid } returns "test_user_456"
+
+        // 2. Setup Task Mock
+        val mockTask = mockk<com.google.android.gms.tasks.Task<Void>>(relaxed = true)
+        mockkStatic("kotlinx.coroutines.tasks.TasksKt")
+
+        // Force the task to appear completed immediately
+        every { mockTask.isComplete } returns true
+        every { mockTask.isSuccessful } returns true
+        coEvery { mockTask.await() } returns mockk<Void>()
+
+        // 3. THE "DEEP MOCK": Catch the chain regardless of exact path calls
+        // This mocks db.collection(...).document(...).collection(...).document(...).set(...)
+        every {
+            mockDb.collection(any())
+                .document(any())
+                .collection(any())
+                .document(any())
+                .set(any())
+        } returns mockTask
+
+        val input = ParticipantInputState(
+            eventId = "event_abc",
+            participantName = "Bob",
+            selectedLocations = listOf("Helsinki")
+        )
+
+        // 4. Act
+        val result = repo.createParticipantAvailability(input)
+
+        // 5. Assert
+        assertTrue("Error message: ${result.exceptionOrNull()?.message}", result.isSuccess)
+
+        unmockkStatic("kotlinx.coroutines.tasks.TasksKt")
+    }
+
+    @Test
+    fun `createParticipantAvailability returns failure when user not logged in`() = runTest {
+        // Mock current user as null
+        every { mockAuth.currentUser } returns null
+
+        val input = ParticipantInputState(
+            eventId = "any_id",
+            participantName = "Bob"
+        )
+
+        // Act
+        val result = repo.createParticipantAvailability(input)
+
+        // Assert
+        assertTrue("Result should be failure", result.isFailure)
+        assertEquals("User is not logged in", result.exceptionOrNull()?.message)
+
+        // Verify Firestore was never called
+        verify(exactly = 0) { mockDb.collection(any()) }
+    }
+
+    @Test
+    fun `createParticipantAvailability returns failure when firestore fails`() = runTest {
+        // Setup Auth
+        val mockUser = mockk<com.google.firebase.auth.FirebaseUser>()
+        every { mockAuth.currentUser } returns mockUser
+        every { mockUser.uid } returns "test_user_456"
+
+        // Mock firestore to throw exception
+        every { mockDb.collection(any()) } throws Exception("Firestore Error")
+
+        val input = ParticipantInputState(eventId = "id", participantName = "Bob")
+
+        // Act
+        val result = repo.createParticipantAvailability(input)
+
+        // Assert
+        assertTrue(result.isFailure)
+        assertEquals("Firestore Error", result.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun `findTopCandidates logic handles a clear winner`() {
+        // Mock data where "Helsinki" appears twice, "Espoo" once
+        val locations = listOf("Helsinki", "Helsinki", "Espoo")
+
+        // aggregateCandidatesFromResponses uses findTopCandidates internally
+        val responses = locations.map { loc ->
+            ParticipantResponse(locations = listOf(loc))
+        }
+
+        val result = repo.aggregateCandidatesFromResponses(responses)
+
+        assertEquals(listOf("Helsinki"), result.locationCandidates)
+    }
+
+    @Test
+    fun `findTopCandidates logic handles a tie`() {
+        // Tie between Helsinki and Espoo
+        val locations = listOf("Helsinki", "Espoo")
+
+        val responses = locations.map { loc ->
+            ParticipantResponse(locations = listOf(loc))
+        }
+
+        val result = repo.aggregateCandidatesFromResponses(responses)
+
+        // Should contain both because they both have a count of 1
+        assertEquals(2, result.locationCandidates.size)
+        assertTrue(result.locationCandidates.contains("Helsinki"))
+        assertTrue(result.locationCandidates.contains("Espoo"))
+    }
+
+    @Test
+    fun `findTopCandidates logic handles empty input`() {
+        val result = repo.aggregateCandidatesFromResponses(emptyList())
+
+        assertTrue(result.locationCandidates.isEmpty())
+        assertTrue(result.dateTimeCandidates.isEmpty())
+    }
+
+    @Test
+    fun `fetchAndSaveRestaurants successfully processes results`() = runTest {
+        // 1. Arrange
+        val event = createTestEvent(id = "event_001")
+
+        // We create a spy of the real repository
+        val spyRepo = spyk(repo)
+
+        // Mock the external Places API via our class-level mock reference
+        coEvery {
+            mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any())
+        } returns Result.success(listOf(mockk(relaxed = true) {
+            every { placeId } returns "mock_place_id"
+        }))
+
+        // 2. Mock the interface methods called within fetchAndSaveRestaurants
+        // Since these are in the interface, we can call them directly on the spy
+        coEvery { spyRepo.saveAllRestaurants(any(), any()) } returns Result.success(Unit)
+        coEvery { spyRepo.updateEventStatus(any(), any()) } returns Unit // Match the return type in interface
+
+        // 3. Act
+        val result = spyRepo.fetchAndSaveRestaurants(event)
+
+        // 4. Assert
+        assertTrue("Orchestration should succeed", result.isSuccess)
+
+        // Verify that the status transition and save logic were triggered
+        coVerify { spyRepo.saveAllRestaurants("event_001", any()) }
+        coVerify { spyRepo.updateEventStatus("event_001", EventStatus.COLLECTING_RESTAURANT_VOTES) }
+    }
+
+    @Test
+    fun `fetchAndSaveRestaurants returns failure when no restaurants are found`() = runTest {
+        // 1. Arrange
+        val event = createTestEvent(id = "event_empty")
+
+        coEvery {
+            mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any())
+        } returns Result.success(emptyList())
+
+        // 2. Act
+        val result = repo.fetchAndSaveRestaurants(event)
+
+        // 3. Assert
+        assertTrue("Result should be failure when API returns nothing", result.isFailure)
+        assertEquals("No places found matching the criteria and timing.", result.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun `fetchAndSaveRestaurants returns failure when coordinates are missing`() = runTest {
+        // 1. Arrange
+        val event = createTestEvent(id = "event_null_coordinates").copy(
+            selectedLocationLat = null,
+            selectedLocationLng = null
+        )
+
+        coEvery {
+            mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any())
+        } returns Result.failure(Exception("Coordinates missing"))
+
+        // 2. Act
+        val result = repo.fetchAndSaveRestaurants(event)
+
+        // 3. Assert
+        assertTrue(result.isFailure)
+    }
+
+    @Test
+    fun `fetchAndSaveRestaurants returns custom generic failure when API call fails`() = runTest {
+        val event = createTestEvent(id = "event_api_fail")
+
+        coEvery {
+            mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any())
+        } returns Result.failure(Exception("Any random network error"))
+
+        val result = repo.fetchAndSaveRestaurants(event)
+
+        assertTrue(result.isFailure)
+        assertEquals("No places found matching the criteria and timing.", result.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun `fetchAndSaveRestaurants completes all required steps`() = runTest {
+        val event = createTestEvent(id = "event_001")
+        val spyRepo = spyk(repo)
+
+        coEvery { mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any()) } returns
+                Result.success(listOf(mockk(relaxed = true)))
+        coEvery { spyRepo.saveAllRestaurants(any(), any()) } returns Result.success(Unit)
+        coEvery { spyRepo.updateEventStatus(any(), any()) } returns Unit
+
+        spyRepo.fetchAndSaveRestaurants(event)
+
+        coVerify(atLeast = 1) { mockPlacesRepo.fetchRestaurants(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { spyRepo.saveAllRestaurants(event.id, any()) }
+        coVerify(exactly = 1) { spyRepo.updateEventStatus(event.id, EventStatus.COLLECTING_RESTAURANT_VOTES) }
+    }
+
+    private fun createTestEvent(id: String) = Event(
+        id = id,
+        locationCandidates = listOf("Helsinki"),
+        placeTypeCandidates = listOf(PlaceType.RESTAURANT),
+        // Use the Enum directly instead of a String
+        foodCategoryCandidates = listOf(FoodCategory.PIZZA),
+        dateTimeCandidates = emptyList(),
+        selectedLocationLat = 60.1699,
+        selectedLocationLng = 24.9384,
+        // Use LocationOption (singular) to match your data class
+        locationOptions = LocationOption(
+            countries = listOf("FINLAND")
+        )
+    )
 }
