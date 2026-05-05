@@ -83,7 +83,7 @@ class PlaceVotingFlowTest {
             ): Result<Unit> = Result.success(Unit)
 
             override suspend fun aggregateParticipantResponses(
-                eventId: String,
+                eventId: String
             ): Result<Unit> {
                 return Result.success(Unit)
             }
