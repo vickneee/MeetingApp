@@ -173,8 +173,10 @@ The app uses the following device capabilities:
   ```
   The documentation will be generated in `app/build/dokka/html`.
 
-  Open the link:
-  [Dokka Documentation - Coming]()
+  **Note**: Dokka documentation is automatically generated and a new version is deployed to **GitHub Pages** on every push and merge to `main` via GitHub Actions.
+    
+  View Online Documentation:
+  [Dokka Documentation](https://vickneee.github.io/MeetingApp/)
 
 ---
 
