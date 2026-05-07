@@ -25,7 +25,7 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 | <img src="docs/screenshots/choose_place_type.png" width="150"> | <img src="docs/screenshots/event_created.png" width="150"> | <img src="docs/screenshots/meetup_details.png" width="150"> | <img src="docs/screenshots/select_your_availability.png" width="150"> | <img src="docs/screenshots/choose_area.png" width="150"> |
 
 
-|                               Keywords                               |                       Submission Complete                        |                       Join Event                        |                             Meetup Details                              |                       Host Dashboard                        |
+|                               Keywords                               |                            Submission                            |                       Join Event                        |                             Meetup Details                              |                       Host Dashboard                        |
 |:--------------------------------------------------------------------:|:----------------------------------------------------------------:|:-------------------------------------------------------:|:-----------------------------------------------------------------------:|:-----------------------------------------------------------:|
 | <img src="docs/screenshots/place_type_and_keywords.png" width="150"> | <img src="docs/screenshots/submission_complete.png" width="150"> | <img src="docs/screenshots/join_event.png" width="150"> | <img src="docs/screenshots/meetup_details_participant.png" width="150"> | <img src="docs/screenshots/host_dashboard.png" width="150"> |
 
