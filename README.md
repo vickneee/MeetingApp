@@ -14,6 +14,14 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 
 ---
 
+## Low-Fidelity Wireframes
+
+Low-fidelity wireframes and early UI prototypes were created in Figma.
+
+See the project wireframes here:
+
+- [Wireframes PDF](docs/Meeting_App_Figma_Prototype.pdf)
+
 ## Screenshots
 
 Here are some screenshots of the app:
@@ -49,15 +57,17 @@ You can watch the demo video on YouTube:
 ---
 
 ## Tech Stack
-- **UI**: Jetpack Compose + Material 3 (100% Kotlin)
+- **Design & Prototyping**: Figma
+- **UI Framework**: Jetpack Compose + Material 3
+- **Programming Language**: Kotlin
 - **Navigation**: Jetpack Compose Navigation
-- **Networking**: Retrofit & OkHttp, Gson for JSON
+- **Networking**: Retrofit & OkHttp, Gson (JSON Parsing)
 - **Database**: Room (Local), Firebase Firestore (Cloud)
-- **Authentication**: Firebase Anonymous Auth
+- **Authentication**: Firebase Anonymous Authentication
 - **Image Loading**: Coil 3
 - **Notifications**: Local Notifications via WorkManager
-- **Static Analysis**: Detekt & Ktlint
-- **Kotlin Documentation**: Dokka
+- **Static Code Analysis**: Detekt & Ktlint
+- **Documentation**: Dokka
 - **API Integration**: Google Places API
 
 ---
