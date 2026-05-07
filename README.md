@@ -19,12 +19,12 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 Here are some screenshots of the app:
 
 |                    Home Screen                    |                       Create Event                        |                       Event Created                        |                       Join Event                        |                           Participant Screen                            |
-|:-------------------------------------------------:|:---------------------------------------------------------:|:-----------------------------------------------------------:|:-------------------------------------------------------:|:-----------------------------------------------------------------------:|
+|:-------------------------------------------------:|:---------------------------------------------------------:|:----------------------------------------------------------:|:-------------------------------------------------------:|:-----------------------------------------------------------------------:|
 | <img src="docs/screenshots/home.png" width="145"> | <img src="docs/screenshots/create_event.png" width="150"> | <img src="docs/screenshots/event_created.png" width="150"> | <img src="docs/screenshots/join_event.png" width="150"> | <img src="docs/screenshots/participant_dashboard_vote.png" width="150"> |
 
 
-|                       Place List                        |                          Voting Screen                           |                        Host Dashboard                         |                       Finalized                        |                             Event List                              |
-|:-------------------------------------------------------:|:----------------------------------------------------------------:|:----------------------------------------------------------:|:-------------------------------------------------------:|:----------------------------------------------------------------------:|
+|                       Place List                        |                          Voting Screen                           |                          Host Dashboard                           |                       Finalized                        |                       Event List                        |
+|:-------------------------------------------------------:|:----------------------------------------------------------------:|:-----------------------------------------------------------------:|:------------------------------------------------------:|:-------------------------------------------------------:|
 | <img src="docs/screenshots/place_list.png" width="150"> | <img src="docs/screenshots/place_details_voted.png" width="150"> | <img src="docs/screenshots/host_dashboard_close.png" width="150"> | <img src="docs/screenshots/finalized.png" width="150"> | <img src="docs/screenshots/event_list.png" width="150"> |
 
 ---
@@ -98,9 +98,9 @@ app/src/main/java/com/meetup/meetingapp/
 
 1. **Clone the repository**:
 
-```sh
-git clone https://github.com/vickneee/MeetingApp.git
-```
+    ```sh
+    git clone https://github.com/vickneee/MeetingApp.git
+    ```
 
 2. **Firebase Setup**:
    - Follow the detailed [Firebase Setup Guide](./FIREBASE.md) to add your `google-services.json`.
