@@ -14,19 +14,32 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 
 ---
 
-## Screenshots
+## Low-Fidelity Wireframes
 
-| Home Screen | Create Event | Event Created | Event List | Participant Screen |
-|:---:|:---:|:---:|:---:|:---:|
-| <img src="docs/screenshots/home.png" width="150"> | <img src="docs/screenshots/create.png" width="150"> | <img src="docs/screenshots/created.png" width="150"> | <img src="docs/screenshots/event_list.png" width="150"> | <img src="docs/screenshots/participant.png" width="150"> |
+Low-fidelity wireframes and early UI prototypes were created in Figma.
 
-| Host Screen | Place List | Voting Screen | Event Finalized | |
-|:---:|:---:|:---:|:---:|:---:|
-| <img src="docs/screenshots/host.png" width="150"> | <img src="docs/screenshots/place_list.png" width="150"> | <img src="docs/screenshots/vote.png" width="150"> | <img src="docs/screenshots/finalized.png" width="150"> | |
+See the project wireframes here:
+
+- [Wireframes PDF](docs/Meeting_App_Figma_Prototype.pdf)
 
 ---
 
-## Demo Video
+## App Screenshots
+
+Here are some screenshots from the final application:
+
+|                    Home Screen                    |                       Create Event                        |                       Event Created                        |                       Join Event                        |                           Participant Screen                            |
+|:-------------------------------------------------:|:---------------------------------------------------------:|:----------------------------------------------------------:|:-------------------------------------------------------:|:-----------------------------------------------------------------------:|
+| <img src="docs/screenshots/home.png" width="145"> | <img src="docs/screenshots/create_event.png" width="150"> | <img src="docs/screenshots/event_created.png" width="150"> | <img src="docs/screenshots/join_event.png" width="150"> | <img src="docs/screenshots/participant_dashboard_vote.png" width="150"> |
+
+
+|                       Place List                        |                          Voting Screen                           |                          Host Dashboard                           |                       Finalized                        |                       Event List                        |
+|:-------------------------------------------------------:|:----------------------------------------------------------------:|:-----------------------------------------------------------------:|:------------------------------------------------------:|:-------------------------------------------------------:|
+| <img src="docs/screenshots/place_list.png" width="150"> | <img src="docs/screenshots/place_details_voted.png" width="150"> | <img src="docs/screenshots/host_dashboard_close.png" width="150"> | <img src="docs/screenshots/finalized.png" width="150"> | <img src="docs/screenshots/event_list.png" width="150"> |
+
+---
+
+## App Demo Video
 You can watch the demo video on YouTube:
 [https://youtu.be/Wv6ErIDPG68](https://youtu.be/Wv6ErIDPG68)
 
@@ -46,15 +59,17 @@ You can watch the demo video on YouTube:
 ---
 
 ## Tech Stack
-- **UI**: Jetpack Compose + Material 3 (100% Kotlin)
+- **Design & Prototyping**: Figma
+- **UI Framework**: Jetpack Compose + Material 3
+- **Programming Language**: Kotlin
 - **Navigation**: Jetpack Compose Navigation
-- **Networking**: Retrofit & OkHttp, Gson for JSON
+- **Networking**: Retrofit & OkHttp, Gson (JSON Parsing)
 - **Database**: Room (Local), Firebase Firestore (Cloud)
-- **Authentication**: Firebase Anonymous Auth
+- **Authentication**: Firebase Anonymous Authentication
 - **Image Loading**: Coil 3
 - **Notifications**: Local Notifications via WorkManager
-- **Static Analysis**: Detekt & Ktlint
-- **Kotlin Documentation**: Dokka
+- **Static Code Analysis**: Detekt & Ktlint
+- **Documentation**: Dokka
 - **API Integration**: Google Places API
 
 ---
@@ -95,9 +110,9 @@ app/src/main/java/com/meetup/meetingapp/
 
 1. **Clone the repository**:
 
-```sh
-git clone https://github.com/vickneee/MeetingApp.git
-```
+    ```sh
+    git clone https://github.com/vickneee/MeetingApp.git
+    ```
 
 2. **Firebase Setup**:
    - Follow the detailed [Firebase Setup Guide](./FIREBASE.md) to add your `google-services.json`.
