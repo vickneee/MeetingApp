@@ -196,4 +196,7 @@ The app uses the following device capabilities:
 ---
 
 ## License
-This project is developed for academic purposes as part of mobile application development project course.
+
+This project was developed for academic purposes as part of a mobile application development course.
+
+Some parts of the project include modified code or examples from Android Open Source Project samples licensed under the Apache License 2.0.
