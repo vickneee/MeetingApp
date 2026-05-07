@@ -34,8 +34,8 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 | <img src="docs/screenshots/participant_dashboard_vote.png" width="150"> | <img src="docs/screenshots/host_dashboard_close.png" width="150"> | <img src="docs/screenshots/date_and_area.png" width="150"> | <img src="docs/screenshots/place_list.png" width="150"> | <img src="docs/screenshots/place_details_before_vote.png" width="150"> |
 
 
-|                          Place Details                           |                             Participant Dashboard                              |          Host Dashboard          |                       Finalized                        |                       Event List                        |
-|:----------------------------------------------------------------:|:---------------------------------------------------------------------:|:-----------------------------------------:|:------------------------------------------------------:|:-------------------------------------------------------:|
+|                          Place Details                           |                            Participant Dashboard                             |                            Host Dashboard                             |                       Finalized                        |                       Event List                        |
+|:----------------------------------------------------------------:|:----------------------------------------------------------------------------:|:---------------------------------------------------------------------:|:------------------------------------------------------:|:-------------------------------------------------------:|
 | <img src="docs/screenshots/place_details_voted.png" width="150"> | <img src="docs/screenshots/participant_dashboard_finalized.png" width="150"> | <img src="docs/screenshots/host_dashboard_finalized.png" width="150"> | <img src="docs/screenshots/finalized.png" width="150"> | <img src="docs/screenshots/event_list.png" width="150"> |
 
 ---
