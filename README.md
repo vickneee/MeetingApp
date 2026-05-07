@@ -16,25 +16,29 @@ The goal is to make group decision-making simple and fast, so everyone can agree
 
 ## Screenshots
 
-|                    Home Screen                    |                       Create Event                        |                       Add Time Slots                        |                       Edit Time Slot                        |                           Meeting Location                           |
-|:-------------------------------------------------:|:---------------------------------------------------------:|:-----------------------------------------------------------:|:-----------------------------------------------------------:|:--------------------------------------------------------------------:|
-| <img src="docs/screenshots/home.png" width="145"> | <img src="docs/screenshots/create_event.png" width="145"> | <img src="docs/screenshots/add_time_slots.png" width="145"> | <img src="docs/screenshots/edit_time_slot.png" width="145"> | <img src="docs/screenshots/choose_meeting_location.png" width="145"> |
+Here are some screenshots of the app:
+
+|                    Home Screen                    |                       Create Event                        |                       Event Created                        |                       Join Event                        |                         Participant Screen                          |
+|:-------------------------------------------------:|:---------------------------------------------------------:|:-----------------------------------------------------------:|:-------------------------------------------------------:|:-------------------------------------------------------------------:|
+| <img src="docs/screenshots/home.png" width="145"> | <img src="docs/screenshots/create_event.png" width="150"> | <img src="docs/screenshots/event_created.png" width="150"> | <img src="docs/screenshots/join_event.png" width="150"> | <img src="docs/screenshots/participant_dashboard_vote" width="150"> |
+
+
+|                       Place List                        |                          Voting Screen                           |                        Host Dashboard                         |                       Place List                        |                             Event List                              |
+|:-------------------------------------------------------:|:----------------------------------------------------------------:|:----------------------------------------------------------:|:-------------------------------------------------------:|:----------------------------------------------------------------------:|
+| <img src="docs/screenshots/place_list.png" width="150"> | <img src="docs/screenshots/place_details_voted.png" width="150"> | <img src="docs/screenshots/host_dashboard_close.png" width="150"> | <img src="docs/screenshots/place_list.png" width="150"> | <img src="docs/screenshots/event_list.png" width="150"> |
+
 
 |                           Place Type                           |                       Event Created                        |                       MeetUp Details                        |                           Your Availability                           |                       Choose Area                        |
 |:--------------------------------------------------------------:|:----------------------------------------------------------:|:-----------------------------------------------------------:|:---------------------------------------------------------------------:|:--------------------------------------------------------:|
 | <img src="docs/screenshots/choose_place_type.png" width="150"> | <img src="docs/screenshots/event_created.png" width="150"> | <img src="docs/screenshots/meetup_details.png" width="150"> | <img src="docs/screenshots/select_your_availability.png" width="150"> | <img src="docs/screenshots/choose_area.png" width="150"> |
 
 
-|                               Keywords                               |                            Submission                            |                       Join Event                        |                             Meetup Details                              |                       Host Dashboard                        |
+|                               Keywords                               |                            Submission                            |                       Join Event                        |                             Meetup Details                              |                         Host Screen                         |
 |:--------------------------------------------------------------------:|:----------------------------------------------------------------:|:-------------------------------------------------------:|:-----------------------------------------------------------------------:|:-----------------------------------------------------------:|
 | <img src="docs/screenshots/place_type_and_keywords.png" width="150"> | <img src="docs/screenshots/submission_complete.png" width="150"> | <img src="docs/screenshots/join_event.png" width="150"> | <img src="docs/screenshots/meetup_details_participant.png" width="150"> | <img src="docs/screenshots/host_dashboard.png" width="150"> |
 
-|                          Participant Dashboard                          |                          Host Dashboard                           |                        Date & Area                         |                       Place List                        |                             Place Details                              |
-|:-----------------------------------------------------------------------:|:-----------------------------------------------------------------:|:----------------------------------------------------------:|:-------------------------------------------------------:|:----------------------------------------------------------------------:|
-| <img src="docs/screenshots/participant_dashboard_vote.png" width="150"> | <img src="docs/screenshots/host_dashboard_close.png" width="150"> | <img src="docs/screenshots/date_and_area.png" width="150"> | <img src="docs/screenshots/place_list.png" width="150"> | <img src="docs/screenshots/place_details_before_vote.png" width="150"> |
 
-
-|                          Place Details                           |                            Participant Dashboard                             |                            Host Dashboard                             |                       Finalized                        |                       Event List                        |
+|                          Place Details                           |                              Participant Screen                              |                            Host Dashboard                             |                       Finalized                        |                       Event List                        |
 |:----------------------------------------------------------------:|:----------------------------------------------------------------------------:|:---------------------------------------------------------------------:|:------------------------------------------------------:|:-------------------------------------------------------:|
 | <img src="docs/screenshots/place_details_voted.png" width="150"> | <img src="docs/screenshots/participant_dashboard_finalized.png" width="150"> | <img src="docs/screenshots/host_dashboard_finalized.png" width="150"> | <img src="docs/screenshots/finalized.png" width="150"> | <img src="docs/screenshots/event_list.png" width="150"> |
 
