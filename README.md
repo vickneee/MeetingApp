@@ -81,7 +81,7 @@ The project follows a clean, layered architecture to ensure separation of concer
 ```text
 app/src/main/java/com/meetup/meetingapp/
 ├── data/               # Data Layer: Repositories and Data Sources
-│   ├── db/             # Local Room Database (DAOs, Entities, Mappers)
+│   ├── db/             # Local Room Database (DAOs, Entities, Mappers, Converters)
 │   ├── model/          # Firebase Data Models (DTOs)
 │   ├── repositories/   # Repository Pattern Implementations
 │   └── AppContainer.kt # Dependency Injection / Service Locator
