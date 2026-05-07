@@ -82,7 +82,7 @@ The project follows a clean, layered architecture to ensure separation of concer
 app/src/main/java/com/meetup/meetingapp/
 ├── data/               # Data Layer: Repositories and Data Sources
 │   ├── db/             # Local Room Database (DAOs, Entities, Mappers)
-│   ├── model/          # Domain Models and Data Classes
+│   ├── model/          # Firebase Data Models (DTOs)
 │   ├── repositories/   # Repository Pattern Implementations
 │   └── AppContainer.kt # Dependency Injection / Service Locator
 ├── network/            # Network Layer: Retrofit API Services (Google Places)
