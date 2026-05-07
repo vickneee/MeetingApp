@@ -39,7 +39,7 @@ Here are some screenshots from the final application:
 
 ---
 
-## Demo Video
+## App Demo Video
 You can watch the demo video on YouTube:
 [https://youtu.be/Wv6ErIDPG68](https://youtu.be/Wv6ErIDPG68)
 
