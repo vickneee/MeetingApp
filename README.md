@@ -22,9 +22,11 @@ See the project wireframes here:
 
 - [Wireframes PDF](docs/Meeting_App_Figma_Prototype.pdf)
 
-## Screenshots
+---
 
-Here are some screenshots of the app:
+## App Screenshots
+
+Here are some screenshots from the final application:
 
 |                    Home Screen                    |                       Create Event                        |                       Event Created                        |                       Join Event                        |                           Participant Screen                            |
 |:-------------------------------------------------:|:---------------------------------------------------------:|:----------------------------------------------------------:|:-------------------------------------------------------:|:-----------------------------------------------------------------------:|
